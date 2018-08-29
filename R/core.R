@@ -24,6 +24,8 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                    seed=81, offset=NULL){
 
   # TODO: add progress bar.
+  # TODO: adjust for single trajectory.
+  # TODO: allow for weights in GAM
 
   if(!identical(dim(pseudotime), dim(cellWeights))){
     stop("pseudotime and cellWeights must have identical dimensions.")
@@ -76,6 +78,50 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   )
   ## fit NB GAM
   gamList <- apply(counts,1,function(y){
+    try(
     mgcv::gam(smoothForm, family="nb")
+    , silent=TRUE)
   })
+  return(gamList)
 }
+
+#' Perform omnibus test to check for DE between final stages of every trajectory
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+endPointOmnibusTest <- function(models, ...){
+
+  # TODO: add if loop if first model errored.
+  modelTemp <- models[[1]]
+  nCurves <- length(modelTemp$smooth)
+  data <- modelTemp$model
+
+  # get predictor matrix for every lineage.
+  for(jj in seq_len(nCurves)){
+    df <- .getPredictEndPointDf(modelTemp, jj)
+    assign(paste0("X",jj),
+           predict(modelTemp, newdata=df, type="lpmatrix"))
+  }
+
+  # construct pairwise contrast matrix
+  combs <- combn(nCurves,m=2)
+  L <- matrix(0, nrow=length(coef(modelTemp)), ncol=ncol(combs))
+  for(jj in 1:ncol(combs)){
+    curvesNow <- combs[,jj]
+    L[,jj] <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
+  }
+  rm(modelTemp)
+
+  # do statistical test for every model
+  waldResults <- lapply(models, function(m){
+    if(class(m)[1]=="try-error") return(c(NA,NA,NA))
+    waldTest(m, L)
+  })
+  waldResults <- do.call(rbind,waldResults)
+  colnames(waldResults) <- c("waldStat", "df", "p-value")
+  waldResults <- as.data.frame(waldResults)
+
+  return(waldResults)
+}
+
+
