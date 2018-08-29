@@ -1,0 +1,11 @@
+Package: tradeR
+Type: Package
+Title: trajectory-based differential expression analysis in R
+Version: 0.1.0
+Author: Koen Van den Berge
+Maintainer: Koen Van den Berge <koen.vandenberge@ugent.be>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true

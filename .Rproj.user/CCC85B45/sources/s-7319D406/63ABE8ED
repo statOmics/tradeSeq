@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1535536437021.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "63ABE8ED",
+    "lastKnownWriteTime" : 1535536444,
+    "last_content_update" : 1535536444066,
+    "path" : "~/Dropbox/PhD/Research/singleCell/trajectoryInference/trajectoryDE/tradeR/R/allGenerics.R",
+    "project_path" : "R/allGenerics.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
