@@ -19,7 +19,7 @@
 #'
 #'
 fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
-                   seed=81, offset=NULL){
+                   seed=81, offset=NULL, nknots=10){
 
   # TODO: add progress bar.
   # TODO: adjust for single trajectory.
@@ -67,6 +67,37 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   }
 
   ## fit NB GAM
+  ### get knots to end at last points of lineages.
+  tAll <- c()
+  for(ii in 1:nrow(pseudotime)){
+    tAll[ii] <- pseudotime[ii,which(as.logical(wSamp[ii,]))]
+  }
+  knotLocs <- quantile(tAll,probs=(0:(nknots-1))/(nknots-1))
+  if(ncol(pseudotime)>1){
+    maxT <- c()
+    for(jj in 2:ncol(pseudotime)){
+      maxT[jj-1] <- max(get(paste0("t",jj))[get(paste0("l",jj))==1])
+    }
+  }
+  # if max is already a knot we can remove that
+  if(all(maxT%in%knotLocs)){
+    knots <- knotLocs
+  } else {
+    maxT <- maxT[!maxT%in%knotLocs]
+    replaceId <- sapply(maxT, function(ll){
+      which.min(abs(ll-knotLocs))
+    })
+    knotLocs[replaceId] <- maxT
+    if(!all(maxT%in%knotLocs)){
+      stop("Can't get all knots to equal endpoints of trajectories")
+    }
+    knots <- knotLocs
+  }
+  knotList <- sapply(1:ncol(pseudotime), function(i){
+    knots
+  }, simplify=FALSE )
+  names(knotList) <- paste0("t",seq_len(ncol(pseudotime)))
+
   gamList <- apply(counts,1,function(y){
     # define formula (only works if defined within apply loop.)
     smoothForm <- as.formula(
@@ -78,7 +109,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
     )
     # fit smoother
     try(
-    mgcv::gam(smoothForm, family="nb")
+    mgcv::gam(smoothForm, family="nb", knots=knotList)
     , silent=TRUE)
   })
   return(gamList)

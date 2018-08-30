@@ -56,7 +56,8 @@ waldTest <- function(model, L){
   vars <- rbind(vars,vars[rep(1,nPoints-1),])
   # set range of pseudotime for lineage of interest
   lineageData <- data[data[,paste0("l",lineageId)]==1,paste0("t",lineageId)]
-  vars[,paste0("t",lineageId)] <- seq(min(lineageData), max(lineageData),length=nPoints)
+  vars[,paste0("t",lineageId)] <- seq(min(lineageData), max(lineageData),
+                                      length=nPoints)
   # set lineage
   vars[,paste0("l",lineageId)] <- 1
   # set offset
@@ -85,6 +86,7 @@ plotSmoothers <- function(m, nPoints=100, ...){
     }
   }
 
+  # plot raw data
   plot(x=timeAll, y=log(y+1), col=col, pch=16, cex=2/3,
        ylab=" expression + 1 (log-scale)", xlab="pseudotime", ...)
 
