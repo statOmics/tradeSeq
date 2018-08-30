@@ -21,7 +21,6 @@
 fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                    seed=81, offset=NULL, nknots=10){
 
-  # TODO: add progress bar.
   # TODO: adjust for single trajectory.
   # TODO: allow for weights in GAM
 
@@ -98,7 +97,10 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   }, simplify=FALSE )
   names(knotList) <- paste0("t",seq_len(ncol(pseudotime)))
 
+  teller<-0
   gamList <- apply(counts,1,function(y){
+    teller <<- teller+1
+    if ((teller%%100)==0) cat(teller,"/",nrow(counts),"\n")
     # define formula (only works if defined within apply loop.)
     smoothForm <- as.formula(
       paste0("y ~ -1+X + ",
@@ -114,6 +116,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   })
   return(gamList)
 }
+
 
 #' Perform omnibus test to check for DE between final stages of every trajectory
 #'
