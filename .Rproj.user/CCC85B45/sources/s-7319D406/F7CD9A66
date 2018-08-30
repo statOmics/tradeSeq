@@ -7,13 +7,13 @@
     "folds" : "",
     "hash" : "0",
     "id" : "F7CD9A66",
-    "lastKnownWriteTime" : 1535614043,
-    "last_content_update" : 1535614043491,
+    "lastKnownWriteTime" : 1535623501,
+    "last_content_update" : 1535623501383,
     "path" : "~/Dropbox/PhD/Research/singleCell/trajectoryInference/trajectoryDE/tradeR/R/core.R",
     "project_path" : "R/core.R",
     "properties" : {
-        "cursorPosition" : "157,20",
-        "scrollLine" : "142",
+        "cursorPosition" : "156,44",
+        "scrollLine" : "141",
         "source_window_id" : "",
         "tempName" : "Untitled1"
     },

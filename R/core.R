@@ -1,7 +1,5 @@
 #' @include utils.R
 
-require(edgeR)
-require(mgcv)
 
 #' Fit GAM model
 #'
@@ -39,7 +37,6 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
     mode(counts) <- "integer"
   }
 
-
   set.seed(seed)
   # normalize weights
   normWeights <- sweep(cellWeights,1, FUN="/", STATS=apply(cellWeights,1,sum))
@@ -68,16 +65,18 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
     ict <- rep(1,nrow(pseudotime))
     X <- model.matrix(~-1+ict, data=pseudotime)
   }
-  ## smoother formula
-  smoothForm <- as.formula(
-    paste0("y ~ -1+X + ",
-           paste(sapply(seq_len(ncol(pseudoT)), function(ii){
-    paste0("s(t",ii,", by=l",ii,", bs='cs', id=1)")
-  })
-  , collapse="+"), " + offset")
-  )
+
   ## fit NB GAM
   gamList <- apply(counts,1,function(y){
+    # define formula (only works if defined within apply loop.)
+    smoothForm <- as.formula(
+      paste0("y ~ -1+X + ",
+             paste(sapply(seq_len(ncol(pseudotime)), function(ii){
+               paste0("s(t",ii,", by=l",ii,", bs='cs', id=1)")
+             })
+             , collapse="+"), " + offset(offset)")
+    )
+    # fit smoother
     try(
     mgcv::gam(smoothForm, family="nb")
     , silent=TRUE)
