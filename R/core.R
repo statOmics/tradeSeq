@@ -125,3 +125,41 @@ endPointOmnibusTest <- function(models, ...){
 }
 
 
+#' Get smoother p-value
+#'
+#' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
+#'
+getSmootherPvalues <- function(models){
+
+  # TODO: add if loop if first model errored.
+  modelTemp <- models[[1]]
+  nCurves <- length(modelTemp$smooth)
+
+  smootherP <- lapply(models, function(m){
+    if(class(m)[1]=="try-error") return(rep(NA, nCurves))
+    summary(m)$s.table[,"p-value"]
+  })
+  smootherP <- do.call(rbind,smootherP)
+
+  return(smootherP)
+}
+
+
+#' Get smoother Chi-squared test statistics
+#'
+#' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
+#'
+getSmootherTestStats <- function(models){
+
+  # TODO: add if loop if first model errored.
+  modelTemp <- models[[1]]
+  nCurves <- length(modelTemp$smooth)
+
+  smootherChi <- lapply(models, function(m){
+    if(class(m)[1]=="try-error") return(rep(NA, nCurves))
+    summary(m)$s.table[,"Chi.sq"]
+  })
+  smootherChi <- do.call(rbind,smootherChi)
+
+  return(smootherChi)
+}
