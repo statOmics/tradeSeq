@@ -4,8 +4,8 @@
 #' Fit GAM model
 #'
 #' @param counts the count matrix.
-#' @param X the design matrix of fixed effects. Defaults to only estimating
-#' an intercept if not provided.
+#' @param X the design matrix of fixed effects. The design matrix should not
+#' contain an intercept to ensure identifiability.
 #' @param pseudotime a matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
 #' @param cellWeights a matrix of cell weights defining the probability that a
@@ -23,18 +23,22 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
 
   # TODO: adjust for single trajectory.
   # TODO: allow for weights in GAM
+  # TODO: make sure warning message for knots prints after looping
+  # TODO: verify working with X provided
+  # TODO: add error if X contains intercept
 
   if(!identical(dim(pseudotime), dim(cellWeights))){
     stop("pseudotime and cellWeights must have identical dimensions.")
   }
 
-  if (!is.integer(counts)) {
-    if (any(round(counts) != counts)) {
-      stop("some values in counts are not integers")
-    }
-    message("converting counts to integer mode")
-    mode(counts) <- "integer"
-  }
+  # below errors if sparse matrix is used as input.
+  # if (!is.integer(counts)) {
+  #   if (any(round(counts) != counts)) {
+  #     stop("some values in counts are not integers")
+  #   }
+  #   message("converting counts to integer mode")
+  #   mode(counts) <- "integer"
+  # }
 
   set.seed(seed)
   # normalize weights
@@ -54,16 +58,15 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   # offset
   if(is.null(offset)){
     nf <- edgeR::calcNormFactors(counts)
-    libSize <- colSums(counts)*nf
+    libSize <- colSums(as.matrix(counts))*nf
     offset <- log(libSize)
   }
 
   # fit model
   ## fixed effect design matrix
-  if(is.null(X)){
-    ict <- rep(1,nrow(pseudotime))
-    X <- model.matrix(~-1+ict, data=pseudotime)
-  }
+  #if(is.null(X)){
+  #  X <- rep(1,nrow(pseudotime))
+  #}
 
   ## fit NB GAM
   ### get knots to end at last points of lineages.
@@ -72,6 +75,18 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
     tAll[ii] <- pseudotime[ii,which(as.logical(wSamp[ii,]))]
   }
   knotLocs <- quantile(tAll,probs=(0:(nknots-1))/(nknots-1))
+  if(any(duplicated(knotLocs))){
+    # fix pathological case where cells can be squeezed on one pseudotime value.
+    knotLocs <- quantile(t1[l1==1],probs=(0:(nknots-1))/(nknots-1))
+    # if this doesn't fix it, get evenly spaced knots with warning
+    if(any(duplicated(knotLocs))){
+      warning(paste0("Too many cells seem to be squeezed at one pseudotime ",
+                     "value, the smoothers will work with evenly spaced knots ",
+                     "instead of quantile-based knots. Interpret results with ",
+                     "caution."))
+      knotLocs <- seq(min(tAll),max(tAll),length=nknots)
+    }
+  }
   if(ncol(pseudotime)>1){
     maxT <- c()
     for(jj in 2:ncol(pseudotime)){
@@ -102,12 +117,21 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
     teller <<- teller+1
     if ((teller%%100)==0) cat(teller,"/",nrow(counts),"\n")
     # define formula (only works if defined within apply loop.)
+    nknots <- nknots
     smoothForm <- as.formula(
-      paste0("y ~ -1+X + ",
+      if(is.null(X)){
+        paste0("y ~ -1 + ",
+               paste(sapply(seq_len(ncol(pseudotime)), function(ii){
+                 paste0("gam::s(t",ii,", by=l",ii,", bs='cr', id=1, k=nknots)")
+               })
+               , collapse="+"), " + offset(offset)")
+      } else {
+      paste0("y ~ -1 + X + ",
              paste(sapply(seq_len(ncol(pseudotime)), function(ii){
-               paste0("s(t",ii,", by=l",ii,", bs='cs', id=1)")
+               paste0("gam::s(t",ii,", by=l",ii,", bs='cr', id=1, k=nknots)")
              })
              , collapse="+"), " + offset(offset)")
+      }
     )
     # fit smoother
     try(
@@ -116,47 +140,6 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   })
   return(gamList)
 }
-
-
-#' Perform omnibus test to check for DE between final stages of every trajectory
-#'
-#' @param models the list of GAMs, typically the output from
-#' \code{\link{fitGAM}}.
-endPointOmnibusTest <- function(models, ...){
-
-  # TODO: add if loop if first model errored.
-  modelTemp <- models[[1]]
-  nCurves <- length(modelTemp$smooth)
-  data <- modelTemp$model
-
-  # get predictor matrix for every lineage.
-  for(jj in seq_len(nCurves)){
-    df <- .getPredictEndPointDf(modelTemp, jj)
-    assign(paste0("X",jj),
-           predict(modelTemp, newdata=df, type="lpmatrix"))
-  }
-
-  # construct pairwise contrast matrix
-  combs <- combn(nCurves,m=2)
-  L <- matrix(0, nrow=length(coef(modelTemp)), ncol=ncol(combs))
-  for(jj in 1:ncol(combs)){
-    curvesNow <- combs[,jj]
-    L[,jj] <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
-  }
-  rm(modelTemp)
-
-  # do statistical test for every model
-  waldResults <- lapply(models, function(m){
-    if(class(m)[1]=="try-error") return(c(NA,NA,NA))
-    waldTest(m, L)
-  })
-  waldResults <- do.call(rbind,waldResults)
-  colnames(waldResults) <- c("waldStat", "df", "p-value")
-  waldResults <- as.data.frame(waldResults)
-
-  return(waldResults)
-}
-
 
 #' Get smoother p-value
 #'
@@ -196,3 +179,177 @@ getSmootherTestStats <- function(models){
 
   return(smootherChi)
 }
+
+
+#' Perform omnibus test to check for DE between final stages of every trajectory
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
+
+  # TODO: add if loop if first model errored.
+  modelTemp <- models[[1]]
+  nCurves <- length(modelTemp$smooth)
+  data <- modelTemp$model
+
+  # get predictor matrix for every lineage.
+  for(jj in seq_len(nCurves)){
+    df <- .getPredictEndPointDf(modelTemp, jj)
+    assign(paste0("X",jj),
+           predict(modelTemp, newdata=df, type="lpmatrix"))
+  }
+
+  # construct pairwise contrast matrix
+  combs <- combn(nCurves,m=2)
+  L <- matrix(0, nrow=length(coef(modelTemp)), ncol=ncol(combs))
+  colnames(L) <- apply(combs,2,paste,collapse="_")
+  for(jj in 1:ncol(combs)){
+    curvesNow <- combs[,jj]
+    L[,jj] <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
+  }
+  rm(modelTemp)
+
+  # do statistical test for every model
+  if(omnibus){
+    waldResultsOmnibus <- lapply(models, function(m){
+      if(class(m)[1]=="try-error") return(c(NA,NA,NA))
+      waldTest(m, L)
+    })
+    pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
+    waldResults <- do.call(rbind,waldResultsOmnibus)
+    colnames(waldResults) <- c("waldStat", "df", "p-value")
+    waldResults <- as.data.frame(waldResults)
+  }
+  if(pairwise){
+    waldResultsPairwise <- lapply(models, function(m){
+      if(class(m)[1]=="try-error") return(NA)
+      t(sapply(seq_len(ncol(L)), function(ii){
+        waldTest(m, L[,ii,drop=FALSE])
+      }))
+    })
+    pvalsPairwise <- as.data.frame(do.call(rbind,
+                                           lapply(waldResultsPairwise, function(x){
+                                             x[,3]
+                                             })))
+    colnames(pvalsPairwise) <- colnames(L)
+  }
+
+  if(omnibus==TRUE & pairwise==FALSE) return(waldResults)
+  if(omnibus==FALSE & pairwise==TRUE) return(pvalsPairwise)
+  if(omnibus & pairwise){
+    resAll <- cbind(pvalsOmnibus, pvalsPairwise)
+    colnames(resAll)[1] <- "omnibus"
+    return(resAll)
+  }
+
+}
+
+
+
+#' Perform pattern test between lineages
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+patternTest <- function(models, omnibus=TRUE, pairwise=FALSE,
+                        nPoints=100, ...){
+
+  # TODO: add if loop if first model errored.
+  modelTemp <- models[[1]]
+  nCurves <- length(modelTemp$smooth)
+  data <- modelTemp$model
+
+  # get predictor matrix for every lineage.
+  for(jj in seq_len(nCurves)){
+    df <- .getPredictRangeDf(modelTemp, jj, nPoints=nPoints)
+    assign(paste0("X",jj),
+           predict(modelTemp, newdata=df, type="lpmatrix"))
+  }
+
+  # construct pairwise contrast matrix
+  combs <- combn(nCurves,m=2)
+  #L <- matrix(0, nrow=length(coef(modelTemp)), ncol=nPoints*ncol(combs))
+  # point x comparison y colnames
+  #colnames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
+  #                      rep(ncol(combs),each=nPoints))
+  for(jj in 1:ncol(combs)){
+    curvesNow <- combs[,jj]
+    if(jj==1){
+      L <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
+    } else if(jj>1){
+      L <- cbind(L,get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2])))
+    }
+  }
+  # point x comparison y colnames
+  rownames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
+                        rep(ncol(combs),each=nPoints))
+  #transpose => one column is one contrast.
+  L <- t(L)
+  rm(modelTemp)
+
+  # do statistical test for every model
+  ### TODO: var-cov doesn't invert because model is not full rank.
+  if(omnibus){
+    waldResultsOmnibus <- lapply(models, function(m){
+      if(class(m)[1]=="try-error") return(c(NA,NA,NA))
+      waldTest(m, L)
+    })
+    pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
+    waldResults <- do.call(rbind,waldResultsOmnibus)
+    colnames(waldResults) <- c("waldStat", "df", "p-value")
+    waldResults <- as.data.frame(waldResults)
+  }
+  # if(pairwise){
+  #   waldResultsPairwise <- lapply(models, function(m){
+  #     if(class(m)[1]=="try-error") return(NA)
+  #     t(sapply(seq_len(ncol(L)), function(ii){
+  #       waldTest(m, L[,ii,drop=FALSE])
+  #     }))
+  #   })
+  #   pvalsPairwise <- as.data.frame(do.call(rbind,
+  #                                          lapply(waldResultsPairwise, function(x){
+  #                                            x[,3]
+  #                                          })))
+  #   colnames(pvalsPairwise) <- colnames(L)
+  # }
+  #
+  # if(omnibus==TRUE & pairwise==FALSE) return(waldResults)
+  # if(omnibus==FALSE & pairwise==TRUE) return(pvalsPairwise)
+  # if(omnibus & pairwise){
+  #   resAll <- cbind(pvalsOmnibus, pvalsPairwise)
+  #   colnames(resAll)[1] <- "omnibus"
+  #   return(resAll)
+  # }
+
+}
+
+
+
+
+
+
+
+
+
+
+# patternTest <- function(models, nPoints=100){
+#
+#   # TODO: add if loop if first model errored.
+#   modelTemp <- models[[1]]
+#   nCurves <- length(modelTemp$smooth)
+#
+#   #construct predictor matrix for all points.
+#   for(jj in seq_len(nCurves)){
+#     df <- .getPredictRangeDf(m, jj, nPoints=nPoints)
+#     assign(past0("X",jj), predict(m, newdata=df, type="lpmatrix"))
+#   }
+#
+#   # construct pairwise contrast matrix
+#   combs <- combn(nCurves,m=2)
+#   L <- matrix(0, nrow=length(coef(modelTemp)), ncol=nPoints)
+#   for(jj in 1:ncol(combs)){
+#     curvesNow <- combs[,jj]
+#     L[,jj] <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
+#   }
+#   rm(modelTemp)
+#
+# }
