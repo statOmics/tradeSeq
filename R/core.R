@@ -26,6 +26,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with X provided
   # TODO: add error if X contains intercept
+  # TODO: add parallellization
 
   if(!identical(dim(pseudotime), dim(cellWeights))){
     stop("pseudotime and cellWeights must have identical dimensions.")
@@ -187,6 +188,11 @@ getSmootherTestStats <- function(models){
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
+
+  # TODO: add Wald and df if pairwise=TRUE
+  # TODO: add fold changes
+  # TODO: check if this is different to comparing knot coefficients
+  # TODO: add test to compare against starting point
 
   # TODO: add if loop if first model errored.
   modelTemp <- models[[1]]

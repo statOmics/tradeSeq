@@ -1,6 +1,6 @@
 # helper functions
 
-# TODO: write plotting function.
+# TODO: write plotting function for reduced dimension visualization.
 
 
 # get predictor matrix for the end point of a smoother.

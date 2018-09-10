@@ -17,4 +17,6 @@ Collate:
     'core.R'
 RoxygenNote: 6.0.1
 Imports: mgcv,
-    edgeR
+    edgeR,
+    SingleCellExperiment,
+    slingshot
