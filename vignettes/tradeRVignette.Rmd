@@ -74,6 +74,8 @@ summary(gamList[[1]])
 
 # Within-lineage comparisons
 
+## Association of gene expression with pseudotime
+
 A fist exploration of the data analysis may consist in checking whether a gene is associated with a particular lineage.
 The statistical test performed here is testing the null hypothesis that all smoother coefficients are equal to zero.
 One can check whether a gene is significantly associated with a particular lineage by extracting its p-value with the `getSmootherPvalues` function.
@@ -86,6 +88,36 @@ pvalLineage <- getSmootherPvalues(gamList)
 statLineage <- getSmootherTestStats(gamList)
 ```
 
+## Discovering progenitor marker genes
+
+In order to discover marker genes of the progenitor cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a trajectory) with the differentiated cell type population.
+In the function `startPointTest`, we have implemented a Wald test that tests the null hypothesis that the expression at the starting point of the smoother (progenitor population) is identical to the expression at the end point of the smoother (differentiated population).
+The test basically involves a comparison between two smoother coefficients for every lineage.
+The function `startPointTest` performs an omnibus across all trajectories by default, but you can also assess all pairwise comparisons separately by setting `pairwise=TRUE`.
+Below, we adopt an omnibus test across the two lineages.
+
+```{r}
+startRes <- startPointTest(gamList)
+```
+
+We can visualize the estimated smoothers for the most significant gene.
+
+```{r}
+oStart <- order(startRes$waldStat, decreasing=TRUE)
+sigGeneStart <- names(gamList)[oStart[1]]
+plotSmoothers(gamList[[sigGeneStart]])
+```
+
+Alternatively, we can color the cells in UMAP space with that gene's expression.
+
+```{r}
+cols <- colorRampPalette(c("yellow","red"))(10)
+g <- Hmisc::cut2(log(assays(se)$counts[sigGeneStart,]+1))
+plot(rd,col=cols[g], main=paste0("color by expression of ",sigGeneStart), xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
+lines(crv, lwd=2)
+```
+
+
 # Between-lineage comparisons
 
 ## Discovering differentiated cell type markers
@@ -96,12 +128,12 @@ If more than two trajectories are present, one can assess all pairwise compariso
 
 ```{r}
 endRes <- endPointTest(gamList)
-o <- order(endRes$waldStat, decreasing=TRUE)
 ```
 
 We can plot the most significant gene using the `plotSmoothers` function.
 
 ```{r}
+o <- order(endRes$waldStat, decreasing=TRUE)
 sigGene <- names(gamList)[o[1]]
 plotSmoothers(gamList[[sigGene]])
 ```
@@ -111,7 +143,7 @@ Alternatively, we can color the cells in UMAP space with that gene's expression.
 ```{r}
 cols <- colorRampPalette(c("yellow","red"))(10)
 g <- Hmisc::cut2(log(assays(se)$counts[sigGene,]+1))
-plot(rd,col=cols[g], main="color by cell type", xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
+plot(rd,col=cols[g], main=paste0("color by expression of ",sigGene), xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
 lines(crv, lwd=2)
 ```
 
@@ -140,7 +172,7 @@ Or, we can visualize its expression in UMAP space.
 ```{r}
 cols <- colorRampPalette(c("yellow","red"))(10)
 g <- Hmisc::cut2(log(assays(se)$counts[sigGenePat,]+1))
-plot(rd,col=cols[g], main="color by cell type", xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
+plot(rd,col=cols[g], main=paste0("color by expression of ",sigGenePat), xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
 lines(crv, lwd=2)
 ```
 
