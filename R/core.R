@@ -16,8 +16,6 @@
 #' @param seed the seed used for assigning cells to trajectories
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
-#'
-#'
 fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                    seed=81, offset=NULL, nknots=10){
 
@@ -119,6 +117,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
     if ((teller%%100)==0) cat(teller,"/",nrow(counts),"\n")
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
+    if(!is.null(weights)) weights <- weights[teller,]
     smoothForm <- as.formula(
       if(is.null(X)){
         paste0("y ~ -1 + ",
@@ -137,7 +136,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
     # fit smoother
     s=mgcv:::s
     try(
-    mgcv::gam(smoothForm, family="nb", knots=knotList)
+    mgcv::gam(smoothForm, family="nb", knots=knotList, weights=weights)
     , silent=TRUE)
   })
   return(gamList)
@@ -183,7 +182,7 @@ getSmootherTestStats <- function(models){
 }
 
 
-#' Perform omnibus test to check for DE between final stages of every trajectory
+#' Perform statistical test to check for DE between final stages of every trajectory.
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
@@ -251,7 +250,66 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
 }
 
+#' Perform statistical test to check for DE between starting point and the end
+#' stages of every trajectory.
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
+  # TODO: add Wald and df if pairwise=TRUE
+  # TODO: add fold changes
+
+  # TODO: add if loop if first model errored.
+  modelTemp <- models[[1]]
+  nCurves <- length(modelTemp$smooth)
+  data <- modelTemp$model
+
+  # construct within-lineage contrast matrix
+  L <- matrix(0, nrow=length(coef(modelTemp)), ncol=nCurves)
+  colnames(L) <- paste0("lineage",seq_len(nCurves))
+  for(jj in seq_len(nCurves)){
+      dfEnd <- .getPredictEndPointDf(modelTemp, jj)
+      XEnd <- predict(modelTemp, newdata=dfEnd, type="lpmatrix")
+      dfStart <- .getPredictStartPointDf(modelTemp, jj)
+      XStart <- predict(modelTemp, newdata=dfStart, type="lpmatrix")
+      L[,jj] <- XEnd-XStart
+  }
+
+  # do statistical test for every model
+  if(omnibus){
+    waldResultsOmnibus <- lapply(models, function(m){
+      if(class(m)[1]=="try-error") return(c(NA,NA,NA))
+      waldTest(m, L)
+    })
+    pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
+    waldResults <- do.call(rbind,waldResultsOmnibus)
+    colnames(waldResults) <- c("waldStat", "df", "pvalue")
+    waldResults <- as.data.frame(waldResults)
+  }
+  if(pairwise){
+    waldResultsPairwise <- lapply(models, function(m){
+      if(class(m)[1]=="try-error") return(NA)
+      t(sapply(seq_len(ncol(L)), function(ii){
+        waldTest(m, L[,ii,drop=FALSE])
+      }))
+    })
+    pvalsPairwise <- as.data.frame(do.call(rbind,
+                                           lapply(waldResultsPairwise, function(x){
+                                             x[,3]
+                                           })))
+    colnames(pvalsPairwise) <- colnames(L)
+  }
+
+  if(omnibus==TRUE & pairwise==FALSE) return(waldResults)
+  if(omnibus==FALSE & pairwise==TRUE) return(pvalsPairwise)
+  if(omnibus & pairwise){
+    resAll <- cbind(pvalsOmnibus, pvalsPairwise)
+    colnames(resAll)[1] <- "omnibus"
+    return(resAll)
+  }
+
+}
 
 #' Perform pattern test between lineages
 #'

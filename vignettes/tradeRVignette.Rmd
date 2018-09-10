@@ -19,6 +19,7 @@ suppressPackageStartupMessages({
   library(slingshot)
   library(RColorBrewer)
 })
+palette(brewer.pal(9,"Dark2"))
 data(se, package="tradeR")
 se
 ```
