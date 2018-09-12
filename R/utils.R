@@ -62,6 +62,19 @@ waldTest <- function(model, L){
     return(c(wald, df, pval))
 }
 
+### perform individual wald test
+indWaldTest <- function(model, L){
+  ### build a contrast matrix for a multivariate Wald test
+  beta <- matrix(coef(model), ncol = 1)
+  LQR <- L[, qr(L)$pivot[1:qr(L)$rank] ,drop = FALSE]
+  # Test equality for each coefficient
+  wald <- lapply(1:ncol(LQR), FUN = function(i){
+    (t(LQR[,i]) %*% beta)^2 / model$Vp[i, i]
+  }) %>% unlist()
+  pval <- 1 - pchisq(wald, df = 1)
+  return(pval)
+}
+
 
 # get predictor matrix for a range of pseudotimes of a smoother.
 .getPredictRangeDf <- function(m, lineageId, nPoints=100){

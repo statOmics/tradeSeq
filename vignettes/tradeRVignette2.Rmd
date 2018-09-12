@@ -21,9 +21,10 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(ggplot2)
   library(tidyr)
+  library(pbapply)
 })
 palette(brewer.pal(9,"Dark2"))
-data(se, package="tradeR")
+data(se, package = "tradeR")
 se
 ```
 
@@ -63,11 +64,12 @@ After estimating the trajectories, we can fit generalized additive models (GAMs)
 By default, we estimate one smoothers for every trajectory in the GAM using the negative binomial distribution. If you want to allow for other fixed effects (e.g. batch effects), then an additional model matrix can be provided with the `X` argument. 
 We use the effective library size, estimated with TMM [@Robinson2010], as offset in the model. We allow for alternatives by providing a user-defined offset with the `offset` argument.
 This dataset consists of UMI counts, and we do not expect zero inflation to be a big problem here. However, we also allow to fit zero inflated negative binomial (ZINB) GAMs by providing observation-level weights to `fitGAM` using the `weights` argument. The `weights` must correspond to the posterior probability that a count belongs to the zero inflation component of the ZINB distribution [@VandenBerge2018].
-For the vignette, we fit smoothers for the first 150 genes in the dataset. We also include the *Irf8* gene, since it is a known transcription factor involved in hematopoiesis.
+For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239. We also include the *Irf8* gene, since it is a known transcription factor involved in hematopoiesis.
 
 ```{r}
 counts <- assays(se)$counts %>% as.matrix()
-filt <- rowSums(counts > 5) > ncol(counts)/100
+filt <- rowSums(counts > 8) > ncol(counts)/100
+filt["Irf8"] <- T
 counts <- counts[filt, ]
 gamList <- fitGAM(counts = counts,
                   pseudotime = slingPseudotime(crv, na=FALSE),
@@ -151,7 +153,7 @@ plotSmoothers(gamList[[sigGene]])
 Alternatively, we can color the cells in UMAP space with that gene's expression.
 
 ```{r}
-cols <- colorRampPalette(c("yellow","red"))(13)
+cols <- colorRampPalette(c("yellow","red"))(16)
 g <- Hmisc::cut2(log(assays(se)$counts[sigGene,]+1))
 plot(rd,col=cols[g], main=paste0("color by expression of ",sigGene), xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
 lines(crv, lwd=2)
@@ -167,9 +169,10 @@ Hence, if all coefficients are similar, the expression patterns will be similar.
 ```{r}
 patternRes <- patternTest(gamList)
 oPat <- order(patternRes$waldStat, decreasing=TRUE)
-head(oPat) #note that the most significant gene is the Irf8 gene.
+head(rownames(patternRes)[oPat])
 ```
 
+Similar to above, we can plot the estimated functions for the most significant gene.
 
 ```{r}
 sigGenePat <- names(gamList)[oPat[1]]
@@ -189,15 +192,10 @@ lines(crv, lwd=2)
 
 Another question of interest is to find a list of genes that are differentially expressed at the beginning of the separation of the two lineages.
 
-Similar to above, we can plot the estimated functions for the most significant gene.
 The function `earlyDrivers` implements a statistical method to tests the null hypothesis of whether the first smoother coefficients are equal to each other. 
-
-
 
 ```{r}
 earlyGenes <- earlyDrivers(gamList)
-
-plot(lapply(gamList, function(x) x$coefficient[1] / x$coefficient[11]) %>% unlist, -log10(earlyGenes$coeff1))
 
 ggplot(earlyGenes %>% gather(key = "coefficient", value = "pval"),
        aes(x = factor(coefficient, levels = paste0("coeff", 1:10)),
@@ -206,19 +204,21 @@ ggplot(earlyGenes %>% gather(key = "coefficient", value = "pval"),
   geom_hline(yintercept = -log10(0.05), col = "red") +
   labs(x = "coefficients", y = "-log10 of p-values") +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.6))
+```
 
-earlyGenes %>% mutate(gene = rownames(earlyGenes)) %>%
-               select(gene, coeff1) %>% 
-               top_n(-6, coeff1) %>%
-               arrange(coeff1)
+Similar to above, we can plot the estimated functions for the most significant gene, where there is a difference in the second coefficient.
 
+```{r}
+plotSmoothers(gamList[["Aqp1"]])
+```
 
-cols <- colorRampPalette(c("yellow", "red"))(10)
-g <- Hmisc::cut2(log(assays(se)$counts["Slc25a5", ] + 1))
-plot(rd, col = cols[g], main = paste0("color by expression of Slc25a5"),
+Or, we can visualize its expression in UMAP space.
+
+```{r}
+cols <- colorRampPalette(c("yellow", "red"))(8)
+g <- Hmisc::cut2(log(assays(se)$counts["Aqp1", ] + 1))
+plot(rd, col = cols[g], main = paste0("color by expression of Aqp1"),
   xlab = "UMAP1", ylab = "UMAP2", pch = 16, cex = 2 / 3)
 lines(crv, lwd = 2)
-
-plotSmoothers(gamList[["Slc25a5"]])
 ```
 # References

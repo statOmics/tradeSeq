@@ -19,4 +19,6 @@ RoxygenNote: 6.0.1
 Imports: mgcv,
     edgeR,
     SingleCellExperiment,
-    slingshot
+    slingshot,
+    magrittr,
+    pbapply
