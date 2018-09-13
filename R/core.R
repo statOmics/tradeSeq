@@ -16,6 +16,7 @@
 #' @param seed the seed used for assigning cells to trajectories
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
+#'
 fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                    seed=81, offset=NULL, nknots=10){
 
@@ -162,7 +163,6 @@ getSmootherPvalues <- function(models){
 
   return(smootherP)
 }
-
 
 #' Get smoother Chi-squared test statistics
 #'
