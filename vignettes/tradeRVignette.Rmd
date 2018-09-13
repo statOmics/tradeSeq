@@ -18,6 +18,7 @@ suppressPackageStartupMessages({
   library(tradeR)
   library(slingshot)
   library(RColorBrewer)
+  library(scales)
 })
 palette(brewer.pal(9,"Dark2"))
 data(se, package="tradeR")
@@ -37,10 +38,10 @@ plot(rd, col = brewer.pal(9,"Set1")[cl], pch=16, asp = 1)
 library(slingshot)
 lin <- getLineages(rd, clusterLabels=cl, start.clus=4)
 plot(rd,col=brewer.pal(9,"Set1")[cl], xlab="UMAP1", ylab="UMAP2")
-lines(lin, lwd=2)
+lines(lin, lwd=3, col="black")
 crv <- getCurves(lin)
 plot(rd,col=brewer.pal(9,"Set1")[cl], main="color by cluster", xlab="UMAP1", ylab="UMAP2")
-lines(crv, lwd=2)
+lines(crv, lwd=3, col="black")
 
 ```
 
@@ -48,8 +49,8 @@ We find two trajectories for this dataset. We can futher color the cells accordi
 
 ```{r}
 celltype <- factor(colData(se)$cell_type2)
-plot(rd,col=brewer.pal(9,"Set1")[celltype], main="color by cell type", xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
-lines(crv, lwd=2)
+plot(rd,col=alpha(brewer.pal(9,"Set1")[celltype],.5), main="color by cell type", xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
+lines(crv, lwd=3, col="black")
 legend("topright",levels(celltype), col=brewer.pal(9,"Set1")[1:nlevels(celltype)], pch=16, cex=1/2, bty='n')
 ```
 
@@ -114,7 +115,7 @@ Alternatively, we can color the cells in UMAP space with that gene's expression.
 cols <- colorRampPalette(c("yellow","red"))(10)
 g <- Hmisc::cut2(log(assays(se)$counts[sigGeneStart,]+1))
 plot(rd,col=cols[g], main=paste0("color by expression of ",sigGeneStart), xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
-lines(crv, lwd=2)
+lines(crv, lwd=3, col="black")
 ```
 
 
@@ -144,7 +145,7 @@ Alternatively, we can color the cells in UMAP space with that gene's expression.
 cols <- colorRampPalette(c("yellow","red"))(10)
 g <- Hmisc::cut2(log(assays(se)$counts[sigGene,]+1))
 plot(rd,col=cols[g], main=paste0("color by expression of ",sigGene), xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
-lines(crv, lwd=2)
+lines(crv, lwd=3, col="black")
 ```
 
 ## Discovering genes with different expression patterns
@@ -173,7 +174,7 @@ Or, we can visualize its expression in UMAP space.
 cols <- colorRampPalette(c("yellow","red"))(10)
 g <- Hmisc::cut2(log(assays(se)$counts[sigGenePat,]+1))
 plot(rd,col=cols[g], main=paste0("color by expression of ",sigGenePat), xlab="UMAP1", ylab="UMAP2", pch=16, cex=2/3)
-lines(crv, lwd=2)
+lines(crv, lwd=3, col="black")
 ```
 
 # References

@@ -333,6 +333,7 @@ patternTest <- function(models){
    rownames(L) <- names(coef(modelTemp))
    for(jj in 1:ncol(combs)){
      curvesNow <- combs[,jj]
+     #TODO: should 10 be nknots?
      for(ii in seq_len(nknots)) L[(curvesNow[1]-1)*10+ii,(jj-1)*10+ii] <- 1
      for(ii in seq_len(nknots)) L[(curvesNow[2]-1)*10+ii,(jj-1)*10+ii] <- -1
    }
@@ -355,77 +356,77 @@ patternTest <- function(models){
 
 
 #
-# patternTest <- function(models, omnibus=TRUE, pairwise=FALSE,
-#                         nPoints=100, ...){
+#  patternTest <- function(models, omnibus=TRUE, pairwise=FALSE,
+#                          nPoints=100, ...){
 #
-#   # TODO: add if loop if first model errored.
-#   modelTemp <- models[[1]]
-#   nCurves <- length(modelTemp$smooth)
-#   data <- modelTemp$model
+#    # TODO: add if loop if first model errored.
+#    modelTemp <- models[[1]]
+#    nCurves <- length(modelTemp$smooth)
+#    data <- modelTemp$model
 #
-#   # get predictor matrix for every lineage.
-#   for(jj in seq_len(nCurves)){
-#     df <- .getPredictRangeDf(modelTemp, jj, nPoints=nPoints)
-#     assign(paste0("X",jj),
-#            predict(modelTemp, newdata=df, type="lpmatrix"))
-#   }
+#    # get predictor matrix for every lineage.
+#    for(jj in seq_len(nCurves)){
+#      df <- .getPredictRangeDf(modelTemp, jj, nPoints=nPoints)
+#      assign(paste0("X",jj),
+#             predict(modelTemp, newdata=df, type="lpmatrix"))
+#    }
 #
-#   # construct pairwise contrast matrix
-#   combs <- combn(nCurves,m=2)
-#   #L <- matrix(0, nrow=length(coef(modelTemp)), ncol=nPoints*ncol(combs))
-#   # point x comparison y colnames
-#   #colnames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
-#   #                      rep(ncol(combs),each=nPoints))
-#   for(jj in seq_len(ncol(combs))){
-#     curvesNow <- combs[,jj]
-#     if(jj==1){
-#       L <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
-#     } else if(jj>1){
-#       L <- cbind(L,get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2])))
-#     }
-#   }
-#   # point x comparison y colnames
-#   rownames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
-#                         rep(ncol(combs),each=nPoints))
-#   #transpose => one column is one contrast.
-#   L <- t(L)
-#   rm(modelTemp)
+#    # construct pairwise contrast matrix
+#    combs <- combn(nCurves,m=2)
+#    #L <- matrix(0, nrow=length(coef(modelTemp)), ncol=nPoints*ncol(combs))
+#    # point x comparison y colnames
+#    #colnames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
+#    #                      rep(ncol(combs),each=nPoints))
+#    for(jj in seq_len(ncol(combs))){
+#      curvesNow <- combs[,jj]
+#      if(jj==1){
+#        L <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
+#      } else if(jj>1){
+#        L <- cbind(L,get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2])))
+#      }
+#    }
+#    # point x comparison y colnames
+#    rownames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
+#                          rep(ncol(combs),each=nPoints))
+#    #transpose => one column is one contrast.
+#    L <- t(L)
+#    rm(modelTemp)
 #
-#   # do statistical test for every model
-#   # TODO: computationally singular over many points!!!
-#   if(omnibus){
-#     waldResultsOmnibus <- lapply(models, function(m){
-#       if(class(m)[1]=="try-error") return(c(NA,NA,NA))
-#       waldTest(m, L)
-#     })
-#     pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
-#     waldResults <- do.call(rbind,waldResultsOmnibus)
-#     colnames(waldResults) <- c("waldStat", "df", "p-value")
-#     waldResults <- as.data.frame(waldResults)
-#   }
-#   # if(pairwise){
-#   #   waldResultsPairwise <- lapply(models, function(m){
-#   #     if(class(m)[1]=="try-error") return(NA)
-#   #     t(sapply(seq_len(ncol(L)), function(ii){
-#   #       waldTest(m, L[,ii,drop=FALSE])
-#   #     }))
-#   #   })
-#   #   pvalsPairwise <- as.data.frame(do.call(rbind,
-#   #                                          lapply(waldResultsPairwise, function(x){
-#   #                                            x[,3]
-#   #                                          })))
-#   #   colnames(pvalsPairwise) <- colnames(L)
-#   # }
-#   #
-#   # if(omnibus==TRUE & pairwise==FALSE) return(waldResults)
-#   # if(omnibus==FALSE & pairwise==TRUE) return(pvalsPairwise)
-#   # if(omnibus & pairwise){
-#   #   resAll <- cbind(pvalsOmnibus, pvalsPairwise)
-#   #   colnames(resAll)[1] <- "omnibus"
-#   #   return(resAll)
-#   # }
+#    # do statistical test for every model
+#    # TODO: computationally singular over many points!!!
+#    if(omnibus){
+#      waldResultsOmnibus <- lapply(models, function(m){
+#        if(class(m)[1]=="try-error") return(c(NA,NA,NA))
+#        waldTest(m, L)
+#      })
+#      pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
+#      waldResults <- do.call(rbind,waldResultsOmnibus)
+#      colnames(waldResults) <- c("waldStat", "df", "p-value")
+#      waldResults <- as.data.frame(waldResults)
+#    }
+#    # if(pairwise){
+#    #   waldResultsPairwise <- lapply(models, function(m){
+#    #     if(class(m)[1]=="try-error") return(NA)
+#    #     t(sapply(seq_len(ncol(L)), function(ii){
+#    #       waldTest(m, L[,ii,drop=FALSE])
+#    #     }))
+#    #   })
+#    #   pvalsPairwise <- as.data.frame(do.call(rbind,
+#    #                                          lapply(waldResultsPairwise, function(x){
+#    #                                            x[,3]
+#    #                                          })))
+#    #   colnames(pvalsPairwise) <- colnames(L)
+#    # }
+#    #
+#    # if(omnibus==TRUE & pairwise==FALSE) return(waldResults)
+#    # if(omnibus==FALSE & pairwise==TRUE) return(pvalsPairwise)
+#    # if(omnibus & pairwise){
+#    #   resAll <- cbind(pvalsOmnibus, pvalsPairwise)
+#    #   colnames(resAll)[1] <- "omnibus"
+#    #   return(resAll)
+#    # }
 #
-# }
+#  }
 
 
 
