@@ -112,8 +112,10 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   names(knotList) <- paste0("t",seq_len(ncol(pseudotime)))
 
   teller<-0
+  # gamList <- pbapply(counts,1,function(y){
   gamList <- apply(counts,1,function(y){
     teller <<- teller+1
+
     if ((teller%%100)==0) cat(teller,"/",nrow(counts),"\n")
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
@@ -353,7 +355,49 @@ patternTest <- function(models){
    return(waldResults)
  }
 
+#' Perform test of early differences between lineages
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#'
+#' @importFrom magrittr %>%
+#'
 
+earlyDrivers <- function(models){
+  modelTemp <- models[[1]]
+  nCurves <- length(modelTemp$smooth)
+  data <- modelTemp$model
+
+  nknots <- length(modelTemp$smooth[[1]]$xp)
+  # construct pairwise contrast matrix
+  combs <- combn(nCurves, m = 2)
+  L <- matrix(0, nrow = length(coef(modelTemp)),
+              ncol = ncol(combs) * nknots)
+
+  rownames(L) <- names(coef(modelTemp))
+  for (jj in 1:ncol(combs)) {
+    curvesNow <- combs[, jj]
+    for (ii in seq_len(nknots)) {
+      L[(curvesNow[1] - 1) * 10 + ii, (jj - 1) * 10 + ii] <- 1
+    }
+    for (ii in seq_len(nknots)) {
+      L[(curvesNow[2] - 1) * 10 + ii, (jj - 1) * 10 + ii] <- -1
+    }
+  }
+
+  #perform omnibus test
+  waldResultsOmnibus <- lapply(models, function(m){
+    if(class(m)[1]=="try-error") return(c(NA,NA,NA))
+    waldHlp = try(indWaldTest(m, L),silent=TRUE)
+    #sometimes all coefs are identical, non-singular var-cov of contrast.
+    if(class(waldHlp)=="try-error") return(c(NA,NA,NA))
+    return(waldHlp)
+  })
+  waldResults <- do.call(rbind,waldResultsOmnibus)
+  colnames(waldResults) <- paste0("coeff", 1:nknots)
+  waldResults <- as.data.frame(waldResults)
+  return(waldResults)
+}
 
 #
 #  patternTest <- function(models, omnibus=TRUE, pairwise=FALSE,
