@@ -1,8 +1,5 @@
 # helper functions
 
-# TODO: write plotting function for reduced dimension visualization.
-
-
 # get predictor matrix for the end point of a smoother.
 .getPredictEndPointDf <- function(m, lineageId){
   # note that X or offset variables dont matter as long as they are the same,
@@ -226,3 +223,37 @@ plotSmoothers <- function(m, nPoints=100, ...){
 
 }
 
+<<<<<<< HEAD
+=======
+#' Plot the gene in reduced dimension space
+#'
+#' @param rd the reduced dimentionality matrix. Must have at least two columns. Only the first two columns will be used for plotting.
+#' @param curve The output from a lineage computation
+#' @param counts the count matrix.
+#' @param gene The name of gene for which you want to plot the count or the row number of that gene in the count matrix. Alternatively, one can specify the cluster arguments
+#' @param clusters The assignation of each cell to a cluster. Used to color the plot. Either \code{clusters} or \code{gene} must be supplied.
+#' @details If both \code{gene} and \code{clusters} arguments are supplied, the plot will be colored according to gene count level.
+#' @import RColorBrewer
+#'
+plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL){
+  if (is.null(gene) & is.null(clusters)) {
+    stop("Either gene or clusters argument must be supplied")
+  }
+  if (!is.null(gene)) {
+    logcounts <- log1p(counts[gene, ])
+    g <- cut(logcounts, 10)
+    cols <- colorRampPalette(c("yellow", "red"))(10)[g]
+    title <- paste0("color by expression of ", gene)
+  } else {
+    cols <- RColorBrewer::brewer.pal(length(unique(clusters)), "Set1")[clusters]
+    title <- "Colored by clusters"
+  }
+
+  plot(rd[,1:2],
+       col = cols, main = title, xlab = "dim1", ylab = "dim2",
+       pch = 16, cex = 2 / 3)
+  lines(curve, lwd = 2)
+}
+
+
+>>>>>>> 4f98e60b707e6c1eb2c0f135ce89c3c131696c16
