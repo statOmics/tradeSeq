@@ -223,8 +223,7 @@ plotSmoothers <- function(m, nPoints=100, ...){
 
 }
 
-<<<<<<< HEAD
-=======
+
 #' Plot the gene in reduced dimension space
 #'
 #' @param rd the reduced dimentionality matrix. Must have at least two columns. Only the first two columns will be used for plotting.
@@ -255,5 +254,3 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL){
   lines(curve, lwd = 2)
 }
 
-
->>>>>>> 4f98e60b707e6c1eb2c0f135ce89c3c131696c16
