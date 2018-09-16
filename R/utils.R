@@ -104,6 +104,63 @@ waldTestFullSub <- function(model, L){
 }
 
 
+.patternContrast <- function(m, nPoints=100){
+
+  # TODO: add if loop if first model errored.
+  modelTemp <- models[[1]]
+  nCurves <- length(modelTemp$smooth)
+  data <- modelTemp$model
+
+  # get predictor matrix for every lineage.
+  for(jj in seq_len(nCurves)){
+    df <- .getPredictRangeDf(modelTemp, jj, nPoints=nPoints)
+    assign(paste0("X",jj),
+           predict(modelTemp, newdata=df, type="lpmatrix"))
+  }
+
+  # construct pairwise contrast matrix
+  combs <- combn(nCurves,m=2)
+  for(jj in seq_len(ncol(combs))){
+    curvesNow <- combs[,jj]
+    if(jj==1){
+      L <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
+    } else if(jj>1){
+      L <- cbind(L,get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2])))
+    }
+  }
+  # point x comparison y colnames
+  rownames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
+                        rep(ncol(combs),each=nPoints))
+  #transpose => one column is one contrast.
+  L <- t(L)
+  return(L)
+}
+
+getRank <- function(m,L){
+  beta <- matrix(coef(m),ncol=1)
+  est <- t(L) %*% beta
+  sigma <- t(L) %*% m$Vp %*% L
+  eSigma <- eigen(sigma, symmetric=TRUE)
+  r <- sum(eSigma$values/eSigma$values[1] > 1e-8)
+  return(r)
+}
+
+getEigenStatGAM <- function(m, L){
+  beta <- matrix(coef(m),ncol=1)
+  est <- t(L) %*% beta
+  sigma <- t(L) %*% m$Vp %*% L
+  eSigma <- eigen(sigma, symmetric=TRUE)
+  r <- try(sum(eSigma$values/eSigma$values[1] > 1e-8))
+  if(class(r)=="try-error"){
+    return(c(NA,NA))
+  }
+  if(r==1) return(c(NA,NA)) #CHECK
+  halfCovInv <- eSigma$vectors[,1:r] %*% (diag(1/sqrt(eSigma$values[1:r])))
+  halfStat <- t(est) %*% halfCovInv
+  stat <- crossprod(t(halfStat))
+  return(c(stat,r))
+}
+
 
 
 
@@ -168,7 +225,4 @@ plotSmoothers <- function(m, nPoints=100, ...){
          lty=1, lwd=2, bty="n", cex=2/3)
 
 }
-
-
-
 
