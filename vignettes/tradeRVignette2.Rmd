@@ -63,8 +63,11 @@ legend("topright", levels(celltype),
 
 After estimating the trajectories, we can fit generalized additive models (GAMs) with the `tradeR` package. Internally, this package builds on the `mgcv` package by fitting additive models using the `gam` function. The core function from `tradeR`, `fitGAM` will use cubic splines as basis functions, and it tries to ensure that every trajectory will end at a knot point of a basis function. By default, we allow for $10$ knots for every trajectory, but this can be changed with the `nknots` function.
 By default, we estimate one smoothers for every trajectory in the GAM using the negative binomial distribution. If you want to allow for other fixed effects (e.g. batch effects), then an additional model matrix can be provided with the `X` argument. 
+
 We use the effective library size, estimated with TMM [@Robinson2010], as offset in the model. We allow for alternatives by providing a user-defined offset with the `offset` argument.
+
 This dataset consists of UMI counts, and we do not expect zero inflation to be a big problem here. However, we also allow to fit zero inflated negative binomial (ZINB) GAMs by providing observation-level weights to `fitGAM` using the `weights` argument. The `weights` must correspond to the posterior probability that a count belongs to the zero inflation component of the ZINB distribution [@VandenBerge2018].
+
 For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239. We also include the *Irf8* gene, since it is a known transcription factor involved in hematopoiesis.
 
 ```{r}
@@ -75,7 +78,7 @@ counts <- counts[filt, ]
 gamList <- fitGAM(counts = counts,
                   pseudotime = slingPseudotime(crv, na = FALSE),
                   cellWeights = slingCurveWeights(crv))
-# This may take up to a few minutes to run
+# This takes about 1mn to run
 ```
 
 One may explore the results of a model by requesting its summary.

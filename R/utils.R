@@ -101,7 +101,7 @@ waldTestFullSub <- function(model, L){
 }
 
 
-.patternContrast <- function(m, nPoints=100){
+.patternContrast <- function(models, nPoints=100){
 
   # TODO: add if loop if first model errored.
   modelTemp <- models[[1]]
