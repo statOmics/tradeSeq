@@ -308,8 +308,6 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
 }
 
-
-
 patternTest <- function(models, nPoints=100, omnibus = T, ...){
 
   #TODO: add argument for pairwise comparisons.

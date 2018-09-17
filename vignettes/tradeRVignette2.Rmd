@@ -119,7 +119,7 @@ We can visualize the estimated smoothers for the most significant gene.
 
 ```{r}
 oStart <- order(startRes$waldStat, decreasing = TRUE)
-sigGeneStart <- names(gamList)[oStart[1]]
+sigGeneStart <- names(gamList)[oStart[2]]
 plotSmoothers(gamList[[sigGeneStart]])
 ```
 
@@ -146,7 +146,7 @@ We can plot the most significant gene using the `plotSmoothers` function.
 
 ```{r}
 o <- order(endRes$waldStat, decreasing = TRUE)
-sigGene <- names(gamList)[o[1]]
+sigGene <- names(gamList)[o[3]]
 plotSmoothers(gamList[[sigGene]])
 ```
 
@@ -169,7 +169,7 @@ oPat <- order(patternRes$waldStat, decreasing = TRUE)
 head(rownames(patternRes)[oPat])
 ```
 
-Similar to above, we can plot the estimated functions for the most significant gene.
+Similar to above, we can plot the estimated functions for the most significant gene. 
 
 ```{r}
 sigGenePat <- names(gamList)[oPat[1]]
@@ -205,6 +205,7 @@ Or, we can visualize its expression in UMAP space.
 ```{r}
 plotGeneCount(rd, crv, counts, gene = "Aqp1")
 ```
+
 # Session
 
 ```{r}
