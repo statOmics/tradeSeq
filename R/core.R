@@ -366,9 +366,9 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
       pval <- 1-pchisq(waldResults[,1], df=waldResults[,2])
       waldResults <- cbind(waldResults,pval)
       colnames(waldResults) <-
-        c(paste("waldStat",paste(curvesNow,collapse="vs."),collapse="_"),
-          paste("df",paste(curvesNow,collapse="vs."),collapse="_"),
-          paste("pvalue",paste(curvesNow,collapse="vs."),collapse="_"))
+        c(paste0("waldStat_",paste(curvesNow,collapse="vs")),
+          paste0("df_",paste(curvesNow,collapse="vs")),
+          paste0("pvalue",paste(curvesNow,collapse="vs")))
       waldResults <- as.data.frame(waldResults)
       if(jj==1) waldResAllPair <- waldResults
       if(jj>1) waldResAllPair <- cbind(waldResAllPair,waldResults)
