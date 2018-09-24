@@ -101,11 +101,12 @@ waldTestFullSub <- function(model, L){
 }
 
 
-.patternContrast <- function(m, nPoints=100){
+.patternContrast <- function(model, nPoints=100){
 
   # TODO: add if loop if first model errored.
-  nCurves <- length(m$smooth)
-  data <- m$model
+  modelTemp <- model
+  nCurves <- length(modelTemp$smooth)
+  data <- modelTemp$model
 
   # get predictor matrix for every lineage.
   for(jj in seq_len(nCurves)){
@@ -252,4 +253,3 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL){
        pch = 16, cex = 2 / 3)
   lines(curve, lwd = 2)
 }
-

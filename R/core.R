@@ -125,12 +125,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   }, simplify=FALSE )
   names(knotList) <- paste0("t",seq_len(ncol(pseudotime)))
 
-  teller<-0
-  # gamList <- pbapply(counts,1,function(y){
-  gamList <- apply(counts,1,function(y){
-    teller <<- teller+1
-
-    if ((teller%%100)==0) cat(teller,"/",nrow(counts),"\n")
+  gamList <- pbapply(counts,1,function(y) {
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
     if(!is.null(weights)) weights <- weights[teller,]
@@ -437,6 +432,3 @@ patternTestOld <- function(models){
   waldResults <- as.data.frame(waldResults)
   return(waldResults)
 }
-
-
-
