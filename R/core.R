@@ -17,6 +17,7 @@
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
 #'
+#'@importFrom pbapply pbapply
 fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                    seed=81, offset=NULL, nknots=10){
 
@@ -112,7 +113,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   }, simplify=FALSE )
   names(knotList) <- paste0("t",seq_len(ncol(pseudotime)))
 
-  gamList <- pbapply(counts,1,function(y) {
+  gamList <- pbapply::pbapply(counts,1,function(y) {
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
     if(!is.null(weights)) weights <- weights[teller,]
@@ -337,11 +338,16 @@ patternTest <- function(models, nPoints=100, omnibus = T, ...){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @param output The type of output. Can be "pval", "wald" or "both". Default to "both".
 #'
 #' @importFrom magrittr %>%
 #'
 
-earlyDrivers <- function(models){
+earlyDrivers <- function(models, output = "both"){
+  if (!(output %in% c("pval", "wald", "both"))) {
+    stop("output needs to be either pval, output or both")
+  }
+
   modelTemp <- models[[1]]
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
@@ -367,18 +373,24 @@ earlyDrivers <- function(models){
   waldResultsOmnibus <- lapply(models, function(m){
     if(class(m)[1]=="try-error") return(c(NA,NA,NA))
     waldHlp = try(indWaldTest(m, L),silent=TRUE)
-    #sometimes all coefs are identical, non-singular var-cov of contrast.
+    # sometimes all coefs are identical, non-singular var-cov of contrast.
     if(class(waldHlp)=="try-error") return(c(NA,NA,NA))
     return(waldHlp)
   })
-  waldResults <- do.call(rbind,waldResultsOmnibus)
-  colnames(waldResults) <- paste0("coeff", 1:nknots)
-  waldResults <- as.data.frame(waldResults)
-  return(waldResults)
+  pvalResults <- lapply(waldResultsOmnibus, '[[', "pval")
+  pvalResults <- do.call(rbind, pvalResults)
+  waldlResults <- lapply(waldResultsOmnibus, '[[', "wald")
+  waldlResults <- do.call(rbind, waldlResults)
+  colnames(waldlResults) <- colnames(pvalResults) <- paste0("coeff", 1:nknots)
+  waldlResults <- as.data.frame(waldlResults)
+  pvalResults <- as.data.frame(pvalResults)
+  Results <- list("wald" = waldlResults,
+                  "pval" = pvalResults)
+  if(output != "both"){
+    Results <- Results[[output]]
+  }
+  return(Results)
 }
-
-
-
 
 #' Perform pattern test between lineages
 #'
