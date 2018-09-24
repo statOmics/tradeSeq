@@ -2,7 +2,7 @@
 % Please edit documentation in R/core.R
 \name{endPointTest}
 \alias{endPointTest}
-\title{Perform omnibus test to check for DE between final stages of every trajectory}
+\title{Perform statistical test to check for DE between final stages of every trajectory.}
 \usage{
 endPointTest(models, omnibus = TRUE, pairwise = FALSE, ...)
 }
@@ -11,5 +11,5 @@ endPointTest(models, omnibus = TRUE, pairwise = FALSE, ...)
 \code{\link{fitGAM}}.}
 }
 \description{
-Perform omnibus test to check for DE between final stages of every trajectory
+Perform statistical test to check for DE between final stages of every trajectory.
 }

@@ -110,9 +110,9 @@ waldTestFullSub <- function(model, L){
 
   # get predictor matrix for every lineage.
   for(jj in seq_len(nCurves)){
-    df <- .getPredictRangeDf(m, jj, nPoints=nPoints)
+    df <- .getPredictRangeDf(model, jj, nPoints=nPoints)
     assign(paste0("X",jj),
-           predict(m, newdata=df, type="lpmatrix"))
+           predict(model, newdata=df, type="lpmatrix"))
   }
 
   # construct pairwise contrast matrix
@@ -128,6 +128,26 @@ waldTestFullSub <- function(model, L){
   # point x comparison y colnames
   rownames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
                         rep(seq_len(ncol(combs)),each=nPoints))
+  #transpose => one column is one contrast.
+  L <- t(L)
+  return(L)
+}
+
+.patternContrastPairwise <- function(model, nPoints=100, curves=1:2){
+
+  # get predictor matrix for every lineage.
+  for(jj in curves){
+    df <- .getPredictRangeDf(model, jj, nPoints=nPoints)
+    assign(paste0("X",jj),
+           predict(model, newdata=df, type="lpmatrix"))
+  }
+
+  # construct pairwise contrast matrix
+  L <- get(paste0("X",curves[1])) - get(paste0("X",curves[2]))
+
+  # point x comparison y colnames
+  rownames(L) <- paste0("p",seq_len(nPoints),"_","c",
+                        paste(curves,collapse="_"))
   #transpose => one column is one contrast.
   L <- t(L)
   return(L)

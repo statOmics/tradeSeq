@@ -127,7 +127,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
 
   teller<-0
   gamList <- pbapply(counts,1,function(y) {
-    teller <<- teller+1	
+    teller <<- teller+1
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
     if(!is.null(weights)) weights <- weights[teller,]
@@ -329,16 +329,17 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints the numboer of points to be compared between lineages.
-patternTest <- function(models, nPoints=100, omnibus=TRUE, ...){
+patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 
   #TODO: add argument for pairwise comparisons.
-  # TODO: add if loop for when first model errors.
-  mTemp <- models[[1]]
-  L <- .patternContrast(mTemp, nPoints=nPoints)
-  rank <- getRank(mTemp, L)
+  #TODO: add if loop for when first model errors.
 
   # do statistical test for every model through eigenvalue decomposition
   if(omnibus){
+    # get contrast matrix
+    mTemp <- models[[1]]
+    L <- .patternContrast(mTemp, nPoints=nPoints)
+    # perform Wald test and calculate p-value
     waldResOmnibus <- lapply(models, function(m){
       if(class(m)[1]=="try-error") return(c(NA))
       getEigenStatGAM(m, L)
@@ -347,9 +348,40 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, ...){
     pval <- 1-pchisq(waldResults[,1], df=waldResults[,2])
     waldResults <- cbind(waldResults,pval)
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
-    waldResults <- as.data.frame(waldResults)
+    waldResultsOmnibus <- as.data.frame(waldResults)
   }
 
+  #perform pairwise comparisons
+  if(pairwise){
+    nCurves <- length(mTemp$smooth)
+    combs <- combn(x=nCurves,m=2)
+    for(jj in seq_len(ncol(combs))){
+      curvesNow <- combs[,jj]
+      L <- .patternContrastPairwise(mTemp, nPoints=nPoints, curves=curvesNow)
+      waldResPair <- lapply(models, function(m){
+        if(class(m)[1]=="try-error") return(c(NA))
+        getEigenStatGAM(m, L)
+      })
+      waldResults <- do.call(rbind,waldResPair)
+      pval <- 1-pchisq(waldResults[,1], df=waldResults[,2])
+      waldResults <- cbind(waldResults,pval)
+      colnames(waldResults) <-
+        c(paste("waldStat",paste(curvesNow,collapse="vs."),collapse="_"),
+          paste("df",paste(curvesNow,collapse="vs."),collapse="_"),
+          paste("pvalue",paste(curvesNow,collapse="vs."),collapse="_"))
+      waldResults <- as.data.frame(waldResults)
+      if(jj==1) waldResAllPair <- waldResults
+      if(jj>1) waldResAllPair <- cbind(waldResAllPair,waldResults)
+    }
+  }
+
+    #return output
+    if(omnibus==TRUE & pairwise==FALSE) return(waldResultsOmnibus)
+    if(omnibus==FALSE & pairwise==TRUE) return(waldResAllPair)
+    if(omnibus==TRUE & pairwise==TRUE){
+      waldAll <- cbind(waldResultsOmnibus, waldResAllPair)
+      return(waldAll)
+    }
 }
 
 
