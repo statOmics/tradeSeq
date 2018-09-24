@@ -111,9 +111,9 @@ waldTestFullSub <- function(model, L){
 
   # get predictor matrix for every lineage.
   for(jj in seq_len(nCurves)){
-    df <- .getPredictRangeDf(modelTemp, jj, nPoints=nPoints)
+    df <- .getPredictRangeDf(model, jj, nPoints=nPoints)
     assign(paste0("X",jj),
-           predict(modelTemp, newdata=df, type="lpmatrix"))
+           predict(model, newdata=df, type="lpmatrix"))
   }
 
   # construct pairwise contrast matrix
@@ -123,12 +123,32 @@ waldTestFullSub <- function(model, L){
     if(jj==1){
       L <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
     } else if(jj>1){
-      L <- cbind(L,get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2])))
+      L <- rbind(L,get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2])))
     }
   }
   # point x comparison y colnames
   rownames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
-                        rep(ncol(combs),each=nPoints))
+                        rep(seq_len(ncol(combs)),each=nPoints))
+  #transpose => one column is one contrast.
+  L <- t(L)
+  return(L)
+}
+
+.patternContrastPairwise <- function(model, nPoints=100, curves=1:2){
+
+  # get predictor matrix for every lineage.
+  for(jj in curves){
+    df <- .getPredictRangeDf(model, jj, nPoints=nPoints)
+    assign(paste0("X",jj),
+           predict(model, newdata=df, type="lpmatrix"))
+  }
+
+  # construct pairwise contrast matrix
+  L <- get(paste0("X",curves[1])) - get(paste0("X",curves[2]))
+
+  # point x comparison y colnames
+  rownames(L) <- paste0("p",seq_len(nPoints),"_","c",
+                        paste(curves,collapse="_"))
   #transpose => one column is one contrast.
   L <- t(L)
   return(L)
@@ -254,4 +274,3 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL){
        pch = 16, cex = 2 / 3)
   lines(curve, lwd = 2)
 }
-

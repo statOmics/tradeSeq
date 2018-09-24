@@ -22,7 +22,6 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                    seed=81, offset=NULL, nknots=10){
 
   # TODO: adjust for single trajectory.
-  # TODO: allow for weights in GAM
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with X provided
   # TODO: add error if X contains intercept
@@ -78,7 +77,21 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   knotLocs <- quantile(tAll,probs=(0:(nknots-1))/(nknots-1))
   if(any(duplicated(knotLocs))){
     # fix pathological case where cells can be squeezed on one pseudotime value.
+    # take knots solely based on longest trajectory
     knotLocs <- quantile(t1[l1==1],probs=(0:(nknots-1))/(nknots-1))
+    # if duplication still occurs, get average btw 2 points for dups.
+    if(any(duplicated(knotLocs))){
+      dupId <- duplicated(knotLocs)
+      # if it's the last knot, get duplicates from end and replace by mean
+      if(which(dupId)==length(knotLocs)){
+        dupId <- duplicated(knotLocs, fromLast=TRUE)
+        knotLocs[dupId] <- mean(c(knotLocs[which(dupId)-1],
+                                knotLocs[which(dupId)+1]))
+      } else {
+        knotLocs[dupId] <- mean(c(knotLocs[which(dupId)-1],
+                                knotLocs[which(dupId)+1]))
+      }
+    }
     # if this doesn't fix it, get evenly spaced knots with warning
     if(any(duplicated(knotLocs))){
       warning(paste0("Too many cells seem to be squeezed at one pseudotime ",
@@ -113,7 +126,10 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   }, simplify=FALSE )
   names(knotList) <- paste0("t",seq_len(ncol(pseudotime)))
 
-  gamList <- pbapply::pbapply(counts,1,function(y) {
+
+  teller<-0
+  gamList <- pbapply(counts,1,function(y) {
+    teller <<- teller+1
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
     if(!is.null(weights)) weights <- weights[teller,]
@@ -189,7 +205,7 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   # TODO: add Wald and df if pairwise=TRUE
   # TODO: add fold changes
   # TODO: check if this is different to comparing knot coefficients
-  # TODO: add test to compare against starting point
+  # TODO: adjust null distribution with weights
 
   # TODO: add if loop if first model errored.
   modelTemp <- models[[1]]
@@ -309,16 +325,23 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
 }
 
-patternTest <- function(models, nPoints=100, omnibus = T, ...){
+
+#' Perform pattern test between lineages
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#' @param nPoints the numboer of points to be compared between lineages.
+patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 
   #TODO: add argument for pairwise comparisons.
-  # TODO: add if loop for when first model errors.
-  mTemp <- models[[1]]
-  L <- .patternContrast(mTemp, nPoints=nPoints)
-  rank <- getRank(mTemp, L)
+  #TODO: add if loop for when first model errors.
 
   # do statistical test for every model through eigenvalue decomposition
   if(omnibus){
+    # get contrast matrix
+    mTemp <- models[[1]]
+    L <- .patternContrast(mTemp, nPoints=nPoints)
+    # perform Wald test and calculate p-value
     waldResOmnibus <- lapply(models, function(m){
       if(class(m)[1]=="try-error") return(c(NA))
       getEigenStatGAM(m, L)
@@ -327,9 +350,40 @@ patternTest <- function(models, nPoints=100, omnibus = T, ...){
     pval <- 1-pchisq(waldResults[,1], df=waldResults[,2])
     waldResults <- cbind(waldResults,pval)
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
-    waldResults <- as.data.frame(waldResults)
+    waldResultsOmnibus <- as.data.frame(waldResults)
   }
 
+  #perform pairwise comparisons
+  if(pairwise){
+    nCurves <- length(mTemp$smooth)
+    combs <- combn(x=nCurves,m=2)
+    for(jj in seq_len(ncol(combs))){
+      curvesNow <- combs[,jj]
+      L <- .patternContrastPairwise(mTemp, nPoints=nPoints, curves=curvesNow)
+      waldResPair <- lapply(models, function(m){
+        if(class(m)[1]=="try-error") return(c(NA))
+        getEigenStatGAM(m, L)
+      })
+      waldResults <- do.call(rbind,waldResPair)
+      pval <- 1-pchisq(waldResults[,1], df=waldResults[,2])
+      waldResults <- cbind(waldResults,pval)
+      colnames(waldResults) <-
+        c(paste0("waldStat_",paste(curvesNow,collapse="vs")),
+          paste0("df_",paste(curvesNow,collapse="vs")),
+          paste0("pvalue",paste(curvesNow,collapse="vs")))
+      waldResults <- as.data.frame(waldResults)
+      if(jj==1) waldResAllPair <- waldResults
+      if(jj>1) waldResAllPair <- cbind(waldResAllPair,waldResults)
+    }
+  }
+
+    #return output
+    if(omnibus==TRUE & pairwise==FALSE) return(waldResultsOmnibus)
+    if(omnibus==FALSE & pairwise==TRUE) return(waldResAllPair)
+    if(omnibus==TRUE & pairwise==TRUE){
+      waldAll <- cbind(waldResultsOmnibus, waldResAllPair)
+      return(waldAll)
+    }
 }
 
 
@@ -396,8 +450,6 @@ earlyDrivers <- function(models, output = "both"){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#'
-#'
 patternTestOld <- function(models){
   # TODO: add if loop if first model errored.
   modelTemp <- models[[1]]
@@ -428,6 +480,3 @@ patternTestOld <- function(models){
   waldResults <- as.data.frame(waldResults)
   return(waldResults)
 }
-
-
-
