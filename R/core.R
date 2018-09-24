@@ -125,7 +125,9 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   }, simplify=FALSE )
   names(knotList) <- paste0("t",seq_len(ncol(pseudotime)))
 
+  teller<-0
   gamList <- pbapply(counts,1,function(y) {
+    teller <<- teller+1	
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
     if(!is.null(weights)) weights <- weights[teller,]
