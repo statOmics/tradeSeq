@@ -21,7 +21,6 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                    seed=81, offset=NULL, nknots=10){
 
   # TODO: adjust for single trajectory.
-  # TODO: allow for weights in GAM
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with X provided
   # TODO: add error if X contains intercept
@@ -77,7 +76,21 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   knotLocs <- quantile(tAll,probs=(0:(nknots-1))/(nknots-1))
   if(any(duplicated(knotLocs))){
     # fix pathological case where cells can be squeezed on one pseudotime value.
+    # take knots solely based on longest trajectory
     knotLocs <- quantile(t1[l1==1],probs=(0:(nknots-1))/(nknots-1))
+    # if duplication still occurs, get average btw 2 points for dups.
+    if(any(duplicated(knotLocs))){
+      dupId <- duplicated(knotLocs)
+      # if it's the last knot, get duplicates from end and replace by mean
+      if(which(dupId)==length(knotLocs)){
+        dupId <- duplicated(knotLocs, fromLast=TRUE)
+        knotLocs[dupId] <- mean(c(knotLocs[which(dupId)-1],
+                                knotLocs[which(dupId)+1]))
+      } else {
+        knotLocs[dupId] <- mean(c(knotLocs[which(dupId)-1],
+                                knotLocs[which(dupId)+1]))
+      }
+    }
     # if this doesn't fix it, get evenly spaced knots with warning
     if(any(duplicated(knotLocs))){
       warning(paste0("Too many cells seem to be squeezed at one pseudotime ",
@@ -193,7 +206,7 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   # TODO: add Wald and df if pairwise=TRUE
   # TODO: add fold changes
   # TODO: check if this is different to comparing knot coefficients
-  # TODO: add test to compare against starting point
+  # TODO: adjust null distribution with weights
 
   # TODO: add if loop if first model errored.
   modelTemp <- models[[1]]
@@ -314,8 +327,12 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 }
 
 
-
-patternTest <- function(models, nPoints=100, ...){
+#' Perform pattern test between lineages
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#' @param nPoints the numboer of points to be compared between lineages.
+patternTest <- function(models, nPoints=100, omnibus=TRUE, ...){
 
   #TODO: add argument for pairwise comparisons.
   # TODO: add if loop for when first model errors.
@@ -347,7 +364,6 @@ patternTest <- function(models, nPoints=100, ...){
 #'
 #' @importFrom magrittr %>%
 #'
-
 earlyDrivers <- function(models){
   modelTemp <- models[[1]]
   nCurves <- length(modelTemp$smooth)
@@ -391,8 +407,6 @@ earlyDrivers <- function(models){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#'
-#'
 patternTestOld <- function(models){
   # TODO: add if loop if first model errored.
   modelTemp <- models[[1]]

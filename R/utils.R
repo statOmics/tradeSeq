@@ -104,15 +104,14 @@ waldTestFullSub <- function(model, L){
 .patternContrast <- function(m, nPoints=100){
 
   # TODO: add if loop if first model errored.
-  modelTemp <- models[[1]]
-  nCurves <- length(modelTemp$smooth)
-  data <- modelTemp$model
+  nCurves <- length(m$smooth)
+  data <- m$model
 
   # get predictor matrix for every lineage.
   for(jj in seq_len(nCurves)){
-    df <- .getPredictRangeDf(modelTemp, jj, nPoints=nPoints)
+    df <- .getPredictRangeDf(m, jj, nPoints=nPoints)
     assign(paste0("X",jj),
-           predict(modelTemp, newdata=df, type="lpmatrix"))
+           predict(m, newdata=df, type="lpmatrix"))
   }
 
   # construct pairwise contrast matrix
@@ -122,12 +121,12 @@ waldTestFullSub <- function(model, L){
     if(jj==1){
       L <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
     } else if(jj>1){
-      L <- cbind(L,get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2])))
+      L <- rbind(L,get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2])))
     }
   }
   # point x comparison y colnames
   rownames(L) <- paste0("p",rep(seq_len(nPoints),ncol(combs)),"_","c",
-                        rep(ncol(combs),each=nPoints))
+                        rep(seq_len(ncol(combs)),each=nPoints))
   #transpose => one column is one contrast.
   L <- t(L)
   return(L)
