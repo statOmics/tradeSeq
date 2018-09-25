@@ -4,11 +4,13 @@
 \alias{earlyDrivers}
 \title{Perform test of early differences between lineages}
 \usage{
-earlyDrivers(models)
+earlyDrivers(models, output = "both")
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
+
+\item{output}{The type of output. Can be "pval", "wald" or "both". Default to "both".}
 }
 \description{
 Perform test of early differences between lineages

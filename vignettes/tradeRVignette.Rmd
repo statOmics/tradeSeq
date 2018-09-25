@@ -22,7 +22,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(tidyr)
 })
-palette(brewer.pal(9,"Dark2"))
+palette(brewer.pal(8,"Dark2"))
 data(se, package = "tradeR")
 se
 ```
