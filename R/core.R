@@ -165,8 +165,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
 #'
 getSmootherPvalues <- function(models){
 
-  # TODO: add if loop if first model errored.
-  modelTemp <- models[[1]]
+  modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
 
   smootherP <- lapply(models, function(m){
@@ -184,8 +183,7 @@ getSmootherPvalues <- function(models){
 #'
 getSmootherTestStats <- function(models){
 
-  # TODO: add if loop if first model errored.
-  modelTemp <- models[[1]]
+  modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
 
   smootherChi <- lapply(models, function(m){
@@ -211,8 +209,7 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   # TODO: check if this is different to comparing knot coefficients
   # TODO: adjust null distribution with weights
 
-  # TODO: add if loop if first model errored.
-  modelTemp <- models[[1]]
+  modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
 
@@ -279,8 +276,7 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   # TODO: add Wald and df if pairwise=TRUE
   # TODO: add fold changes
 
-  # TODO: add if loop if first model errored.
-  modelTemp <- models[[1]]
+  modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
 
@@ -339,12 +335,11 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 
   #TODO: add argument for pairwise comparisons.
-  #TODO: add if loop for when first model errors.
 
   # do statistical test for every model through eigenvalue decomposition
   if (omnibus) {
     # get contrast matrix
-    mTemp <- models[[1]]
+    mTemp <- .getModelReference(models)
     L <- .patternContrast(mTemp, nPoints = nPoints)
     # perform Wald test and calculate p-value
     waldResOmnibus <- lapply(models, function(m){
@@ -391,8 +386,6 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
     }
 }
 
-
-
 #' Perform test of early differences between lineages
 #'
 #' @param models the list of GAMs, typically the output from
@@ -401,13 +394,12 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 #'
 #' @importFrom magrittr %>%
 #'
-
 earlyDrivers <- function(models, output = "both"){
   if (!(output %in% c("pval", "wald", "both"))) {
     stop("output needs to be either pval, output or both")
   }
 
-  modelTemp <- models[[1]]
+  modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
 
@@ -456,8 +448,8 @@ earlyDrivers <- function(models, output = "both"){
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 patternTestOld <- function(models){
-  # TODO: add if loop if first model errored.
-  modelTemp <- models[[1]]
+
+  modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
   nknots <- length(modelTemp$smooth[[1]]$xp)

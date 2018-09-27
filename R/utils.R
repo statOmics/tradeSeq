@@ -1,4 +1,4 @@
-# helper functions
+# helper functions ----
 
 # get predictor matrix for the end point of a smoother.
 .getPredictEndPointDf <- function(m, lineageId){
@@ -51,8 +51,15 @@
   return(vars)
 }
 
+.getModelReference <- function(models){
+  for (i in 1:length(models)) {
+    m <- models[[i]]
+    if (class(m)[1] == "try-error") return(m)
+  }
+  stop("All models errored")
+}
 
-### perform Wald test
+# perform Wald test ----
 waldTest <- function(model, L){
   ### build a contrast matrix for a multivariate Wald test
   beta <- matrix(coef(model), ncol = 1)
@@ -105,7 +112,7 @@ waldTestFullSub <- function(model, L){
   return(c(est, var, wald, df, pval))
 }
 
-
+# Pattern contrast ----
 .patternContrast <- function(model, nPoints=100){
 
   # TODO: add if loop if first model errored.
@@ -211,6 +218,7 @@ getEigenStatGAM <- function(m, L){
   return(vars)
 }
 
+# Plotting ----
 # plot the model for a particular gene
 plotSmoothers <- function(m, nPoints=100, ...){
 
@@ -245,7 +253,6 @@ plotSmoothers <- function(m, nPoints=100, ...){
   legend("topleft", paste0("lineage", seq_len(nCurves)),col = seq_len(nCurves),
          lty = 1, lwd = 2, bty = "n", cex = 2 / 3)
 }
-
 
 #' Plot the gene in reduced dimension space
 #'
