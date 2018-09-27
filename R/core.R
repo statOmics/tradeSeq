@@ -17,7 +17,7 @@
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
 #'
-#'@importFrom pbapply pbapply
+#'@importFrom plyr a_ply
 fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                    seed=81, offset=NULL, nknots=10){
 
@@ -27,7 +27,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   # TODO: add error if X contains intercept
   # TODO: add parallellization
 
-  if(!identical(dim(pseudotime), dim(cellWeights))){
+  if (!identical(dim(pseudotime), dim(cellWeights))) {
     stop("pseudotime and cellWeights must have identical dimensions.")
   }
 
@@ -42,23 +42,24 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
 
   set.seed(seed)
   # normalize weights
-  normWeights <- sweep(cellWeights,1, FUN="/", STATS=apply(cellWeights,1,sum))
+  normWeights <- sweep(cellWeights,1, FUN = "/",
+                       STATS = apply(cellWeights,1,sum))
   # sample weights
   wSamp <- t(apply(normWeights,1,function(prob){
-    rmultinom(n=1, prob=prob, size=1)
+    rmultinom(n = 1, prob = prob, size = 1)
     }))
   # define pseudotime for each lineage
-  for(ii in seq_len(ncol(pseudotime))){
+  for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("t",ii), pseudotime[,ii])
   }
   # get lineage indicators for cells to use in smoothers
-  for(ii in seq_len(ncol(pseudotime))){
-    assign(paste0("l",ii),1*(wSamp[,ii]==1))
+  for (ii in seq_len(ncol(pseudotime))) {
+    assign(paste0("l",ii),1*(wSamp[,ii] == 1))
   }
   # offset
-  if(is.null(offset)){
+  if (is.null(offset)) {
     nf <- edgeR::calcNormFactors(counts)
-    libSize <- colSums(as.matrix(counts))*nf
+    libSize <- colSums(as.matrix(counts)) * nf
     offset <- log(libSize)
   }
 
@@ -71,89 +72,90 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   ## fit NB GAM
   ### get knots to end at last points of lineages.
   tAll <- c()
-  for(ii in 1:nrow(pseudotime)){
-    tAll[ii] <- pseudotime[ii,which(as.logical(wSamp[ii,]))]
+  for (ii in 1:nrow(pseudotime)) {
+    tAll[ii] <- pseudotime[ii, which(as.logical(wSamp[ii,]))]
   }
-  knotLocs <- quantile(tAll,probs=(0:(nknots-1))/(nknots-1))
-  if(any(duplicated(knotLocs))){
+  knotLocs <- quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
+  if (any(duplicated(knotLocs))) {
     # fix pathological case where cells can be squeezed on one pseudotime value.
     # take knots solely based on longest trajectory
-    knotLocs <- quantile(t1[l1==1],probs=(0:(nknots-1))/(nknots-1))
+    knotLocs <- quantile(t1[l1 == 1],
+                         probs = (0:(nknots - 1)) / (nknots - 1))
     # if duplication still occurs, get average btw 2 points for dups.
-    if(any(duplicated(knotLocs))){
+    if (any(duplicated(knotLocs))) {
       dupId <- duplicated(knotLocs)
       # if it's the last knot, get duplicates from end and replace by mean
-      if(which(dupId)==length(knotLocs)){
-        dupId <- duplicated(knotLocs, fromLast=TRUE)
-        knotLocs[dupId] <- mean(c(knotLocs[which(dupId)-1],
-                                knotLocs[which(dupId)+1]))
+      if (which(dupId) == length(knotLocs)) {
+        dupId <- duplicated(knotLocs, fromLast = TRUE)
+        knotLocs[dupId] <- mean(c(knotLocs[which(dupId) - 1],
+                                knotLocs[which(dupId) + 1]))
       } else {
-        knotLocs[dupId] <- mean(c(knotLocs[which(dupId)-1],
-                                knotLocs[which(dupId)+1]))
+        knotLocs[dupId] <- mean(c(knotLocs[which(dupId) - 1],
+                                knotLocs[which(dupId) + 1]))
       }
     }
     # if this doesn't fix it, get evenly spaced knots with warning
-    if(any(duplicated(knotLocs))){
+    if (any(duplicated(knotLocs))) {
       warning(paste0("Too many cells seem to be squeezed at one pseudotime ",
                      "value, the smoothers will work with evenly spaced knots ",
                      "instead of quantile-based knots. Interpret results with ",
                      "caution."))
-      knotLocs <- seq(min(tAll),max(tAll),length=nknots)
+      knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
   }
-  if(ncol(pseudotime)>1){
+  if (ncol(pseudotime) > 1) {
     maxT <- c()
-    for(jj in 2:ncol(pseudotime)){
-      maxT[jj-1] <- max(get(paste0("t",jj))[get(paste0("l",jj))==1])
+    for (jj in 2:ncol(pseudotime)) {
+      maxT[jj - 1] <- max(get(paste0("t", jj))[get(paste0("l",jj)) == 1])
     }
   }
   # if max is already a knot we can remove that
-  if(all(maxT%in%knotLocs)){
+  if (all(maxT %in% knotLocs)) {
     knots <- knotLocs
   } else {
-    maxT <- maxT[!maxT%in%knotLocs]
+    maxT <- maxT[!maxT %in% knotLocs]
     replaceId <- sapply(maxT, function(ll){
-      which.min(abs(ll-knotLocs))
+      which.min(abs(ll - knotLocs))
     })
     knotLocs[replaceId] <- maxT
-    if(!all(maxT%in%knotLocs)){
+    if (!all(maxT %in% knotLocs)) {
       stop("Can't get all knots to equal endpoints of trajectories")
     }
     knots <- knotLocs
   }
   knotList <- sapply(1:ncol(pseudotime), function(i){
     knots
-  }, simplify=FALSE )
-  names(knotList) <- paste0("t",seq_len(ncol(pseudotime)))
+  }, simplify = FALSE )
+  names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
 
 
-  teller<-0
-  gamList <- pbapply(counts,1,function(y) {
-    teller <<- teller+1
+  teller < -0
+  gamList <- a_ply(counts, 1, function(y) {
+    teller <<- teller + 1
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
-    if(!is.null(weights)) weights <- weights[teller,]
+    if (!is.null(weights)) weights <- weights[teller,]
     smoothForm <- as.formula(
-      if(is.null(X)){
+      if (is.null(X)) {
         paste0("y ~ -1 + ",
                paste(sapply(seq_len(ncol(pseudotime)), function(ii){
-                 paste0("s(t",ii,", by=l",ii,", bs='cr', id=1, k=nknots)")
-               })
-               , collapse="+"), " + offset(offset)")
+                 paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
+               }),
+               collapse = "+"), " + offset(offset)")
       } else {
       paste0("y ~ -1 + X + ",
              paste(sapply(seq_len(ncol(pseudotime)), function(ii){
-               paste0("s(t",ii,", by=l",ii,", bs='cr', id=1, k=nknots)")
-             })
-             , collapse="+"), " + offset(offset)")
+               paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
+             }),
+             collapse = "+"), " + offset(offset)")
       }
     )
     # fit smoother
-    s=mgcv:::s
+    s = mgcv:::s
     try(
-    mgcv::gam(smoothForm, family="nb", knots=knotList, weights=weights)
-    , silent=TRUE)
-  })
+    mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights),
+    silent = TRUE)
+  }, .progress = "txt")
   return(gamList)
 }
 
@@ -168,7 +170,7 @@ getSmootherPvalues <- function(models){
   nCurves <- length(modelTemp$smooth)
 
   smootherP <- lapply(models, function(m){
-    if(class(m)[1]=="try-error") return(rep(NA, nCurves))
+    if (class(m)[1] == "try-error") return(rep(NA, nCurves))
     summary(m)$s.table[,"p-value"]
   })
   smootherP <- do.call(rbind,smootherP)
@@ -187,7 +189,7 @@ getSmootherTestStats <- function(models){
   nCurves <- length(modelTemp$smooth)
 
   smootherChi <- lapply(models, function(m){
-    if(class(m)[1]=="try-error") return(rep(NA, nCurves))
+    if (class(m)[1] == "try-error") return(rep(NA, nCurves))
     summary(m)$s.table[,"Chi.sq"]
   })
   smootherChi <- do.call(rbind,smootherChi)
@@ -200,6 +202,8 @@ getSmootherTestStats <- function(models){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @importFrom magrittr %>%
+
 endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
   # TODO: add Wald and df if pairwise=TRUE
@@ -213,26 +217,26 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   data <- modelTemp$model
 
   # get predictor matrix for every lineage.
-  for(jj in seq_len(nCurves)){
+  for (jj in seq_len(nCurves)) {
     df <- .getPredictEndPointDf(modelTemp, jj)
     assign(paste0("X",jj),
-           predict(modelTemp, newdata=df, type="lpmatrix"))
+           predict(modelTemp, newdata = df, type = "lpmatrix"))
   }
 
   # construct pairwise contrast matrix
-  combs <- combn(nCurves,m=2)
-  L <- matrix(0, nrow=length(coef(modelTemp)), ncol=ncol(combs))
-  colnames(L) <- apply(combs,2,paste,collapse="_")
-  for(jj in 1:ncol(combs)){
+  combs <- combn(nCurves,m = 2)
+  L <- matrix(0, nrow = length(coef(modelTemp)), ncol = ncol(combs))
+  colnames(L) <- apply(combs, 2, paste, collapse = "_")
+  for (jj in 1:ncol(combs)) {
     curvesNow <- combs[,jj]
-    L[,jj] <- get(paste0("X",curvesNow[1])) - get(paste0("X",curvesNow[2]))
+    L[,jj] <- get(paste0("X", curvesNow[1])) - get(paste0("X",curvesNow[2]))
   }
   rm(modelTemp)
 
   # do statistical test for every model
-  if(omnibus){
+  if (omnibus) {
     waldResultsOmnibus <- lapply(models, function(m){
-      if(class(m)[1]=="try-error") return(c(NA,NA,NA))
+      if (class(m)[1] == " try-error") return(c(NA, NA, NA))
       waldTest(m, L)
     })
     pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
@@ -240,23 +244,22 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResults <- as.data.frame(waldResults)
   }
-  if(pairwise){
+  if (pairwise) {
     waldResultsPairwise <- lapply(models, function(m){
-      if(class(m)[1]=="try-error") return(NA)
+      if (class(m)[1] == "try-error") return(NA)
       t(sapply(seq_len(ncol(L)), function(ii){
-        waldTest(m, L[,ii,drop=FALSE])
+        waldTest(m, L[, ii, drop = FALSE])
       }))
     })
-    pvalsPairwise <- as.data.frame(do.call(rbind,
-                                           lapply(waldResultsPairwise, function(x){
-                                             x[,3]
-                                             })))
+    pvalsPairwise <- do.call(rbind,
+                             lapply(waldResultsPairwise, function(x) x[,3])) %>%
+                     as.data.frame()
     colnames(pvalsPairwise) <- colnames(L)
   }
 
-  if(omnibus==TRUE & pairwise==FALSE) return(waldResults)
-  if(omnibus==FALSE & pairwise==TRUE) return(pvalsPairwise)
-  if(omnibus & pairwise){
+  if (omnibus == TRUE & pairwise == FALSE) return(waldResults)
+  if (omnibus == FALSE & pairwise == TRUE) return(pvalsPairwise)
+  if (omnibus & pairwise) {
     resAll <- cbind(pvalsOmnibus, pvalsPairwise)
     colnames(resAll)[1] <- "omnibus"
     return(resAll)
@@ -269,6 +272,8 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @importFrom magrittr %>%
+
 startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
   # TODO: add Wald and df if pairwise=TRUE
@@ -280,20 +285,20 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   data <- modelTemp$model
 
   # construct within-lineage contrast matrix
-  L <- matrix(0, nrow=length(coef(modelTemp)), ncol=nCurves)
-  colnames(L) <- paste0("lineage",seq_len(nCurves))
-  for(jj in seq_len(nCurves)){
+  L <- matrix(0, nrow = length(coef(modelTemp)), ncol = nCurves)
+  colnames(L) <- paste0("lineage", seq_len(nCurves))
+  for (jj in seq_len(nCurves)) {
       dfEnd <- .getPredictEndPointDf(modelTemp, jj)
-      XEnd <- predict(modelTemp, newdata=dfEnd, type="lpmatrix")
+      XEnd <- predict(modelTemp, newdata = dfEnd, type = "lpmatrix")
       dfStart <- .getPredictStartPointDf(modelTemp, jj)
-      XStart <- predict(modelTemp, newdata=dfStart, type="lpmatrix")
-      L[,jj] <- XEnd-XStart
+      XStart <- predict(modelTemp, newdata = dfStart, type = "lpmatrix")
+      L[, jj] <- XEnd - XStart
   }
 
   # do statistical test for every model
-  if(omnibus){
+  if (omnibus) {
     waldResultsOmnibus <- lapply(models, function(m){
-      if(class(m)[1]=="try-error") return(c(NA,NA,NA))
+      if (class(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
     })
     pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
@@ -301,23 +306,22 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResults <- as.data.frame(waldResults)
   }
-  if(pairwise){
+  if (pairwise) {
     waldResultsPairwise <- lapply(models, function(m){
-      if(class(m)[1]=="try-error") return(NA)
+      if (class(m)[1] == "try-error") return(NA)
       t(sapply(seq_len(ncol(L)), function(ii){
-        waldTest(m, L[,ii,drop=FALSE])
+        waldTest(m, L[, ii, drop = FALSE])
       }))
     })
-    pvalsPairwise <- as.data.frame(do.call(rbind,
-                                           lapply(waldResultsPairwise, function(x){
-                                             x[,3]
-                                           })))
+    pvalsPairwise <- do.call(rbind,
+                             lapply(waldResultsPairwise, function(x) x[,3])) %>%
+                     as.data.frame()
     colnames(pvalsPairwise) <- colnames(L)
   }
 
-  if(omnibus==TRUE & pairwise==FALSE) return(waldResults)
-  if(omnibus==FALSE & pairwise==TRUE) return(pvalsPairwise)
-  if(omnibus & pairwise){
+  if (omnibus == TRUE & pairwise == FALSE) return(waldResults)
+  if (omnibus == FALSE & pairwise == TRUE) return(pvalsPairwise)
+  if (omnibus & pairwise) {
     resAll <- cbind(pvalsOmnibus, pvalsPairwise)
     colnames(resAll)[1] <- "omnibus"
     return(resAll)
@@ -331,56 +335,57 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints the numboer of points to be compared between lineages.
+#' @importFrom magrittr %>%
 patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 
   #TODO: add argument for pairwise comparisons.
   #TODO: add if loop for when first model errors.
 
   # do statistical test for every model through eigenvalue decomposition
-  if(omnibus){
+  if (omnibus) {
     # get contrast matrix
     mTemp <- models[[1]]
-    L <- .patternContrast(mTemp, nPoints=nPoints)
+    L <- .patternContrast(mTemp, nPoints = nPoints)
     # perform Wald test and calculate p-value
     waldResOmnibus <- lapply(models, function(m){
-      if(class(m)[1]=="try-error") return(c(NA))
+      if (class(m)[1] == "try-error") return(c(NA))
       getEigenStatGAM(m, L)
     })
-    waldResults <- do.call(rbind,waldResOmnibus)
-    pval <- 1-pchisq(waldResults[,1], df=waldResults[,2])
-    waldResults <- cbind(waldResults,pval)
+    waldResults <- do.call(rbind, waldResOmnibus)
+    pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+    waldResults <- cbind(waldResults, pval)
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResultsOmnibus <- as.data.frame(waldResults)
   }
 
   #perform pairwise comparisons
-  if(pairwise){
+  if (pairwise) {
     nCurves <- length(mTemp$smooth)
-    combs <- combn(x=nCurves,m=2)
-    for(jj in seq_len(ncol(combs))){
+    combs <- combn(x = nCurves, m = 2)
+    for (jj in seq_len(ncol(combs))) {
       curvesNow <- combs[,jj]
-      L <- .patternContrastPairwise(mTemp, nPoints=nPoints, curves=curvesNow)
+      L <- .patternContrastPairwise(mTemp, nPoints = nPoints, curves = curvesNow)
       waldResPair <- lapply(models, function(m){
-        if(class(m)[1]=="try-error") return(c(NA))
+        if (class(m)[1] == "try-error") return(c(NA))
         getEigenStatGAM(m, L)
       })
-      waldResults <- do.call(rbind,waldResPair)
-      pval <- 1-pchisq(waldResults[,1], df=waldResults[,2])
-      waldResults <- cbind(waldResults,pval)
-      colnames(waldResults) <-
-        c(paste0("waldStat_",paste(curvesNow,collapse="vs")),
-          paste0("df_",paste(curvesNow,collapse="vs")),
-          paste0("pvalue",paste(curvesNow,collapse="vs")))
+      waldResults <- do.call(rbind, waldResPair)
+      pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+      waldResults <- cbind(waldResults, pval)
+      colnames(waldResults) <- c(
+          paste0("waldStat_", paste(curvesNow, collapse = "vs")),
+          paste0("df_", paste(curvesNow, collapse = "vs")),
+          paste0("pvalue", paste(curvesNow, collapse = "vs")))
       waldResults <- as.data.frame(waldResults)
-      if(jj==1) waldResAllPair <- waldResults
-      if(jj>1) waldResAllPair <- cbind(waldResAllPair,waldResults)
+      if (jj == 1) waldResAllPair <- waldResults
+      if (jj > 1) waldResAllPair <- cbind(waldResAllPair, waldResults)
     }
   }
 
     #return output
-    if(omnibus==TRUE & pairwise==FALSE) return(waldResultsOmnibus)
-    if(omnibus==FALSE & pairwise==TRUE) return(waldResAllPair)
-    if(omnibus==TRUE & pairwise==TRUE){
+    if (omnibus == TRUE & pairwise == FALSE) return(waldResultsOmnibus)
+    if (omnibus == FALSE & pairwise == TRUE) return(waldResAllPair)
+    if (omnibus == TRUE & pairwise == TRUE) {
       waldAll <- cbind(waldResultsOmnibus, waldResAllPair)
       return(waldAll)
     }
@@ -425,10 +430,10 @@ earlyDrivers <- function(models, output = "both"){
 
   #perform omnibus test
   waldResultsOmnibus <- lapply(models, function(m){
-    if(class(m)[1]=="try-error") return(c(NA,NA,NA))
-    waldHlp = try(indWaldTest(m, L),silent=TRUE)
+    if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+    waldHlp <- try(indWaldTest(m, L), silent = TRUE)
     # sometimes all coefs are identical, non-singular var-cov of contrast.
-    if(class(waldHlp)=="try-error") return(c(NA,NA,NA))
+    if (class(waldHlp) == "try-error") return(c(NA, NA, NA))
     return(waldHlp)
   })
   pvalResults <- lapply(waldResultsOmnibus, '[[', "pval")
@@ -440,7 +445,7 @@ earlyDrivers <- function(models, output = "both"){
   pvalResults <- as.data.frame(pvalResults)
   Results <- list("wald" = waldlResults,
                   "pval" = pvalResults)
-  if(output != "both"){
+  if (output != "both") {
     Results <- Results[[output]]
   }
   return(Results)
@@ -457,21 +462,25 @@ patternTestOld <- function(models){
   data <- modelTemp$model
   nknots <- length(modelTemp$smooth[[1]]$xp)
   # construct pairwise contrast matrix
-  combs <- combn(nCurves,m=2)
-  L <- matrix(0, nrow=length(coef(modelTemp)), ncol=ncol(combs)*nknots)
+  combs <- combn(nCurves, m = 2)
+  L <- matrix(0, nrow = length(coef(modelTemp)), ncol = ncol(combs) * nknots)
   rownames(L) <- names(coef(modelTemp))
-  for(jj in 1:ncol(combs)){
+  for (jj in 1:ncol(combs)) {
     curvesNow <- combs[,jj]
     #TODO: should 10 be nknots?
-    for(ii in seq_len(nknots)) L[(curvesNow[1]-1)*10+ii,(jj-1)*10+ii] <- 1
-    for(ii in seq_len(nknots)) L[(curvesNow[2]-1)*10+ii,(jj-1)*10+ii] <- -1
+    for (ii in seq_len(nknots)) {
+      L[(curvesNow[1] - 1) * 10 + ii, (jj - 1) * 10 + ii] <- 1
+    }
+    for (ii in seq_len(nknots)) {
+      L[(curvesNow[2] - 1) * 10 + ii, (jj - 1) * 10 + ii] <- -1
+    }
   }
   #perform omnibus test
   waldResultsOmnibus <- lapply(models, function(m){
-    if(class(m)[1]=="try-error") return(c(NA,NA,NA))
-    waldHlp = try(waldTest(m, L),silent=TRUE)
+    if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+    waldHlp <- try(waldTest(m, L), silent = TRUE)
     #sometimes all coefs are identical, non-singular var-cov of contrast.
-    if(class(waldHlp)=="try-error") return(c(NA,NA,NA))
+    if (class(waldHlp) == "try-error") return(c(NA, NA, NA))
     return(waldHlp)
   })
   pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
