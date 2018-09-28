@@ -1,5 +1,5 @@
 #' @include utils.R
-
+NULL
 
 #' Fit GAM model
 #'
@@ -16,10 +16,12 @@
 #' @param seed the seed used for assigning cells to trajectories
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
-#'
-#'@importFrom plyr a_ply
+#' @param Verbose Whether to display the progress bar or not
+#' @importFrom plyr alply
+#' @export
+
 fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
-                   seed=81, offset=NULL, nknots=10){
+                   seed=81, offset=NULL, nknots=10, Verbose = FALSE){
 
   # TODO: adjust for single trajectory.
   # TODO: make sure warning message for knots prints after looping
@@ -129,8 +131,8 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
   names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
 
 
-  teller < -0
-  gamList <- a_ply(counts, 1, function(y) {
+  teller <- 0
+  counts_to_Gam <- function(y) {
     teller <<- teller + 1
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
@@ -143,25 +145,32 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
                }),
                collapse = "+"), " + offset(offset)")
       } else {
-      paste0("y ~ -1 + X + ",
-             paste(sapply(seq_len(ncol(pseudotime)), function(ii){
-               paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
-             }),
-             collapse = "+"), " + offset(offset)")
+        paste0("y ~ -1 + X + ",
+               paste(sapply(seq_len(ncol(pseudotime)), function(ii){
+                 paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
+               }),
+               collapse = "+"), " + offset(offset)")
       }
     )
     # fit smoother
     s = mgcv:::s
     try(
-    mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights),
-    silent = TRUE)
-  }, .progress = "txt")
+      mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights),
+      silent = TRUE)
+  }
+  if (Verbose){
+    gamList <- alply(counts, 1, counts_to_Gam, .progress = "text", .dims = TRUE)
+  } else {
+    gamList <- apply(counts, 1, counts_to_Gam)
+  }
+
   return(gamList)
 }
 
 #' Get smoother p-value
 #'
 #' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
+#' @export
 #'
 getSmootherPvalues <- function(models){
 
@@ -180,6 +189,7 @@ getSmootherPvalues <- function(models){
 #' Get smoother Chi-squared test statistics
 #'
 #' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
+#' @export
 #'
 getSmootherTestStats <- function(models){
 
@@ -201,7 +211,7 @@ getSmootherTestStats <- function(models){
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @importFrom magrittr %>%
-
+#' @export
 endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
   # TODO: add Wald and df if pairwise=TRUE
@@ -270,6 +280,7 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @importFrom magrittr %>%
+#' @export
 
 startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
@@ -332,6 +343,8 @@ startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #' \code{\link{fitGAM}}.
 #' @param nPoints the numboer of points to be compared between lineages.
 #' @importFrom magrittr %>%
+#' @export
+#'
 patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 
   #TODO: add argument for pairwise comparisons.
@@ -393,6 +406,7 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 #' @param output The type of output. Can be "pval", "wald" or "both". Default to "both".
 #'
 #' @importFrom magrittr %>%
+#' @export
 #'
 earlyDrivers <- function(models, output = "both"){
   if (!(output %in% c("pval", "wald", "both"))) {
@@ -447,6 +461,7 @@ earlyDrivers <- function(models, output = "both"){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @export
 patternTestOld <- function(models){
 
   modelTemp <- .getModelReference(models)

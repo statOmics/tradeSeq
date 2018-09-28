@@ -43,7 +43,6 @@ lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
 crv <- getCurves(lin)
 
 plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl)
-
 ```
 
 We find two trajectories for this dataset. We can futher color the cells according to their cell type.
@@ -202,6 +201,13 @@ Interestingly, we recover the Irf8 gene in the top 5 genes according to that ran
 
 ```{r}
 head(compare %>% arrange(desc(transientScore)) %>% select(Gene), n = 5)
+```
+
+We can also plot the Irf8 gene.
+
+```{r}
+plotSmoothers(gamList[["Irf8"]])
+plotGeneCount(rd, crv, counts, gene = "Irf8")
 ```
 
 ## Early drivers of differentiation

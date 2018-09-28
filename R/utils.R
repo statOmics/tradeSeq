@@ -54,7 +54,7 @@
 .getModelReference <- function(models){
   for (i in 1:length(models)) {
     m <- models[[i]]
-    if (class(m)[1] == "try-error") return(m)
+    if (class(m)[1] != "try-error") return(m)
   }
   stop("All models errored")
 }
@@ -219,8 +219,12 @@ getEigenStatGAM <- function(m, L){
 }
 
 # Plotting ----
-# plot the model for a particular gene
-plotSmoothers <- function(m, nPoints=100, ...){
+#' plot the model for a particular gene
+#'
+#' @param m the fitted model of a given gene
+#' @param nPointss The number of points used to extraplolate the fit
+#' @export
+plotSmoothers <- function(m, nPoints = 100, ...){
 
   data <- m$model
   y <- data$y
@@ -263,7 +267,7 @@ plotSmoothers <- function(m, nPoints=100, ...){
 #' @param clusters The assignation of each cell to a cluster. Used to color the plot. Either \code{clusters} or \code{gene} must be supplied.
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the plot will be colored according to gene count level.
 #' @import RColorBrewer
-#'
+#' @export
 plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL){
   if (is.null(gene) & is.null(clusters)) {
     stop("Either gene or clusters argument must be supplied")
