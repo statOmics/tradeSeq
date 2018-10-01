@@ -64,8 +64,10 @@ waldTest <- function(model, L){
   ### build a contrast matrix for a multivariate Wald test
   beta <- matrix(coef(model), ncol = 1)
   LQR <- L[, qr(L)$pivot[1:qr(L)$rank], drop = FALSE]
+  sigmaInv <- try(solve(t(LQR) %*% model$Vp %*% LQR))
+  if(class(sigmaInv)=="try-error") return(c(NA,NA,NA))
   wald <- t(t(LQR) %*% beta) %*%
-          solve(t(LQR) %*% model$Vp %*% LQR) %*%
+          sigmaInv %*%
           t(LQR) %*% beta
   df <- ncol(LQR)
   pval <- 1 - pchisq(wald, df = df)

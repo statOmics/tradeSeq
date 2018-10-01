@@ -246,14 +246,14 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
       if (class(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
     })
-    pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
     waldResults <- do.call(rbind,waldResultsOmnibus)
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResults <- as.data.frame(waldResults)
   }
   if (pairwise) {
     waldResultsPairwise <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(NA)
+      if (class(m)[1] == "try-error") return(matrix(NA,nrow=seq_len(ncol(L)),
+                                                    ncol=3))
       t(sapply(seq_len(ncol(L)), function(ii){
         waldTest(m, L[, ii, drop = FALSE])
       }))
