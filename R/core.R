@@ -243,7 +243,7 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   # do statistical test for every model
   if (omnibus) {
     waldResultsOmnibus <- lapply(models, function(m){
-      if (class(m)[1] == " try-error") return(c(NA, NA, NA))
+      if (class(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
     })
     pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
