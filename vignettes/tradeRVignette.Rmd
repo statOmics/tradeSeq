@@ -21,6 +21,7 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(ggplot2)
   library(tidyr)
+  library(pbapply)
 })
 palette(brewer.pal(8,"Dark2"))
 data(se, package = "tradeR")
