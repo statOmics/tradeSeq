@@ -240,7 +240,7 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   }
   rm(modelTemp)
 
-  # do statistical test for every model
+  # perform global statistical test for every model
   if (omnibus) {
     waldResultsOmnibus <- lapply(models, function(m){
       if (class(m)[1] == "try-error") return(c(NA, NA, NA))
@@ -250,29 +250,39 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResults <- as.data.frame(waldResults)
   }
+
+  # perform pairwise comparisons
   if (pairwise) {
     waldResultsPairwise <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(matrix(NA,nrow=seq_len(ncol(L)),
+      if (class(m)[1] == "try-error") return(matrix(NA,nrow=ncol(L),
                                                     ncol=3))
       t(sapply(seq_len(ncol(L)), function(ii){
         waldTest(m, L[, ii, drop = FALSE])
       }))
     })
-    pvalsPairwise <- do.call(rbind,
-                             lapply(waldResultsPairwise, function(x) x[,3])) %>%
-                     as.data.frame()
-    colnames(pvalsPairwise) <- colnames(L)
+    # clean pairwise results
+    contrastNames <- unlist(lapply(strsplit(colnames(L),split="_"),
+                                   paste,collapse="vs"))
+
+    colNames <- c(paste0("waldStat_",contrastNames),
+                  paste0("df_",contrastNames),
+                  paste0("pvalue_",contrastNames))
+    orderByContrast <- unlist(c(mapply(seq,1:3,length(x),by=3)))
+    waldResAllPair <- do.call(rbind,
+            lapply(waldResultsPairwise,function(x){
+      matrix(x,nrow=1, dimnames=list(NULL,colNames))[,orderByContrast]
+    }))
   }
 
+  # return output
   if (omnibus == TRUE & pairwise == FALSE) return(waldResults)
-  if (omnibus == FALSE & pairwise == TRUE) return(pvalsPairwise)
-  if (omnibus & pairwise) {
-    resAll <- cbind(pvalsOmnibus, pvalsPairwise)
-    colnames(resAll)[1] <- "omnibus"
-    return(resAll)
+  if (omnibus == FALSE & pairwise == TRUE) return(waldResAllPair)
+  if (omnibus == TRUE & pairwise == TRUE) {
+    waldAll <- cbind(waldResults, waldResAllPair)
+    return(waldAll)
   }
-
 }
+
 
 #' Perform statistical test to check for DE between starting point and the end
 #' stages of every trajectory.
@@ -383,7 +393,7 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
       colnames(waldResults) <- c(
           paste0("waldStat_", paste(curvesNow, collapse = "vs")),
           paste0("df_", paste(curvesNow, collapse = "vs")),
-          paste0("pvalue", paste(curvesNow, collapse = "vs")))
+          paste0("pvalue_", paste(curvesNow, collapse = "vs")))
       waldResults <- as.data.frame(waldResults)
       if (jj == 1) waldResAllPair <- waldResults
       if (jj > 1) waldResAllPair <- cbind(waldResAllPair, waldResults)
