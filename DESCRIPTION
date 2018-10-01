@@ -15,10 +15,10 @@ Collate:
     'constructors.R'
     'utils.R'
     'core.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Imports: mgcv,
     edgeR,
     SingleCellExperiment,
     slingshot,
     magrittr,
-    pbapply
+    plyr
