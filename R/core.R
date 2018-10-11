@@ -267,7 +267,7 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
     colNames <- c(paste0("waldStat_",contrastNames),
                   paste0("df_",contrastNames),
                   paste0("pvalue_",contrastNames))
-    orderByContrast <- unlist(c(mapply(seq,1:3,length(x),by=3)))
+    orderByContrast <- unlist(c(mapply(seq,1:3,length(waldResultsPairwise[[1]]),by=3)))
     waldResAllPair <- do.call(rbind,
             lapply(waldResultsPairwise,function(x){
       matrix(x,nrow=1, dimnames=list(NULL,colNames))[,orderByContrast]
