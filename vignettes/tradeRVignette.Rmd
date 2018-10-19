@@ -21,7 +21,6 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(ggplot2)
   library(tidyr)
-  library(pbapply)
 })
 palette(brewer.pal(8,"Dark2"))
 data(se, package = "tradeR")
@@ -75,7 +74,7 @@ filt["Irf8"] <- T
 counts <- counts[filt, ]
 gamList <- fitGAM(counts = counts,
                   pseudotime = slingPseudotime(crv, na = FALSE),
-                  cellWeights = slingCurveWeights(crv))
+                   cellWeights = slingCurveWeights(crv))
 # This takes about 1mn to run
 ```
 
@@ -83,6 +82,13 @@ One may explore the results of a model by requesting its summary.
 
 ```{r}
 summary(gamList[[1]])
+```
+
+You can also plot the cells in the reduced dimensions to see where the knots are distributed.
+
+```{r}
+plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl,
+              models = gamList)
 ```
 
 # Within-lineage comparisons

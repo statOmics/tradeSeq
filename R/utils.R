@@ -267,10 +267,12 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 #' @param counts the count matrix.
 #' @param gene The name of gene for which you want to plot the count or the row number of that gene in the count matrix. Alternatively, one can specify the cluster arguments
 #' @param clusters The assignation of each cell to a cluster. Used to color the plot. Either \code{clusters} or \code{gene} must be supplied.
+#' @param models the list of GAMs, typically the output from \code{\link{fitGAM}}. Used to display the knots.
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the plot will be colored according to gene count level.
 #' @import RColorBrewer
 #' @export
-plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL){
+plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
+                          models = NULL){
   if (is.null(gene) & is.null(clusters)) {
     stop("Either gene or clusters argument must be supplied")
   }
@@ -287,5 +289,19 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL){
   plot(rd[,1:2],
        col = cols, main = title, xlab = "dim1", ylab = "dim2",
        pch = 16, cex = 2 / 3)
-  lines(curve, lwd = 2)
+  lines(curve, lwd = 2, col = "black")
+  if(!is.null(models)) {
+    m <- models[[1]]
+    knots <- m$smooth[[1]]$xp
+    times <- slingPseudotime(curve, na = F)
+    knots_dim <- matrix(ncol = 2)
+    for (kn in knots) {
+      for (ii in 1:ncol(times)) {
+        p <- which.min(abs(times[, ii] - kn))
+        knots_dim <- rbind(knots_dim,
+                           slingCurves(crv)[[ii]]$s[p, ])
+      }
+    }
+    points(knots_dim, pch = 16, col = "black")
+  }
 }
