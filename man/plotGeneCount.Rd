@@ -4,7 +4,8 @@
 \alias{plotGeneCount}
 \title{Plot the gene in reduced dimension space}
 \usage{
-plotGeneCount(rd, curve, counts, gene = NULL, clusters = NULL)
+plotGeneCount(rd, curve, counts, gene = NULL, clusters = NULL,
+  models = NULL)
 }
 \arguments{
 \item{rd}{the reduced dimentionality matrix. Must have at least two columns. Only the first two columns will be used for plotting.}
@@ -16,6 +17,8 @@ plotGeneCount(rd, curve, counts, gene = NULL, clusters = NULL)
 \item{gene}{The name of gene for which you want to plot the count or the row number of that gene in the count matrix. Alternatively, one can specify the cluster arguments}
 
 \item{clusters}{The assignation of each cell to a cluster. Used to color the plot. Either \code{clusters} or \code{gene} must be supplied.}
+
+\item{models}{the list of GAMs, typically the output from \code{\link{fitGAM}}. Used to display the knots.}
 }
 \description{
 Plot the gene in reduced dimension space

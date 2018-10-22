@@ -212,7 +212,7 @@ getSmootherTestStats <- function(models){
 #' \code{\link{fitGAM}}.
 #' @importFrom magrittr %>%
 #' @export
-endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
+diffEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
   # TODO: add Wald and df if pairwise=TRUE
   # TODO: add fold changes
@@ -292,7 +292,7 @@ endPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #' @importFrom magrittr %>%
 #' @export
 
-startPointTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
+startVsEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
   # TODO: add Wald and df if pairwise=TRUE
   # TODO: add fold changes
@@ -418,7 +418,7 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 #' @importFrom magrittr %>%
 #' @export
 #'
-earlyDrivers <- function(models, output = "both"){
+earlyDETest <- function(models, output = "both"){
   if (!(output %in% c("pval", "wald", "both"))) {
     stop("output needs to be either pval, output or both")
   }
@@ -467,12 +467,12 @@ earlyDrivers <- function(models, output = "both"){
   return(Results)
 }
 
-#' Perform pattern test between lineages
+#' Perform test between lineages to check whether the gene dynamics are identical.
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @export
-patternTestOld <- function(models){
+identicalTest <- function(models){
 
   modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
