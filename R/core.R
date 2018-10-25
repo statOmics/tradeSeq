@@ -67,9 +67,9 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
 
   # fit model
   ## fixed effect design matrix
-  #if(is.null(X)){
-  #  X <- rep(1,nrow(pseudotime))
-  #}
+  if(is.null(X)){
+    X <- rep(1,nrow(pseudotime))
+  }
 
   ## fit NB GAM
   ### get knots to end at last points of lineages.
@@ -291,7 +291,6 @@ diffEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #' \code{\link{fitGAM}}.
 #' @importFrom magrittr %>%
 #' @export
-
 startVsEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 
   # TODO: add Wald and df if pairwise=TRUE
@@ -357,12 +356,11 @@ startVsEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #'
 patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 
-  #TODO: add argument for pairwise comparisons.
+  mTemp <- .getModelReference(models)
 
   # do statistical test for every model through eigenvalue decomposition
   if (omnibus) {
     # get contrast matrix
-    mTemp <- .getModelReference(models)
     L <- .patternContrast(mTemp, nPoints = nPoints)
     # perform Wald test and calculate p-value
     waldResOmnibus <- lapply(models, function(m){
