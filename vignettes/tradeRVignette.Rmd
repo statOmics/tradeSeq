@@ -224,7 +224,7 @@ earlyGenes <- earlyDrivers(gamList, output = "wald")
 Similar to above, we can plot the estimated functions for the most significant gene, where there is a difference in the second coefficient.
 
 ```{r}
-oPat <- order(earlyGenes[,"knot2"], decreasing = TRUE)
+oPat <- order(earlyGenes[,2], decreasing = TRUE)
 head(rownames(earlyGenes)[oPat])
 plotSmoothers(gamList[[rownames(earlyGenes)[oPat][1]]])
 ```

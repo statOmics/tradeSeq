@@ -432,14 +432,13 @@ earlyDETest <- function(models, output = "both"){
               ncol = ncol(combs) * nknots)
 
   rownames(L) <- names(coef(modelTemp))
-  intercept <- names(coef(modelTemp))[1] == "X"
   for (jj in 1:ncol(combs)) {
     curvesNow <- combs[, jj]
     for (ii in seq_len(nknots)) {
-      L[(curvesNow[1] - 1) * 10 + ii + intercept, (jj - 1) * 10 + ii] <- 1
+      L[(curvesNow[1] - 1) * 10 + ii, (jj - 1) * 10 + ii] <- 1
     }
     for (ii in seq_len(nknots)) {
-      L[(curvesNow[2] - 1) * 10 + ii + intercept, (jj - 1) * 10 + ii] <- -1
+      L[(curvesNow[2] - 1) * 10 + ii, (jj - 1) * 10 + ii] <- -1
     }
   }
 
@@ -455,7 +454,7 @@ earlyDETest <- function(models, output = "both"){
   pvalResults <- do.call(rbind, pvalResults)
   waldlResults <- lapply(waldResultsOmnibus, '[[', "wald")
   waldlResults <- do.call(rbind, waldlResults)
-  colnames(waldlResults) <- colnames(pvalResults) <- c(paste0("knot", 1:nknots))
+  colnames(waldlResults) <- colnames(pvalResults) <- paste0("coeff", 1:nknots)
   waldlResults <- as.data.frame(waldlResults)
   pvalResults <- as.data.frame(pvalResults)
   Results <- list("wald" = waldlResults,
