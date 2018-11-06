@@ -21,7 +21,7 @@ NULL
 #' @export
 
 fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
-                   seed=81, offset=NULL, nknots=10, Verbose = FALSE){
+                   seed=81, offset=NULL, nknots=10, verbose = TRUE){
 
   # TODO: adjust for single trajectory.
   # TODO: make sure warning message for knots prints after looping
