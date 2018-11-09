@@ -505,3 +505,38 @@ identicalTest <- function(models){
   waldResults <- as.data.frame(waldResults)
   return(waldResults)
 }
+
+#' Cluster gene expression patterns.
+#'
+#' @param models The list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#' @param nPoints The number of points to use for clustering the expression patterns.
+#' @param genes A numerical or character vector specifying the genes from \code{models}
+#'  that should be clustered.
+#' @param ... Additional arguments to be passed to \code{\link[clusterExperiment]{RSEC}}.
+#' @details This method adopts the \code{\link[clusterExperiment]{RSEC}} function
+#'  from the clusterExperiment package to perform consensus clustering.
+#' @export
+clusterExpressionPatterns <- function(models, nPoints, genes, reduceMethod="PCA",
+                                        nReducedDims=10, combineMinSize=6,
+                                        ncores=1, random.seed=176201,
+                                        verbose=TRUE, ...){
+
+  #TODO: link to documentation of RSEC function
+  modelTemp <- .getModelReference(models)
+  nSmoothers <- length(modelTemp$smooth)
+
+  for(ii in seq_len(nSmoothers)){
+    df <- .getPredictRangeDf(modelTemp, ii, nPoints = nPoints)
+    y <- do.call(rbind,lapply(models[genes], predict, newdata=df, type="link"))
+    if(ii==1) yhatPat <- y else yhatPat <- cbind(yhatPat,y)
+  }
+
+  yhatPatScaled <- t(scale(t(yhatPat)))
+
+  rsec <- RSEC(t(yhatPatScaled), isCount = FALSE,
+               reduceMethod=reduceMethod, nReducedDims=nReducedDims,
+               combineMinSize=combineMinSize, ncores=ncores,
+               random.seed=random.seed, verbose=verbose)
+  return(list(rsec=rsec, yhatScaled=yhatPatScaled))
+}
