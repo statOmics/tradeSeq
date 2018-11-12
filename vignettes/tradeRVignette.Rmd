@@ -74,7 +74,8 @@ filt["Irf8"] <- T
 counts <- counts[filt, ]
 gamList <- fitGAM(counts = counts,
                   pseudotime = slingPseudotime(crv, na = FALSE),
-                   cellWeights = slingCurveWeights(crv))
+                   cellWeights = slingCurveWeights(crv),
+                  verbose = F)
 # This takes about 1mn to run
 ```
 
@@ -221,24 +222,14 @@ plotGeneCount(rd, crv, counts, gene = "Irf8")
 
 Another question of interest is to find a list of genes that are differentially expressed at the beginning of the separation of the two lineages.
 
-The function `earlyDETest` implements a statistical method to tests the null hypothesis of whether for each knot, the coefficents are equal across lineages. 
+The function `earlyDETest` implements a statistical method to tests the null hypothesis of whether the smoother are equals between two user-specified knots. It is especially purposed to 
 
 ```{r}
-earlyGenes <- earlyDETest(gamList, output = "wald")
-```
-
-Similar to above, we can plot the estimated functions for the most significant gene, where there is a difference in the second coefficient, since we have seen above that the second knot is placed right after the branching.
-
-```{r}
-oPat <- order(earlyGenes[,"knot2"], decreasing = TRUE)
-head(rownames(earlyGenes)[oPat])
-plotSmoothers(gamList[[rownames(earlyGenes)[oPat][1]]])
-```
-
-Or, we can visualize its expression in UMAP space.
-
-```{r}
-plotGeneCount(rd, crv, counts, gene = rownames(patternRes)[oPat][1])
+earlyDERes <- earlyDETest(gamList, knots = c(1, 2))
+oEarly <- order(earlyDERes$waldStat, decreasing = TRUE)
+head(rownames(earlyDERes)[oEarly])
+plotSmoothers(gamList[[rownames(earlyDERes)[oEarly][2]]])
+plotGeneCount(rd, crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 ```
 
 # Session

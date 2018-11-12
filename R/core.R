@@ -16,7 +16,7 @@ NULL
 #' @param seed the seed used for assigning cells to trajectories
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
-#' @param Verbose Whether to display the progress bar or not
+#' @param verbose Whether to display the progress bar or not
 #' @importFrom plyr alply
 #' @export
 
@@ -158,7 +158,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
       mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights),
       silent = TRUE)
   }
-  if (Verbose){
+  if (verbose){
     gamList <- alply(counts, 1, counts_to_Gam, .progress = "text", .dims = TRUE)
   } else {
     gamList <- apply(counts, 1, counts_to_Gam)
@@ -350,18 +350,34 @@ startVsEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#' @param nPoints the numboer of points to be compared between lineages.
+#' @param nPoints the number of points to be compared between lineages.
 #' @importFrom magrittr %>%
 #' @export
 #'
 patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
+  return(earlyDETest(models, knots = NULL, nPoints, omnibus, pairwise, ...))
+}
+
+#' Perform test of early differences between lineages
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#' @param knots A vector of length 2 specifying the knots before and after the branching of interest.
+#' @param nPoints the number of points to be compared between lineages.
+#'
+#' @importFrom magrittr %>%
+#' @details To help in choosing the knots, the \code{\link{plotGeneCount}} function has a models optional parameter that can be used to visualize where the knots are. This helps the user to decide which knots to use when defining the branching
+#' @export
+#'
+earlyDETest <- function(models, knots, nPoints=100, omnibus=TRUE,
+                        pairwise=FALSE, ...){
 
   mTemp <- .getModelReference(models)
 
   # do statistical test for every model through eigenvalue decomposition
   if (omnibus) {
     # get contrast matrix
-    L <- .patternContrast(mTemp, nPoints = nPoints)
+    L <- .patternContrast(mTemp, nPoints = nPoints, knots = knots)
     # perform Wald test and calculate p-value
     waldResOmnibus <- lapply(models, function(m){
       if (class(m)[1] == "try-error") return(c(NA))
@@ -380,7 +396,8 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
     combs <- combn(x = nCurves, m = 2)
     for (jj in seq_len(ncol(combs))) {
       curvesNow <- combs[,jj]
-      L <- .patternContrastPairwise(mTemp, nPoints = nPoints, curves = curvesNow)
+      L <- .patternContrastPairwise(mTemp, nPoints = nPoints, curves = curvesNow,
+                                    knots = knots)
       waldResPair <- lapply(models, function(m){
         if (class(m)[1] == "try-error") return(c(NA))
         getEigenStatGAM(m, L)
@@ -389,81 +406,94 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
       pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
       waldResults <- cbind(waldResults, pval)
       colnames(waldResults) <- c(
-          paste0("waldStat_", paste(curvesNow, collapse = "vs")),
-          paste0("df_", paste(curvesNow, collapse = "vs")),
-          paste0("pvalue_", paste(curvesNow, collapse = "vs")))
+        paste0("waldStat_", paste(curvesNow, collapse = "vs")),
+        paste0("df_", paste(curvesNow, collapse = "vs")),
+        paste0("pvalue_", paste(curvesNow, collapse = "vs")))
       waldResults <- as.data.frame(waldResults)
       if (jj == 1) waldResAllPair <- waldResults
       if (jj > 1) waldResAllPair <- cbind(waldResAllPair, waldResults)
     }
   }
 
-    #return output
-    if (omnibus == TRUE & pairwise == FALSE) return(waldResultsOmnibus)
-    if (omnibus == FALSE & pairwise == TRUE) return(waldResAllPair)
-    if (omnibus == TRUE & pairwise == TRUE) {
-      waldAll <- cbind(waldResultsOmnibus, waldResAllPair)
-      return(waldAll)
-    }
+  #return output
+  if (omnibus == TRUE & pairwise == FALSE) return(waldResultsOmnibus)
+  if (omnibus == FALSE & pairwise == TRUE) return(waldResAllPair)
+  if (omnibus == TRUE & pairwise == TRUE) {
+    waldAll <- cbind(waldResultsOmnibus, waldResAllPair)
+    return(waldAll)
+  }
 }
 
-#' Perform test of early differences between lineages
+#' Perform statistical test to check whether a gene is constant across a lineage
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#' @param output The type of output. Can be "pval", "wald" or "both". Default to "both".
-#'
 #' @importFrom magrittr %>%
 #' @export
-#'
-earlyDETest <- function(models, output = "both"){
-  if (!(output %in% c("pval", "wald", "both"))) {
-    stop("output needs to be either pval, output or both")
-  }
+associationTest <- function(models, omnibus=TRUE, lineage=FALSE, ...){
 
   modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
 
-  nknots <- length(modelTemp$smooth[[1]]$xp)
+  # get predictor matrix for every lineage.
+  for (jj in seq_len(nCurves)) {
+    df <- .getPredictEndPointDf(modelTemp, jj)
+    assign(paste0("X",jj),
+           predict(modelTemp, newdata = df, type = "lpmatrix"))
+  }
+
   # construct pairwise contrast matrix
-  combs <- combn(nCurves, m = 2)
-  L <- matrix(0, nrow = length(coef(modelTemp)),
-              ncol = ncol(combs) * nknots)
-
-  rownames(L) <- names(coef(modelTemp))
-  intercept <- names(coef(modelTemp))[1] == "X"
+  combs <- combn(nCurves,m = 2)
+  L <- matrix(0, nrow = length(coef(modelTemp)), ncol = ncol(combs))
+  colnames(L) <- apply(combs, 2, paste, collapse = "_")
   for (jj in 1:ncol(combs)) {
-    curvesNow <- combs[, jj]
-    for (ii in seq_len(nknots)) {
-      L[(curvesNow[1] - 1) * 10 + ii + intercept, (jj - 1) * 10 + ii] <- 1
-    }
-    for (ii in seq_len(nknots)) {
-      L[(curvesNow[2] - 1) * 10 + ii + intercept, (jj - 1) * 10 + ii] <- -1
-    }
+    curvesNow <- combs[,jj]
+    L[,jj] <- get(paste0("X", curvesNow[1])) - get(paste0("X",curvesNow[2]))
+  }
+  rm(modelTemp)
+
+  # perform global statistical test for every model
+  if (omnibus) {
+    waldResultsOmnibus <- lapply(models, function(m){
+      if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+      waldTest(m, L)
+    })
+    waldResults <- do.call(rbind,waldResultsOmnibus)
+    colnames(waldResults) <- c("waldStat", "df", "pvalue")
+    waldResults <- as.data.frame(waldResults)
   }
 
-  #perform omnibus test
-  waldResultsOmnibus <- lapply(models, function(m){
-    if (class(m)[1] == "try-error") return(c(NA, NA, NA))
-    waldHlp <- try(indWaldTest(m, L), silent = TRUE)
-    # sometimes all coefs are identical, non-singular var-cov of contrast.
-    if (class(waldHlp) == "try-error") return(c(NA, NA, NA))
-    return(waldHlp)
-  })
-  pvalResults <- lapply(waldResultsOmnibus, '[[', "pval")
-  pvalResults <- do.call(rbind, pvalResults)
-  waldlResults <- lapply(waldResultsOmnibus, '[[', "wald")
-  waldlResults <- do.call(rbind, waldlResults)
-  colnames(waldlResults) <- colnames(pvalResults) <- c(paste0("knot", 1:nknots))
-  waldlResults <- as.data.frame(waldlResults)
-  pvalResults <- as.data.frame(pvalResults)
-  Results <- list("wald" = waldlResults,
-                  "pval" = pvalResults)
-  if (output != "both") {
-    Results <- Results[[output]]
+  # perform pairwise comparisons
+  if (pairwise) {
+    waldResultsPairwise <- lapply(models, function(m){
+      if (class(m)[1] == "try-error") return(matrix(NA,nrow=ncol(L),
+                                                    ncol=3))
+      t(sapply(seq_len(ncol(L)), function(ii){
+        waldTest(m, L[, ii, drop = FALSE])
+      }))
+    })
+    # clean pairwise results
+    contrastNames <- unlist(lapply(strsplit(colnames(L),split="_"),
+                                   paste,collapse="vs"))
+
+    colNames <- c(paste0("waldStat_",contrastNames),
+                  paste0("df_",contrastNames),
+                  paste0("pvalue_",contrastNames))
+    orderByContrast <- unlist(c(mapply(seq,1:3,length(waldResultsPairwise[[1]]),by=3)))
+    waldResAllPair <- do.call(rbind,
+                              lapply(waldResultsPairwise,function(x){
+                                matrix(x,nrow=1, dimnames=list(NULL,colNames))[,orderByContrast]
+                              }))
   }
-  return(Results)
+
+  # return output
+  if (omnibus == TRUE & pairwise == FALSE) return(waldResults)
+  if (omnibus == FALSE & pairwise == TRUE) return(waldResAllPair)
+  if (omnibus == TRUE & pairwise == TRUE) {
+    waldAll <- cbind(waldResults, waldResAllPair)
+    return(waldAll)
+  }
 }
 
 #' Perform test between lineages to check whether the gene dynamics are identical.

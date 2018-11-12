@@ -115,16 +115,24 @@ waldTestFullSub <- function(model, L){
 }
 
 # Pattern contrast ----
-.patternContrast <- function(model, nPoints=100){
+.patternContrast <- function(model, knots = NULL, nPoints=100){
 
   # TODO: add if loop if first model errored.
   modelTemp <- model
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- model$smooth[[2]]$xp[knots[1]]
+    t2 <- model$smooth[[2]]$xp[knots[2]]
+  }
 
   # get predictor matrix for every lineage.
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
+    if(Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+    }
     assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
   }
 
@@ -147,11 +155,20 @@ waldTestFullSub <- function(model, L){
   return(L)
 }
 
-.patternContrastPairwise <- function(model, nPoints=100, curves=1:2){
+.patternContrastPairwise <- function(model, nPoints=100, curves=1:2,
+                                     knots = NULL){
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- model$smooth[[2]]$xp[knots[1]]
+    t2 <- model$smooth[[2]]$xp[knots[2]]
+  }
 
   # get predictor matrix for every lineage.
   for (jj in curves) {
     df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
+    if(Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+    }
     assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
   }
 
