@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{plotSmoothers}
 \alias{plotSmoothers}
-\title{plot the model for a particular gene}
+\title{plot the logged-transformed counts and the fitted values for a particular gene along all trajectories.}
 \usage{
 plotSmoothers(m, nPoints = 100, ...)
 }
@@ -12,5 +12,9 @@ plotSmoothers(m, nPoints = 100, ...)
 \item{nPointss}{The number of points used to extraplolate the fit}
 }
 \description{
-plot the model for a particular gene
+plot the logged-transformed counts and the fitted values for a particular gene along all trajectories.
+}
+\examples{
+data(gamList, package = "tradeR")
+plotSmoothers(gamList[[4]])
 }

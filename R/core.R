@@ -11,24 +11,43 @@ NULL
 #' @param cellWeights a matrix of cell weights defining the probability that a
 #' cell belongs to a particular lineage. Each row represents a cell and each
 #' column represents a lineage.
-#' @param weights a matrix of zero inflation weights with identical dimensions
-#' as the \code{counts} matrix.
+#' @param weights a matrix of weights with identical dimensions
+#' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param seed the seed used for assigning cells to trajectories
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
-#' @param verbose Whether to display the progress bar or not
+#' @param verbose Whether to display the progress bar or not.
+#' @param  nknots Number of knots used to fit the GAM.
+#' @return A list of length the number of genes (number of rows of \code{counts}). Each element of the list is either a \code{\link{gamObject}} if the fiting procedure converged, or an error message.
+#' @examples
+#' set.seed(8)
+#' data(se, package = "tradeR")
+#' se <- se[(20:31)[-7], 25:40]
+#' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
+#' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
+#' gamList <- fitGAM(counts = as.matrix(assays(se)$counts),
+#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
+#'                   nknots = 5, verbose = T)
+#' gamList[[1]]
 #' @importFrom plyr alply
+#' @importFrom magrittr %>%
 #' @export
 
-fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
-                   seed=81, offset=NULL, nknots=10, verbose = TRUE){
+fitGAM <- function(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
+                   seed = 81, offset = NULL, verbose = FALSE, nknots = 10){
 
   # TODO: adjust for single trajectory.
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with X provided
-  # TODO: add error if X contains intercept
   # TODO: add parallellization
 
+  intercept <- X %>% as.data.frame %>%
+                     lapply(X = ., function(c) length(unique(c))) %>%
+                     unlist()
+
+  if (1 %in% intercept) {
+    stop("The design matrix X must not contained an intercept")
+  }
   if (!identical(dim(pseudotime), dim(cellWeights))) {
     stop("pseudotime and cellWeights must have identical dimensions.")
   }
@@ -67,7 +86,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
 
   # fit model
   ## fixed effect design matrix
-  if(is.null(X)){
+  if (is.null(X)) {
     X <- rep(1,nrow(pseudotime))
   }
 
@@ -158,7 +177,7 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
       mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights),
       silent = TRUE)
   }
-  if (verbose){
+  if (verbose) {
     gamList <- alply(counts, 1, counts_to_Gam, .progress = "text", .dims = TRUE)
   } else {
     gamList <- apply(counts, 1, counts_to_Gam)
@@ -171,7 +190,10 @@ fitGAM <- function(counts, X=NULL, pseudotime, cellWeights, weights=NULL,
 #'
 #' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
 #' @export
-#'
+#' @return a matrix with the p-value associated with each lineage's smoother. The matrix has one row per gene where the fitting procedure converged.
+#' @examples
+#' data(gamList, package = "tradeR")
+#' getSmootherPvalues(gamList)
 getSmootherPvalues <- function(models){
 
   modelTemp <- .getModelReference(models)
@@ -190,7 +212,10 @@ getSmootherPvalues <- function(models){
 #'
 #' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
 #' @export
-#'
+#' @return a matrix with the wald statistics associated with each lineage's smoother. The matrix has one row per gene where the fitting procedure converged.
+#' @examples
+#' data(gamList, package = "tradeR")
+#' getSmootherPvalues(gamList)
 getSmootherTestStats <- function(models){
 
   modelTemp <- .getModelReference(models)
@@ -207,12 +232,17 @@ getSmootherTestStats <- function(models){
 
 
 #' Perform statistical test to check for DE between final stages of every trajectory.
-#'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
+#' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeR")
+#' diffEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
 #' @export
-diffEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
+diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE, ...){
 
   # TODO: add Wald and df if pairwise=TRUE
   # TODO: add fold changes
@@ -254,23 +284,27 @@ diffEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
   # perform pairwise comparisons
   if (pairwise) {
     waldResultsPairwise <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(matrix(NA,nrow=ncol(L),
-                                                    ncol=3))
+      if (class(m)[1] == "try-error") {
+        return(matrix(NA, nrow = ncol(L), ncol = 3))
+      }
       t(sapply(seq_len(ncol(L)), function(ii){
         waldTest(m, L[, ii, drop = FALSE])
       }))
     })
+
     # clean pairwise results
-    contrastNames <- unlist(lapply(strsplit(colnames(L),split="_"),
-                                   paste,collapse="vs"))
+    contrastNames <- unlist(lapply(strsplit(colnames(L), split = "_"),
+                                   paste, collapse = "vs"))
 
     colNames <- c(paste0("waldStat_",contrastNames),
                   paste0("df_",contrastNames),
                   paste0("pvalue_",contrastNames))
-    orderByContrast <- unlist(c(mapply(seq,1:3,length(waldResultsPairwise[[1]]),by=3)))
+    orderByContrast <- unlist(c(mapply(seq, 1:3,
+                                       length(waldResultsPairwise[[1]]),
+                                       by = 3)))
     waldResAllPair <- do.call(rbind,
             lapply(waldResultsPairwise,function(x){
-      matrix(x,nrow=1, dimnames=list(NULL,colNames))[,orderByContrast]
+      matrix(x, nrow = 1, dimnames = list(NULL, colNames))[, orderByContrast]
     }))
   }
 
@@ -289,11 +323,17 @@ diffEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @param omnibus If TRUE, test for all lineages simultaneously.
+#' @param lineages If TRUE, test for all lineages independently.
 #' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeR")
+#' startVsEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
 #' @export
-startVsEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
+startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
 
-  # TODO: add Wald and df if pairwise=TRUE
+  # TODO: add Wald and df if lineages = TRUE
   # TODO: add fold changes
 
   modelTemp <- .getModelReference(models)
@@ -322,23 +362,23 @@ startVsEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResults <- as.data.frame(waldResults)
   }
-  if (pairwise) {
-    waldResultsPairwise <- lapply(models, function(m){
+  if (lineages) {
+    waldResultslineages <- lapply(models, function(m){
       if (class(m)[1] == "try-error") return(NA)
       t(sapply(seq_len(ncol(L)), function(ii){
         waldTest(m, L[, ii, drop = FALSE])
       }))
     })
-    pvalsPairwise <- do.call(rbind,
-                             lapply(waldResultsPairwise, function(x) x[,3])) %>%
+    pvalslineages <- do.call(rbind,
+                             lapply(waldResultslineages, function(x) x[,3])) %>%
                      as.data.frame()
-    colnames(pvalsPairwise) <- colnames(L)
+    colnames(pvalslineages) <- colnames(L)
   }
 
-  if (omnibus == TRUE & pairwise == FALSE) return(waldResults)
-  if (omnibus == FALSE & pairwise == TRUE) return(pvalsPairwise)
-  if (omnibus & pairwise) {
-    resAll <- cbind(pvalsOmnibus, pvalsPairwise)
+  if (omnibus == TRUE & lineages == FALSE) return(waldResults)
+  if (omnibus == FALSE & lineages == TRUE) return(pvalslineages)
+  if (omnibus & lineages) {
+    resAll <- cbind(pvalsOmnibus, pvalslineages)
     colnames(resAll)[1] <- "omnibus"
     return(resAll)
   }
@@ -351,10 +391,17 @@ startVsEndTest <- function(models, omnibus=TRUE, pairwise=FALSE, ...){
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints the number of points to be compared between lineages.
+#' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
+#' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeR")
+#' patternTest(gamList, omnibus = TRUE, pairwise = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
 #' @export
 #'
-patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
+patternTest <- function(models, nPoints = 100, omnibus = TRUE,
+                        pairwise = FALSE, ...){
   return(earlyDETest(models, knots = NULL, nPoints, omnibus, pairwise, ...))
 }
 
@@ -364,8 +411,13 @@ patternTest <- function(models, nPoints=100, omnibus=TRUE, pairwise=FALSE, ...){
 #' \code{\link{fitGAM}}.
 #' @param knots A vector of length 2 specifying the knots before and after the branching of interest.
 #' @param nPoints the number of points to be compared between lineages.
-#'
+#' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
+#' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeR")
+#' earlyDETest(gamList, knots = c(1, 2), omnibus = TRUE, pairwise = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
 #' @details To help in choosing the knots, the \code{\link{plotGeneCount}} function has a models optional parameter that can be used to visualize where the knots are. This helps the user to decide which knots to use when defining the branching
 #' @export
 #'
@@ -428,7 +480,13 @@ earlyDETest <- function(models, knots, nPoints=100, omnibus=TRUE,
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @param omnibus If TRUE, test for all lineages simultaneously.
+#' @param lineages If TRUE, test for all lineages independently.
 #' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeR")
+#' associationTest(gamList, omnibus = TRUE, pairwise = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
 #' @export
 associationTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
 
@@ -507,6 +565,14 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @param nPoints the number of points to be compared between lineages.
+#' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
+#' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeR")
+#' identicalTest(gamList, omnibus = TRUE, pairwise = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
 #' @export
 identicalTest <- function(models){
 
