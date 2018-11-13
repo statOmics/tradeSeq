@@ -1,6 +1,6 @@
 ---
 title: 'Vignette for **tradeR**: **tra**jectory **d**ifferential **e**xpression analysis in **R**'
-author: "Koen Van den Berge"
+author: "Koen Van den Berge and Hector Roux de Bézieux"
 bibliography: tradeR.bib
 date: "9/10/2018"
 output: html_document
@@ -106,6 +106,13 @@ Since this dataset was prefiltered to only contain relevant genes, all p-values 
 ```{r}
 pvalLineage <- getSmootherPvalues(gamList)
 statLineage <- getSmootherTestStats(gamList)
+```
+
+
+Another related test is whether all coefficients are equal (but necesseraly equal to zero). This can be done with the association test.
+
+```{r}
+assoRes <- associationTest(gamList)
 ```
 
 ## Discovering progenitor marker genes

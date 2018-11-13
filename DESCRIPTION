@@ -21,4 +21,5 @@ Imports: mgcv,
     SingleCellExperiment,
     slingshot,
     magrittr,
-    plyr
+    plyr,
+    RColorBrewer

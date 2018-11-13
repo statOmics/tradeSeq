@@ -51,6 +51,7 @@
   return(vars)
 }
 
+# get the first non-errored fit in models
 .getModelReference <- function(models){
   for (i in 1:length(models)) {
     m <- models[[i]]
@@ -58,6 +59,39 @@
   }
   stop("All models errored")
 }
+
+#
+.getPredictKnots <- function(m, lineageId){
+  # note that X or offset variables dont matter as long as they are the same,
+  # since they will get canceled.
+  data <- m$model
+  vars <- m$model[1, ]
+  vars <- vars[!colnames(vars) %in% "y"]
+  offsetId <- grep(x = colnames(vars), pattern = "offset")
+  offsetName <- colnames(vars)[offsetId]
+  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
+  names(vars)[offsetId] <- offsetName
+
+  # set all times on 0
+  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
+  # set all lineages on 0
+  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # get max pseudotime for lineage of interest
+  tmax <- max(data[data[, paste0("l", lineageId)] == 1, paste0("t", lineageId)])
+  nknots <- sum(m$smooth[[1]]$xp <= tmax)
+
+  # Extend vars
+  vars <- vars[rep(1, nknots), ]
+  # Set time
+  vars[, paste0("t", lineageId)] <- m$smooth[[1]]$xp[1:nknots]
+  # set lineage
+  vars[, paste0("l", lineageId)] <- 1
+  # set offset
+  vars[, offsetName] <- mean(m$model[, grep(x = colnames(m$model),
+                                            pattern = "offset")])
+  return(vars)
+}
+
 
 # perform Wald test ----
 waldTest <- function(model, L){
@@ -117,7 +151,6 @@ waldTestFullSub <- function(model, L){
 # Pattern contrast ----
 .patternContrast <- function(model, knots = NULL, nPoints=100){
 
-  # TODO: add if loop if first model errored.
   modelTemp <- model
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model

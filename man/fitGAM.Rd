@@ -5,7 +5,7 @@
 \title{Fit GAM model}
 \usage{
 fitGAM(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
-  seed = 81, offset = NULL, nknots = 10, Verbose = FALSE)
+  seed = 81, offset = NULL, nknots = 10, verbose = TRUE)
 }
 \arguments{
 \item{counts}{the count matrix.}
@@ -28,7 +28,7 @@ as the \code{counts} matrix.}
 \item{offset}{the offset, on log-scale, to account for differences in
 sequencing depth.}
 
-\item{Verbose}{Whether to display the progress bar or not}
+\item{verbose}{Whether to display the progress bar or not}
 }
 \description{
 Fit GAM model

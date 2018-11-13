@@ -4,14 +4,20 @@
 \alias{earlyDETest}
 \title{Perform test of early differences between lineages}
 \usage{
-earlyDETest(models, output = "both")
+earlyDETest(models, knots, nPoints = 100, omnibus = TRUE,
+  pairwise = FALSE, ...)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
-\item{output}{The type of output. Can be "pval", "wald" or "both". Default to "both".}
+\item{knots}{A vector of length 2 specifying the knots before and after the branching of interest.}
+
+\item{nPoints}{the number of points to be compared between lineages.}
 }
 \description{
 Perform test of early differences between lineages
+}
+\details{
+To help in choosing the knots, the \code{\link{plotGeneCount}} function has a models optional parameter that can be used to visualize where the knots are. This helps the user to decide which knots to use when defining the branching
 }

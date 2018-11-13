@@ -11,7 +11,7 @@ patternTest(models, nPoints = 100, omnibus = TRUE, pairwise = FALSE,
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
-\item{nPoints}{the numboer of points to be compared between lineages.}
+\item{nPoints}{the number of points to be compared between lineages.}
 }
 \description{
 Perform pattern test between lineages

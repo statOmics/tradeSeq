@@ -430,7 +430,7 @@ earlyDETest <- function(models, knots, nPoints=100, omnibus=TRUE,
 #' \code{\link{fitGAM}}.
 #' @importFrom magrittr %>%
 #' @export
-associationTest <- function(models, omnibus=TRUE, lineage=FALSE, ...){
+associationTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
 
   modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
@@ -438,23 +438,27 @@ associationTest <- function(models, omnibus=TRUE, lineage=FALSE, ...){
 
   # get predictor matrix for every lineage.
   for (jj in seq_len(nCurves)) {
-    df <- .getPredictEndPointDf(modelTemp, jj)
+    df <- .getPredictKnots(modelTemp, jj)
     assign(paste0("X",jj),
            predict(modelTemp, newdata = df, type = "lpmatrix"))
   }
 
-  # construct pairwise contrast matrix
-  combs <- combn(nCurves,m = 2)
-  L <- matrix(0, nrow = length(coef(modelTemp)), ncol = ncol(combs))
-  colnames(L) <- apply(combs, 2, paste, collapse = "_")
-  for (jj in 1:ncol(combs)) {
-    curvesNow <- combs[,jj]
-    L[,jj] <- get(paste0("X", curvesNow[1])) - get(paste0("X",curvesNow[2]))
+  # construct individual contrast matrix
+  nknots_max <- length(modelTemp$smooth[[1]]$xp)
+  for (jj in seq_len(nCurves)) {
+    C <- matrix(0, ncol(get(paste0("X", jj))), ncol(get(paste0("X", jj))))
+    nknots <- nrow(get(paste0("X", jj)))
+    for (i in 1:(nknots - 1)) {
+      C[nknots_max * (jj - 1) + i + 1, nknots_max * (jj - 1) + i + 1] <- 1
+      C[nknots_max * (jj - 1) + i + 2, nknots_max * (jj - 1) + i + 1] <- -1
+    }
+    assign(paste0("L",jj), C)
   }
   rm(modelTemp)
 
   # perform global statistical test for every model
   if (omnibus) {
+    L <- do.call(`+`, mget(paste0("L", 1:nCurves)))
     waldResultsOmnibus <- lapply(models, function(m){
       if (class(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
@@ -464,34 +468,37 @@ associationTest <- function(models, omnibus=TRUE, lineage=FALSE, ...){
     waldResults <- as.data.frame(waldResults)
   }
 
-  # perform pairwise comparisons
-  if (pairwise) {
-    waldResultsPairwise <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(matrix(NA,nrow=ncol(L),
-                                                    ncol=3))
-      t(sapply(seq_len(ncol(L)), function(ii){
-        waldTest(m, L[, ii, drop = FALSE])
+  # perform lineages comparisons
+  if (lineages) {
+    waldResultsLineages <- lapply(models, function(m){
+      if (class(m)[1] == "try-error") {
+        return(matrix(NA, nrow = nCurves, ncol = 3))
+      }
+      t(sapply(1:nCurves, function(ii){
+        waldTest(m, get(paste0("L", ii)))
       }))
     })
-    # clean pairwise results
-    contrastNames <- unlist(lapply(strsplit(colnames(L),split="_"),
-                                   paste,collapse="vs"))
 
-    colNames <- c(paste0("waldStat_",contrastNames),
-                  paste0("df_",contrastNames),
-                  paste0("pvalue_",contrastNames))
-    orderByContrast <- unlist(c(mapply(seq,1:3,length(waldResultsPairwise[[1]]),by=3)))
-    waldResAllPair <- do.call(rbind,
-                              lapply(waldResultsPairwise,function(x){
-                                matrix(x,nrow=1, dimnames=list(NULL,colNames))[,orderByContrast]
+    # clean lineages results
+
+    colNames <- c(paste0("waldStat_", 1:nCurves),
+                  paste0("df_", 1:nCurves),
+                  paste0("pvalue_", 1:nCurves))
+    orderByContrast <- unlist(c(mapply(seq, 1:nCurves, 3 * nCurves,
+                                       by = nCurves)))
+    waldResAllLineages <- do.call(rbind,
+                              lapply(waldResultsLineages,function(x){
+                                matrix(x, nrow = 1,
+                                       dimnames = list(NULL, colNames))[
+                                         , orderByContrast]
                               }))
   }
 
   # return output
-  if (omnibus == TRUE & pairwise == FALSE) return(waldResults)
-  if (omnibus == FALSE & pairwise == TRUE) return(waldResAllPair)
-  if (omnibus == TRUE & pairwise == TRUE) {
-    waldAll <- cbind(waldResults, waldResAllPair)
+  if (omnibus == TRUE & lineages == FALSE) return(waldResults)
+  if (omnibus == FALSE & lineages == TRUE) return(waldResAllLineages)
+  if (omnibus == TRUE & lineages == TRUE) {
+    waldAll <- cbind(waldResults, waldResAllLineages)
     return(waldAll)
   }
 }
@@ -513,12 +520,11 @@ identicalTest <- function(models){
   rownames(L) <- names(coef(modelTemp))
   for (jj in 1:ncol(combs)) {
     curvesNow <- combs[,jj]
-    #TODO: should 10 be nknots?
     for (ii in seq_len(nknots)) {
-      L[(curvesNow[1] - 1) * 10 + ii, (jj - 1) * 10 + ii] <- 1
+      L[(curvesNow[1] - 1) * nknots + ii, (jj - 1) * nknots + ii] <- 1
     }
     for (ii in seq_len(nknots)) {
-      L[(curvesNow[2] - 1) * 10 + ii, (jj - 1) * 10 + ii] <- -1
+      L[(curvesNow[2] - 1) * nknots + ii, (jj - 1) * nknots + ii] <- -1
     }
   }
   #perform omnibus test
