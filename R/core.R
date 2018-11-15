@@ -522,7 +522,8 @@ clusterExpressionPatterns <- function(models, nPoints, genes, reduceMethod="PCA"
                                         ncores=1, random.seed=176201,
                                         verbose=TRUE, ...){
 
-  #TODO: link to documentation of RSEC function
+  # TODO: extend documentation to contain RSEC functions.
+
   modelTemp <- .getModelReference(models)
   nSmoothers <- length(modelTemp$smooth)
 
