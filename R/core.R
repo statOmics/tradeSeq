@@ -48,8 +48,13 @@ fitGAM <- function(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
   if (1 %in% intercept) {
     stop("The design matrix X must not contained an intercept")
   }
+  # check if pseudotime and weights have same dimensions.
   if (!identical(dim(pseudotime), dim(cellWeights))) {
     stop("pseudotime and cellWeights must have identical dimensions.")
+  }
+  # check if cell weights are positive at least somewhere.
+  if(any(rowSums(cellWeights)==0)){
+    stop("Some cells have no positive cell weights.")
   }
 
   # below errors if sparse matrix is used as input.
