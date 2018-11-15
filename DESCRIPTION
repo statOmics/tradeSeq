@@ -24,3 +24,4 @@ Imports: mgcv,
     magrittr,
     plyr,
     RColorBrewer
+Suggests: clusterExperiment

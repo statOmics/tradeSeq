@@ -623,12 +623,19 @@ identicalTest <- function(models){
 #' @param ... Additional arguments to be passed to \code{\link[clusterExperiment]{RSEC}}.
 #' @details This method adopts the \code{\link[clusterExperiment]{RSEC}} function
 #'  from the clusterExperiment package to perform consensus clustering.
+#' @importFrom clusterExperiment RSEC
 #' @export
 clusterExpressionPatterns <- function(models, nPoints, genes, reduceMethod="PCA",
                                         nReducedDims=10, combineMinSize=6,
                                         ncores=1, random.seed=176201,
                                         verbose=TRUE, ...){
 
+  # check if all gene IDs provided are present in the models object.
+  if(class(genes)=="character"){
+    if(!all(genes %in% names(gamList))){
+      stop("Not all gene IDs are present in the models object.")
+    }
+  }
   # TODO: extend documentation to contain RSEC functions.
 
   modelTemp <- .getModelReference(models)
@@ -642,7 +649,7 @@ clusterExpressionPatterns <- function(models, nPoints, genes, reduceMethod="PCA"
 
   yhatPatScaled <- t(scale(t(yhatPat)))
 
-  rsec <- RSEC(t(yhatPatScaled), isCount = FALSE,
+  rsec <- clusterExperiment::RSEC(t(yhatPatScaled), isCount = FALSE,
                reduceMethod=reduceMethod, nReducedDims=nReducedDims,
                combineMinSize=combineMinSize, ncores=ncores,
                random.seed=random.seed, verbose=verbose)
