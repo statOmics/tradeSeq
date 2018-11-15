@@ -15,10 +15,12 @@ Collate:
     'constructors.R'
     'utils.R'
     'core.R'
+    'data.R'
 RoxygenNote: 6.1.0
 Imports: mgcv,
     edgeR,
     SingleCellExperiment,
     slingshot,
     magrittr,
-    plyr
+    plyr,
+    RColorBrewer

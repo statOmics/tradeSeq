@@ -9,6 +9,13 @@ getSmootherTestStats(models)
 \arguments{
 \item{models}{the GAM models, typically the output from \code{\link{fitGAM}}.}
 }
+\value{
+a matrix with the wald statistics associated with each lineage's smoother. The matrix has one row per gene where the fitting procedure converged.
+}
 \description{
 Get smoother Chi-squared test statistics
+}
+\examples{
+data(gamList, package = "tradeR")
+getSmootherPvalues(gamList)
 }

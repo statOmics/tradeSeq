@@ -26,3 +26,19 @@ Plot the gene in reduced dimension space
 \details{
 If both \code{gene} and \code{clusters} arguments are supplied, the plot will be colored according to gene count level.
 }
+\examples{
+set.seed(97)
+data(se, package = "tradeR")
+rd <- reducedDims(se)$UMAP
+cl <- kmeans(rd, centers = 7)$cluster
+library(slingshot)
+lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
+crv <- getCurves(lin)
+counts <- as.matrix(assays(se)$counts)
+filt <- rowSums(counts > 8) > ncol(counts)/100
+counts <- counts[filt, ]
+gamList <- fitGAM(counts = counts,
+ pseudotime = slingPseudotime(crv, na = FALSE),
+ cellWeights = slingCurveWeights(crv))
+plotGeneCount(rd, crv, counts, gene = "Mpo")
+}

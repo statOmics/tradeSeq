@@ -51,6 +51,7 @@
   return(vars)
 }
 
+# get the first non-errored fit in models
 .getModelReference <- function(models){
   for (i in 1:length(models)) {
     m <- models[[i]]
@@ -59,13 +60,46 @@
   stop("All models errored")
 }
 
+#
+.getPredictKnots <- function(m, lineageId){
+  # note that X or offset variables dont matter as long as they are the same,
+  # since they will get canceled.
+  data <- m$model
+  vars <- m$model[1, ]
+  vars <- vars[!colnames(vars) %in% "y"]
+  offsetId <- grep(x = colnames(vars), pattern = "offset")
+  offsetName <- colnames(vars)[offsetId]
+  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
+  names(vars)[offsetId] <- offsetName
+
+  # set all times on 0
+  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
+  # set all lineages on 0
+  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # get max pseudotime for lineage of interest
+  tmax <- max(data[data[, paste0("l", lineageId)] == 1, paste0("t", lineageId)])
+  nknots <- sum(m$smooth[[1]]$xp <= tmax)
+
+  # Extend vars
+  vars <- vars[rep(1, nknots), ]
+  # Set time
+  vars[, paste0("t", lineageId)] <- m$smooth[[1]]$xp[1:nknots]
+  # set lineage
+  vars[, paste0("l", lineageId)] <- 1
+  # set offset
+  vars[, offsetName] <- mean(m$model[, grep(x = colnames(m$model),
+                                            pattern = "offset")])
+  return(vars)
+}
+
+
 # perform Wald test ----
 waldTest <- function(model, L){
   ### build a contrast matrix for a multivariate Wald test
   beta <- matrix(coef(model), ncol = 1)
   LQR <- L[, qr(L)$pivot[1:qr(L)$rank], drop = FALSE]
   sigmaInv <- try(solve(t(LQR) %*% model$Vp %*% LQR))
-  if(class(sigmaInv)=="try-error") return(c(NA,NA,NA))
+  if (class(sigmaInv) == "try-error") return(c(NA,NA,NA))
   wald <- t(t(LQR) %*% beta) %*%
           sigmaInv %*%
           t(LQR) %*% beta
@@ -115,16 +149,23 @@ waldTestFullSub <- function(model, L){
 }
 
 # Pattern contrast ----
-.patternContrast <- function(model, nPoints=100){
+.patternContrast <- function(model, knots = NULL, nPoints=100){
 
-  # TODO: add if loop if first model errored.
   modelTemp <- model
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- model$smooth[[2]]$xp[knots[1]]
+    t2 <- model$smooth[[2]]$xp[knots[2]]
+  }
 
   # get predictor matrix for every lineage.
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+    }
     assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
   }
 
@@ -147,11 +188,20 @@ waldTestFullSub <- function(model, L){
   return(L)
 }
 
-.patternContrastPairwise <- function(model, nPoints=100, curves=1:2){
+.patternContrastPairwise <- function(model, nPoints=100, curves=1:2,
+                                     knots = NULL){
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- model$smooth[[2]]$xp[knots[1]]
+    t2 <- model$smooth[[2]]$xp[knots[2]]
+  }
 
   # get predictor matrix for every lineage.
   for (jj in curves) {
     df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+    }
     assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
   }
 
@@ -221,10 +271,13 @@ getEigenStatGAM <- function(m, L){
 }
 
 # Plotting ----
-#' plot the model for a particular gene
+#' plot the logged-transformed counts and the fitted values for a particular gene along all trajectories.
 #'
 #' @param m the fitted model of a given gene
 #' @param nPointss The number of points used to extraplolate the fit
+#' @examples
+#' data(gamList, package = "tradeR")
+#' plotSmoothers(gamList[[4]])
 #' @export
 plotSmoothers <- function(m, nPoints = 100, ...){
 
@@ -269,6 +322,21 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 #' @param clusters The assignation of each cell to a cluster. Used to color the plot. Either \code{clusters} or \code{gene} must be supplied.
 #' @param models the list of GAMs, typically the output from \code{\link{fitGAM}}. Used to display the knots.
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the plot will be colored according to gene count level.
+#' @examples
+#' set.seed(97)
+#' data(se, package = "tradeR")
+#' rd <- reducedDims(se)$UMAP
+#' cl <- kmeans(rd, centers = 7)$cluster
+#' library(slingshot)
+#' lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
+#' crv <- getCurves(lin)
+#' counts <- as.matrix(assays(se)$counts)
+#' filt <- rowSums(counts > 8) > ncol(counts)/100
+#' counts <- counts[filt, ]
+#' gamList <- fitGAM(counts = counts,
+#'  pseudotime = slingPseudotime(crv, na = FALSE),
+#'  cellWeights = slingCurveWeights(crv))
+#' plotGeneCount(rd, crv, counts, gene = "Mpo")
 #' @import RColorBrewer
 #' @export
 plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
@@ -290,7 +358,7 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
        col = cols, main = title, xlab = "dim1", ylab = "dim2",
        pch = 16, cex = 2 / 3)
   lines(curve, lwd = 2, col = "black")
-  if(!is.null(models)) {
+  if (!is.null(models)) {
     m <- models[[1]]
     knots <- m$smooth[[1]]$xp
     times <- slingPseudotime(curve, na = F)

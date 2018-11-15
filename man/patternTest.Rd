@@ -11,8 +11,19 @@ patternTest(models, nPoints = 100, omnibus = TRUE, pairwise = FALSE,
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
-\item{nPoints}{the numboer of points to be compared between lineages.}
+\item{nPoints}{the number of points to be compared between lineages.}
+
+\item{omnibus}{If TRUE, test for all pairwise comparisons simultaneously.}
+
+\item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
+}
+\value{
+A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
 }
 \description{
 Perform pattern test between lineages
+}
+\examples{
+data(gamList, package = "tradeR")
+patternTest(gamList, omnibus = TRUE, pairwise = TRUE)
 }
