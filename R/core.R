@@ -52,10 +52,6 @@ fitGAM <- function(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
   if (!identical(dim(pseudotime), dim(cellWeights))) {
     stop("pseudotime and cellWeights must have identical dimensions.")
   }
-  # check if cell weights are positive at least somewhere.
-  if(any(rowSums(cellWeights)==0)){
-    stop("Some cells have no positive cell weights.")
-  }
 
   # below errors if sparse matrix is used as input.
   # if (!is.integer(counts)) {
@@ -67,13 +63,11 @@ fitGAM <- function(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
   # }
 
   set.seed(seed)
-  # normalize weights
-  normWeights <- sweep(cellWeights,1, FUN = "/",
-                       STATS = apply(cellWeights,1,sum))
-  # sample weights
-  wSamp <- t(apply(normWeights,1,function(prob){
-    rmultinom(n = 1, prob = prob, size = 1)
-    }))
+  wSamp <- .assignCells(cellWeights)
+  if (ncol(wSamp) == 1) {
+    pseudotime <- matrix(pseudotime, nrow = length(pseudotime))
+  }
+
   # define pseudotime for each lineage
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("t",ii), pseudotime[,ii])
@@ -129,6 +123,7 @@ fitGAM <- function(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
       knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
   }
+  maxT <- max(pseudotime[,1])
   if (ncol(pseudotime) > 1) {
     maxT <- c()
     for (jj in 2:ncol(pseudotime)) {

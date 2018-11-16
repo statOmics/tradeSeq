@@ -3,7 +3,10 @@ title: 'Vignette for **tradeR**: **tra**jectory **d**ifferential **e**xpression 
 author: "Koen Van den Berge and Hector Roux de Bézieux"
 bibliography: tradeR.bib
 date: "9/10/2018"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
 ---
 
 In this vignette, we analyse a subset of the data from [@Paul2015]. 
@@ -74,7 +77,7 @@ filt["Irf8"] <- T
 counts <- counts[filt, ]
 gamList <- fitGAM(counts = counts,
                   pseudotime = slingPseudotime(crv, na = FALSE),
-                   cellWeights = slingCurveWeights(crv),
+                  cellWeights = slingCurveWeights(crv),
                   verbose = F)
 # This takes about 1mn to run
 ```
