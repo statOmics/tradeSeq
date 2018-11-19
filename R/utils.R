@@ -371,8 +371,7 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
     cols <- colorRampPalette(c("yellow", "red"))(10)[g]
     title <- paste0("color by expression of ", gene)
   } else {
-    cols <- c(RColorBrewer::brewer.pal(9, "Set1"),
-              RColorBrewer::brewer.pal(4, "Set1"))[clusters]
+    cols <- RColorBrewer::brewer.pal(length(unique(clusters)), "Set1")[clusters]
     title <- "Colored by clusters"
   }
 
