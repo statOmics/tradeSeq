@@ -197,7 +197,7 @@ compare <- inner_join(patternRes %>% mutate(Gene = rownames(patternRes),
                                  select(Gene, end),
                       by = c("Gene" = "Gene")) %>%
            mutate(transientScore = (min_rank(desc(end)))^2 +
-                                   (min_rank(pattern) - 1)^2)
+                                   (dense_rank(pattern))^2)
 
 ggplot(compare, aes(x = log(pattern), y = log(end))) +
   geom_point(aes(col = transientScore)) +
@@ -215,7 +215,7 @@ plotSmoothers(gamList[[topTransient]])
 plotGeneCount(rd, crv, counts, gene = topTransient)
 ```
 
-Interestingly, we recover the Irf8 gene in the top 5 genes according to that rankin
+Interestingly, we recover the Irf8 gene in the top 5 genes according to that ranking.
 
 ```{r}
 head(compare %>% arrange(desc(transientScore)) %>% select(Gene), n = 5)

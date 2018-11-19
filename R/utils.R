@@ -308,8 +308,7 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 
   #construct time variable based on cell assignments.
   nCurves <- length(m$smooth)
-  timeAll <- c()
-  col <- c()
+  col <- timeAll <- rep(0, nrow(data))
   for (jj in seq_len(nCurves)) {
     for (ii in 1:nrow(data)) {
       if (data[ii, paste0("l", jj)] == 1) {
@@ -328,8 +327,8 @@ plotSmoothers <- function(m, nPoints = 100, ...){
   #predict and plot smoothers across the range
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(m, jj, nPoints = nPoints)
-  yhat <- predict(m, newdata = df, type = "response")
-  lines(x = df[, paste0("t", jj)], y = log(yhat + 1), col = jj, lwd = 2)
+    yhat <- predict(m, newdata = df, type = "response")
+    lines(x = df[, paste0("t", jj)], y = log(yhat + 1), col = jj, lwd = 2)
   }
   legend("topleft", paste0("lineage", seq_len(nCurves)),col = seq_len(nCurves),
          lty = 1, lwd = 2, bty = "n", cex = 2 / 3)
@@ -372,7 +371,8 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
     cols <- colorRampPalette(c("yellow", "red"))(10)[g]
     title <- paste0("color by expression of ", gene)
   } else {
-    cols <- RColorBrewer::brewer.pal(length(unique(clusters)), "Set1")[clusters]
+    cols <- c(RColorBrewer::brewer.pal(9, "Set1"),
+              RColorBrewer::brewer.pal(4, "Set1"))[clusters]
     title <- "Colored by clusters"
   }
 
@@ -381,7 +381,7 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
        pch = 16, cex = 2 / 3)
   lines(curve, lwd = 2, col = "black")
   if (!is.null(models)) {
-    m <- models[[1]]
+    m <- .getModelReference(models)
     knots <- m$smooth[[1]]$xp
     times <- slingPseudotime(curve, na = F)
     knots_dim <- matrix(ncol = 2)
@@ -389,7 +389,7 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
       for (ii in 1:ncol(times)) {
         p <- which.min(abs(times[, ii] - kn))
         knots_dim <- rbind(knots_dim,
-                           slingCurves(crv)[[ii]]$s[p, ])
+                           slingCurves(curve)[[ii]]$s[p, 1:2])
       }
     }
     points(knots_dim, pch = 16, col = "black")
