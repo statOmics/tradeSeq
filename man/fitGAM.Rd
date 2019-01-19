@@ -4,13 +4,13 @@
 \alias{fitGAM}
 \title{Fit GAM model}
 \usage{
-fitGAM(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
+fitGAM(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   seed = 81, offset = NULL, verbose = FALSE, nknots = 10)
 }
 \arguments{
 \item{counts}{the count matrix.}
 
-\item{X}{the design matrix of fixed effects. The design matrix should not
+\item{U}{the design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}
 
 \item{pseudotime}{a matrix of pseudotime values, each row represents a cell
