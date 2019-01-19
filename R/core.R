@@ -502,13 +502,15 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
   }
 
   # construct individual contrast matrix
+  npar <- modelTemp$nsdf #nr of parametric terms
   nknots_max <- length(modelTemp$smooth[[1]]$xp)
   for (jj in seq_len(nCurves)) {
-    C <- matrix(0, ncol(get(paste0("X", jj))), ncol(get(paste0("X", jj))))
     nknots <- nrow(get(paste0("X", jj)))
+    C <- matrix(0, nrow=length(coef(modelTemp)), ncol=nknots-1,
+                dimnames=list(names(coef(modelTemp)),NULL))
     for (i in 1:(nknots - 1)) {
-      C[nknots_max * (jj - 1) + i + 1, nknots_max * (jj - 1) + i + 1] <- 1
-      C[nknots_max * (jj - 1) + i + 2, nknots_max * (jj - 1) + i + 1] <- -1
+      C[npar + nknots_max * (jj - 1) + i, i] <- 1
+      C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
     }
     assign(paste0("L",jj), C)
   }
@@ -516,7 +518,7 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
 
   # perform global statistical test for every model
   if (omnibus) {
-    L <- do.call(`+`, mget(paste0("L", 1:nCurves)))
+    L <- do.call(cbind, list(mget(paste0("L", 1:nCurves)))[[1]])
     waldResultsOmnibus <- lapply(models, function(m){
       if (class(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
