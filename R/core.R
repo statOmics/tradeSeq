@@ -42,7 +42,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   # TODO: add parallellization
 
   intercept <- U %>% as.data.frame %>%
-                     lapply(U = ., function(c) length(unique(c))) %>%
+                     lapply(X = ., function(c) length(unique(c))) %>%
                      unlist()
 
   if (1 %in% intercept) {
