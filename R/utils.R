@@ -1,7 +1,7 @@
 # helper functions ----
 
 .assignCells <- function(cellWeights) {
-  if (is.null(dim(cellWeights))) {
+  if (is.null(dim(cellWeights))){
     if(any(cellWeights == 0)) {
       stop("Some cells have no positive cell weights.")
     } else {
