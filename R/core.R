@@ -46,11 +46,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                      unlist()
 
   if (1 %in% intercept) {
-<<<<<<< HEAD
-    stop("The design matrix X should not contain an intercept")
-=======
-    stop("The design matrix U must not contained an intercept")
->>>>>>> 06e5db721cfdba8bd3800d65b122f87508919166
+    stop("The design matrix U should not contain an intercept")
   }
   # check if pseudotime and weights have same dimensions.
   if(!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))){
