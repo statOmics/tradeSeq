@@ -4,7 +4,7 @@ NULL
 #' Fit GAM model
 #'
 #' @param counts the count matrix.
-#' @param X the design matrix of fixed effects. The design matrix should not
+#' @param U the design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param pseudotime a matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
@@ -33,20 +33,24 @@ NULL
 #' @importFrom magrittr %>%
 #' @export
 
-fitGAM <- function(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
+fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                    seed = 81, offset = NULL, verbose = FALSE, nknots = 10){
 
   # TODO: adjust for single trajectory.
   # TODO: make sure warning message for knots prints after looping
-  # TODO: verify working with X provided
+  # TODO: verify working with U provided
   # TODO: add parallellization
 
-  intercept <- X %>% as.data.frame %>%
+  intercept <- U %>% as.data.frame %>%
                      lapply(X = ., function(c) length(unique(c))) %>%
                      unlist()
 
   if (1 %in% intercept) {
+<<<<<<< HEAD
     stop("The design matrix X should not contain an intercept")
+=======
+    stop("The design matrix U must not contained an intercept")
+>>>>>>> 06e5db721cfdba8bd3800d65b122f87508919166
   }
   # check if pseudotime and weights have same dimensions.
   if(!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))){
@@ -87,8 +91,8 @@ fitGAM <- function(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
 
   # fit model
   ## fixed effect design matrix
-  if (is.null(X)) {
-    X <- rep(1,nrow(pseudotime))
+  if (is.null(U)) {
+    U <- rep(1,nrow(pseudotime))
   }
 
   ## fit NB GAM
@@ -159,14 +163,14 @@ fitGAM <- function(counts, X = NULL, pseudotime, cellWeights, weights = NULL,
     nknots <- nknots
     if (!is.null(weights)) weights <- weights[teller,]
     smoothForm <- as.formula(
-      if (is.null(X)) {
+      if (is.null(U)) {
         paste0("y ~ -1 + ",
                paste(sapply(seq_len(ncol(pseudotime)), function(ii){
                  paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
                }),
                collapse = "+"), " + offset(offset)")
       } else {
-        paste0("y ~ -1 + X + ",
+        paste0("y ~ -1 + U + ",
                paste(sapply(seq_len(ncol(pseudotime)), function(ii){
                  paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
                }),
