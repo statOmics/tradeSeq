@@ -492,6 +492,8 @@ earlyDETest <- function(models, knots, nPoints=100, omnibus=TRUE,
 #' @export
 associationTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
 
+  # TODO: check whether on l.516-517 (C[npar + nknots_max...]) nknots_max should not be replaced by nknots if more than two lineages.
+
   modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
   data <- modelTemp$model
@@ -505,9 +507,9 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
 
   # construct individual contrast matrix
   npar <- modelTemp$nsdf #nr of parametric terms
-  nknots_max <- length(modelTemp$smooth[[1]]$xp)
+  nknots_max <- modelTemp$smooth[[1]]$last.para - modelTemp$smooth[[1]]$first.para + 1
   for (jj in seq_len(nCurves)) {
-    nknots <- nrow(get(paste0("X", jj)))
+    nknots <-modelTemp$smooth[[jj]]$last.para - modelTemp$smooth[[jj]]$first.para + 1
     C <- matrix(0, nrow=length(coef(modelTemp)), ncol=nknots-1,
                 dimnames=list(names(coef(modelTemp)),NULL))
     for (i in 1:(nknots - 1)) {
