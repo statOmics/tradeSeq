@@ -28,14 +28,14 @@ for (jj in seq_len(nCurves)) {
 df <- data.frame(x = timeAll, y = log(y + 1), type = col)
 p <- ggplot(df, aes(x = x, y = y, col = factor(type))) +
       geom_point(alpha = .2, size = 4) +
-      labs(y = "count (log + 1 scale)", x = "pseudotime") +
+      labs(y = "log(count + 1)", x = "Pseudotime") +
       scale_color_manual(values = c("#377EB8", "#FF7F00")) +
       guides(color = F)
 ggsave("figures/points.pdf", p, height = 7)
 
 p <- ggplot(df, aes(x = x, y = y, col = factor(type))) +
   geom_point(alpha = .1, size = 2) +
-  labs(y = "count (log + 1 scale)", x = "pseudotime") +
+  labs(y = "log(count + 1)", x = "Pseudotime") +
   scale_color_manual(values = c("#377EB8", "#FF7F00")) +
   guides(color = F)
 
@@ -124,4 +124,3 @@ ggsave(filename = "figures/im6.pdf",
          geom_line(aes(x = time1, y = fit1), col = "#377EB8", size = 12) +
          geom_line(aes(x = time2, y = fit2), col = "#FF7F00", size = 12) +
          lims(y = c(0,1.2)) + labels )
-
