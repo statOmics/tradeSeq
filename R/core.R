@@ -327,8 +327,8 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE, ...){
 #' \code{\link{fitGAM}}.
 #' @param omnibus If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
-#' @param points a vector of length 2, specifying two pseudotime  values to be
-#' compared against each other, for every lineage of the trajectory.
+#' @param pseudotimeValues a vector of length 2, specifying two pseudotime
+#' values to be compared against each other, for every lineage of the trajectory.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeR")
