@@ -73,6 +73,31 @@
   return(vars)
 }
 
+# get predictor matrix for a custom pseudotime point.
+.getPredictCustomPointDf <- function(m, lineageId, pseudotime){
+  # note that X or offset variables dont matter as long as they are the same,
+  # since they will get canceled.
+  data <- m$model
+  vars <- m$model[1, ]
+  vars <- vars[!colnames(vars) %in% "y"]
+  offsetId <- grep(x = colnames(vars), pattern = "offset")
+  offsetName <- colnames(vars)[offsetId]
+  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
+  names(vars)[offsetId] <- offsetName
+  # set all times on 0
+  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
+  # set all lineages on 0
+  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # set lineage
+  vars[, paste0("l", lineageId)] <- 1
+  # set custom pseudotime
+  vars[, paste0("t", lineageId)] <- pseudotime
+  # set offset
+  vars[, offsetName] <- mean(m$model[, grep(x = colnames(m$model),
+                                            pattern = "offset")])
+  return(vars)
+}
+
 # get the first non-errored fit in models
 .getModelReference <- function(models){
   for (i in 1:length(models)) {

@@ -327,13 +327,16 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE, ...){
 #' \code{\link{fitGAM}}.
 #' @param omnibus If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
+#' @param points a vector of length 2, specifying two pseudotime  values to be
+#' compared against each other, for every lineage of the trajectory.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeR")
 #' startVsEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
 #' @export
-startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
+startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
+                           pseudotimeValues=NULL, ...){
 
   # TODO: add Wald and df if lineages = TRUE
   # TODO: add fold changes
@@ -345,15 +348,26 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE, ...){
   # construct within-lineage contrast matrix
   L <- matrix(0, nrow = length(coef(modelTemp)), ncol = nCurves)
   colnames(L) <- paste0("lineage", seq_len(nCurves))
-  for (jj in seq_len(nCurves)) {
-      dfEnd <- .getPredictEndPointDf(modelTemp, jj)
+
+  if(is.null(pseudotimeValues)){ # start vs end
+    for (jj in seq_len(nCurves)) {
+        dfEnd <- .getPredictEndPointDf(modelTemp, jj)
+        XEnd <- predict(modelTemp, newdata = dfEnd, type = "lpmatrix")
+        dfStart <- .getPredictStartPointDf(modelTemp, jj)
+        XStart <- predict(modelTemp, newdata = dfStart, type = "lpmatrix")
+        L[, jj] <- XEnd - XStart
+    }
+  } else { #compare specific pseudotime values
+    for (jj in seq_len(nCurves)) {
+      dfEnd <- .getPredictCustomPointDf(modelTemp, jj, pseudotime=pseudotimeValues[2])
       XEnd <- predict(modelTemp, newdata = dfEnd, type = "lpmatrix")
-      dfStart <- .getPredictStartPointDf(modelTemp, jj)
+      dfStart <- .getPredictCustomPointDf(modelTemp, jj, pseudotime=pseudotimeValues[1])
       XStart <- predict(modelTemp, newdata = dfStart, type = "lpmatrix")
       L[, jj] <- XEnd - XStart
+    }
   }
 
-  # do statistical test for every model
+  # statistical test for every model
   if (omnibus) {
     waldResultsOmnibus <- lapply(models, function(m){
       if (class(m)[1] == "try-error") return(c(NA, NA, NA))
