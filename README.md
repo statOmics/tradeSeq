@@ -1,5 +1,5 @@
 # R package: tradeR
-## __tra__jectory-based __d__ifferential __e__xpression analysis in __R__
+## **tra**jectory **d**ifferential **e**xpression analysis in **R**
 
 tradeR provides a flexible method for finding genes that are differentialy expressed along one or multiple trajectorys, using a variety of tests suited to answer many questions of interest.
 
