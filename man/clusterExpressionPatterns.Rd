@@ -5,8 +5,8 @@
 \title{Cluster gene expression patterns.}
 \usage{
 clusterExpressionPatterns(models, nPoints, genes, reduceMethod = "PCA",
-  nReducedDims = 10, minSizes = 6, ncores = 1,
-  random.seed = 176201, verbose = TRUE, ...)
+  nReducedDims = 10, minSizes = 6, ncores = 1, random.seed = 176201,
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{models}{The list of GAMs, typically the output from
