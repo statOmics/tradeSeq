@@ -5,13 +5,14 @@
 \title{Perform test of early differences between lineages}
 \usage{
 earlyDETest(models, knots, nPoints = 100, omnibus = TRUE,
-  pairwise = FALSE, ...)
+  pairwise = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
-\item{knots}{A vector of length 2 specifying the knots before and after the branching of interest.}
+\item{knots}{A vector of length 2 specifying the knots before and after the
+branching of interest.}
 
 \item{nPoints}{the number of points to be compared between lineages.}
 
@@ -20,13 +21,17 @@ earlyDETest(models, knots, nPoints = 100, omnibus = TRUE,
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 }
 \value{
-A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+A matrix with the wald statistic, the number of df and the p-value
+ associated with each gene for all the tests performed.
 }
 \description{
 Perform test of early differences between lineages
 }
 \details{
-To help in choosing the knots, the \code{\link{plotGeneCount}} function has a models optional parameter that can be used to visualize where the knots are. This helps the user to decide which knots to use when defining the branching
+To help in choosing the knots, the \code{\link{plotGeneCount}}
+ function has a models optional parameter that can be used to visualize
+  where the knots are. This helps the user to decide which knots to use when
+   defining the branching
 }
 \examples{
 data(gamList, package = "tradeR")

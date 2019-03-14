@@ -1,21 +1,23 @@
 # helper functions ----
 
 .assignCells <- function(cellWeights) {
-  if (is.null(dim(cellWeights))){
-    if(any(cellWeights == 0)) {
+  if (is.null(dim(cellWeights))) {
+    if (any(cellWeights == 0)) {
       stop("Some cells have no positive cell weights.")
     } else {
       return(matrix(1, nrow = length(cellWeights), ncol = 1))
     }
   } else {
-    if(any(rowSums(cellWeights)==0)){
+    if (any(rowSums(cellWeights) == 0)) {
       stop("Some cells have no positive cell weights.")
     } else {
       # normalize weights
-      normWeights <- sweep(cellWeights,1, FUN = "/",
-                           STATS = apply(cellWeights,1,sum))
+      normWeights <- sweep(cellWeights, 1,
+        FUN = "/",
+        STATS = apply(cellWeights, 1, sum)
+      )
       # sample weights
-      wSamp <- t(apply(normWeights,1,function(prob){
+      wSamp <- t(apply(normWeights, 1, function(prob) {
         rmultinom(n = 1, prob = prob, size = 1)
       }))
     }
@@ -124,7 +126,8 @@
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # get max pseudotime for lineage of interest
-  tmax <- max(data[data[, paste0("l", lineageId)] == 1, paste0("t", lineageId)])
+  tmax <- max(data[data[, paste0("l", lineageId)] == 1,
+                   paste0("t", lineageId)])
   nknots <- sum(m$smooth[[1]]$xp <= tmax)
 
   # Extend vars
@@ -318,10 +321,13 @@ getEigenStatGAM <- function(m, L){
 }
 
 # Plotting ----
-#' plot the logged-transformed counts and the fitted values for a particular gene along all trajectories.
+#' plot the logged-transformed counts and the fitted values for a particular
+#'  gene along all trajectories.
 #'
 #' @param m the fitted model of a given gene
-#' @param nPointss The number of points used to extraplolate the fit
+#' @param nPoints The number of points used to extraplolate the fit
+#' @param ... Further arguments passed to \code{\link{plot}}
+#' @return A plot that is printed.
 #' @examples
 #' data(gamList, package = "tradeR")
 #' plotSmoothers(gamList[[4]])
@@ -361,22 +367,29 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 
 #' Plot the gene in reduced dimension space
 #'
-#' @param rd the reduced dimentionality matrix. Must have at least two columns. Only the first two columns will be used for plotting.
+#' @param rd the reduced dimentionality matrix. Must have at least two columns.
+#'  Only the first two columns will be used for plotting.
 #' @param curve The output from a lineage computation
 #' @param counts the count matrix.
-#' @param gene The name of gene for which you want to plot the count or the row number of that gene in the count matrix. Alternatively, one can specify the cluster arguments
-#' @param clusters The assignation of each cell to a cluster. Used to color the plot. Either \code{clusters} or \code{gene} must be supplied.
-#' @param models the list of GAMs, typically the output from \code{\link{fitGAM}}. Used to display the knots.
-#' @details If both \code{gene} and \code{clusters} arguments are supplied, the plot will be colored according to gene count level.
+#' @param gene The name of gene for which you want to plot the count or the row
+#'  number of that gene in the count matrix. Alternatively, one can specify
+#'  the cluster arguments
+#' @param clusters The assignation of each cell to a cluster. Used to color the
+#'  plot. Either \code{clusters} or \code{gene} must be supplied.
+#' @param models the list of GAMs, typically the output from
+#'  \code{\link{fitGAM}}. Used to display the knots.
+#' @details If both \code{gene} and \code{clusters} arguments are supplied, the
+#'  plot will be colored according to gene count level.
+#' @return A plot that is printed.
 #' @examples
 #' set.seed(97)
 #' data(se, package = "tradeR")
-#' rd <- reducedDims(se)$UMAP
+#' rd <- SingleCellExperiment::reducedDims(se)$UMAP
 #' cl <- kmeans(rd, centers = 7)$cluster
 #' library(slingshot)
 #' lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
 #' crv <- getCurves(lin)
-#' counts <- as.matrix(assays(se)$counts)
+#' counts <- as.matrix(SummarizedExperiment::assays(se)$counts)
 #' filt <- rowSums(counts > 8) > ncol(counts)/100
 #' counts <- counts[filt, ]
 #' gamList <- fitGAM(counts = counts,
@@ -384,6 +397,9 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 #'  cellWeights = slingCurveWeights(crv))
 #' plotGeneCount(rd, crv, counts, gene = "Mpo")
 #' @import RColorBrewer
+#' @importFrom slingshot slingPseudotime slingCurves
+#' @importFrom SingleCellExperiment reducedDims
+#' @importFrom SummarizedExperiment assays
 #' @export
 plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
                           models = NULL){
@@ -393,10 +409,10 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
   if (!is.null(gene)) {
     logcounts <- log1p(counts[gene, ])
     g <- cut(logcounts, 10)
-    cols <- colorRampPalette(c("yellow", "red"))(10)[g]
+    cols <- grDevices::colorRampPalette(c("yellow", "red"))(10)[g]
     title <- paste0("color by expression of ", gene)
   } else {
-    cols <- RColorBrewer::brewer.pal(length(unique(clusters)), "Set1")[clusters]
+    cols <- brewer.pal(length(unique(clusters)), "Set1")[clusters]
     title <- "Colored by clusters"
   }
 
@@ -407,7 +423,7 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
   if (!is.null(models)) {
     m <- .getModelReference(models)
     knots <- m$smooth[[1]]$xp
-    times <- slingPseudotime(curve, na = F)
+    times <- slingPseudotime(curve, na = FALSE)
     knots_dim <- matrix(ncol = 2)
     for (kn in knots) {
       for (ii in 1:ncol(times)) {

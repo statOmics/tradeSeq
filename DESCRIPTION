@@ -1,14 +1,14 @@
 Package: tradeR
 Type: Package
 Title: trajectory-based differential expression analysis in R
-Version: 0.1.0
+Version: 0.9.0
 Author: Koen Van den Berge, Hector Roux de Bezieux
 Maintainer: Koen Van den Berge <koen.vandenberge@ugent.be>, Hector Roux de Bezieux <hector.rouxdebezieux@berkeley.edu>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Description: tradeR provides a flexible method for finding genes that are differentialy expressed along one or multiple trajectorys, using a variety of tests suited to answer many questions of interest.
+License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
+Depends: R (>= 3.5)
 Collate:
     'accessors.R'
     'allGenerics.R'
@@ -20,8 +20,31 @@ RoxygenNote: 6.1.1
 Imports: mgcv,
     edgeR,
     SingleCellExperiment,
+    SummarizedExperiment,
     slingshot,
     magrittr,
     plyr,
-    RColorBrewer
-Suggests: clusterExperiment
+    RColorBrewer,
+    clusterExperiment
+Suggests: 
+    knitr,
+    rmarkdown,
+    cowplot,
+    ggplot2,
+    dplyr,
+    tidyr
+VignetteBuilder: knitr
+biocViews:
+    Clustering,
+    Regression,
+    TimeCourse,
+    DifferentialExpression,
+    GeneExpression,
+    RNASeq,
+    Sequencing,
+    Software,
+    SingleCell,
+    Transcriptomics,
+    MultipleComparison,
+    Visualization
+BugReports: https://github.com/statOmics/tradeR/issues

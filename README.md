@@ -1,10 +1,11 @@
 # R package: tradeR
-trajectory-based differential expression analysis in R
+## TRAjectory Differential Expression analysis in R
 
-tradeR provide a flexible method for finding genes that are differentialy expressed along a trajectory, using a variety of tests suited to answer several questions of interest. See _need link_ for a detailed tutorial on tradeR. 
+tradeR provides a flexible method for finding genes that are differentialy expressed along one or multiple trajectorys, using a variety of tests suited to answer many questions of interest.
 
 ## Installation
 
+To get the development version, run 
 ```r
 devtools::install_github("statOmics/tradeR/")
 ```
@@ -12,3 +13,14 @@ devtools::install_github("statOmics/tradeR/")
 ## Issues and bug reports
 
 Please use https://github.com/statOmics/tradeR/issues to submit issues, bug reports, and comments.
+
+## Usage 
+
+Start with the vignette either [online](https://statOmics.github.io/tradeR/) or by running
+```{r}
+utils::vignette(topics = "tradeR", package = "tradeR")
+```
+
+You can also refer to this cheatsheet to undersand a common workflow
+
+![](vignettes/cheatsheet.jpg)

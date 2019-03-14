@@ -33,7 +33,10 @@ sequencing depth.}
 \item{nknots}{Number of knots used to fit the GAM.}
 }
 \value{
-A list of length the number of genes (number of rows of \code{counts}). Each element of the list is either a \code{\link{gamObject}} if the fiting procedure converged, or an error message.
+A list of length the number of genes
+ (number of rows of \code{counts}). Each element of the list is either a
+  \code{\link{gamObject}} if the fiting procedure converged, or an error
+   message.
 }
 \description{
 Fit GAM model
@@ -41,11 +44,12 @@ Fit GAM model
 \examples{
 set.seed(8)
 data(se, package = "tradeR")
-se <- se[(20:31)[-7], 25:40]
+se <- se[( 20:31)[-7], 25:40]
 pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
 cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
-gamList <- fitGAM(counts = as.matrix(assays(se)$counts),
+gamList <- fitGAM(counts = as.matrix(
+                      SummarizedExperiment::assays(se)$counts),
                   pseudotime = pseudotimes, cellWeights = cellWeights,
-                  nknots = 5, verbose = T)
+                  nknots = 5, verbose = TRUE)
 gamList[[1]]
 }
