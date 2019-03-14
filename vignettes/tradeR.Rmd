@@ -59,7 +59,8 @@ plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl)
 
 celltype <- factor(colData(se)$cell_type2)
 
-plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = celltype, title="Colored by cell type")
+plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = celltype, 
+              title="Colored by cell type")
 legend("topright", levels(celltype),
        col = brewer.pal(9, "Set1")[1:nlevels(celltype)],
        pch = 16, cex = 1 / 2, bty = "n")
@@ -67,14 +68,16 @@ legend("topright", levels(celltype),
 
 # Fit additive models
 
-After estimating the trajectories, we can fit generalized additive models (GAMs) with the `tradeR` package. Internally, this package builds on the `mgcv` package by fitting additive models using the `gam` function. The core function from `tradeR`, `fitGAM` will use cubic splines as basis functions, and it tries to ensure that every trajectory will end at a knot point of a basis function. By default, we allow for $10$ knots for every trajectory, but this can be changed with the `nknots` function.
-By default, we estimate one smoothers for every trajectory in the GAM using the negative binomial distribution. If you want to allow for other fixed effects (e.g. batch effects), then an additional model matrix can be provided with the `X` argument. 
+After estimating the trajectory, we can fit generalized additive models (GAMs) with the `tradeR` package. Internally, this package builds on the `mgcv` package by fitting additive models using the `gam` function. The core function from `tradeR`, `fitGAM`, will use cubic splines as basis functions, and it tries to ensure that every lineage will end at a knot point of a smoother. By default, we allow for $10$ knots for every lineage, but this can be changed with the `nknots` function. More knots will allow more flexibility, but also increase the risk of overfitting.
+By default, the GAM model estimates one smoother for every lineage using the negative binomial distribution. If you want to allow for other fixed effects (e.g. batch effects), then an additional model matrix can be provided with the `U` argument. 
 
-We use the effective library size, estimated with TMM [@Robinson2010], as offset in the model. We allow for alternatives by providing a user-defined offset with the `offset` argument.
+We use the effective library size, estimated with TMM [@Robinson2010], as offset in the model. We allow for alternatives by allowing a user-defined offset with the `offset` argument.
 
-This dataset consists of UMI counts, and we do not expect zero inflation to be a big problem here. However, we also allow to fit zero inflated negative binomial (ZINB) GAMs by providing observation-level weights to `fitGAM` using the `weights` argument. The `weights` must correspond to the posterior probability that a count belongs to the zero inflation component of the ZINB distribution [@VandenBerge2018].
+This dataset consists of UMI counts, and we do not expect zero inflation to be a big problem. However, we also allow to fit zero inflated negative binomial (ZINB) GAMs by providing observation-level weights to `fitGAM` using the `weights` argument. The `weights` must correspond to the posterior probability that a count belongs to the count component of the ZINB distribution [@VandenBerge2018].
 
-For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239. We also include the *Irf8* gene, since it is a known transcription factor involved in hematopoiesis.
+For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239 genes in total. We also include the *Irf8* gene, since it is a known transcription factor involved in hematopoiesis.
+
+The progress of the fitting can be trackes using a progress bar by setting the `verbose` argument to `TRUE`.
 
 ```{r}
 counts <- assays(se)$counts %>% as.matrix()
@@ -91,10 +94,10 @@ gamList <- fitGAM(counts = counts,
 One may explore the results of a model by requesting its summary.
 
 ```{r}
-summary(gamList[[1]])
+summary(gamList[["Irf8"]])
 ```
 
-You can also plot the cells in the reduced dimensions to see where the knots are distributed.
+You can also plot the cells in reduced dimension to see where the knots are located.
 
 ```{r}
 plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl,
@@ -105,9 +108,14 @@ plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl,
 
 ## Association of gene expression with pseudotime
 
-A fist exploration of the data analysis may consist in checking whether a gene is associated with a particular lineage.
-The statistical test performed here is testing the null hypothesis that all smoother coefficients are equal to zero.
-One can check whether a gene is significantly associated with a particular lineage by extracting its p-value with the `getSmootherPvalues` function.
+A first exploration of the data analysis may consist in checking whether gene expression is associated with a particular lineage.
+The statistical test performed here, implemented in the `associationTest` function, is testing the null hypothesis that all smoother coefficients are equal to each other. This can be interpreted as testing whether the smoothed gene expression is significantly changing along pseudotime.
+
+```{r}
+assoRes <- associationTest(gamList)
+```
+
+Related, one can extract the p-values generated by the `mgcv` package using the `getSmootherPvalues` function. These p-values are derived from a test that assesses the null hypothesis that all smoother coefficients are equal to zero. Note, however, that their interpretation is thus more complex. A significant lineage for a particular gene might thus be the result of (a) a different mean expression in that lineage as compared to the overall expression of that gene, or (b) significantly varying expression along that lineage, even if the means are equal, or (c) a combination of both.
 This function extracts the p-values calculated by `mgcv` from the GAM, and will return `NA` for genes that we were unable to fit properly.
 Similarly, the test statistics may be extracted with `getSmootherTestStats`.
 Since this dataset was pre-filtered to only contain relevant genes, all p-values (test statistics) will be very low (high).
@@ -117,19 +125,12 @@ pvalLineage <- getSmootherPvalues(gamList)
 statLineage <- getSmootherTestStats(gamList)
 ```
 
-
-Another related test is whether all coefficients are equal (but necessarily equal to zero). This can be done with the association test.
-
-```{r}
-assoRes <- associationTest(gamList)
-```
-
 ## Discovering progenitor marker genes
 
-In order to discover marker genes of the progenitor cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a trajectory) with the differentiated cell type population.
+In order to discover marker genes of the progenitor cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a lineage) with the differentiated cell type population (i.e., the end point of a lineage).
 In the function `startVsEndTest`, we have implemented a Wald test that tests the null hypothesis that the expression at the starting point of the smoother (progenitor population) is identical to the expression at the end point of the smoother (differentiated population).
 The test basically involves a comparison between two smoother coefficients for every lineage.
-The function `startVsEndTest` performs an omnibus across all trajectories by default, but you can also assess all pairwise comparisons separately by setting `pairwise=TRUE`.
+The function `startVsEndTest` performs an omnibus test across all lineages by default, but you can also assess all lienages separately by setting `lineages=TRUE`.
 Below, we adopt an omnibus test across the two lineages.
 
 ```{r}
@@ -156,7 +157,7 @@ plotGeneCount(rd, crv, counts, gene = sigGeneStart)
 ## Discovering differentiated cell type markers
 
 `tradeR` can discover marker genes for the differentiated cell types by comparing the end points of the lineage-specific smoothers. This is implemented in the `diffEndTest` function.
-By default, `diffEndTest` performs an omnibus test, testing the null hypothesis that the endpoint expression is equal for all trajectories using a multivariate Wald test.
+By default, `diffEndTest` performs an omnibus test, testing the null hypothesis that the endpoint expression is equal for all lineages using a multivariate Wald test.
 If more than two trajectories are present, one can assess all pairwise comparisons using the `pairwise=TRUE` argument.
 
 ```{r}
@@ -179,10 +180,8 @@ plotGeneCount(rd, crv, counts, gene = sigGene)
 
 ## Discovering genes with different expression patterns
 
-Asides from testing at the level of the differentiated cell type level, researchers may be interested in assessing the expression pattern of a gene over time.
-The function `patternTest` implements a statistical method that tests the null hypothesis of whether all smoother coefficients are equal to each other.
-Due to our construction of the smoothers, which have identical smoothing penalties, knots and basis functions, genes with similar expression patterns will have similar smoothing coefficients.
-Hence, if all coefficients are similar, the expression patterns will be similar.
+Asides from testing at the level of the differentiated cell type, researchers may be interested in assessing the expression pattern of a gene over pseudotime.
+The function `patternTest` implements a statistical method that checks whether the smoothed gene expression is equal along pseudotime between two or multiple lineages. In practice, we use $100$ points, equally distributed along pseudotime, that are compared between two (or multiple) lineages, and this number can be changed using the `nPoints` argument.
 
 ```{r}
 patternRes <- patternTest(gamList)
@@ -192,7 +191,7 @@ plotSmoothers(gamList[[rownames(patternRes)[oPat][1]]])
 plotGeneCount(rd, crv, counts, gene = rownames(patternRes)[oPat][1])
 ```
 
-We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes which rank high for pattern differentiation but low for final stage differentiation. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the *patternTest* and their rank in decreasing Wald statistics for the *diffEndTest*.
+We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the *patternTest* and their rank in decreasing Wald statistics for the *diffEndTest*.
 
 ```{r}
 compare <- inner_join(patternRes %>% mutate(Gene = rownames(patternRes),
@@ -236,11 +235,14 @@ plotGeneCount(rd, crv, counts, gene = "Irf8")
 
 ## Early drivers of differentiation
 
-Another question of interest is to find a list of genes that are differentially expressed at the beginning of the separation of the two lineages.
-
-The function `earlyDETest` implements a statistical method to tests the null hypothesis of whether the smoother are equals between two user-specified knots. It is especially purposed to 
+Another question of interest is to find a list of genes that are differentially expressed around the separation of two or multiple lineages.
+The function `earlyDETest` implements a statistical method to tests the null hypothesis of whether the smoothers are equal between two user-specified knots by building on the `patternTest`, but restricting itself to a particular location of the smoothers.
+Again, the knots can be visualized with the `plotGeneCount` function. By selecting the region covering the first two knot points to test for differential patterns between the lineages, we check which genes are behaving differently around the bifurcation point.
 
 ```{r}
+plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl,
+              models = gamList)
+
 earlyDERes <- earlyDETest(gamList, knots = c(1, 2))
 oEarly <- order(earlyDERes$waldStat, decreasing = TRUE)
 head(rownames(earlyDERes)[oEarly])

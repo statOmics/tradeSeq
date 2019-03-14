@@ -1,7 +1,6 @@
 #' @include utils.R
 NULL
 
-# TODO: some functions have `lineages` and some `pairwise` as argument, be consistent.
 # TODO: make sure error messages in fitting are silent, but print summary at end.
 
 #' Fit GAM model
