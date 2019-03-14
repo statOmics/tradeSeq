@@ -17,10 +17,12 @@ startVsEndTest(models, omnibus = TRUE, lineages = FALSE,
 \item{lineages}{If TRUE, test for all lineages independently.}
 
 \item{pseudotimeValues}{a vector of length 2, specifying two pseudotime
-values to be compared against each other, for every lineage of the trajectory.}
+values to be compared against each other, for every lineage of
+ the trajectory.}
 }
 \value{
-A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+A matrix with the wald statistic, the number of df and the p-value
+ associated with each gene for all the tests performed.
 }
 \description{
 Perform statistical test to check for DE between starting point and the end

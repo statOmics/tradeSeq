@@ -2,7 +2,8 @@
 % Please edit documentation in R/utils.R
 \name{plotSmoothers}
 \alias{plotSmoothers}
-\title{plot the logged-transformed counts and the fitted values for a particular gene along all trajectories.}
+\title{plot the logged-transformed counts and the fitted values for a particular
+ gene along all trajectories.}
 \usage{
 plotSmoothers(m, nPoints = 100, ...)
 }
@@ -13,8 +14,12 @@ plotSmoothers(m, nPoints = 100, ...)
 
 \item{...}{Further arguments passed to \code{\link{plot}}}
 }
+\value{
+A plot that is printed.
+}
 \description{
-plot the logged-transformed counts and the fitted values for a particular gene along all trajectories.
+plot the logged-transformed counts and the fitted values for a particular
+ gene along all trajectories.
 }
 \examples{
 data(gamList, package = "tradeR")

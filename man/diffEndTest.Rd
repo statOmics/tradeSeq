@@ -2,7 +2,8 @@
 % Please edit documentation in R/core.R
 \name{diffEndTest}
 \alias{diffEndTest}
-\title{Perform statistical test to check for DE between final stages of every trajectory.}
+\title{Perform statistical test to check for DE between final stages of every
+ trajectory.}
 \usage{
 diffEndTest(models, omnibus = TRUE, pairwise = FALSE)
 }
@@ -15,10 +16,12 @@ diffEndTest(models, omnibus = TRUE, pairwise = FALSE)
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 }
 \value{
-A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+A matrix with the wald statistic, the number of df and the p-value
+ associated with each gene for all the tests performed.
 }
 \description{
-Perform statistical test to check for DE between final stages of every trajectory.
+Perform statistical test to check for DE between final stages of every
+ trajectory.
 }
 \examples{
 data(gamList, package = "tradeR")

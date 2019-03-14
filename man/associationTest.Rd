@@ -2,7 +2,8 @@
 % Please edit documentation in R/core.R
 \name{associationTest}
 \alias{associationTest}
-\title{Perform statistical test to check whether a gene is constant across a lineage}
+\title{Perform statistical test to check whether a gene is constant across
+ a lineage}
 \usage{
 associationTest(models, omnibus = TRUE, lineages = FALSE)
 }
@@ -15,10 +16,12 @@ associationTest(models, omnibus = TRUE, lineages = FALSE)
 \item{lineages}{If TRUE, test for all lineages independently.}
 }
 \value{
-A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+A matrix with the wald statistic, the number of df and the p-value
+ associated with each gene for all the tests performed.
 }
 \description{
-Perform statistical test to check whether a gene is constant across a lineage
+Perform statistical test to check whether a gene is constant across
+ a lineage
 }
 \examples{
 data(gamList, package = "tradeR")

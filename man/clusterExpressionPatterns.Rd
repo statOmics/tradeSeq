@@ -12,31 +12,42 @@ clusterExpressionPatterns(models, nPoints, genes, reduceMethod = "PCA",
 \item{models}{The list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
-\item{nPoints}{The number of points to use for clustering the expression patterns.}
+\item{nPoints}{The number of points to use for clustering the expression
+patterns.}
 
-\item{genes}{A numerical or character vector specifying the genes from \code{models}
+\item{genes}{A numerical or character vector specifying the genes from
+\code{models}
 that should be clustered.}
 
-\item{reduceMethod}{Method used before running the clustering methods. Passed to \code{\link[clusterExperiment]{RSEC}}}
+\item{reduceMethod}{Method used before running the clustering methods.
+Passed to \code{\link[clusterExperiment]{RSEC}}}
 
-\item{nReducedDims}{Number of dimensions kept after \code{reduceMethod}. Passed to \code{\link[clusterExperiment]{RSEC}}}
+\item{nReducedDims}{Number of dimensions kept after \code{reduceMethod}.
+Passed to \code{\link[clusterExperiment]{RSEC}}}
 
-\item{minSizes}{Number of dimensions kept after \code{reduceMethod}. Passed to \code{\link[clusterExperiment]{RSEC}}}
+\item{minSizes}{Number of dimensions kept after \code{reduceMethod}.
+Passed to \code{\link[clusterExperiment]{RSEC}}}
 
-\item{ncores}{Number of cores to use. Passed to \code{\link[clusterExperiment]{RSEC}}}
+\item{ncores}{Number of cores to use. Passed to
+\code{\link[clusterExperiment]{RSEC}}}
 
 \item{random.seed}{Passed to \code{\link[clusterExperiment]{RSEC}}}
 
 \item{verbose}{Passed to \code{\link[clusterExperiment]{RSEC}}}
 
-\item{...}{Additional arguments to be passed to \code{\link[clusterExperiment]{RSEC}}.}
+\item{...}{Additional arguments to be passed to
+\code{\link[clusterExperiment]{RSEC}}.}
+}
+\value{
+A list containing the scaled fitted values \code{yhatScaled}(for
+ plotting) and a \code{\link{ClusterExperiment}} object \code{rsec}.
 }
 \description{
 Cluster gene expression patterns.
 }
 \details{
-This method adopts the \code{\link[clusterExperiment]{RSEC}} function
- from the clusterExperiment package to perform consensus clustering.
+This method adopts the \code{\link[clusterExperiment]{RSEC}}
+function from the clusterExperiment package to perform consensus clustering.
 }
 \examples{
 data(gamList, package = "tradeR")

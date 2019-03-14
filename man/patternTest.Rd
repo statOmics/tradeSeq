@@ -17,7 +17,8 @@ patternTest(models, nPoints = 100, omnibus = TRUE, pairwise = FALSE)
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 }
 \value{
-A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+A matrix with the wald statistic, the number of df and the p-value
+ associated with each gene for all the tests performed.
 }
 \description{
 Perform pattern test between lineages

@@ -8,7 +8,7 @@ output:
     toc: true
     toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{'Vignette for **tradeR**}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -78,12 +78,12 @@ For the vignette, we fit smoothers for a filtered set of genes in the dataset, 2
 ```{r}
 counts <- assays(se)$counts %>% as.matrix()
 filt <- rowSums(counts > 8) > ncol(counts)/100
-filt["Irf8"] <- T
+filt["Irf8"] <- TRUE
 counts <- counts[filt, ]
 gamList <- fitGAM(counts = counts,
                   pseudotime = slingPseudotime(crv, na = FALSE),
                   cellWeights = slingCurveWeights(crv),
-                  verbose = F)
+                  verbose = FALSE)
 # This takes about 1mn to run
 ```
 

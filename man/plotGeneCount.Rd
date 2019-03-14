@@ -8,23 +8,32 @@ plotGeneCount(rd, curve, counts, gene = NULL, clusters = NULL,
   models = NULL)
 }
 \arguments{
-\item{rd}{the reduced dimentionality matrix. Must have at least two columns. Only the first two columns will be used for plotting.}
+\item{rd}{the reduced dimentionality matrix. Must have at least two columns.
+Only the first two columns will be used for plotting.}
 
 \item{curve}{The output from a lineage computation}
 
 \item{counts}{the count matrix.}
 
-\item{gene}{The name of gene for which you want to plot the count or the row number of that gene in the count matrix. Alternatively, one can specify the cluster arguments}
+\item{gene}{The name of gene for which you want to plot the count or the row
+number of that gene in the count matrix. Alternatively, one can specify
+the cluster arguments}
 
-\item{clusters}{The assignation of each cell to a cluster. Used to color the plot. Either \code{clusters} or \code{gene} must be supplied.}
+\item{clusters}{The assignation of each cell to a cluster. Used to color the
+plot. Either \code{clusters} or \code{gene} must be supplied.}
 
-\item{models}{the list of GAMs, typically the output from \code{\link{fitGAM}}. Used to display the knots.}
+\item{models}{the list of GAMs, typically the output from
+\code{\link{fitGAM}}. Used to display the knots.}
+}
+\value{
+A plot that is printed.
 }
 \description{
 Plot the gene in reduced dimension space
 }
 \details{
-If both \code{gene} and \code{clusters} arguments are supplied, the plot will be colored according to gene count level.
+If both \code{gene} and \code{clusters} arguments are supplied, the
+ plot will be colored according to gene count level.
 }
 \examples{
 set.seed(97)

@@ -8,7 +8,7 @@ Description: tradeR provides a flexible method for finding genes that are differ
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 2.10)
+Depends: R (>= 3.5)
 Collate:
     'accessors.R'
     'allGenerics.R'
@@ -29,6 +29,22 @@ Imports: mgcv,
 Suggests: 
     knitr,
     rmarkdown,
-    cowplot
+    cowplot,
+    ggplot2,
+    dplyr,
+    tidyr
 VignetteBuilder: knitr
+biocViews:
+    Clustering,
+    Regression,
+    TimeCourse,
+    DifferentialExpression,
+    GeneExpression,
+    RNASeq,
+    Sequencing,
+    Software,
+    SingleCell,
+    Transcriptomics,
+    MultipleComparison,
+    Visualization
 BugReports: https://github.com/statOmics/tradeR/issues

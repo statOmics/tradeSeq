@@ -2,7 +2,8 @@
 % Please edit documentation in R/core.R
 \name{identicalTest}
 \alias{identicalTest}
-\title{Perform test between lineages to check whether the gene dynamics are identical.}
+\title{Perform test between lineages to check whether the gene dynamics are
+ identical.}
 \usage{
 identicalTest(models)
 }
@@ -11,10 +12,12 @@ identicalTest(models)
 \code{\link{fitGAM}}.}
 }
 \value{
-A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+A matrix with the wald statistic, the number of df and the p-value
+ associated with each gene for all the tests performed.
 }
 \description{
-Perform test between lineages to check whether the gene dynamics are identical.
+Perform test between lineages to check whether the gene dynamics are
+ identical.
 }
 \examples{
 data(gamList, package = "tradeR")

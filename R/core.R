@@ -18,14 +18,18 @@ NULL
 #' sequencing depth.
 #' @param verbose Whether to display the progress bar or not.
 #' @param  nknots Number of knots used to fit the GAM.
-#' @return A list of length the number of genes (number of rows of \code{counts}). Each element of the list is either a \code{\link{gamObject}} if the fiting procedure converged, or an error message.
+#' @return A list of length the number of genes
+#'  (number of rows of \code{counts}). Each element of the list is either a
+#'   \code{\link{gamObject}} if the fiting procedure converged, or an error
+#'    message.
 #' @examples
 #' set.seed(8)
 #' data(se, package = "tradeR")
-#' se <- se[(20:31)[-7], 25:40]
+#' se <- se[( 20:31)[-7], 25:40]
 #' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
 #' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
-#' gamList <- fitGAM(counts = as.matrix(SummarizedExperiment::assays(se)$counts),
+#' gamList <- fitGAM(counts = as.matrix(
+#'                       SummarizedExperiment::assays(se)$counts),
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
 #'                   nknots = 5, verbose = TRUE)
 #' gamList[[1]]
@@ -181,7 +185,8 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
       silent = TRUE)
   }
   if (verbose) {
-    gamList <- alply(counts, 1, counts_to_Gam, .progress = "text", .dims = TRUE)
+    gamList <- alply(counts, 1, counts_to_Gam, .progress = "text",
+                     .dims = TRUE)
   } else {
     gamList <- apply(counts, 1, counts_to_Gam)
   }
@@ -193,7 +198,8 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
 #'
 #' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
 #' @export
-#' @return a matrix with the p-value associated with each lineage's smoother. The matrix has one row per gene where the fitting procedure converged.
+#' @return a matrix with the p-value associated with each lineage's smoother.
+#'  The matrix has one row per gene where the fitting procedure converged.
 #' @examples
 #' data(gamList, package = "tradeR")
 #' getSmootherPvalues(gamList)
@@ -215,7 +221,9 @@ getSmootherPvalues <- function(models){
 #'
 #' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
 #' @export
-#' @return a matrix with the wald statistics associated with each lineage's smoother. The matrix has one row per gene where the fitting procedure converged.
+#' @return a matrix with the wald statistics associated with each lineage's
+#'  smoother. The matrix has one row per gene where the fitting procedure
+#'   converged.
 #' @examples
 #' data(gamList, package = "tradeR")
 #' getSmootherPvalues(gamList)
@@ -234,7 +242,8 @@ getSmootherTestStats <- function(models){
 }
 
 
-#' Perform statistical test to check for DE between final stages of every trajectory.
+#' Perform statistical test to check for DE between final stages of every
+#'  trajectory.
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
@@ -243,7 +252,8 @@ getSmootherTestStats <- function(models){
 #' @examples
 #' data(gamList, package = "tradeR")
 #' diffEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed.
 #' @export
 diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
 
@@ -329,15 +339,17 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
 #' @param omnibus If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
 #' @param pseudotimeValues a vector of length 2, specifying two pseudotime
-#' values to be compared against each other, for every lineage of the trajectory.
+#' values to be compared against each other, for every lineage of
+#'  the trajectory.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeR")
 #' startVsEndTest(gamList, omnibus = TRUE, lineages = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed.
 #' @export
 startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
-                           pseudotimeValues=NULL){
+                           pseudotimeValues = NULL){
 
   # TODO: add Wald and df if lineages = TRUE
   # TODO: add fold changes
@@ -360,9 +372,11 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
     }
   } else {# compare specific pseudotime values
     for (jj in seq_len(nCurves)) {
-      dfEnd <- .getPredictCustomPointDf(modelTemp, jj, pseudotime = pseudotimeValues[2])
+      dfEnd <- .getPredictCustomPointDf(modelTemp, jj,
+                                        pseudotime = pseudotimeValues[2])
       XEnd <- predict(modelTemp, newdata = dfEnd, type = "lpmatrix")
-      dfStart <- .getPredictCustomPointDf(modelTemp, jj, pseudotime = pseudotimeValues[1])
+      dfStart <- .getPredictCustomPointDf(modelTemp, jj,
+                                          pseudotime = pseudotimeValues[1])
       XStart <- predict(modelTemp, newdata = dfStart, type = "lpmatrix")
       L[, jj] <- XEnd - XStart
     }
@@ -387,7 +401,8 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
       }))
     })
     pvalslineages <- do.call(rbind,
-                             lapply(waldResultslineages, function(x) x[,3])) %>%
+                             lapply(waldResultslineages,
+                                    function(x) x[,3])) %>%
                      as.data.frame()
     colnames(pvalslineages) <- colnames(L)
   }
@@ -414,7 +429,8 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
 #' @examples
 #' data(gamList, package = "tradeR")
 #' patternTest(gamList, omnibus = TRUE, pairwise = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed.
 #' @export
 #'
 patternTest <- function(models, nPoints = 100, omnibus = TRUE,
@@ -426,7 +442,8 @@ patternTest <- function(models, nPoints = 100, omnibus = TRUE,
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#' @param knots A vector of length 2 specifying the knots before and after the branching of interest.
+#' @param knots A vector of length 2 specifying the knots before and after the
+#'  branching of interest.
 #' @param nPoints the number of points to be compared between lineages.
 #' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
@@ -434,12 +451,16 @@ patternTest <- function(models, nPoints = 100, omnibus = TRUE,
 #' @examples
 #' data(gamList, package = "tradeR")
 #' earlyDETest(gamList, knots = c(1, 2), omnibus = TRUE, pairwise = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
-#' @details To help in choosing the knots, the \code{\link{plotGeneCount}} function has a models optional parameter that can be used to visualize where the knots are. This helps the user to decide which knots to use when defining the branching
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed.
+#' @details To help in choosing the knots, the \code{\link{plotGeneCount}}
+#'  function has a models optional parameter that can be used to visualize
+#'   where the knots are. This helps the user to decide which knots to use when
+#'    defining the branching
 #' @export
 #'
-earlyDETest <- function(models, knots, nPoints=100, omnibus=TRUE,
-                        pairwise=FALSE){
+earlyDETest <- function(models, knots, nPoints = 100, omnibus = TRUE,
+                        pairwise = FALSE){
 
   mTemp <- .getModelReference(models)
 
@@ -465,8 +486,8 @@ earlyDETest <- function(models, knots, nPoints=100, omnibus=TRUE,
     combs <- combn(x = nCurves, m = 2)
     for (jj in seq_len(ncol(combs))) {
       curvesNow <- combs[,jj]
-      L <- .patternContrastPairwise(mTemp, nPoints = nPoints, curves = curvesNow,
-                                    knots = knots)
+      L <- .patternContrastPairwise(mTemp, nPoints = nPoints,
+                                    curves = curvesNow, knots = knots)
       waldResPair <- lapply(models, function(m){
         if (class(m)[1] == "try-error") return(c(NA))
         getEigenStatGAM(m, L)
@@ -493,7 +514,8 @@ earlyDETest <- function(models, knots, nPoints=100, omnibus=TRUE,
   }
 }
 
-#' Perform statistical test to check whether a gene is constant across a lineage
+#' Perform statistical test to check whether a gene is constant across
+#'  a lineage
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
@@ -503,11 +525,13 @@ earlyDETest <- function(models, knots, nPoints=100, omnibus=TRUE,
 #' @examples
 #' data(gamList, package = "tradeR")
 #' associationTest(gamList, omnibus = TRUE, lineages = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed.
 #' @export
 associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
 
-  # TODO: check whether on l.516-517 (C[npar + nknots_max...]) nknots_max should not be replaced by nknots if more than two lineages.
+  # TODO: check whether on l.516-517 (C[npar + nknots_max...]) nknots_max
+  # should not be replaced by nknots if more than two lineages.
 
   modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
@@ -522,9 +546,11 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
 
   # construct individual contrast matrix
   npar <- modelTemp$nsdf #nr of parametric terms
-  nknots_max <- modelTemp$smooth[[1]]$last.para - modelTemp$smooth[[1]]$first.para + 1
+  nknots_max <- modelTemp$smooth[[1]]$last.para -
+                modelTemp$smooth[[1]]$first.para + 1
   for (jj in seq_len(nCurves)) {
-    nknots <- modelTemp$smooth[[jj]]$last.para - modelTemp$smooth[[jj]]$first.para + 1
+    nknots <- modelTemp$smooth[[jj]]$last.para -
+              modelTemp$smooth[[jj]]$first.para + 1
     C <- matrix(0, nrow = length(coef(modelTemp)), ncol = nknots - 1,
                 dimnames = list(names(coef(modelTemp)), NULL)
     )
@@ -583,7 +609,8 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
   }
 }
 
-#' Perform test between lineages to check whether the gene dynamics are identical.
+#' Perform test between lineages to check whether the gene dynamics are
+#'  identical.
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
@@ -591,7 +618,8 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
 #' @examples
 #' data(gamList, package = "tradeR")
 #' identicalTest(gamList)
-#' @return A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed.
 #' @export
 identicalTest <- function(models){
 
@@ -631,26 +659,36 @@ identicalTest <- function(models){
 #'
 #' @param models The list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#' @param nPoints The number of points to use for clustering the expression patterns.
-#' @param genes A numerical or character vector specifying the genes from \code{models}
+#' @param nPoints The number of points to use for clustering the expression
+#'  patterns.
+#' @param genes A numerical or character vector specifying the genes from
+#'  \code{models}
 #'  that should be clustered.
-#' @param reduceMethod Method used before running the clustering methods. Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param nReducedDims Number of dimensions kept after \code{reduceMethod}. Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param minSizes Number of dimensions kept after \code{reduceMethod}. Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param ncores Number of cores to use. Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param reduceMethod Method used before running the clustering methods.
+#'  Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param nReducedDims Number of dimensions kept after \code{reduceMethod}.
+#'  Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param minSizes Number of dimensions kept after \code{reduceMethod}.
+#'  Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param ncores Number of cores to use. Passed to
+#' \code{\link[clusterExperiment]{RSEC}}
 #' @param verbose Passed to \code{\link[clusterExperiment]{RSEC}}
 #' @param random.seed Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param ... Additional arguments to be passed to \code{\link[clusterExperiment]{RSEC}}.
-#' @details This method adopts the \code{\link[clusterExperiment]{RSEC}} function
-#'  from the clusterExperiment package to perform consensus clustering.
+#' @param ... Additional arguments to be passed to
+#' \code{\link[clusterExperiment]{RSEC}}.
+#' @details This method adopts the \code{\link[clusterExperiment]{RSEC}}
+#' function from the clusterExperiment package to perform consensus clustering.
+#' @return A list containing the scaled fitted values \code{yhatScaled}(for
+#'  plotting) and a \code{\link{ClusterExperiment}} object \code{rsec}.
 #' @examples
 #' data(gamList, package = "tradeR")
 #' clusterExpressionPatterns(gamList, 200, 1:11)
 #' @importFrom clusterExperiment RSEC
 #' @export
-clusterExpressionPatterns <- function(models, nPoints, genes, reduceMethod = "PCA",
-                                      nReducedDims = 10, minSizes = 6,
-                                      ncores = 1, random.seed = 176201,
+clusterExpressionPatterns <- function(models, nPoints, genes,
+                                      reduceMethod = "PCA", nReducedDims = 10,
+                                      minSizes = 6, ncores = 1,
+                                      random.seed = 176201,
                                       verbose = TRUE, ...) {
 
   # check if all gene IDs provided are present in the models object.
@@ -666,7 +704,8 @@ clusterExpressionPatterns <- function(models, nPoints, genes, reduceMethod = "PC
 
   for (ii in seq_len(nSmoothers)) {
     df <- .getPredictRangeDf(modelTemp, ii, nPoints = nPoints)
-    y <- do.call(rbind, lapply(models[genes], predict, newdata = df, type = "link"))
+    y <- do.call(rbind,
+                 lapply(models[genes], predict, newdata = df, type = "link"))
     if (ii == 1) yhatPat <- y else yhatPat <- cbind(yhatPat, y)
   }
 
