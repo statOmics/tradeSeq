@@ -4,7 +4,7 @@
 \alias{diffEndTest}
 \title{Perform statistical test to check for DE between final stages of every trajectory.}
 \usage{
-diffEndTest(models, omnibus = TRUE, pairwise = FALSE, ...)
+diffEndTest(models, omnibus = TRUE, pairwise = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from

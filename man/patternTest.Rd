@@ -4,8 +4,7 @@
 \alias{patternTest}
 \title{Perform pattern test between lineages}
 \usage{
-patternTest(models, nPoints = 100, omnibus = TRUE, pairwise = FALSE,
-  ...)
+patternTest(models, nPoints = 100, omnibus = TRUE, pairwise = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from

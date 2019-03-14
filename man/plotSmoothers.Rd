@@ -9,7 +9,9 @@ plotSmoothers(m, nPoints = 100, ...)
 \arguments{
 \item{m}{the fitted model of a given gene}
 
-\item{nPointss}{The number of points used to extraplolate the fit}
+\item{nPoints}{The number of points used to extraplolate the fit}
+
+\item{...}{Further arguments passed to \code{\link{plot}}}
 }
 \description{
 plot the logged-transformed counts and the fitted values for a particular gene along all trajectories.

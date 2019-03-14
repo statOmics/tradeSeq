@@ -44,8 +44,8 @@ data(se, package = "tradeR")
 se <- se[(20:31)[-7], 25:40]
 pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
 cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
-gamList <- fitGAM(counts = as.matrix(assays(se)$counts),
+gamList <- fitGAM(counts = as.matrix(SummarizedExperiment::assays(se)$counts),
                   pseudotime = pseudotimes, cellWeights = cellWeights,
-                  nknots = 5, verbose = T)
+                  nknots = 5, verbose = TRUE)
 gamList[[1]]
 }

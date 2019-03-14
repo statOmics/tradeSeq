@@ -9,12 +9,6 @@ identicalTest(models)
 \arguments{
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
-
-\item{nPoints}{the number of points to be compared between lineages.}
-
-\item{omnibus}{If TRUE, test for all pairwise comparisons simultaneously.}
-
-\item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
@@ -24,5 +18,5 @@ Perform test between lineages to check whether the gene dynamics are identical.
 }
 \examples{
 data(gamList, package = "tradeR")
-identicalTest(gamList, omnibus = TRUE, pairwise = TRUE)
+identicalTest(gamList)
 }

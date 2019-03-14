@@ -5,7 +5,8 @@
 \title{Perform statistical test to check for DE between starting point and the end
 stages of every trajectory.}
 \usage{
-startVsEndTest(models, omnibus = TRUE, lineages = FALSE, ...)
+startVsEndTest(models, omnibus = TRUE, lineages = FALSE,
+  pseudotimeValues = NULL)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
@@ -14,6 +15,9 @@ startVsEndTest(models, omnibus = TRUE, lineages = FALSE, ...)
 \item{omnibus}{If TRUE, test for all lineages simultaneously.}
 
 \item{lineages}{If TRUE, test for all lineages independently.}
+
+\item{pseudotimeValues}{a vector of length 2, specifying two pseudotime
+values to be compared against each other, for every lineage of the trajectory.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value associated with each gene for all the tests performed.
@@ -24,5 +28,5 @@ stages of every trajectory.
 }
 \examples{
 data(gamList, package = "tradeR")
-startVsEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
+startVsEndTest(gamList, omnibus = TRUE, lineages = TRUE)
 }

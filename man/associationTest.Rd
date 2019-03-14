@@ -4,7 +4,7 @@
 \alias{associationTest}
 \title{Perform statistical test to check whether a gene is constant across a lineage}
 \usage{
-associationTest(models, omnibus = TRUE, lineages = FALSE, ...)
+associationTest(models, omnibus = TRUE, lineages = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
@@ -22,5 +22,5 @@ Perform statistical test to check whether a gene is constant across a lineage
 }
 \examples{
 data(gamList, package = "tradeR")
-associationTest(gamList, omnibus = TRUE, pairwise = TRUE)
+associationTest(gamList, omnibus = TRUE, lineages = TRUE)
 }

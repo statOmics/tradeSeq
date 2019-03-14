@@ -29,12 +29,12 @@ If both \code{gene} and \code{clusters} arguments are supplied, the plot will be
 \examples{
 set.seed(97)
 data(se, package = "tradeR")
-rd <- reducedDims(se)$UMAP
+rd <- SingleCellExperiment::reducedDims(se)$UMAP
 cl <- kmeans(rd, centers = 7)$cluster
 library(slingshot)
 lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
 crv <- getCurves(lin)
-counts <- as.matrix(assays(se)$counts)
+counts <- as.matrix(SummarizedExperiment::assays(se)$counts)
 filt <- rowSums(counts > 8) > ncol(counts)/100
 counts <- counts[filt, ]
 gamList <- fitGAM(counts = counts,

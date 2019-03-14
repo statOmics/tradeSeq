@@ -5,7 +5,7 @@
 \title{Cluster gene expression patterns.}
 \usage{
 clusterExpressionPatterns(models, nPoints, genes, reduceMethod = "PCA",
-  nReducedDims = 10, combineMinSize = 6, ncores = 1,
+  nReducedDims = 10, minSizes = 6, ncores = 1,
   random.seed = 176201, verbose = TRUE, ...)
 }
 \arguments{
@@ -17,6 +17,18 @@ clusterExpressionPatterns(models, nPoints, genes, reduceMethod = "PCA",
 \item{genes}{A numerical or character vector specifying the genes from \code{models}
 that should be clustered.}
 
+\item{reduceMethod}{Method used before running the clustering methods. Passed to \code{\link[clusterExperiment]{RSEC}}}
+
+\item{nReducedDims}{Number of dimensions kept after \code{reduceMethod}. Passed to \code{\link[clusterExperiment]{RSEC}}}
+
+\item{minSizes}{Number of dimensions kept after \code{reduceMethod}. Passed to \code{\link[clusterExperiment]{RSEC}}}
+
+\item{ncores}{Number of cores to use. Passed to \code{\link[clusterExperiment]{RSEC}}}
+
+\item{random.seed}{Passed to \code{\link[clusterExperiment]{RSEC}}}
+
+\item{verbose}{Passed to \code{\link[clusterExperiment]{RSEC}}}
+
 \item{...}{Additional arguments to be passed to \code{\link[clusterExperiment]{RSEC}}.}
 }
 \description{
@@ -25,4 +37,8 @@ Cluster gene expression patterns.
 \details{
 This method adopts the \code{\link[clusterExperiment]{RSEC}} function
  from the clusterExperiment package to perform consensus clustering.
+}
+\examples{
+data(gamList, package = "tradeR")
+clusterExpressionPatterns(gamList, 200, 1:11)
 }

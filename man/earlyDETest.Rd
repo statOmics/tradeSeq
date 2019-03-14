@@ -5,7 +5,7 @@
 \title{Perform test of early differences between lineages}
 \usage{
 earlyDETest(models, knots, nPoints = 100, omnibus = TRUE,
-  pairwise = FALSE, ...)
+  pairwise = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from

@@ -1,5 +1,5 @@
 # R package: tradeR
-## **tra**jectory **d**ifferential **e**xpression analysis in **R**
+## TRAjectory Differential Expression analysis in R
 
 tradeR provides a flexible method for finding genes that are differentialy expressed along one or multiple trajectorys, using a variety of tests suited to answer many questions of interest.
 
@@ -23,4 +23,4 @@ utils::vignette(topics = "tradeR", package = "tradeR")
 
 You can also refer to this cheatsheet to undersand a common workflow
 
-![](vignettes/cheatsheet.tiff)
+![](vignettes/cheatsheet.jpg)
