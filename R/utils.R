@@ -402,7 +402,7 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 #' @importFrom SummarizedExperiment assays
 #' @export
 plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
-                          models = NULL){
+                          models = NULL, title=NULL, ...){
   if (is.null(gene) & is.null(clusters)) {
     stop("Either gene or clusters argument must be supplied")
   }
@@ -410,15 +410,15 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
     logcounts <- log1p(counts[gene, ])
     g <- cut(logcounts, 10)
     cols <- grDevices::colorRampPalette(c("yellow", "red"))(10)[g]
-    title <- paste0("color by expression of ", gene)
+    if(is.null(title)) title <- paste0("color by expression of ", gene)
   } else {
     cols <- brewer.pal(length(unique(clusters)), "Set1")[clusters]
-    title <- "Colored by clusters"
+    if(is.null(title)) title <- "Colored by clusters"
   }
 
   plot(rd[,1:2],
        col = cols, main = title, xlab = "dim1", ylab = "dim2",
-       pch = 16, cex = 2 / 3)
+       pch = 16, cex = 2 / 3, ...)
   lines(curve, lwd = 2, col = "black")
   if (!is.null(models)) {
     m <- .getModelReference(models)

@@ -49,16 +49,17 @@ plot(rd, col = brewer.pal(9, "Set1")[cl], pch = 16, asp = 1,
 library(slingshot)
 lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
 crv <- getCurves(lin)
-
-plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl)
 ```
 
-We find two trajectories for this dataset. We can further color the cells according to their cell type.
+
+We find two lineages for this dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
 
 ```{r}
+plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl)
+
 celltype <- factor(colData(se)$cell_type2)
 
-plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = celltype)
+plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = celltype, title="Colored by cell type")
 legend("topright", levels(celltype),
        col = brewer.pal(9, "Set1")[1:nlevels(celltype)],
        pch = 16, cex = 1 / 2, bty = "n")
