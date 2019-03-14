@@ -1,6 +1,9 @@
 #' @include utils.R
 NULL
 
+# TODO: some functions have `lineages` and some `pairwise` as argument, be consistent.
+# TODO: make sure error messages in fitting are silent, but print summary at end.
+
 #' Fit GAM model
 #'
 #' @param counts the count matrix.
@@ -386,7 +389,10 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
       }))
     })
     pvalslineages <- do.call(rbind,
-                             lapply(waldResultslineages, function(x) x[,3])) %>%
+                             lapply(waldResultslineages, function(x){
+                               if(is.na(x[1])) return(rep(NA,nCurves))
+                               x[,3]
+                             })) %>%
                      as.data.frame()
     colnames(pvalslineages) <- colnames(L)
   }
