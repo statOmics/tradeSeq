@@ -24,6 +24,6 @@ Perform statistical test to check whether a gene is constant across
  a lineage
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 associationTest(gamList, omnibus = TRUE, lineages = TRUE)
 }

@@ -5,8 +5,8 @@
 \title{Cluster gene expression patterns.}
 \usage{
 clusterExpressionPatterns(models, nPoints, genes, reduceMethod = "PCA",
-  nReducedDims = 10, minSizes = 6, ncores = 1, random.seed = 176201,
-  verbose = TRUE, ...)
+  nReducedDims = 10, minSizes = 6, ncores = 1,
+  random.seed = 176201, verbose = TRUE, ...)
 }
 \arguments{
 \item{models}{The list of GAMs, typically the output from
@@ -50,6 +50,6 @@ This method adopts the \code{\link[clusterExperiment]{RSEC}}
 function from the clusterExperiment package to perform consensus clustering.
 }
 \examples{
-data(gamList, package = "tradeR")
-clusterExpressionPatterns(gamList, 200, 1:11)
+data(gamList, package = "tradeSeq")
+clusterExpressionPatterns(gamList, 200, seq_len(11))
 }

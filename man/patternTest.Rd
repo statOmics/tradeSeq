@@ -24,6 +24,6 @@ A matrix with the wald statistic, the number of df and the p-value
 Perform pattern test between lineages
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 patternTest(gamList, omnibus = TRUE, pairwise = TRUE)
 }

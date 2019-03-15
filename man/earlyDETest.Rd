@@ -34,6 +34,6 @@ To help in choosing the knots, the \code{\link{plotGeneCount}}
    defining the branching
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 earlyDETest(gamList, knots = c(1, 2), omnibus = TRUE, pairwise = TRUE)
 }

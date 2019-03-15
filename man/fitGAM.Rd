@@ -43,7 +43,7 @@ Fit GAM model
 }
 \examples{
 set.seed(8)
-data(se, package = "tradeR")
+data(se, package = "tradeSeq")
 se <- se[( 20:31)[-7], 25:40]
 pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
 cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)

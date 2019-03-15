@@ -18,6 +18,6 @@ a matrix with the wald statistics associated with each lineage's
 Get smoother Chi-squared test statistics
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 getSmootherPvalues(gamList)
 }

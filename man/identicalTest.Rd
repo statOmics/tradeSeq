@@ -20,6 +20,6 @@ Perform test between lineages to check whether the gene dynamics are
  identical.
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 identicalTest(gamList)
 }

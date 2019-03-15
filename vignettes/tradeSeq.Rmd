@@ -1,20 +1,20 @@
 ---
-title: 'Vignette for **tradeR**: **tra**jectory **d**ifferential **e**xpression analysis in **R**'
+title: 'Vignette for **tradeSeq**: **tra**jectory **d**ifferential **e**xpression analysis for **Seq**uncing data'
 author: "Koen Van den Berge and Hector Roux de Bézieux"
-bibliography: tradeR.bib
+bibliography: tradeSeq.bib
 date: "9/10/2018"
 output: 
   rmarkdown::html_document:
     toc: true
     toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{'Vignette for **tradeR**}
+  %\VignetteIndexEntry{'Vignette for **tradeSeq**}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 In this vignette, we analyse a subset of the data from [@Paul2015]. 
-A `SingleCellExperiment` object of the data has been provided with the [`tradeR`](https://github.com/statOmics/tradeR) package and can be retrieved with `data(se)`. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
+A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeR) package and can be retrieved with `data(se)`. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
 
 # Load data
 
@@ -22,7 +22,7 @@ A `SingleCellExperiment` object of the data has been provided with the [`tradeR`
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(mgcv)
-  library(tradeR)
+  library(tradeSeq)
   library(slingshot)
   library(RColorBrewer)
   library(dplyr)
@@ -31,7 +31,7 @@ suppressPackageStartupMessages({
   library(cowplot)
 })
 palette(brewer.pal(8,"Dark2"))
-data(se, package = "tradeR")
+data(se, package = "tradeSeq")
 se
 ```
 
@@ -68,7 +68,7 @@ legend("topright", levels(celltype),
 
 # Fit additive models
 
-After estimating the trajectory, we can fit generalized additive models (GAMs) with the `tradeR` package. Internally, this package builds on the `mgcv` package by fitting additive models using the `gam` function. The core function from `tradeR`, `fitGAM`, will use cubic splines as basis functions, and it tries to ensure that every lineage will end at a knot point of a smoother. By default, we allow for $10$ knots for every lineage, but this can be changed with the `nknots` function. More knots will allow more flexibility, but also increase the risk of overfitting.
+After estimating the trajectory, we can fit generalized additive models (GAMs) with the `tradeSeq` package. Internally, this package builds on the `mgcv` package by fitting additive models using the `gam` function. The core function from `tradeSeq`, `fitGAM`, will use cubic splines as basis functions, and it tries to ensure that every lineage will end at a knot point of a smoother. By default, we allow for $10$ knots for every lineage, but this can be changed with the `nknots` function. More knots will allow more flexibility, but also increase the risk of overfitting.
 By default, the GAM model estimates one smoother for every lineage using the negative binomial distribution. If you want to allow for other fixed effects (e.g. batch effects), then an additional model matrix can be provided with the `U` argument. 
 
 We use the effective library size, estimated with TMM [@Robinson2010], as offset in the model. We allow for alternatives by allowing a user-defined offset with the `offset` argument.
@@ -156,7 +156,7 @@ plotGeneCount(rd, crv, counts, gene = sigGeneStart)
 
 ## Discovering differentiated cell type markers
 
-`tradeR` can discover marker genes for the differentiated cell types by comparing the end points of the lineage-specific smoothers. This is implemented in the `diffEndTest` function.
+`tradeSeq` can discover marker genes for the differentiated cell types by comparing the end points of the lineage-specific smoothers. This is implemented in the `diffEndTest` function.
 By default, `diffEndTest` performs an omnibus test, testing the null hypothesis that the endpoint expression is equal for all lineages using a multivariate Wald test.
 If more than two trajectories are present, one can assess all pairwise comparisons using the `pairwise=TRUE` argument.
 
@@ -253,7 +253,7 @@ plotGeneCount(rd, crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 
 # Clustering of genes according to their expression pattern
 
-tradeR provides the functionality to cluster genes according to their expression pattern along the lineages with the `clusterExpressionPatterns` function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the `nPoints` argument. The `genes` argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset.
+tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the `clusterExpressionPatterns` function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the `nPoints` argument. The `genes` argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset.
 The clustering itself occurs with the RSEC package [@Risso2018].
 
 ```{r}

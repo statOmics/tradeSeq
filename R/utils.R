@@ -102,9 +102,9 @@
 
 # get the first non-errored fit in models
 .getModelReference <- function(models){
-  for (i in 1:length(models)) {
+  for (i in seq_len(length(models))) {
     m <- models[[i]]
-    if (class(m)[1] != "try-error") return(m)
+    if (is(m)[1] != "try-error") return(m)
   }
   stop("All models errored")
 }
@@ -133,7 +133,7 @@
   # Extend vars
   vars <- vars[rep(1, nknots), ]
   # Set time
-  vars[, paste0("t", lineageId)] <- m$smooth[[1]]$xp[1:nknots]
+  vars[, paste0("t", lineageId)] <- m$smooth[[1]]$xp[seq_len(nknots)]
   # set lineage
   vars[, paste0("l", lineageId)] <- 1
   # set offset
@@ -147,9 +147,9 @@
 waldTest <- function(model, L){
   ### build a contrast matrix for a multivariate Wald test
   beta <- matrix(coef(model), ncol = 1)
-  LQR <- L[, qr(L)$pivot[1:qr(L)$rank], drop = FALSE]
+  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   sigmaInv <- try(solve(t(LQR) %*% model$Vp %*% LQR))
-  if (class(sigmaInv) == "try-error") return(c(NA,NA,NA))
+  if (is(sigmaInv)[1] == "try-error") return(c(NA,NA,NA))
   wald <- t(t(LQR) %*% beta) %*%
           sigmaInv %*%
           t(LQR) %*% beta
@@ -162,9 +162,9 @@ waldTest <- function(model, L){
 indWaldTest <- function(model, L){
   ### build a contrast matrix for a multivariate Wald test
   beta <- matrix(coef(model), ncol = 1)
-  LQR <- L[, qr(L)$pivot[1:qr(L)$rank], drop = FALSE]
+  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   # Test equality for each coefficient
-  wald <- lapply(1:ncol(LQR), FUN = function(i) {
+  wald <- lapply(seq_len(ncol(LQR)), FUN = function(i) {
     (t(LQR[, i]) %*% beta)^2 / model$Vp[i, i]
   }) %>% unlist()
   pval <- 1 - pchisq(wald, df = 1)
@@ -174,7 +174,7 @@ indWaldTest <- function(model, L){
 waldTestFull <- function(model, L){
   ### build a contrast matrix for a multivariate Wald test
   beta <- matrix(coef(model), ncol = 1)
-  LQR <- L[, qr(L)$pivot[1:qr(L)$rank], drop = FALSE]
+  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   est <- t(LQR) %*% beta
   var <- t(LQR) %*% model$Vp %*% LQR
   wald <- t(est) %*% solve(var) %*% est
@@ -186,10 +186,10 @@ waldTestFull <- function(model, L){
 waldTestFullSub <- function(model, L){
   ### build a contrast matrix for a multivariate Wald test
   beta <- matrix(coef(model), ncol = 1)
-  LQR <- L[, qr(L)$pivot[1:qr(L)$rank], drop = FALSE]
+  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   est <- t(LQR) %*% beta
   var <- t(LQR) %*% model$Vp %*% LQR
-  sub <- qr(var)$pivot[1:qr(var)$rank]
+  sub <- qr(var)$pivot[seq_len(qr(var)$rank)]
   est <- est[sub, , drop = FALSE]
   var <- var[sub, sub, drop = FALSE]
   wald <- t(est) %*% solve(var) %*% est
@@ -238,7 +238,7 @@ waldTestFullSub <- function(model, L){
   return(L)
 }
 
-.patternContrastPairwise <- function(model, nPoints=100, curves=1:2,
+.patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
                                      knots = NULL){
   Knot <- !is.null(knots)
   if (Knot) {
@@ -281,11 +281,11 @@ getEigenStatGAM <- function(m, L){
   sigma <- t(L) %*% m$Vp %*% L
   eSigma <- eigen(sigma, symmetric = TRUE)
   r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8))
-  if (class(r) == "try-error") {
+  if (is(r)[1] == "try-error") {
     return(c(NA, NA))
   }
   if (r == 1) return(c(NA, NA)) # CHECK
-  halfCovInv <- eSigma$vectors[, 1:r] %*% (diag(1 / sqrt(eSigma$values[1:r])))
+  halfCovInv <- eSigma$vectors[, seq_len(r)] %*% (diag(1 / sqrt(eSigma$values[seq_len(r)])))
   halfStat <- t(est) %*% halfCovInv
   stat <- crossprod(t(halfStat))
   return(c(stat, r))
@@ -329,7 +329,7 @@ getEigenStatGAM <- function(m, L){
 #' @param ... Further arguments passed to \code{\link{plot}}
 #' @return A plot that is printed.
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' plotSmoothers(gamList[[4]])
 #' @export
 plotSmoothers <- function(m, nPoints = 100, ...){
@@ -341,7 +341,7 @@ plotSmoothers <- function(m, nPoints = 100, ...){
   nCurves <- length(m$smooth)
   col <- timeAll <- rep(0, nrow(data))
   for (jj in seq_len(nCurves)) {
-    for (ii in 1:nrow(data)) {
+    for (ii in seq_len(nrow(data))) {
       if (data[ii, paste0("l", jj)] == 1) {
         timeAll[ii] <- data[ii, paste0("t", jj)]
         col[ii] <- jj
@@ -379,12 +379,14 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 #'  @param title The main title for the plot.
 #' @param models the list of GAMs, typically the output from
 #'  \code{\link{fitGAM}}. Used to display the knots.
+#' @param title Title for the plot.
+#' @param ... Further arguments passed to \code{\link{plot}}
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the
 #'  plot will be colored according to gene count level.
 #' @return A plot that is printed.
 #' @examples
 #' set.seed(97)
-#' data(se, package = "tradeR")
+#' data(se, package = "tradeSeq")
 #' rd <- SingleCellExperiment::reducedDims(se)$UMAP
 #' cl <- kmeans(rd, centers = 7)$cluster
 #' library(slingshot)
@@ -411,13 +413,13 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
     logcounts <- log1p(counts[gene, ])
     g <- cut(logcounts, 10)
     cols <- grDevices::colorRampPalette(c("yellow", "red"))(10)[g]
-    if(is.null(title)) title <- paste0("color by expression of ", gene)
+    if (is.null(title)) title <- paste0("color by expression of ", gene)
   } else {
     cols <- brewer.pal(length(unique(clusters)), "Set1")[clusters]
-    if(is.null(title)) title <- "Colored by clusters"
+    if (is.null(title)) title <- "Colored by clusters"
   }
 
-  plot(rd[,1:2],
+  plot(rd[, seq_len(2)],
        col = cols, main = title, xlab = "dim1", ylab = "dim2",
        pch = 16, cex = 2 / 3, ...)
   lines(curve, lwd = 2, col = "black")
@@ -427,10 +429,10 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
     times <- slingPseudotime(curve, na = FALSE)
     knots_dim <- matrix(ncol = 2)
     for (kn in knots) {
-      for (ii in 1:ncol(times)) {
+      for (ii in seq_len(ncol(times))) {
         p <- which.min(abs(times[, ii] - kn))
         knots_dim <- rbind(knots_dim,
-                           slingCurves(curve)[[ii]]$s[p, 1:2])
+                           slingCurves(curve)[[ii]]$s[p, seq_len(2)])
       }
     }
     points(knots_dim, pch = 16, col = "black")

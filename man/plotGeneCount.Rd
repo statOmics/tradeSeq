@@ -25,6 +25,10 @@ plot. Either \code{clusters} or \code{gene} must be supplied.
 
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}. Used to display the knots.}
+
+\item{title}{Title for the plot.}
+
+\item{...}{Further arguments passed to \code{\link{plot}}}
 }
 \value{
 A plot that is printed.
@@ -38,7 +42,7 @@ If both \code{gene} and \code{clusters} arguments are supplied, the
 }
 \examples{
 set.seed(97)
-data(se, package = "tradeR")
+data(se, package = "tradeSeq")
 rd <- SingleCellExperiment::reducedDims(se)$UMAP
 cl <- kmeans(rd, centers = 7)$cluster
 library(slingshot)

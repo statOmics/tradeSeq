@@ -29,6 +29,6 @@ Perform statistical test to check for DE between starting point and the end
 stages of every trajectory.
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 startVsEndTest(gamList, omnibus = TRUE, lineages = TRUE)
 }

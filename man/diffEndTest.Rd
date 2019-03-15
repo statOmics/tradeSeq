@@ -24,6 +24,6 @@ Perform statistical test to check for DE between final stages of every
  trajectory.
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 diffEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
 }

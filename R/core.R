@@ -1,7 +1,8 @@
 #' @include utils.R
 NULL
 
-# TODO: make sure error messages in fitting are silent, but print summary at end.
+# TODO: make sure error messages in fitting are silent,
+# but print summary at end.
 
 #' Fit GAM model
 #'
@@ -26,7 +27,7 @@ NULL
 #'    message.
 #' @examples
 #' set.seed(8)
-#' data(se, package = "tradeR")
+#' data(se, package = "tradeSeq")
 #' se <- se[( 20:31)[-7], 25:40]
 #' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
 #' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
@@ -35,7 +36,7 @@ NULL
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
 #'                   nknots = 5, verbose = TRUE)
 #' gamList[[1]]
-#' @importFrom plyr alply
+#' @importFrom plyr alply .
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays
 #' @export
@@ -101,7 +102,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   ## fit NB GAM
   ### get knots to end at last points of lineages.
   tAll <- c()
-  for (ii in 1:nrow(pseudotime)) {
+  for (ii in seq_len(nrow(pseudotime))) {
     tAll[ii] <- pseudotime[ii, which(as.logical(wSamp[ii,]))]
   }
   knotLocs <- quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
@@ -153,7 +154,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     }
     knots <- knotLocs
   }
-  knotList <- sapply(1:ncol(pseudotime), function(i){
+  knotList <- sapply(seq_len(ncol(pseudotime)), function(i){
     knots
   }, simplify = FALSE )
   names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
@@ -203,7 +204,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
 #' @return a matrix with the p-value associated with each lineage's smoother.
 #'  The matrix has one row per gene where the fitting procedure converged.
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' getSmootherPvalues(gamList)
 getSmootherPvalues <- function(models){
 
@@ -211,7 +212,7 @@ getSmootherPvalues <- function(models){
   nCurves <- length(modelTemp$smooth)
 
   smootherP <- lapply(models, function(m){
-    if (class(m)[1] == "try-error") return(rep(NA, nCurves))
+    if (is(m)[1] == "try-error") return(rep(NA, nCurves))
     summary(m)$s.table[,"p-value"]
   })
   smootherP <- do.call(rbind,smootherP)
@@ -227,7 +228,7 @@ getSmootherPvalues <- function(models){
 #'  smoother. The matrix has one row per gene where the fitting procedure
 #'   converged.
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' getSmootherPvalues(gamList)
 getSmootherTestStats <- function(models){
 
@@ -235,7 +236,7 @@ getSmootherTestStats <- function(models){
   nCurves <- length(modelTemp$smooth)
 
   smootherChi <- lapply(models, function(m){
-    if (class(m)[1] == "try-error") return(rep(NA, nCurves))
+    if (is(m)[1] == "try-error") return(rep(NA, nCurves))
     summary(m)$s.table[,"Chi.sq"]
   })
   smootherChi <- do.call(rbind,smootherChi)
@@ -252,7 +253,7 @@ getSmootherTestStats <- function(models){
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' diffEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
@@ -279,7 +280,7 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
   combs <- combn(nCurves,m = 2)
   L <- matrix(0, nrow = length(coef(modelTemp)), ncol = ncol(combs))
   colnames(L) <- apply(combs, 2, paste, collapse = "_")
-  for (jj in 1:ncol(combs)) {
+  for (jj in seq_len(ncol(combs))) {
     curvesNow <- combs[,jj]
     L[,jj] <- get(paste0("X", curvesNow[1])) - get(paste0("X",curvesNow[2]))
   }
@@ -288,7 +289,7 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
   # perform global statistical test for every model
   if (omnibus) {
     waldResultsOmnibus <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+      if (is(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
     })
     waldResults <- do.call(rbind,waldResultsOmnibus)
@@ -299,7 +300,7 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
   # perform pairwise comparisons
   if (pairwise) {
     waldResultsPairwise <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") {
+      if (is(m)[1] == "try-error") {
         return(matrix(NA, nrow = ncol(L), ncol = 3))
       }
       t(sapply(seq_len(ncol(L)), function(ii){
@@ -314,7 +315,7 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
     colNames <- c(paste0("waldStat_",contrastNames),
                   paste0("df_",contrastNames),
                   paste0("pvalue_",contrastNames))
-    orderByContrast <- unlist(c(mapply(seq, 1:3,
+    orderByContrast <- unlist(c(mapply(seq, seq_along(colNames),
                                        length(waldResultsPairwise[[1]]),
                                        by = 3)))
     waldResAllPair <- do.call(rbind,
@@ -345,7 +346,7 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
 #'  the trajectory.
 #' @importFrom magrittr %>%
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' startVsEndTest(gamList, omnibus = TRUE, lineages = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
@@ -387,7 +388,7 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
   # statistical test for every model
   if (omnibus) {
     waldResultsOmnibus <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+      if (is(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
     })
     pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
@@ -397,7 +398,7 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
   }
   if (lineages) {
     waldResultslineages <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(NA)
+      if (is(m)[1] == "try-error") return(NA)
       t(sapply(seq_len(ncol(L)), function(ii){
         waldTest(m, L[, ii, drop = FALSE])
       }))
@@ -431,7 +432,7 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' patternTest(gamList, omnibus = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
@@ -453,7 +454,7 @@ patternTest <- function(models, nPoints = 100, omnibus = TRUE,
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' earlyDETest(gamList, knots = c(1, 2), omnibus = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
@@ -474,7 +475,7 @@ earlyDETest <- function(models, knots, nPoints = 100, omnibus = TRUE,
     L <- .patternContrast(mTemp, nPoints = nPoints, knots = knots)
     # perform Wald test and calculate p-value
     waldResOmnibus <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(c(NA))
+      if (is(m)[1] == "try-error") return(c(NA))
       getEigenStatGAM(m, L)
     })
     waldResults <- do.call(rbind, waldResOmnibus)
@@ -493,7 +494,7 @@ earlyDETest <- function(models, knots, nPoints = 100, omnibus = TRUE,
       L <- .patternContrastPairwise(mTemp, nPoints = nPoints,
                                     curves = curvesNow, knots = knots)
       waldResPair <- lapply(models, function(m){
-        if (class(m)[1] == "try-error") return(c(NA))
+        if (is(m)[1] == "try-error") return(c(NA))
         getEigenStatGAM(m, L)
       })
       waldResults <- do.call(rbind, waldResPair)
@@ -527,7 +528,7 @@ earlyDETest <- function(models, knots, nPoints = 100, omnibus = TRUE,
 #' @param lineages If TRUE, test for all lineages independently.
 #' @importFrom magrittr %>%
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' associationTest(gamList, omnibus = TRUE, lineages = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
@@ -558,7 +559,7 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
     C <- matrix(0, nrow = length(coef(modelTemp)), ncol = nknots - 1,
                 dimnames = list(names(coef(modelTemp)), NULL)
     )
-    for (i in 1:(nknots - 1)) {
+    for (i in seq_len(nknots - 1)) {
       C[npar + nknots_max * (jj - 1) + i, i] <- 1
       C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
     }
@@ -568,9 +569,9 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
 
   # perform global statistical test for every model
   if (omnibus) {
-    L <- do.call(cbind, list(mget(paste0("L", 1:nCurves)))[[1]])
+    L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
     waldResultsOmnibus <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+      if (is(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
     })
     waldResults <- do.call(rbind,waldResultsOmnibus)
@@ -581,20 +582,20 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
   # perform lineages comparisons
   if (lineages) {
     waldResultsLineages <- lapply(models, function(m){
-      if (class(m)[1] == "try-error") {
+      if (is(m)[1] == "try-error") {
         return(matrix(NA, nrow = nCurves, ncol = 3))
       }
-      t(sapply(1:nCurves, function(ii){
+      t(sapply(seq_len(nCurves), function(ii){
         waldTest(m, get(paste0("L", ii)))
       }))
     })
 
     # clean lineages results
 
-    colNames <- c(paste0("waldStat_", 1:nCurves),
-                  paste0("df_", 1:nCurves),
-                  paste0("pvalue_", 1:nCurves))
-    orderByContrast <- unlist(c(mapply(seq, 1:nCurves, 3 * nCurves,
+    colNames <- c(paste0("waldStat_", seq_len(nCurves)),
+                  paste0("df_", seq_len(nCurves)),
+                  paste0("pvalue_", seq_len(nCurves)))
+    orderByContrast <- unlist(c(mapply(seq, seq_len(nCurves), 3 * nCurves,
                                        by = nCurves)))
     waldResAllLineages <- do.call(rbind,
                               lapply(waldResultsLineages,function(x){
@@ -620,7 +621,7 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
 #' \code{\link{fitGAM}}.
 #' @importFrom magrittr %>%
 #' @examples
-#' data(gamList, package = "tradeR")
+#' data(gamList, package = "tradeSeq")
 #' identicalTest(gamList)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
@@ -635,7 +636,7 @@ identicalTest <- function(models){
   combs <- combn(nCurves, m = 2)
   L <- matrix(0, nrow = length(coef(modelTemp)), ncol = ncol(combs) * nknots)
   rownames(L) <- names(coef(modelTemp))
-  for (jj in 1:ncol(combs)) {
+  for (jj in seq_len(ncol(combs))) {
     curvesNow <- combs[,jj]
     for (ii in seq_len(nknots)) {
       L[(curvesNow[1] - 1) * nknots + ii, (jj - 1) * nknots + ii] <- 1
@@ -646,10 +647,10 @@ identicalTest <- function(models){
   }
   #perform omnibus test
   waldResultsOmnibus <- lapply(models, function(m){
-    if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+    if (is(m)[1] == "try-error") return(c(NA, NA, NA))
     waldHlp <- try(waldTest(m, L), silent = TRUE)
     #sometimes all coefs are identical, non-singular var-cov of contrast.
-    if (class(waldHlp) == "try-error") return(c(NA, NA, NA))
+    if (is(waldHlp)[1] == "try-error") return(c(NA, NA, NA))
     return(waldHlp)
   })
   pvalsOmnibus <- unlist(lapply(waldResultsOmnibus, function(x) x[3]))
@@ -685,8 +686,8 @@ identicalTest <- function(models){
 #' @return A list containing the scaled fitted values \code{yhatScaled}(for
 #'  plotting) and a \code{\link{ClusterExperiment}} object \code{rsec}.
 #' @examples
-#' data(gamList, package = "tradeR")
-#' clusterExpressionPatterns(gamList, 200, 1:11)
+#' data(gamList, package = "tradeSeq")
+#' clusterExpressionPatterns(gamList, 200, seq_len(11))
 #' @importFrom clusterExperiment RSEC
 #' @export
 clusterExpressionPatterns <- function(models, nPoints, genes,
@@ -696,7 +697,7 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
                                       verbose = TRUE, ...) {
 
   # check if all gene IDs provided are present in the models object.
-  if (class(genes) == "character") {
+  if ("character" %in% is(genes)) {
     if (!all(genes %in% names(gamList))) {
       stop("Not all gene IDs are present in the models object.")
     }

@@ -22,6 +22,6 @@ plot the logged-transformed counts and the fitted values for a particular
  gene along all trajectories.
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 plotSmoothers(gamList[[4]])
 }

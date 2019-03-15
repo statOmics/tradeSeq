@@ -17,6 +17,6 @@ a matrix with the p-value associated with each lineage's smoother.
 Get smoother p-value
 }
 \examples{
-data(gamList, package = "tradeR")
+data(gamList, package = "tradeSeq")
 getSmootherPvalues(gamList)
 }
