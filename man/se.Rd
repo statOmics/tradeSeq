@@ -10,8 +10,7 @@
 See the help for \code{\link{SingleCellExperiment}} for more information.
 }}
 \source{
-\url{http://cole-trapnell-lab.github.io/monocle-release/
-monocle3/#tutorial-1-learning-trajectories-with-monocle-3}
+\url{https://cole-trapnell-lab.github.io/monocle-release/monocle3/}
 }
 \usage{
 se

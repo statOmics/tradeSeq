@@ -6,8 +6,8 @@ Version: 0.9.0
 Authors@R: c(person("Koen", "Van den Berge", role = "aut",
                      email = "koen.vandenberge@ugent.be"),
               person("Hector", "Roux de Bézieux", role = c("aut", "cre"),
-                     email = "hector.rouxdebezieux@berkeley.edu");
-		     comments = c(ORCID = "0000-0002-1489-8339")))
+                     email = "hector.rouxdebezieux@berkeley.edu",
+		     comment = c(ORCID = "0000-0002-1489-8339")))
 Description: tradeSeq provides a flexible method for finding genes that are differentially expressed along one or multiple trajectories, using a variety of tests suited to answer many questions of interest.
 License: Artistic-2.0
 Encoding: UTF-8
