@@ -1,0 +1,62 @@
+reference:
+  - title: "Model fit and check"
+    desc: >
+      Contain the fitGam function used to fit the model, as well as functions to
+      check the fit and extract components
+    contents:
+      - '`fitGAM`'
+      - '`getSmootherPvalues`'
+      - '`getSmootherTestStats`'
+  - title: "Tests"
+    desc: >
+      All tests currently implemented in tradeSeq. All tests are of the form
+      xxxTest. Tests can either be run in an omnibus fashion (all lineages) or on
+      an individual basis (lineages for within-lineage tests, and pairwise form
+      between-lineages tests).
+    contents:
+      - '`associationTest`'
+      - '`diffEndTest`'
+      - '`earlyDETest`'
+      - '`identicalTest`'
+      - '`patternTest`'
+      - '`startVsEndTest`'
+  - title: Visualization
+    desc: "Functions to plot the results"
+    contents:
+      - '`plotGeneCount`'
+      - '`plotSmoothers`'
+  - title: Data
+    desc: "The datasets used in example"
+    contents:
+      - '`se`'
+      - '`gamList`'
+  - title: Clustering
+    desc: "Clustering of gene expression patterns"
+    contents:
+      - '`clusterExpressionPatterns`'
+
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    home:
+      icon: fa-home fa-lg
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    intro:
+      text: Get started
+      href: articles/tradeSeq.html
+
+articles:
+- title: All vignettes
+  desc: ~
+  contents: '`tradeSeq`'

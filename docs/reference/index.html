@@ -108,8 +108,34 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
+          <h2 id="section-model-fit-and-check" class="hasAnchor"><a href="#section-model-fit-and-check" class="anchor"></a>Model fit and check</h2>
+          <p class="section-desc"><p>Contain the fitGam function used to fit the model, as well as functions to check the fit and extract components</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="fitGAM.html">fitGAM()</a></code> </p>
+        </td>
+        <td><p>Fit GAM model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getSmootherPvalues.html">getSmootherPvalues()</a></code> </p>
+        </td>
+        <td><p>Get smoother p-value</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getSmootherTestStats.html">getSmootherTestStats()</a></code> </p>
+        </td>
+        <td><p>Get smoother Chi-squared test statistics</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-tests" class="hasAnchor"><a href="#section-tests" class="anchor"></a>tests</h2>
+          <p class="section-desc"><p>All tests currently implemented in tradeSeq. All tests are of the form xxxTest. Tests can either be run in an omnibus fashion (all lineages) or on an individual basis (lineages for within-lineage tests, and pairwise form between-lineages tests).</p></p>
         </th>
       </tr>
       <tr>
@@ -119,12 +145,6 @@
         </td>
         <td><p>Perform statistical test to check whether a gene is constant across
  a lineage</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="clusterExpressionPatterns.html">clusterExpressionPatterns()</a></code> </p>
-        </td>
-        <td><p>Cluster gene expression patterns.</p></td>
       </tr><tr>
         
         <td>
@@ -141,30 +161,6 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="fitGAM.html">fitGAM()</a></code> </p>
-        </td>
-        <td><p>Fit GAM model</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="gamList.html">gamList</a></code> </p>
-        </td>
-        <td><p>A list of GAM models, used to demonstrate the various tests.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="getSmootherPvalues.html">getSmootherPvalues()</a></code> </p>
-        </td>
-        <td><p>Get smoother p-value</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="getSmootherTestStats.html">getSmootherTestStats()</a></code> </p>
-        </td>
-        <td><p>Get smoother Chi-squared test statistics</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="identicalTest.html">identicalTest()</a></code> </p>
         </td>
         <td><p>Perform test between lineages to check whether the gene dynamics are
@@ -178,6 +174,21 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="startVsEndTest.html">startVsEndTest()</a></code> </p>
+        </td>
+        <td><p>Perform statistical test to check for DE between starting point and the end
+stages of every trajectory.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-visualization" class="hasAnchor"><a href="#section-visualization" class="anchor"></a>Visualization</h2>
+          <p class="section-desc"><p>Functions to plot the results</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
           <p><code><a href="plotGeneCount.html">plotGeneCount()</a></code> </p>
         </td>
         <td><p>Plot the gene in reduced dimension space</p></td>
@@ -188,7 +199,15 @@
         </td>
         <td><p>plot the logged-transformed counts and the fitted values for a particular
  gene along all trajectories.</p></td>
-      </tr><tr>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data" class="hasAnchor"><a href="#section-data" class="anchor"></a>data</h2>
+          <p class="section-desc"><p>The datasets used in example</p></p>
+        </th>
+      </tr>
+      <tr>
         
         <td>
           <p><code><a href="se.html">se</a></code> </p>
@@ -198,10 +217,23 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="startVsEndTest.html">startVsEndTest()</a></code> </p>
+          <p><code><a href="gamList.html">gamList</a></code> </p>
         </td>
-        <td><p>Perform statistical test to check for DE between starting point and the end
-stages of every trajectory.</p></td>
+        <td><p>A list of GAM models, used to demonstrate the various tests.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-clustering" class="hasAnchor"><a href="#section-clustering" class="anchor"></a>Clustering</h2>
+          <p class="section-desc"><p>Clustering of gene expression patterns</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="clusterExpressionPatterns.html">clusterExpressionPatterns()</a></code> </p>
+        </td>
+        <td><p>Cluster gene expression patterns.</p></td>
       </tr>
     </tbody>
     </table>
@@ -210,7 +242,11 @@ stages of every trajectory.</p></td>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#section-model-fit-and-check">Model fit and check</a></li>
+      <li><a href="#section-tests">tests</a></li>
+      <li><a href="#section-visualization">Visualization</a></li>
+      <li><a href="#section-data">data</a></li>
+      <li><a href="#section-clustering">Clustering</a></li>
     </ul>
   </div>
 </div>
