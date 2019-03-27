@@ -249,16 +249,16 @@ getSmootherTestStats <- function(models){
 #'  trajectory.
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
+#' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
-#' diffEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
+#' diffEndTest(gamList, global = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
 #' @export
-diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
+diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
 
   # TODO: add Wald and df if pairwise=TRUE
   # TODO: add fold changes
@@ -287,7 +287,7 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
   rm(modelTemp)
 
   # perform global statistical test for every model
-  if (omnibus) {
+  if (global) {
     waldResultsOmnibus <- lapply(models, function(m){
       if (is(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
@@ -325,9 +325,9 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
   }
 
   # return output
-  if (omnibus == TRUE & pairwise == FALSE) return(waldResults)
-  if (omnibus == FALSE & pairwise == TRUE) return(waldResAllPair)
-  if (omnibus == TRUE & pairwise == TRUE) {
+  if (global == TRUE & pairwise == FALSE) return(waldResults)
+  if (global == FALSE & pairwise == TRUE) return(waldResAllPair)
+  if (global == TRUE & pairwise == TRUE) {
     waldAll <- cbind(waldResults, waldResAllPair)
     return(waldAll)
   }
@@ -339,7 +339,7 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#' @param omnibus If TRUE, test for all lineages simultaneously.
+#' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
 #' @param pseudotimeValues a vector of length 2, specifying two pseudotime
 #' values to be compared against each other, for every lineage of
@@ -347,11 +347,11 @@ diffEndTest <- function(models, omnibus = TRUE, pairwise = FALSE){
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
-#' startVsEndTest(gamList, omnibus = TRUE, lineages = TRUE)
+#' startVsEndTest(gamList, global = TRUE, lineages = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
 #' @export
-startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
+startVsEndTest <- function(models, global = TRUE, lineages = FALSE,
                            pseudotimeValues = NULL){
 
   # TODO: add Wald and df if lineages = TRUE
@@ -386,7 +386,7 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
   }
 
   # statistical test for every model
-  if (omnibus) {
+  if (global) {
     waldResultsOmnibus <- lapply(models, function(m){
       if (is(m)[1] == "try-error") return(c(NA, NA, NA))
       waldTest(m, L)
@@ -412,11 +412,11 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
     colnames(pvalslineages) <- colnames(L)
   }
 
-  if (omnibus == TRUE & lineages == FALSE) return(waldResults)
-  if (omnibus == FALSE & lineages == TRUE) return(pvalslineages)
-  if (omnibus & lineages) {
+  if (global == TRUE & lineages == FALSE) return(waldResults)
+  if (global == FALSE & lineages == TRUE) return(pvalslineages)
+  if (global & lineages) {
     resAll <- cbind(pvalsOmnibus, pvalslineages)
-    colnames(resAll)[1] <- "omnibus"
+    colnames(resAll)[1] <- "global"
     return(resAll)
   }
 
@@ -428,19 +428,19 @@ startVsEndTest <- function(models, omnibus = TRUE, lineages = FALSE,
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints the number of points to be compared between lineages.
-#' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
+#' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
-#' patternTest(gamList, omnibus = TRUE, pairwise = TRUE)
+#' patternTest(gamList, global = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
 #' @export
 #'
-patternTest <- function(models, nPoints = 100, omnibus = TRUE,
+patternTest <- function(models, nPoints = 100, global = TRUE,
                         pairwise = FALSE){
-  return(earlyDETest(models, knots = NULL, nPoints, omnibus, pairwise))
+  return(earlyDETest(models, knots = NULL, nPoints, global, pairwise))
 }
 
 #' Perform test of early differences between lineages
@@ -450,12 +450,12 @@ patternTest <- function(models, nPoints = 100, omnibus = TRUE,
 #' @param knots A vector of length 2 specifying the knots before and after the
 #'  branching of interest.
 #' @param nPoints the number of points to be compared between lineages.
-#' @param omnibus If TRUE, test for all pairwise comparisons simultaneously.
+#' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
-#' earlyDETest(gamList, knots = c(1, 2), omnibus = TRUE, pairwise = TRUE)
+#' earlyDETest(gamList, knots = c(1, 2), global = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
 #' @details To help in choosing the knots, the \code{\link{plotGeneCount}}
@@ -464,13 +464,13 @@ patternTest <- function(models, nPoints = 100, omnibus = TRUE,
 #'    defining the branching
 #' @export
 #'
-earlyDETest <- function(models, knots, nPoints = 100, omnibus = TRUE,
+earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
                         pairwise = FALSE){
 
   mTemp <- .getModelReference(models)
 
   # do statistical test for every model through eigenvalue decomposition
-  if (omnibus) {
+  if (global) {
     # get contrast matrix
     L <- .patternContrast(mTemp, nPoints = nPoints, knots = knots)
     # perform Wald test and calculate p-value
@@ -511,9 +511,9 @@ earlyDETest <- function(models, knots, nPoints = 100, omnibus = TRUE,
   }
 
   #return output
-  if (omnibus == TRUE & pairwise == FALSE) return(waldResultsOmnibus)
-  if (omnibus == FALSE & pairwise == TRUE) return(waldResAllPair)
-  if (omnibus == TRUE & pairwise == TRUE) {
+  if (global == TRUE & pairwise == FALSE) return(waldResultsOmnibus)
+  if (global == FALSE & pairwise == TRUE) return(waldResAllPair)
+  if (global == TRUE & pairwise == TRUE) {
     waldAll <- cbind(waldResultsOmnibus, waldResAllPair)
     return(waldAll)
   }
@@ -524,16 +524,16 @@ earlyDETest <- function(models, knots, nPoints = 100, omnibus = TRUE,
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#' @param omnibus If TRUE, test for all lineages simultaneously.
+#' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
-#' associationTest(gamList, omnibus = TRUE, lineages = TRUE)
+#' associationTest(gamList, global = TRUE, lineages = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
 #' @export
-associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
+associationTest <- function(models, global = TRUE, lineages = FALSE){
 
   # TODO: check whether on l.516-517 (C[npar + nknots_max...]) nknots_max
   # should not be replaced by nknots if more than two lineages.
@@ -568,7 +568,7 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
   rm(modelTemp)
 
   # perform global statistical test for every model
-  if (omnibus) {
+  if (global) {
     L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
     waldResultsOmnibus <- lapply(models, function(m){
       if (is(m)[1] == "try-error") return(c(NA, NA, NA))
@@ -606,9 +606,9 @@ associationTest <- function(models, omnibus = TRUE, lineages = FALSE){
   }
 
   # return output
-  if (omnibus == TRUE & lineages == FALSE) return(waldResults)
-  if (omnibus == FALSE & lineages == TRUE) return(waldResAllLineages)
-  if (omnibus == TRUE & lineages == TRUE) {
+  if (global == TRUE & lineages == FALSE) return(waldResults)
+  if (global == FALSE & lineages == TRUE) return(waldResAllLineages)
+  if (global == TRUE & lineages == TRUE) {
     waldAll <- cbind(waldResults, waldResAllLineages)
     return(waldAll)
   }
