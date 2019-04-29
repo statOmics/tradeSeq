@@ -5,14 +5,14 @@
 \title{Perform statistical test to check for DE between starting point and the end
 stages of every trajectory.}
 \usage{
-startVsEndTest(models, omnibus = TRUE, lineages = FALSE,
+startVsEndTest(models, global = TRUE, lineages = FALSE,
   pseudotimeValues = NULL)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
-\item{omnibus}{If TRUE, test for all lineages simultaneously.}
+\item{global}{If TRUE, test for all lineages simultaneously.}
 
 \item{lineages}{If TRUE, test for all lineages independently.}
 
@@ -22,7 +22,9 @@ values to be compared against each other, for every lineage of
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed.
+ associated with each gene for all the tests performed. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics and
+ p-values.
 }
 \description{
 Perform statistical test to check for DE between starting point and the end
@@ -30,5 +32,5 @@ stages of every trajectory.
 }
 \examples{
 data(gamList, package = "tradeSeq")
-startVsEndTest(gamList, omnibus = TRUE, lineages = TRUE)
+startVsEndTest(gamList, global = TRUE, lineages = TRUE)
 }

@@ -4,8 +4,7 @@
 \alias{earlyDETest}
 \title{Perform test of early differences between lineages}
 \usage{
-earlyDETest(models, knots, nPoints = 100, omnibus = TRUE,
-  pairwise = FALSE)
+earlyDETest(models, knots, nPoints = 100, global = TRUE, pairwise = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
@@ -16,7 +15,7 @@ branching of interest.}
 
 \item{nPoints}{the number of points to be compared between lineages.}
 
-\item{omnibus}{If TRUE, test for all pairwise comparisons simultaneously.}
+\item{global}{If TRUE, test for all pairwise comparisons simultaneously.}
 
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 }
@@ -35,5 +34,5 @@ To help in choosing the knots, the \code{\link{plotGeneCount}}
 }
 \examples{
 data(gamList, package = "tradeSeq")
-earlyDETest(gamList, knots = c(1, 2), omnibus = TRUE, pairwise = TRUE)
+earlyDETest(gamList, knots = c(1, 2), global = TRUE, pairwise = TRUE)
 }

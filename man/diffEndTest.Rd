@@ -5,19 +5,21 @@
 \title{Perform statistical test to check for DE between final stages of every
  trajectory.}
 \usage{
-diffEndTest(models, omnibus = TRUE, pairwise = FALSE)
+diffEndTest(models, global = TRUE, pairwise = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
-\item{omnibus}{If TRUE, test for all pairwise comparisons simultaneously.}
+\item{global}{If TRUE, test for all pairwise comparisons simultaneously.}
 
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed.
+ associated with each gene for all the tests performed. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics and
+ p-values.
 }
 \description{
 Perform statistical test to check for DE between final stages of every
@@ -25,5 +27,5 @@ Perform statistical test to check for DE between final stages of every
 }
 \examples{
 data(gamList, package = "tradeSeq")
-diffEndTest(gamList, omnibus = TRUE, pairwise = TRUE)
+diffEndTest(gamList, global = TRUE, pairwise = TRUE)
 }

@@ -241,7 +241,9 @@ getSmootherTestStats <- function(models){
 #' data(gamList, package = "tradeSeq")
 #' diffEndTest(gamList, global = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed.
+#'  associated with each gene for all the tests performed. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics and
+#'  p-values.
 #' @export
 diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
 
@@ -333,7 +335,9 @@ diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
 #' data(gamList, package = "tradeSeq")
 #' startVsEndTest(gamList, global = TRUE, lineages = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed.
+#'  associated with each gene for all the tests performed. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics and
+#'  p-values.
 #' @export
 startVsEndTest <- function(models, global = TRUE, lineages = FALSE,
                            pseudotimeValues = NULL){
@@ -418,7 +422,9 @@ startVsEndTest <- function(models, global = TRUE, lineages = FALSE,
 #' data(gamList, package = "tradeSeq")
 #' patternTest(gamList, global = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed.
+#'  associated with each gene for all the tests performed. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics and
+#'  p-values.
 #' @export
 #'
 patternTest <- function(models, nPoints = 100, global = TRUE,
@@ -514,7 +520,9 @@ earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
 #' data(gamList, package = "tradeSeq")
 #' associationTest(gamList, global = TRUE, lineages = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed.
+#'  associated with each gene for all the tests performed. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics and
+#'  p-values.
 #' @export
 associationTest <- function(models, global = TRUE, lineages = FALSE){
 
@@ -607,7 +615,9 @@ associationTest <- function(models, global = TRUE, lineages = FALSE){
 #' data(gamList, package = "tradeSeq")
 #' identicalTest(gamList)
 #' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed.
+#'  associated with each gene for all the tests performed. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics and
+#'  p-values.
 #' @export
 identicalTest <- function(models){
 

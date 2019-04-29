@@ -5,19 +5,21 @@
 \title{Perform statistical test to check whether a gene is constant across
  a lineage}
 \usage{
-associationTest(models, omnibus = TRUE, lineages = FALSE)
+associationTest(models, global = TRUE, lineages = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
-\item{omnibus}{If TRUE, test for all lineages simultaneously.}
+\item{global}{If TRUE, test for all lineages simultaneously.}
 
 \item{lineages}{If TRUE, test for all lineages independently.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed.
+ associated with each gene for all the tests performed. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics and
+ p-values.
 }
 \description{
 Perform statistical test to check whether a gene is constant across
@@ -25,5 +27,5 @@ Perform statistical test to check whether a gene is constant across
 }
 \examples{
 data(gamList, package = "tradeSeq")
-associationTest(gamList, omnibus = TRUE, lineages = TRUE)
+associationTest(gamList, global = TRUE, lineages = TRUE)
 }

@@ -13,7 +13,9 @@ identicalTest(models)
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed.
+ associated with each gene for all the tests performed. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics and
+ p-values.
 }
 \description{
 Perform test between lineages to check whether the gene dynamics are

@@ -4,7 +4,7 @@
 \alias{patternTest}
 \title{Perform pattern test between lineages}
 \usage{
-patternTest(models, nPoints = 100, omnibus = TRUE, pairwise = FALSE)
+patternTest(models, nPoints = 100, global = TRUE, pairwise = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
@@ -12,18 +12,20 @@ patternTest(models, nPoints = 100, omnibus = TRUE, pairwise = FALSE)
 
 \item{nPoints}{the number of points to be compared between lineages.}
 
-\item{omnibus}{If TRUE, test for all pairwise comparisons simultaneously.}
+\item{global}{If TRUE, test for all pairwise comparisons simultaneously.}
 
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed.
+ associated with each gene for all the tests performed. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics and
+ p-values.
 }
 \description{
 Perform pattern test between lineages
 }
 \examples{
 data(gamList, package = "tradeSeq")
-patternTest(gamList, omnibus = TRUE, pairwise = TRUE)
+patternTest(gamList, global = TRUE, pairwise = TRUE)
 }
