@@ -44,18 +44,11 @@ NULL
 fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                    seed = 81, offset = NULL, verbose = FALSE, nknots = 10){
 
-  # TODO: adjust for single trajectory.
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
   # TODO: add parallellization
 
-  intercept <- U %>% as.data.frame %>%
-                     lapply(X = ., function(c) length(unique(c))) %>%
-                     unlist()
 
-  if (1 %in% intercept) {
-    stop("The design matrix U should not contain an intercept")
-  }
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
     if (!identical(dim(pseudotime), dim(cellWeights))) {
@@ -167,19 +160,11 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     nknots <- nknots
     if (!is.null(weights)) weights <- weights[teller,]
     smoothForm <- as.formula(
-      if (is.null(U)) {
-        paste0("y ~ -1 + ",
-               paste(sapply(seq_len(ncol(pseudotime)), function(ii){
-                 paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
-               }),
-               collapse = "+"), " + offset(offset)")
-      } else {
         paste0("y ~ -1 + U + ",
                paste(sapply(seq_len(ncol(pseudotime)), function(ii){
                  paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
                }),
                collapse = "+"), " + offset(offset)")
-      }
     )
     # fit smoother
     s = mgcv:::s
@@ -260,7 +245,6 @@ getSmootherTestStats <- function(models){
 #' @export
 diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
 
-  # TODO: add Wald and df if pairwise=TRUE
   # TODO: add fold changes
   # TODO: check if this is different to comparing knot coefficients
   # TODO: adjust null distribution with weights
@@ -354,7 +338,6 @@ diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
 startVsEndTest <- function(models, global = TRUE, lineages = FALSE,
                            pseudotimeValues = NULL){
 
-  # TODO: add Wald and df if lineages = TRUE
   # TODO: add fold changes
 
   modelTemp <- .getModelReference(models)
