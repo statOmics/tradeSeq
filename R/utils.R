@@ -148,7 +148,7 @@ waldTest <- function(model, L){
   ### build a contrast matrix for a multivariate Wald test
   beta <- matrix(coef(model), ncol = 1)
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  sigmaInv <- try(solve(t(LQR) %*% model$Vp %*% LQR))
+  sigmaInv <- try(solve(t(LQR) %*% model$Vp %*% LQR), silent=TRUE)
   if (is(sigmaInv)[1] == "try-error") return(c(NA,NA,NA))
   wald <- t(t(LQR) %*% beta) %*%
           sigmaInv %*%
@@ -280,7 +280,7 @@ getEigenStatGAM <- function(m, L){
   est <- t(L) %*% beta
   sigma <- t(L) %*% m$Vp %*% L
   eSigma <- eigen(sigma, symmetric = TRUE)
-  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8))
+  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent=TRUE)
   if (is(r)[1] == "try-error") {
     return(c(NA, NA))
   }
