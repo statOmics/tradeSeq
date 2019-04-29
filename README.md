@@ -25,7 +25,7 @@ utils::vignette(topic = "tradeSeq", package = "tradeSeq")
 
 You can also refer to this cheatsheet to undersand a common workflow
 
-![](vignettes/cheatsheet.jpg)
+![](vignettes/cheatsheet_highRes.jpeg)
 
 ## Contributing and requesting
 
