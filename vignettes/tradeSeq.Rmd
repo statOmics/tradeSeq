@@ -288,7 +288,7 @@ for(xx in cUniq){
 To recapitulate the workflow, we have created a cheatsheet that users can refer to when deciding which tests to run.
 
 ```{r, echo = F}
-ggdraw() + draw_image("cheatsheet.jpg")
+ggdraw() + draw_image("cheatsheet_highRes.jpeg")
 ```
 
 # Session
