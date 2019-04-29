@@ -8,7 +8,7 @@ tradeSeq provides a flexible method for discovering genes that are differentiall
 To install the development version in `R`, run 
 
 ```r
-devtools::install_github("statOmics/tradeR/")
+devtools::install_github("statOmics/tradeSeq/")
 ```
 
 ## Issues and bug reports
@@ -17,10 +17,7 @@ Please use https://github.com/statOmics/tradeSeq/issues to submit issues, bug re
 
 ## Usage 
 
-Start with the vignette either [online](https://statOmics.github.io/tradeSeq/) or by running
-```{r}
-utils::vignette(topic = "tradeSeq", package = "tradeSeq")
-```
+Start with the vignette [online](http://htmlpreview.github.io/?https://github.com/statOmics/tradeSeq/blob/master/vignettes/tradeSeq.html).
 
 ## Cheatsheet
 
