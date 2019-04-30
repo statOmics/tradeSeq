@@ -10,7 +10,7 @@ Authors@R: c(person("Koen", "Van den Berge", role = c("aut", "cre"),
 		     comment = c(ORCID = "0000-0002-1489-8339")),
 		person("Kelly","Street", role = "ctb"))
 Description: tradeSeq provides a flexible method for finding genes that are differentially expressed along one or multiple trajectories, using a variety of tests suited to answer many questions of interest.
-License: Artistic-2.0
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.5)
