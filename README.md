@@ -1,6 +1,6 @@
 # R package: tradeSeq
 
-[![Build Status](https://travis-ci.org/statOmics/tradeSeq.svg?branch=master)](https://travis-ci.org/statOmics/tradeSeq)
+[![Build Status](https://travis-ci.com/statOmics/tradeSeq.svg?branch=master)](https://travis-ci.com/statOmics/tradeSeq)
 
 ## TRAjectory Differential Expression analysis for SEQuencing data
 
