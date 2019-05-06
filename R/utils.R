@@ -153,6 +153,7 @@ waldTest <- function(model, L){
   wald <- t(t(LQR) %*% beta) %*%
           sigmaInv %*%
           t(LQR) %*% beta
+  if(wald < 0) wald <- 0
   df <- ncol(LQR)
   pval <- 1 - pchisq(wald, df = df)
   return(c(wald, df, pval))
@@ -167,6 +168,7 @@ indWaldTest <- function(model, L){
   wald <- lapply(seq_len(ncol(LQR)), FUN = function(i) {
     (t(LQR[, i]) %*% beta)^2 / model$Vp[i, i]
   }) %>% unlist()
+  if(wald < 0) wald <- 0
   pval <- 1 - pchisq(wald, df = 1)
   return(list("pval" = unlist(pval), "wald" = unlist(wald)))
 }
@@ -178,6 +180,7 @@ waldTestFull <- function(model, L){
   est <- t(LQR) %*% beta
   var <- t(LQR) %*% model$Vp %*% LQR
   wald <- t(est) %*% solve(var) %*% est
+  if(wald < 0) wald <- 0
   df <- ncol(LQR)
   pval <- 1 - pchisq(wald, df = df)
   return(c(est, var, wald, df, pval))
