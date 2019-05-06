@@ -31,8 +31,8 @@ suppressPackageStartupMessages({
   library(cowplot)
 })
 palette(brewer.pal(8,"Dark2"))
-data(se, package = "tradeSeq")
-se
+download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+load("./se_paul.rda")
 ```
 
 # Fit trajectories using slingshot
