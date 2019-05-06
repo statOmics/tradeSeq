@@ -1,4 +1,7 @@
 # R package: tradeSeq
+
+[![Build Status](https://travis-ci.org/statOmics/tradeSeq.svg?branch=master)](https://travis-ci.org/statOmics/tradeSeq)
+
 ## TRAjectory Differential Expression analysis for SEQuencing data
 
 tradeSeq provides a flexible method for discovering genes that are differentially expressed along one or multiple lineages, using a variety of tests suited to answer many questions of interest.
