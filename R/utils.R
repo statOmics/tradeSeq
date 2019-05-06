@@ -388,6 +388,9 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 #'  plot will be colored according to gene count level.
 #' @return A plot that is printed.
 #' @examples
+#' \dontrun{
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+#' load("./se_paul.rda")
 #' set.seed(97)
 #' data(se, package = "tradeSeq")
 #' rd <- SingleCellExperiment::reducedDims(se)$UMAP
@@ -402,6 +405,7 @@ plotSmoothers <- function(m, nPoints = 100, ...){
 #'  pseudotime = slingPseudotime(crv, na = FALSE),
 #'  cellWeights = slingCurveWeights(crv))
 #' plotGeneCount(rd, crv, counts, gene = "Mpo")
+#' }
 #' @import RColorBrewer
 #' @importFrom slingshot slingPseudotime slingCurves
 #' @importFrom SingleCellExperiment reducedDims

@@ -14,7 +14,7 @@ vignette: >
 ---
 
 In this vignette, we analyse a subset of the data from [@Paul2015]. 
-A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeR) package and can be retrieved with `data(se)`. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
+A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
 
 # Load data
 
@@ -31,7 +31,9 @@ suppressPackageStartupMessages({
   library(cowplot)
 })
 palette(brewer.pal(8,"Dark2"))
-download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+download.file(
+  "https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+  destfile = "./se_paul.rda")
 load("./se_paul.rda")
 ```
 
@@ -60,7 +62,7 @@ plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl)
 celltype <- factor(colData(se)$cell_type2)
 
 plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = celltype, 
-              title="Colored by cell type")
+              title = "Colored by cell type")
 legend("topright", levels(celltype),
        col = brewer.pal(9, "Set1")[1:nlevels(celltype)],
        pch = 16, cex = 1 / 2, bty = "n")
@@ -259,29 +261,36 @@ The clustering itself occurs with the RSEC package [@Risso2018].
 ```{r}
 library(clusterExperiment)
 nPointsClus <- 20
-clusPat <- clusterExpressionPatterns(gamList, nPoints=nPointsClus, genes=rownames(counts)[1:40])
+clusPat <- clusterExpressionPatterns(gamList, nPoints = nPointsClus,
+                                     genes = rownames(counts)[1:40])
 clusterLabels <- primaryCluster(clusPat$rsec)
 ```
 
 The clusters can be visualized using the normalized expression that the clustering is based upon.
 
 ```{r}
-par(mfrow=c(2,2), bty='l')
+par(mfrow = c(2, 2), bty = "l")
 cUniq <- unique(clusterLabels)
-cUniq <- cUniq[!cUniq==-1] #remove unclustered genes
-for(xx in cUniq){
-  cId <- which(clusterLabels==xx)
-  plot(x=1:nPointsClus,y=rep(range(clusPat$yhatScaled[cId,]),nPointsClus/2), type="n", main=paste0("Cluster ",xx), xlab="Pseudotime", ylab="Normalized expression")
-  for(ii in 1:length(cId)){
+cUniq <- cUniq[!cUniq == -1] # remove unclustered genes
+for (xx in cUniq) {
+  cId <- which(clusterLabels == xx)
+  plot(x = 1:nPointsClus, y = rep(range(clusPat$yhatScaled[cId, ]),
+                                  nPointsClus / 2), type = "n",
+       main = paste0("Cluster ", xx), xlab = "Pseudotime",
+       ylab = "Normalized expression")
+  for (ii in 1:length(cId)) {
     geneId <- rownames(clusPat$yhatScaled)[cId[ii]]
-    yhatGene <- clusPat$yhatScaled[geneId,]
-    lines(x=1:nPointsClus, y=yhatGene[1:nPointsClus], col="orange", lwd=2)
-    lines(x=1:nPointsClus, y=yhatGene[(nPointsClus+1):(2*nPointsClus)], col="darkseagreen3", lwd=2)
+    yhatGene <- clusPat$yhatScaled[geneId, ]
+    lines(x = 1:nPointsClus, y = yhatGene[1:nPointsClus], col = "orange", lwd = 2)
+    lines(x = 1:nPointsClus, y = yhatGene[(nPointsClus + 1):(2 * nPointsClus)],
+          col = "darkseagreen3", lwd = 2)
   }
 }
 ```
 
-
+```{r clean the file that was downloaded when knitting the vignette}
+file.remove("./se_paul.rda")
+```
 
 # Cheatsheet 
 

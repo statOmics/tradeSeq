@@ -15,9 +15,6 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.5)
 Collate:
-    'accessors.R'
-    'allGenerics.R'
-    'constructors.R'
     'utils.R'
     'core.R'
     'data.R'

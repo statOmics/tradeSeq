@@ -26,8 +26,10 @@ NULL
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
 #'    message.
 #' @examples
+#' \dontrun{
 #' set.seed(8)
-#' data(se, package = "tradeSeq")
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+#' load("./se_paul.rda")
 #' se <- se[( 20:31)[-7], 25:40]
 #' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
 #' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
@@ -36,6 +38,7 @@ NULL
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
 #'                   nknots = 5, verbose = TRUE)
 #' gamList[[1]]
+#' }
 #' @importFrom plyr alply .
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays

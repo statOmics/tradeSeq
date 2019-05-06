@@ -73,7 +73,7 @@
 
     
     
-<p>In this vignette, we analyse a subset of the data from <span class="citation">(Paul et al. 2015)</span>. A <code>SingleCellExperiment</code> object of the data has been provided with the <a href="https://github.com/statOmics/tradeR"><code>tradeSeq</code></a> package and can be retrieved with <code><a href="https://www.rdocumentation.org/packages/utils/topics/data">data(se)</a></code>. The data and UMAP reduced dimensions were derived from following the <a href="http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3">Monocle 3 vignette</a>.</p>
+<p>In this vignette, we analyse a subset of the data from <span class="citation">(Paul et al. 2015)</span>. A <code>SingleCellExperiment</code> object of the data has been provided with the <a href="https://github.com/statOmics/tradeSeqpaper"><code>tradeSeq</code></a> package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the <a href="http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3">Monocle 3 vignette</a>.</p>
 <div id="load-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#load-data" class="anchor"></a>Load data</h1>
@@ -89,19 +89,10 @@
   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(cowplot)
 })
 <span class="kw"><a href="https://www.rdocumentation.org/packages/grDevices/topics/palette">palette</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/RColorBrewer/topics/ColorBrewer">brewer.pal</a></span>(<span class="dv">8</span>,<span class="st">"Dark2"</span>))
-<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(se, <span class="dt">package =</span> <span class="st">"tradeSeq"</span>)
-se</code></pre></div>
-<pre><code>## class: SingleCellExperiment 
-## dim: 3004 2660 
-## metadata(0):
-## assays(1): counts
-## rownames(3004): 0610007L01Rik 0610009O20Rik ... Zzef1 rp9
-## rowData names(1): gene_short_name
-## colnames(2660): W31105 W31106 ... W39167 W39168
-## colData names(22): Seq_batch_ID Amp_batch_ID ... no_expression
-##   louvain_component
-## reducedDimNames(1): UMAP
-## spikeNames(0):</code></pre>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/download.file">download.file</a></span>(
+  <span class="st">"https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda"</span>,
+  <span class="dt">destfile =</span> <span class="st">"./se_paul.rda"</span>)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/load">load</a></span>(<span class="st">"./se_paul.rda"</span>)</code></pre></div>
 </div>
 <div id="fit-trajectories-using-slingshot" class="section level1">
 <h1 class="hasAnchor">
@@ -123,7 +114,7 @@ lin &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumen
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">celltype &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">factor</a></span>(<span class="kw">colData</span>(se)<span class="op">$</span>cell_type2)
 
 <span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">rd =</span> rd, <span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> celltype, 
-              <span class="dt">title=</span><span class="st">"Colored by cell type"</span>)
+              <span class="dt">title =</span> <span class="st">"Colored by cell type"</span>)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/legend">legend</a></span>(<span class="st">"topright"</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(celltype),
        <span class="dt">col =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/RColorBrewer/topics/ColorBrewer">brewer.pal</a></span>(<span class="dv">9</span>, <span class="st">"Set1"</span>)[<span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nlevels">nlevels</a></span>(celltype)],
        <span class="dt">pch =</span> <span class="dv">16</span>, <span class="dt">cex =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">2</span>, <span class="dt">bty =</span> <span class="st">"n"</span>)</code></pre></div>
@@ -295,23 +286,28 @@ oEarly &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(clusterExperiment)</code></pre></div>
 <pre><code>## Warning: package 'clusterExperiment' was built under R version 3.5.1</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nPointsClus &lt;-<span class="st"> </span><span class="dv">20</span>
-clusPat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/clusterExpressionPatterns.html">clusterExpressionPatterns</a></span>(gamList, <span class="dt">nPoints=</span>nPointsClus, <span class="dt">genes=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(counts)[<span class="dv">1</span><span class="op">:</span><span class="dv">40</span>])</code></pre></div>
+clusPat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/clusterExpressionPatterns.html">clusterExpressionPatterns</a></span>(gamList, <span class="dt">nPoints =</span> nPointsClus,
+                                     <span class="dt">genes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(counts)[<span class="dv">1</span><span class="op">:</span><span class="dv">40</span>])</code></pre></div>
 <pre><code>## Note: Not all of the methods requested in 'reduceMethod' have been calculated. Will calculate all the methods requested (any pre-existing values -- filtering statistics or dimensionality reductions -- with these names will be recalculated and overwritten): PCA.</code></pre>
 <pre><code>## Note: Merging will be done on ' makeConsensus ', with clustering index 1</code></pre>
 <pre><code>## Note: merging with these parameters did not result in any clusters being merged.</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusterLabels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/clusterExperiment/topics/ClusterExperiment-methods">primaryCluster</a></span>(clusPat<span class="op">$</span>rsec)</code></pre></div>
 <p>The clusters can be visualized using the normalized expression that the clustering is based upon.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/par">par</a></span>(<span class="dt">mfrow=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="dt">bty=</span><span class="st">'l'</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/par">par</a></span>(<span class="dt">mfrow =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="dt">bty =</span> <span class="st">"l"</span>)
 cUniq &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unique">unique</a></span>(clusterLabels)
-cUniq &lt;-<span class="st"> </span>cUniq[<span class="op">!</span>cUniq<span class="op">==-</span><span class="dv">1</span>] <span class="co">#remove unclustered genes</span>
-<span class="cf">for</span>(xx <span class="cf">in</span> cUniq){
-  cId &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(clusterLabels<span class="op">==</span>xx)
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="dt">x=</span><span class="dv">1</span><span class="op">:</span>nPointsClus,<span class="dt">y=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/range">range</a></span>(clusPat<span class="op">$</span>yhatScaled[cId,]),nPointsClus<span class="op">/</span><span class="dv">2</span>), <span class="dt">type=</span><span class="st">"n"</span>, <span class="dt">main=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Cluster "</span>,xx), <span class="dt">xlab=</span><span class="st">"Pseudotime"</span>, <span class="dt">ylab=</span><span class="st">"Normalized expression"</span>)
-  <span class="cf">for</span>(ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(cId)){
+cUniq &lt;-<span class="st"> </span>cUniq[<span class="op">!</span>cUniq <span class="op">==</span><span class="st"> </span><span class="op">-</span><span class="dv">1</span>] <span class="co"># remove unclustered genes</span>
+<span class="cf">for</span> (xx <span class="cf">in</span> cUniq) {
+  cId &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(clusterLabels <span class="op">==</span><span class="st"> </span>xx)
+  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/range">range</a></span>(clusPat<span class="op">$</span>yhatScaled[cId, ]),
+                                  nPointsClus <span class="op">/</span><span class="st"> </span><span class="dv">2</span>), <span class="dt">type =</span> <span class="st">"n"</span>,
+       <span class="dt">main =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Cluster "</span>, xx), <span class="dt">xlab =</span> <span class="st">"Pseudotime"</span>,
+       <span class="dt">ylab =</span> <span class="st">"Normalized expression"</span>)
+  <span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(cId)) {
     geneId &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(clusPat<span class="op">$</span>yhatScaled)[cId[ii]]
-    yhatGene &lt;-<span class="st"> </span>clusPat<span class="op">$</span>yhatScaled[geneId,]
-    <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/lines">lines</a></span>(<span class="dt">x=</span><span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dt">y=</span>yhatGene[<span class="dv">1</span><span class="op">:</span>nPointsClus], <span class="dt">col=</span><span class="st">"orange"</span>, <span class="dt">lwd=</span><span class="dv">2</span>)
-    <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/lines">lines</a></span>(<span class="dt">x=</span><span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dt">y=</span>yhatGene[(nPointsClus<span class="op">+</span><span class="dv">1</span>)<span class="op">:</span>(<span class="dv">2</span><span class="op">*</span>nPointsClus)], <span class="dt">col=</span><span class="st">"darkseagreen3"</span>, <span class="dt">lwd=</span><span class="dv">2</span>)
+    yhatGene &lt;-<span class="st"> </span>clusPat<span class="op">$</span>yhatScaled[geneId, ]
+    <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/lines">lines</a></span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dt">y =</span> yhatGene[<span class="dv">1</span><span class="op">:</span>nPointsClus], <span class="dt">col =</span> <span class="st">"orange"</span>, <span class="dt">lwd =</span> <span class="dv">2</span>)
+    <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/lines">lines</a></span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dt">y =</span> yhatGene[(nPointsClus <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)<span class="op">:</span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>nPointsClus)],
+          <span class="dt">col =</span> <span class="st">"darkseagreen3"</span>, <span class="dt">lwd =</span> <span class="dv">2</span>)
   }
 }</code></pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>

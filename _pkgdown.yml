@@ -26,9 +26,8 @@ reference:
       - '`plotGeneCount`'
       - '`plotSmoothers`'
   - title: Data
-    desc: "The datasets used in example"
+    desc: "The dataset used in example"
     contents:
-      - '`se`'
       - '`gamList`'
   - title: Clustering
     desc: "Clustering of gene expression patterns"

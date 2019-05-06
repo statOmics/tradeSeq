@@ -167,26 +167,19 @@ sequencing depth.</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>8</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>se</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>8</span>)
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/download.file'>download.file</a></span>(<span class='st'>"https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda"</span>,<span class='kw'>destfile</span><span class='kw'>=</span><span class='st'>"./se_paul.rda"</span>)
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/load'>load</a></span>(<span class='st'>"./se_paul.rda"</span>)
 <span class='no'>se</span> <span class='kw'>&lt;-</span> <span class='no'>se</span>[( <span class='fl'>20</span>:<span class='fl'>31</span>)[-<span class='fl'>7</span>], <span class='fl'>25</span>:<span class='fl'>40</span>]
 <span class='no'>pseudotimes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/Uniform'>runif</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol</a></span>(<span class='no'>se</span>) * <span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>5</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 <span class='no'>cellWeights</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/Uniform'>runif</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol</a></span>(<span class='no'>se</span>) * <span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 <span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'>fitGAM</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>as.matrix</a></span>(
                       <span class='kw pkg'>SummarizedExperiment</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class'>assays</a></span>(<span class='no'>se</span>)$<span class='no'>counts</span>),
                   <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='no'>pseudotimes</span>, <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='no'>cellWeights</span>,
-                  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |======                                                                |   9%  |                                                                              |=============                                                         |  18%  |                                                                              |===================                                                   |  27%  |                                                                              |=========================                                             |  36%  |                                                                              |================================                                      |  45%  |                                                                              |======================================                                |  55%  |                                                                              |=============================================                         |  64%  |                                                                              |===================================================                   |  73%  |                                                                              |=========================================================             |  82%  |                                                                              |================================================================      |  91%  |                                                                              |======================================================================| 100%</div><div class='input'><span class='no'>gamList</span><span class='kw'>[[</span><span class='fl'>1</span>]]</div><div class='output co'>#&gt; 
-#&gt; Family: Negative Binomial(0.992) 
-#&gt; Link function: log 
-#&gt; 
-#&gt; Formula:
-#&gt; y ~ -1 + U + s(t1, by = l1, bs = "cr", id = 1, k = nknots) + 
-#&gt;     s(t2, by = l2, bs = "cr", id = 1, k = nknots) + offset(offset)
-#&gt; 
-#&gt; Estimated degrees of freedom:
-#&gt; 1 2  total = 4 
-#&gt; 
-#&gt; REML score: -75.45933     rank: 10/11</div></pre>
+                  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='no'>gamList</span><span class='kw'>[[</span><span class='fl'>1</span>]]
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
