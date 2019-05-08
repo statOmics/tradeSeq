@@ -51,6 +51,13 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   # TODO: verify working with U provided
   # TODO: add parallellization
 
+  # Convert pseudotime and weights to matrices if need be
+  if (is.null(dim(pseudotime))) {
+      pseudotime <- matrix(pseudotime, nrow = length(pseudotime))
+  }
+  if (is.null(dim(cellWeights))) {
+      cellWeights <- matrix(cellWeights, nrow = length(cellWeights))
+  }
 
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
@@ -70,10 +77,6 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
 
   set.seed(seed)
   wSamp <- .assignCells(cellWeights)
-  if (ncol(wSamp) == 1) {
-    pseudotime <- matrix(pseudotime, nrow = length(pseudotime))
-  }
-
   # define pseudotime for each lineage
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("t",ii), pseudotime[,ii])

@@ -17,9 +17,16 @@
         STATS = apply(cellWeights, 1, sum)
       )
       # sample weights
-      wSamp <- t(apply(normWeights, 1, function(prob) {
+      wSamp <- apply(normWeights, 1, function(prob) {
         rmultinom(n = 1, prob = prob, size = 1)
-      }))
+      })
+      # If there is only one lineage, wSamp is a vector so we need to adjust for that
+      if (is.null(dim(wSamp))) {
+        wSamp <- matrix(wSamp, ncol = 1)
+      } else {
+        wSamp <- t(wSamp)
+      }
+      return(wSamp)
     }
   }
 }
