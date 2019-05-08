@@ -13,6 +13,7 @@ Description: tradeSeq provides a flexible method for finding genes that are diff
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://statomics.github.io/tradeSeq/index.html
 Depends: R (>= 3.5)
 Collate:
     'utils.R'
