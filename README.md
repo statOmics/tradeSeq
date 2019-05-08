@@ -20,7 +20,7 @@ Please use https://github.com/statOmics/tradeSeq/issues to submit issues, bug re
 
 ## Usage 
 
-Start with the vignette [online](http://htmlpreview.github.io/?https://github.com/statOmics/tradeSeq/blob/master/vignettes/tradeSeq.html).
+Start with the vignette [online](https://statomics.github.io/tradeSeq/articles/tradeSeq.html).
 
 ## Cheatsheet
 
