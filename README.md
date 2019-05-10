@@ -14,6 +14,9 @@ To install the development version in `R`, run
 devtools::install_github("statOmics/tradeSeq/")
 ```
 
+The installation should only take a few seconds.
+The dependencies of the package are listed in the DESCRIPTION file of the package.
+
 ## Issues and bug reports
 
 Please use https://github.com/statOmics/tradeSeq/issues to submit issues, bug reports, and comments.
