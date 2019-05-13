@@ -27,15 +27,15 @@ Imports: mgcv,
     slingshot,
     magrittr,
     plyr,
-    RColorBrewer,
-    clusterExperiment
+    RColorBrewer
 Suggests: 
     knitr,
     rmarkdown,
     cowplot,
     ggplot2,
     dplyr,
-    tidyr
+    tidyr,
+    clusterExperiment
 VignetteBuilder: knitr
 biocViews:
     Clustering,
