@@ -342,7 +342,7 @@ getEigenStatGAM <- function(m, L){
 #' data(gamList, package = "tradeSeq")
 #' plotSmoothers(gamList[[4]])
 #' @export
-plotSmoothers <- function(m, nPoints = 100, ...){
+plotSmoothers <- function(m, nPoints = 100, lwd=2, ...){
 
   data <- m$model
   y <- data$y
@@ -369,7 +369,7 @@ plotSmoothers <- function(m, nPoints = 100, ...){
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(m, jj, nPoints = nPoints)
     yhat <- predict(m, newdata = df, type = "response")
-    lines(x = df[, paste0("t", jj)], y = log(yhat + 1), col = jj, lwd = 2)
+    lines(x = df[, paste0("t", jj)], y = log(yhat + 1), col = jj, lwd = lwd)
   }
   legend("topleft", paste0("lineage", seq_len(nCurves)),col = seq_len(nCurves),
          lty = 1, lwd = 2, bty = "n", cex = 2 / 3)
