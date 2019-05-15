@@ -5,7 +5,8 @@
 \title{Fit GAM model}
 \usage{
 fitGAM(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-  seed = 81, offset = NULL, verbose = FALSE, nknots = 10)
+  seed = 81, offset = NULL, nknots = 10,
+  BPPARAM = BiocParallel::bpparam())
 }
 \arguments{
 \item{counts}{the count matrix.}
@@ -28,9 +29,11 @@ as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
 \item{offset}{the offset, on log-scale, to account for differences in
 sequencing depth.}
 
-\item{verbose}{Whether to display the progress bar or not.}
-
 \item{nknots}{Number of knots used to fit the GAM.}
+
+\item{BPPARAM}{object of class \code{bpparamClass} that specifies the
+back-end to be used for computations. See
+\code{\link[BiocParallel]{bpparam}} for details.}
 }
 \value{
 A list of length the number of genes
@@ -52,7 +55,7 @@ cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
 gamList <- fitGAM(counts = as.matrix(
                       SummarizedExperiment::assays(se)$counts),
                   pseudotime = pseudotimes, cellWeights = cellWeights,
-                  nknots = 5, verbose = TRUE)
+                  nknots = 5)
 gamList[[1]]
 }
 }

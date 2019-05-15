@@ -19,7 +19,6 @@ NULL
 #' @param seed the seed used for assigning cells to trajectories
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
-#' @param verbose Whether to display the progress bar or not.
 #' @param nknots Number of knots used to fit the GAM.
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
 #'   back-end to be used for computations. See
@@ -39,16 +38,17 @@ NULL
 #' gamList <- fitGAM(counts = as.matrix(
 #'                       SummarizedExperiment::assays(se)$counts),
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
-#'                   nknots = 5, verbose = TRUE)
+#'                   nknots = 5)
 #' gamList[[1]]
 #' }
 #' @importFrom plyr alply .
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays
+#' @importFrom BiocParallel bplapply bpparam
 #' @export
 
 fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-                   seed = 81, offset = NULL, verbose = FALSE, nknots = 10,
+                   seed = 81, offset = NULL, nknots = 10,
                    BPPARAM = BiocParallel::bpparam()){
 
   # TODO: make sure warning message for knots prints after looping
@@ -182,12 +182,9 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
       mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights),
       silent = TRUE)
   }
-  if (verbose) {
-    gamList <- alply(counts, 1, counts_to_Gam, .progress = "text",
-                     .dims = TRUE)
-  } else {
-    gamList <- apply(counts, 1, counts_to_Gam)
-  }
+
+  gamList <- bplapply(as.data.frame(t(counts)), counts_to_Gam, BPPARAM = BPPARAM)
+
 
   return(gamList)
 }
