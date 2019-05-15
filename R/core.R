@@ -20,7 +20,10 @@ NULL
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
 #' @param verbose Whether to display the progress bar or not.
-#' @param  nknots Number of knots used to fit the GAM.
+#' @param nknots Number of knots used to fit the GAM.
+#' @param BPPARAM object of class \code{bpparamClass} that specifies the
+#'   back-end to be used for computations. See
+#'   \code{\link[BiocParallel]{bpparam}} for details.
 #' @return A list of length the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
@@ -45,7 +48,8 @@ NULL
 #' @export
 
 fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-                   seed = 81, offset = NULL, verbose = FALSE, nknots = 10){
+                   seed = 81, offset = NULL, verbose = FALSE, nknots = 10,
+                   BPPARAM = BiocParallel::bpparam()){
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
@@ -149,7 +153,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     })
     knotLocs[replaceId] <- maxT
     if (!all(maxT %in% knotLocs)) {
-      stop("Can't get all knots to equal endpoints of trajectories")
+      stop("Can't get knots to endpoints of all trajectories. Consider adding more knots.")
     }
     knots <- knotLocs
   }
