@@ -36,8 +36,7 @@ Suggests:
     cowplot,
     ggplot2,
     dplyr,
-    tidyr,
-    clusterExperiment
+    tidyr
 VignetteBuilder: knitr
 biocViews:
     Clustering,
