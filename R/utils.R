@@ -336,13 +336,14 @@ getEigenStatGAM <- function(m, L){
 #'
 #' @param m the fitted model of a given gene
 #' @param nPoints The number of points used to extraplolate the fit
+#' @param lwd Passed to \code{\link{lines}}
 #' @param ... Further arguments passed to \code{\link{plot}}
 #' @return A plot that is printed.
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' plotSmoothers(gamList[[4]])
 #' @export
-plotSmoothers <- function(m, nPoints = 100, ...){
+plotSmoothers <- function(m, nPoints = 100, lwd = 2, ...){
 
   data <- m$model
   y <- data$y
