@@ -139,6 +139,8 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   maxT <- max(pseudotime[,1])
   if (ncol(pseudotime) > 1) {
     maxT <- c()
+    # note that first lineage should correspond to the longest, hence the
+    # 100% quantile end point is captured.
     for (jj in 2:ncol(pseudotime)) {
       maxT[jj - 1] <- max(get(paste0("t", jj))[get(paste0("l",jj)) == 1])
     }
@@ -160,6 +162,11 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
       knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
     knots <- knotLocs
+    #guarantee that first knot is 0 and last knot is maximum pseudotime.
+    if(!(knots[1]==0 & knots[nknots]==max(tAll))){
+      knots[1] <- 0
+      knots[nknots] <- max(tAll)
+    }
   }
   knotList <- sapply(seq_len(ncol(pseudotime)), function(i){
     knots
