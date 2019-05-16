@@ -42,7 +42,7 @@ load("./se_paul.rda")
 We will fit developmental trajectories using the `slingshot` package [@Street2018a]. `slingshot` requires cluster labels as input, and fits trajectories in reduced dimension. We will use the reduced space calculated with the UMAP method, which is pre-calculated in the `se` object.
 We cluster the data using k-means with $7$ clusters. Since we know which cells are the progenitor cell type, we define the starting point for the trajectories as input for `slingshot`. Note that this argument is optional, and not required to run `slingshot`.
 
-```{r}
+```{r, warning=FALSE}
 set.seed(200)
 rd <- reducedDims(se)$UMAP
 cl <- kmeans(rd, centers = 7)$cluster
