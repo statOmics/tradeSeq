@@ -27,7 +27,9 @@ Imports: mgcv,
     slingshot,
     magrittr,
     plyr,
-    RColorBrewer
+    RColorBrewer,
+    clusterExperiment,
+    BiocParallel
 Suggests: 
     knitr,
     rmarkdown,

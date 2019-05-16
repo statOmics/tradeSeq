@@ -342,7 +342,7 @@ getEigenStatGAM <- function(m, L){
 #' data(gamList, package = "tradeSeq")
 #' plotSmoothers(gamList[[4]])
 #' @export
-plotSmoothers <- function(m, nPoints = 100, lwd=2, ...){
+plotSmoothers <- function(m, nPoints = 100, ...){
 
   data <- m$model
   y <- data$y
