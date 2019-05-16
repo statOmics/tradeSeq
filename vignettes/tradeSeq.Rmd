@@ -43,13 +43,13 @@ We will fit developmental trajectories using the `slingshot` package [@Street201
 We cluster the data using k-means with $7$ clusters. Since we know which cells are the progenitor cell type, we define the starting point for the trajectories as input for `slingshot`. Note that this argument is optional, and not required to run `slingshot`.
 
 ```{r}
-set.seed(97)
+set.seed(200)
 rd <- reducedDims(se)$UMAP
 cl <- kmeans(rd, centers = 7)$cluster
 plot(rd, col = brewer.pal(9, "Set1")[cl], pch = 16, asp = 1,
      cex = 2/3)
 library(slingshot)
-lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
+lin <- getLineages(rd, clusterLabels = cl, start.clus = 6)
 crv <- getCurves(lin)
 ```
 
@@ -172,7 +172,7 @@ We can plot the most significant gene using the `plotSmoothers` function.
 
 ```{r}
 o <- order(endRes$waldStat, decreasing = TRUE)
-sigGene <- names(gamList)[o[2]]
+sigGene <- names(gamList)[o[1]]
 plotSmoothers(gamList[[sigGene]])
 ```
 

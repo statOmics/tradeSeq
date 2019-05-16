@@ -261,6 +261,8 @@ diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
 
   modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
+  if (nCurves == 1) stop("You cannot run this test with only one lineage.")
+
   data <- modelTemp$model
 
   # get predictor matrix for every lineage.
@@ -400,7 +402,7 @@ startVsEndTest <- function(models, global = TRUE, lineages = FALSE,
     })
     pvalslineages <- do.call(rbind,
                              lapply(waldResultslineages, function(x){
-                               if(is.na(x[1])) return(rep(NA,nCurves))
+                               if (is.na(x[1])) return(rep(NA,nCurves))
                                x[,3]
                              })) %>%
                      as.data.frame()
@@ -465,6 +467,9 @@ earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
                         pairwise = FALSE){
 
   mTemp <- .getModelReference(models)
+  if (length(modelTemp$smooth) == 1) {
+    stop("You cannot run this test with only one lineage.")
+  }
 
   # do statistical test for every model through eigenvalue decomposition
   if (global) {
@@ -631,6 +636,7 @@ identicalTest <- function(models){
 
   modelTemp <- .getModelReference(models)
   nCurves <- length(modelTemp$smooth)
+  if (nCurves == 1) stop("You cannot run this test with only one lineage.")
   data <- modelTemp$model
   nknots <- length(modelTemp$smooth[[1]]$xp)
   # construct pairwise contrast matrix

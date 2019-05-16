@@ -5,12 +5,14 @@
 \title{plot the logged-transformed counts and the fitted values for a particular
  gene along all trajectories.}
 \usage{
-plotSmoothers(m, nPoints = 100, ...)
+plotSmoothers(m, nPoints = 100, lwd = 2, ...)
 }
 \arguments{
 \item{m}{the fitted model of a given gene}
 
 \item{nPoints}{The number of points used to extraplolate the fit}
+
+\item{lwd}{Passed to \code{\link{lines}}}
 
 \item{...}{Further arguments passed to \code{\link{plot}}}
 }
