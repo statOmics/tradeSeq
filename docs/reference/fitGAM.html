@@ -109,7 +109,8 @@
     </div>
 
     <pre class="usage"><span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>pseudotime</span>, <span class='no'>cellWeights</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>10</span>)</pre>
+  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/BiocParallel/topics/register'>bpparam</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,12 +150,14 @@ as the <code>counts</code> matrix. Usually a matrix of zero-inflation weights.</
 sequencing depth.</p></td>
     </tr>
     <tr>
-      <th>verbose</th>
-      <td><p>Whether to display the progress bar or not.</p></td>
-    </tr>
-    <tr>
       <th>nknots</th>
       <td><p>Number of knots used to fit the GAM.</p></td>
+    </tr>
+    <tr>
+      <th>BPPARAM</th>
+      <td><p>object of class <code>bpparamClass</code> that specifies the
+back-end to be used for computations. See
+<code><a href='https://www.rdocumentation.org/packages/BiocParallel/topics/register'>bpparam</a></code> for details.</p></td>
     </tr>
     </table>
     
@@ -177,7 +180,7 @@ sequencing depth.</p></td>
 <span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'>fitGAM</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>as.matrix</a></span>(
                       <span class='kw pkg'>SummarizedExperiment</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class'>assays</a></span>(<span class='no'>se</span>)$<span class='no'>counts</span>),
                   <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='no'>pseudotimes</span>, <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='no'>cellWeights</span>,
-                  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+                  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>)
 <span class='no'>gamList</span><span class='kw'>[[</span><span class='fl'>1</span>]]
 <span class='co'># }</span></pre>
   </div>
