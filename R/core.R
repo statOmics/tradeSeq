@@ -17,8 +17,10 @@ NULL
 #' @param weights a matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param seed the seed used for assigning cells to lineages.
-#' @param offset the offset, on log-scale, to account for differences in
-#' sequencing depth.
+#' @param offset the offset, on log-scale. If NULL, TMM is used to account for
+#' differences in sequencing depth., see \code{edgeR::calcNormFactors}.
+#' Alternatively, this may also be a matrix of the same dimensions as the
+#' expression matrix.
 #' @param nknots Number of knots used to fit the GAM.
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
 #'   back-end to be used for computations. See
@@ -182,6 +184,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     # define formula (only works if defined within apply loop.)
     nknots <- nknots
     if (!is.null(weights)) weights <- weights[teller,]
+    if (!is.null(dim(offset))) offset <- offset[teller,]
     smoothForm <- as.formula(
         paste0("y ~ -1 + U + ",
                paste(sapply(seq_len(ncol(pseudotime)), function(ii){
