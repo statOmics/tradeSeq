@@ -155,7 +155,6 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     if (!all(maxT %in% knotLocs)) {
       stop(paste0("Can't get all knots to equal endpoints of trajectories. ",
                   "Maybe try increasing the number of knots with the nknots argument."))
-
     }
     knots <- knotLocs
   }
