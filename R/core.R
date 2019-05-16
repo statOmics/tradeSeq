@@ -132,7 +132,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
       warning(paste0("Too many cells seem to be squeezed at one pseudotime ",
                      "value, the smoothers will work with evenly spaced knots ",
                      "instead of quantile-based knots. Interpret results with ",
-                     "caution."))
+                     "caution. Increase the number of knots to avoid this issue"))
       knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
   }
