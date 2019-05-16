@@ -16,7 +16,7 @@ NULL
 #' column represents a lineage.
 #' @param weights a matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
-#' @param seed the seed used for assigning cells to trajectories
+#' @param seed the seed used for assigning cells to lineages.
 #' @param offset the offset, on log-scale, to account for differences in
 #' sequencing depth.
 #' @param nknots Number of knots used to fit the GAM.
@@ -111,7 +111,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   knotLocs <- quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
   if (any(duplicated(knotLocs))) {
     # fix pathological case where cells can be squeezed on one pseudotime value.
-    # take knots solely based on longest trajectory
+    # take knots solely based on longest lineage
     knotLocs <- quantile(t1[l1 == 1],
                          probs = (0:(nknots - 1)) / (nknots - 1))
     # if duplication still occurs, get average btw 2 points for dups.
@@ -251,7 +251,7 @@ getSmootherTestStats <- function(models){
 
 
 #' Perform statistical test to check for DE between final stages of every
-#'  trajectory.
+#'  lineage.
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
@@ -343,7 +343,7 @@ diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
 
 
 #' Perform statistical test to check for DE between starting point and the end
-#' stages of every trajectory.
+#' stages of every lineage
 #'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
