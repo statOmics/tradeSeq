@@ -155,11 +155,11 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     })
     knotLocs[replaceId] <- maxT
     if (!all(maxT %in% knotLocs)) {
-      # if not all end points are at knots, set evenly spaced knots.
+      # if not all end points are at knots, return a warning, but keep
+      # quantile spaced knots.
       warning(paste0("The smoothers will work with evenly spaced knots ",
                      "instead of quantile-based knots. Interpret results with ",
                      "caution. Increase the number of knots to avoid this issue."))
-      knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
     knots <- knotLocs
   }
