@@ -470,7 +470,7 @@ earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
                         pairwise = FALSE){
 
   mTemp <- .getModelReference(models)
-  if (length(modelTemp$smooth) == 1) {
+  if (length(mTemp$smooth) == 1) {
     stop("You cannot run this test with only one lineage.")
   }
 
