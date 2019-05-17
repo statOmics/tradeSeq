@@ -159,9 +159,8 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     if (!all(maxT %in% knotLocs)) {
       # if not all end points are at knots, return a warning, but keep
       # quantile spaced knots.
-      warning(paste0("The smoothers will work with evenly spaced knots ",
-                     "instead of quantile-based knots. Interpret results with ",
-                     "caution. Increase the number of knots to avoid this issue."))
+      warning(paste0("Impossible to place a knot at all endpoints.",
+                     "Increase the number of knots to avoid this issue."))
     }
     knots <- knotLocs
   }
