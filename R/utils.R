@@ -343,7 +343,9 @@ getEigenStatGAM <- function(m, L){
 #' data(gamList, package = "tradeSeq")
 #' plotSmoothers(gamList[[4]])
 #' @export
-plotSmoothers <- function(m, nPoints = 100, lwd = 2, ...){
+plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
+                          xlab="pseudotime", ylab=" expression + 1 (log-scale)",
+                          ...){
 
   data <- m$model
   y <- data$y
@@ -363,8 +365,8 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, ...){
   }
 
   # plot raw data
-  plot(x = timeAll, y = log(y + 1), col = col, pch = 16, cex = 2 / 3,
-       ylab = " expression + 1 (log-scale)", xlab = "pseudotime", ...)
+  plot(x = timeAll, y = log(y + 1), col = col, pch = pch, cex = cex,
+       ylab = ylab, xlab = xlab, ...)
 
   #predict and plot smoothers across the range
   for (jj in seq_len(nCurves)) {
