@@ -258,7 +258,7 @@ plotGeneCount(rd, crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 # Clustering of genes according to their expression pattern
 
 tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the `clusterExpressionPatterns` function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the `nPoints` argument. The `genes` argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset.
-The clustering itself occurs with the RSEC package [@Risso2018].
+The clustering itself occurs by the `clusterExperiment` package [@Risso2018], hence the user may select any clustering algorithm that's built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within `clusterExperiment`, run `clusterExperiment::listBuiltInFunctions()` on the command line.
 
 ```{r}
 library(clusterExperiment)
