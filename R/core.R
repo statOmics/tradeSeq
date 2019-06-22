@@ -745,6 +745,55 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 }
 
 
+#' Evaluate the optimal number of knots required for fitGAM.
+#'
+#' @param counts the count matrix.
+#' @param U the design matrix of fixed effects. The design matrix should not
+#' contain an intercept to ensure identifiability.
+#' @param pseudotime a matrix of pseudotime values, each row represents a cell
+#' and each column represents a lineage.
+#' @param cellWeights a matrix of cell weights defining the probability that a
+#' cell belongs to a particular lineage. Each row represents a cell and each
+#' column represents a lineage.
+#' @param nGenes The number of genes to use in the evaluation. Genes will be
+#' randomly selected. 500 by default.
+#' @param k The range of knots to evaluate. `3:10` by default.
+#' @param weights Optional: a matrix of weights with identical dimensions
+#' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
+#' @param seed Optional: the seed used for assigning cells to lineages.
+#' @param offset Optional: the offset, on log-scale. If NULL, TMM is used to
+#' account for differences in sequencing depth., see
+#' \code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
+#' the same dimensions as the expression matrix.
+#' @return A plot of average AIC value over the range of selected knots, and a
+#' matrix of AIC values for the selected genes (rows) and the range of knots
+#' (columns).
+#' @examples
+#' @export
+evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
+                      weights=NULL, seed=81, offset=NULL, ncores=2, ...) {
 
+  set.seed(seed)
+  geneSub <- sample(1:nrow(counts), nGenes)
+  countSub <- counts[geneSub,]
+  weightSub <- weights[geneSub,]
+  kList <- list()
+  for(ii in 1:length(k)) kList[[ii]] <- k[ii]
+  gamLists <- BiocParallel::bplapply(kList, function(currK){
+    gamList <- fitGAM(counts=countSub, U=U, pseudotime=pseudotime,
+                      cellWeights=cellWeights, nknots=currK, weights=weightSub,
+                      seed=seed, offset=offset, BPPARAM = MulticoreParam(1), ...)
+  }, BPPARAM = MulticoreParam(ncores))
+
+  aicVals <- lapply(gamLists, function(x) lapply(x, function(y) y$aic))
+  aicVals <- lapply(aicVals, unlist)
+  aicMat <- do.call(cbind,aicVals)
+
+  par(mfrow=c(1,2))
+  boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
+  plot(x=k, y=colMeans(aicMat), type='b', ylab="Average AIC", x="Number of knots")
+
+  return(aicMat)
+}
 
 
