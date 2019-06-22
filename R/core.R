@@ -815,7 +815,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
 
   # return AIC, return NA if model failed to fit.
   aicVals <- lapply(gamLists, function(x) lapply(x, function(y){
-    if(class(y) == "try-error"){
+    if(class(y)[1] == "try-error"){
       return(NA)
     } else {
       y$aic
