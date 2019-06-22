@@ -769,6 +769,22 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 #' matrix of AIC values for the selected genes (rows) and the range of knots
 #' (columns).
 #' @examples
+#' \dontrun{
+#' set.seed(8)
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+#' load("./se_paul.rda")
+#' se <- se[( 20:31)[-7], 25:40]
+#' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
+#' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
+#' gamList <- fitGAM(counts = as.matrix(
+#'                       SummarizedExperiment::assays(se)$counts),
+#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
+#'                   nknots = 5)
+#' aicK <- evaluateK(counts = as.matrix(
+#'                       SummarizedExperiment::assays(se)$counts),
+#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
+#'                   nGenes=100, k=3:10, ncores=2)
+#' }
 #' @export
 evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
                       weights=NULL, seed=81, offset=NULL, ncores=2, ...) {

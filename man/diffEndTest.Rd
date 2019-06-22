@@ -3,7 +3,7 @@
 \name{diffEndTest}
 \alias{diffEndTest}
 \title{Perform statistical test to check for DE between final stages of every
- trajectory.}
+ lineage.}
 \usage{
 diffEndTest(models, global = TRUE, pairwise = FALSE)
 }
@@ -23,7 +23,7 @@ A matrix with the wald statistic, the number of df and the p-value
 }
 \description{
 Perform statistical test to check for DE between final stages of every
- trajectory.
+ lineage.
 }
 \examples{
 data(gamList, package = "tradeSeq")

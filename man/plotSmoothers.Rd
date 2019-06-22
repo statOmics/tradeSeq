@@ -5,7 +5,8 @@
 \title{plot the logged-transformed counts and the fitted values for a particular
  gene along all trajectories.}
 \usage{
-plotSmoothers(m, nPoints = 100, lwd = 2, ...)
+plotSmoothers(m, nPoints = 100, lwd = 2, cex = 2/3, pch = 16,
+  xlab = "pseudotime", ylab = " expression + 1 (log-scale)", ...)
 }
 \arguments{
 \item{m}{the fitted model of a given gene}

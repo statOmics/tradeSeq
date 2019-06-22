@@ -24,10 +24,12 @@ column represents a lineage.}
 \item{weights}{a matrix of weights with identical dimensions
 as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
 
-\item{seed}{the seed used for assigning cells to trajectories}
+\item{seed}{the seed used for assigning cells to lineages.}
 
-\item{offset}{the offset, on log-scale, to account for differences in
-sequencing depth.}
+\item{offset}{the offset, on log-scale. If NULL, TMM is used to account for
+differences in sequencing depth., see \code{edgeR::calcNormFactors}.
+Alternatively, this may also be a matrix of the same dimensions as the
+expression matrix.}
 
 \item{nknots}{Number of knots used to fit the GAM.}
 

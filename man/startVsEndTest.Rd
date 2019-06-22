@@ -3,7 +3,7 @@
 \name{startVsEndTest}
 \alias{startVsEndTest}
 \title{Perform statistical test to check for DE between starting point and the end
-stages of every trajectory.}
+stages of every lineage}
 \usage{
 startVsEndTest(models, global = TRUE, lineages = FALSE,
   pseudotimeValues = NULL)
@@ -28,7 +28,7 @@ A matrix with the wald statistic, the number of df and the p-value
 }
 \description{
 Perform statistical test to check for DE between starting point and the end
-stages of every trajectory.
+stages of every lineage
 }
 \examples{
 data(gamList, package = "tradeSeq")
