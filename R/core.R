@@ -789,6 +789,7 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
                       weights=NULL, seed=81, offset=NULL, ncores=2, ...) {
 
+  if(any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
   set.seed(seed)
   geneSub <- sample(1:nrow(counts), nGenes)
   countSub <- counts[geneSub,]
@@ -807,7 +808,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
 
   par(mfrow=c(1,2))
   boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
-  plot(x=k, y=colMeans(aicMat), type='b', ylab="Average AIC", x="Number of knots")
+  plot(x=k, y=colMeans(aicMat), type='b', ylab="Average AIC", xlab="Number of knots")
 
   return(aicMat)
 }
