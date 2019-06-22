@@ -743,3 +743,8 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
   )
   return(list(rsec = rsec, yhatScaled = yhatPatScaled))
 }
+
+
+
+
+
