@@ -802,13 +802,20 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
                       seed=seed, offset=offset, BPPARAM = MulticoreParam(1), ...)
   }, BPPARAM = MulticoreParam(ncores))
 
-  aicVals <- lapply(gamLists, function(x) lapply(x, function(y) y$aic))
+  # return AIC, return NA if model failed to fit.
+  aicVals <- lapply(gamLists, function(x) lapply(x, function(y){
+    if(class(y) == "try-error"){
+      return(NA)
+    } else {
+      y$aic
+    }
+  }))
   aicVals <- lapply(aicVals, unlist)
   aicMat <- do.call(cbind,aicVals)
 
   par(mfrow=c(1,2))
   boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
-  plot(x=k, y=colMeans(aicMat), type='b', ylab="Average AIC", xlab="Number of knots")
+  plot(x=k, y=colMeans(aicMat, na.rm=TRUE), type='b', ylab="Average AIC", xlab="Number of knots")
 
   return(aicMat)
 }
