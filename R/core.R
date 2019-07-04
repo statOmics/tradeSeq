@@ -786,7 +786,7 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 #' @importFrom BiocParallel bplapply bpparam MulticoreParam
 #' @export
 evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
-                      weights=NULL, seed=81, offset=NULL, ncores=2, ...) {
+                      weights=NULL, seed=81, offset=NULL, ncores=2) {
 
   if(any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
 

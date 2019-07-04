@@ -5,7 +5,7 @@
 \title{Evaluate the optimal number of knots required for fitGAM.}
 \usage{
 evaluateK(counts, U = NULL, pseudotime, cellWeights, nGenes = 500,
-  k = 3:10, weights = NULL, seed = 81, offset = NULL, ncores = 2, ...)
+  k = 3:10, weights = NULL, seed = 81, offset = NULL, ncores = 2)
 }
 \arguments{
 \item{counts}{the count matrix.}
