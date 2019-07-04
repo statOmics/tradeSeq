@@ -13,7 +13,15 @@ plotSmoothers(m, nPoints = 100, lwd = 2, cex = 2/3, pch = 16,
 
 \item{nPoints}{The number of points used to extraplolate the fit}
 
-\item{lwd}{Passed to \code{\link{lines}}}
+\item{lwd}{Line width of the smoother. Passed to \code{\link{lines}}}
+
+\item{cex}{Character expansion of the data points. Passed to \code{\link{plot}}}
+
+\item{pch}{Plotting character of the data points. Passed to \code{\link{plot}}}
+
+\item{xlab}{x-axis label. Passed to \code{\link{plot}}}
+
+\item{ylab}{y-axis label. Passed to \code{\link{plot}}}
 
 \item{...}{Further arguments passed to \code{\link{plot}}}
 }

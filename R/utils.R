@@ -336,7 +336,11 @@ getEigenStatGAM <- function(m, L){
 #'
 #' @param m the fitted model of a given gene
 #' @param nPoints The number of points used to extraplolate the fit
-#' @param lwd Passed to \code{\link{lines}}
+#' @param lwd Line width of the smoother. Passed to \code{\link{lines}}
+#' @param cex Character expansion of the data points. Passed to \code{\link{plot}}
+#' @param pch Plotting character of the data points. Passed to \code{\link{plot}}
+#' @param xlab x-axis label. Passed to \code{\link{plot}}
+#' @param ylab y-axis label. Passed to \code{\link{plot}}
 #' @param ... Further arguments passed to \code{\link{plot}}
 #' @return A plot that is printed.
 #' @examples
