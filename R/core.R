@@ -30,7 +30,6 @@ NULL
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
 #'    message.
 #' @examples
-#' \dontrun{
 #' set.seed(8)
 #' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
 #' load("./se_paul.rda")
@@ -42,7 +41,6 @@ NULL
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
 #'                   nknots = 5)
 #' gamList[[1]]
-#' }
 #' @importFrom plyr alply .
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays
@@ -783,8 +781,9 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 #' aicK <- evaluateK(counts = as.matrix(
 #'                       SummarizedExperiment::assays(se)$counts),
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
-#'                   nGenes=100, k=3:10, ncores=2)
+#'                   nGenes=100, k=3:5, ncores=2)
 #' }
+#' @importFrom BiocParallel bplapply bpparam MulticoreParam
 #' @export
 evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
                       weights=NULL, seed=81, offset=NULL, ncores=2, ...) {
