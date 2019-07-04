@@ -58,6 +58,6 @@ gamList <- fitGAM(counts = as.matrix(
 aicK <- evaluateK(counts = as.matrix(
                       SummarizedExperiment::assays(se)$counts),
                   pseudotime = pseudotimes, cellWeights = cellWeights,
-                  nGenes=100, k=3:10, ncores=2)
+                  nGenes=100, k=3:5, ncores=2)
 }
 }

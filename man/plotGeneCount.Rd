@@ -41,7 +41,6 @@ If both \code{gene} and \code{clusters} arguments are supplied, the
  plot will be colored according to gene count level.
 }
 \examples{
-\dontrun{
 download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
 load("./se_paul.rda")
 set.seed(97)
@@ -58,5 +57,4 @@ gamList <- fitGAM(counts = counts,
  pseudotime = slingPseudotime(crv, na = FALSE),
  cellWeights = slingCurveWeights(crv))
 plotGeneCount(rd, crv, counts, gene = "Mpo")
-}
 }

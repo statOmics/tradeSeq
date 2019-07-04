@@ -40,7 +40,6 @@ NULL
 #'                       SummarizedExperiment::assays(se)$counts),
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
 #'                   nknots = 5)
-#' gamList[[1]]
 #' @importFrom plyr alply .
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays

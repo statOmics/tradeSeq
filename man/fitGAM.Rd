@@ -47,7 +47,6 @@ A list of length the number of genes
 Fit GAM model
 }
 \examples{
-\dontrun{
 set.seed(8)
 download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
 load("./se_paul.rda")
@@ -58,6 +57,4 @@ gamList <- fitGAM(counts = as.matrix(
                       SummarizedExperiment::assays(se)$counts),
                   pseudotime = pseudotimes, cellWeights = cellWeights,
                   nknots = 5)
-gamList[[1]]
-}
 }
