@@ -34,6 +34,8 @@ as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
 account for differences in sequencing depth., see
 \code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
 the same dimensions as the expression matrix.}
+
+\item{ncores}{Number of cores to use.}
 }
 \value{
 A plot of average AIC value over the range of selected knots, and a

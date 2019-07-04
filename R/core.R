@@ -762,6 +762,7 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 #' account for differences in sequencing depth., see
 #' \code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
 #' the same dimensions as the expression matrix.
+#' @param ncores Number of cores to use.
 #' @return A plot of average AIC value over the range of selected knots, and a
 #' matrix of AIC values for the selected genes (rows) and the range of knots
 #' (columns).
