@@ -790,6 +790,15 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
 
   if(any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
 
+
+  .getBIC <- function(model){
+    summ <- summary(model)
+    ll <- summ$sp.criterion #REML
+    n <- nrow(model$model) #sample size
+    bic <- 2*ll + summ$edf[1]*log(n)
+    return(bic)
+  }
+
   ## calculate offset on full matrix
   if(is.null(offset)){
     nf <- edgeR::calcNormFactors(counts)
@@ -823,11 +832,41 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   aicVals <- lapply(aicVals, unlist)
   aicMat <- do.call(cbind,aicVals)
 
-  par(mfrow=c(1,2))
-  boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
-  plot(x=k, y=colMeans(aicMat, na.rm=TRUE), type='b', ylab="Average AIC", xlab="Number of knots")
+  # return BIC, return NA if model failed to fit.
+  bicVals <- lapply(gamLists, function(x) lapply(x, function(y){
+    if(class(y)[1] == "try-error"){
+      return(NA)
+    } else {
+      .getBIC(y)
+    }
+  }))
+  bicVals <- lapply(bicVals, unlist)
+  bicMat <- do.call(cbind,bicVals)
 
-  return(aicMat)
+
+  par(mfrow=c(2,3))
+  # boxplots of AIC
+  boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
+  # scatterplot of average AIC
+  plot(x=k, y=colMeans(aicMat, na.rm=TRUE), type='b', ylab="Average AIC", xlab="Number of knots")
+  # barplot of optimal AIC for genes with at least a difference of 2.
+  aicRange <- apply(apply(aicMat,1,range),2,diff)
+  varID <- which(aicRange>2)
+  aicMatSub <- aicMat[varID,]
+  tab <- table(k[apply(aicMatSub,1,which.min)])
+  barplot(tab)
+  # boxplots of BIC
+  boxplot(bicMat, names=k, ylab="BIC", xlab="Number of knots")
+  # scatterplot of average BIC
+  plot(x=k, y=colMeans(bicMat, na.rm=TRUE), type='b', ylab="Average BIC", xlab="Number of knots")
+  # barplot of optimal BIC for genes with at least a difference of 2.
+  bicRange <- apply(apply(bicMat,1,range),2,diff)
+  varID <- which(bicRange>2)
+  bicMatSub <- bicMat[varID,]
+  tab <- table(k[apply(bicMatSub,1,which.min)])
+  barplot(tab)
+
+  return(list(BIC=bicMat, AIC=aicMat))
 }
 
 
