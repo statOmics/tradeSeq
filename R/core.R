@@ -759,7 +759,17 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param seed Optional: the seed used for assigning cells to lineages.
 #' @param offset Optional: the offset, on log-scale. If NULL, TMM is used to
-#' account for differences in sequencing depth., see
+#' account for differences in sequencing depth, see \code{fitGAM}.
+#' @param aicDiff Used for selecting genes with significantly varying AIC values
+#' over the range of evaluated knots to make the barplot output. Default is set
+#' to 2, meaning that only genes whose AIC range is larger than 2 will be used
+#' to check for the optimal number of knots through the barplot visualization
+#' that is part of the output of this function.
+#' @param bicDiff Used for selecting genes with significantly varying BIC values
+#' over the range of evaluated knots to make the barplot output. Default is set
+#' to 2, meaning that only genes whose BIC range is larger than 2 will be used
+#' to check for the optimal number of knots through the barplot visualization
+#' that is part of the output of this function.
 #' \code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
 #' the same dimensions as the expression matrix.
 #' @param ncores Number of cores to use.
@@ -786,7 +796,8 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 #' @importFrom BiocParallel bplapply bpparam MulticoreParam
 #' @export
 evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
-                      weights=NULL, seed=81, offset=NULL, ncores=2) {
+                      weights=NULL, seed=81, offset=NULL, ncores=2, aicDiff=2,
+                      bicDiff=2) {
 
   if(any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
 
@@ -851,7 +862,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   plot(x=k, y=colMeans(aicMat, na.rm=TRUE), type='b', ylab="Average AIC", xlab="Number of knots")
   # barplot of optimal AIC for genes with at least a difference of 2.
   aicRange <- apply(apply(aicMat,1,range),2,diff)
-  varID <- which(aicRange>2)
+  varID <- which(aicRange>aicDiff)
   aicMatSub <- aicMat[varID,]
   tab <- table(k[apply(aicMatSub,1,which.min)])
   barplot(tab)
@@ -861,7 +872,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   plot(x=k, y=colMeans(bicMat, na.rm=TRUE), type='b', ylab="Average BIC", xlab="Number of knots")
   # barplot of optimal BIC for genes with at least a difference of 2.
   bicRange <- apply(apply(bicMat,1,range),2,diff)
-  varID <- which(bicRange>2)
+  varID <- which(bicRange>bicDiff)
   bicMatSub <- bicMat[varID,]
   tab <- table(k[apply(bicMatSub,1,which.min)])
   barplot(tab)
