@@ -52,7 +52,10 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
-  # TODO: add parallellization
+
+  library(BiocParallel)
+  library(doParallel)
+  NCORES <- BiocParallel::bpparam()$workers
 
   # Convert pseudotime and weights to matrices if need be
   if (is.null(dim(pseudotime))) {
@@ -855,11 +858,13 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   bicMat <- do.call(cbind,bicVals)
 
 
-  par(mfrow=c(2,3))
+  par(mfrow=c(2,4))
   # boxplots of AIC
   boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
   # scatterplot of average AIC
   plot(x=k, y=colMeans(aicMat, na.rm=TRUE), type='b', ylab="Average AIC", xlab="Number of knots")
+  # scatterplot of relative AIC
+  plot(x=k, y=colMeans(aicMat/aicMat[,1], na.rm=TRUE), type='b', ylab="Relative AIC", xlab="Number of knots")
   # barplot of optimal AIC for genes with at least a difference of 2.
   aicRange <- apply(apply(aicMat,1,range),2,diff)
   varID <- which(aicRange>aicDiff)
@@ -870,6 +875,8 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   boxplot(bicMat, names=k, ylab="BIC", xlab="Number of knots")
   # scatterplot of average BIC
   plot(x=k, y=colMeans(bicMat, na.rm=TRUE), type='b', ylab="Average BIC", xlab="Number of knots")
+  # scatterplot of relative BIC
+  plot(x=k, y=colMeans(bicMat/bicMat[,1], na.rm=TRUE), type='b', ylab="Relative BIC", xlab="Number of knots")
   # barplot of optimal BIC for genes with at least a difference of 2.
   bicRange <- apply(apply(bicMat,1,range),2,diff)
   varID <- which(bicRange>bicDiff)
