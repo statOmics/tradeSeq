@@ -27,6 +27,7 @@ NULL
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
 #'   back-end to be used for computations. See
 #'   \code{\link[BiocParallel]{bpparam}} for details.
+#' @param verbose Logical, should progress be printed?
 #' @return A list of length the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
@@ -50,7 +51,7 @@ NULL
 #' @export
 
 fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-                   seed = 81, offset = NULL, nknots = 10,
+                   seed = 81, offset = NULL, nknots = 10, verbose=TRUE,
                    parallel=FALSE, BPPARAM = BiocParallel::bpparam()){
 
   # TODO: make sure warning message for knots prints after looping
@@ -59,7 +60,12 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   if(parallel){
     library(BiocParallel)
     library(doParallel)
-    NCORES <- BiocParallel::bpparam()$workers
+    if(verbose){
+      # update progress bar 40 times
+      BPPARAM$tasks = as.integer(40)
+      # show progress bar
+      BPPARAM$progressbar = TRUE
+    }
   }
 
 
@@ -206,10 +212,12 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     gamList <- BiocParallel::bplapply(as.data.frame(t(counts)), counts_to_Gam,
                                       BPPARAM = BPPARAM)
   } else {
-    gamList <- pbapply::pblapply(as.data.frame(t(counts)), counts_to_Gam)
+    if(verbose){
+      gamList <- pbapply::pblapply(as.data.frame(t(counts)), counts_to_Gam)
+    } else {
+      gamList <- lapply(as.data.frame(t(counts)), counts_to_Gam)
+    }
   }
-
-
 
   return(gamList)
 }

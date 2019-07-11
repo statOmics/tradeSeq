@@ -5,8 +5,8 @@
 \title{Fit GAM model}
 \usage{
 fitGAM(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-  seed = 81, offset = NULL, nknots = 10, parallel = FALSE,
-  BPPARAM = BiocParallel::bpparam())
+  seed = 81, offset = NULL, nknots = 10, verbose = TRUE,
+  parallel = FALSE, BPPARAM = BiocParallel::bpparam())
 }
 \arguments{
 \item{counts}{the count matrix.}
@@ -32,6 +32,8 @@ Alternatively, this may also be a matrix of the same dimensions as the
 expression matrix.}
 
 \item{nknots}{Number of knots used to fit the GAM.}
+
+\item{verbose}{Logical, should progress be printed?}
 
 \item{parallel}{Logical, defaults to FALSE. Set to TRUE if you want to
 parallellize the fitting.}
