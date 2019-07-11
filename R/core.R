@@ -44,18 +44,22 @@ NULL
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays
 #' @importFrom BiocParallel bplapply bpparam
+#' @importFrom pbapply pblapply
 #' @export
 
 fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                    seed = 81, offset = NULL, nknots = 10,
-                   BPPARAM = BiocParallel::bpparam()){
+                   parallel=FALSE, BPPARAM = BiocParallel::bpparam()){
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
 
-  library(BiocParallel)
-  library(doParallel)
-  NCORES <- BiocParallel::bpparam()$workers
+  if(parallel){
+    library(BiocParallel)
+    library(doParallel)
+    NCORES <- BiocParallel::bpparam()$workers
+  }
+
 
   # Convert pseudotime and weights to matrices if need be
   if (is.null(dim(pseudotime))) {
@@ -196,7 +200,13 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
       silent = TRUE)
   }
 
-  gamList <- bplapply(as.data.frame(t(counts)), counts_to_Gam, BPPARAM = BPPARAM)
+  if(parallel){
+    gamList <- BiocParallel::bplapply(as.data.frame(t(counts)), counts_to_Gam,
+                                      BPPARAM = BPPARAM)
+  } else {
+    gamList <- pbapply::pblapply(as.data.frame(t(counts)), counts_to_Gam)
+  }
+
 
 
   return(gamList)
@@ -870,7 +880,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   varID <- which(aicRange>aicDiff)
   aicMatSub <- aicMat[varID,]
   tab <- table(k[apply(aicMatSub,1,which.min)])
-  barplot(tab)
+  barplot(tab, xlab="Number of knots", ylab="# Genes with optimal k")
   # boxplots of BIC
   boxplot(bicMat, names=k, ylab="BIC", xlab="Number of knots")
   # scatterplot of average BIC
@@ -882,7 +892,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   varID <- which(bicRange>bicDiff)
   bicMatSub <- bicMat[varID,]
   tab <- table(k[apply(bicMatSub,1,which.min)])
-  barplot(tab)
+  barplot(tab, xlab="Number of knots", ylab="# Genes with optimal k")
 
   return(list(BIC=bicMat, AIC=aicMat))
 }
