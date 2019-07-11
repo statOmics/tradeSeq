@@ -22,6 +22,8 @@ NULL
 #' Alternatively, this may also be a matrix of the same dimensions as the
 #' expression matrix.
 #' @param nknots Number of knots used to fit the GAM.
+#' @param parallel Logical, defaults to FALSE. Set to TRUE if you want to
+#' parallellize the fitting.
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
 #'   back-end to be used for computations. See
 #'   \code{\link[BiocParallel]{bpparam}} for details.

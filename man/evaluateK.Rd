@@ -5,7 +5,8 @@
 \title{Evaluate the optimal number of knots required for fitGAM.}
 \usage{
 evaluateK(counts, U = NULL, pseudotime, cellWeights, nGenes = 500,
-  k = 3:10, weights = NULL, seed = 81, offset = NULL, ncores = 2)
+  k = 3:10, weights = NULL, seed = 81, offset = NULL, ncores = 2,
+  aicDiff = 2, bicDiff = 2)
 }
 \arguments{
 \item{counts}{the count matrix.}
@@ -31,11 +32,23 @@ as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
 \item{seed}{Optional: the seed used for assigning cells to lineages.}
 
 \item{offset}{Optional: the offset, on log-scale. If NULL, TMM is used to
-account for differences in sequencing depth., see
-\code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
-the same dimensions as the expression matrix.}
+account for differences in sequencing depth, see \code{fitGAM}.}
 
 \item{ncores}{Number of cores to use.}
+
+\item{aicDiff}{Used for selecting genes with significantly varying AIC values
+over the range of evaluated knots to make the barplot output. Default is set
+to 2, meaning that only genes whose AIC range is larger than 2 will be used
+to check for the optimal number of knots through the barplot visualization
+that is part of the output of this function.}
+
+\item{bicDiff}{Used for selecting genes with significantly varying BIC values
+over the range of evaluated knots to make the barplot output. Default is set
+to 2, meaning that only genes whose BIC range is larger than 2 will be used
+to check for the optimal number of knots through the barplot visualization
+that is part of the output of this function.
+\code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
+the same dimensions as the expression matrix.}
 }
 \value{
 A plot of average AIC value over the range of selected knots, and a
