@@ -50,7 +50,7 @@ cl <- kmeans(rd, centers = 7)$cluster
 plot(rd, col = brewer.pal(9, "Set1")[cl], pch = 16, asp = 1,
      cex = 2/3)
 library(slingshot)
-lin <- getLineages(rd, clusterLabels = cl, start.clus = 6)
+lin <- getLineages(rd, clusterLabels = cl, start.clus = 1)
 crv <- getCurves(lin)
 ```
 
@@ -80,7 +80,7 @@ This dataset consists of UMI counts, and we do not expect zero inflation to be a
 
 For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239 genes in total. We also include the *Irf8* gene, since it is a known transcription factor involved in hematopoiesis.
 
-The fitGam function relies on __BiocParallel__ to implement parallelization, progress bars and so on.
+The `fitGam` function relies on __BiocParallel__ to implement parallelization, progress bars and so on.
 
 ```{r}
 # Register BiocParallel Serial Execution

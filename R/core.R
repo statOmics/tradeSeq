@@ -58,8 +58,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   # TODO: verify working with U provided
 
   if(parallel){
-    library(BiocParallel)
-    library(doParallel)
+    BiocParallel::register(BPPARAM)
     if(verbose){
       # update progress bar 40 times
       BPPARAM$tasks = as.integer(40)
