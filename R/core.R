@@ -898,7 +898,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   # boxplots of BIC
   #boxplot(bicMat, names=k, ylab="BIC", xlab="Number of knots")
   devs <- matrix(NA,nrow=nrow(bicMat),ncol=length(k))
-  for(ii in 1:length(k)) devs[,ii] <- bicMat[ii,] - mean(bicMat[ii,])
+  for(ii in 1:length(k)) devs[ii,] <- bicMat[ii,] - mean(bicMat[ii,])
   boxplot(devs, ylab="Deviation from genewise average BIC",
           xlab="Number of knots", xaxt='n')
   axis(1, at=1:length(k), labels=k)
