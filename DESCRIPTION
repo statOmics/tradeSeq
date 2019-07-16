@@ -2,13 +2,14 @@ Package: tradeSeq
 Type: Package
 Title: trajectory-based differential expression analysis for sequencing data
 Date: 2019-03-15
-Version: 0.99.24
+Version: 0.99.26
 Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "koen.vandenberge@ugent.be"),
               person("Hector", "Roux de Bézieux", role = c("aut", "cre"),
                      email = "hector.rouxdebezieux@berkeley.edu",
 		     comment = c(ORCID = "0000-0002-1489-8339")),
-		person("Kelly","Street", role = "ctb"))
+		person("Kelly","Street", role = "ctb"),
+		person("Lieven","Clement", role="ctb")
 Description: tradeSeq provides a flexible method for finding genes that are differentially expressed along one or multiple trajectories, using a variety of tests suited to answer many questions of interest.
 License: MIT + file LICENSE
 Encoding: UTF-8

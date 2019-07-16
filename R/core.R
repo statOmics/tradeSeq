@@ -879,7 +879,12 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
 
   par(mfrow=c(2,4))
   # boxplots of AIC
-  boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
+  # boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
+  devs <- matrix(NA,nrow=nrow(aicMat),ncol=length(k))
+  for(ii in 1:length(k)) devs[ii,] <- aicMat[ii,] - mean(aicMat[ii,])
+  boxplot(devs, ylab="Deviation from genewise average AIC",
+          xlab="Number of knots", xaxt='n')
+  axis(1, at=1:length(k), labels=k)
   # scatterplot of average AIC
   plot(x=k, y=colMeans(aicMat, na.rm=TRUE), type='b', ylab="Average AIC", xlab="Number of knots")
   # scatterplot of relative AIC
@@ -891,7 +896,12 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   tab <- table(k[apply(aicMatSub,1,which.min)])
   barplot(tab, xlab="Number of knots", ylab="# Genes with optimal k")
   # boxplots of BIC
-  boxplot(bicMat, names=k, ylab="BIC", xlab="Number of knots")
+  #boxplot(bicMat, names=k, ylab="BIC", xlab="Number of knots")
+  devs <- matrix(NA,nrow=nrow(bicMat),ncol=length(k))
+  for(ii in 1:length(k)) devs[,ii] <- bicMat[ii,] - mean(bicMat[ii,])
+  boxplot(devs, ylab="Deviation from genewise average BIC",
+          xlab="Number of knots", xaxt='n')
+  axis(1, at=1:length(k), labels=k)
   # scatterplot of average BIC
   plot(x=k, y=colMeans(bicMat, na.rm=TRUE), type='b', ylab="Average BIC", xlab="Number of knots")
   # scatterplot of relative BIC
