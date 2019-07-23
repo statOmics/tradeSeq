@@ -261,7 +261,7 @@ plotGeneCount(rd, crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the `clusterExpressionPatterns` function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the `nPoints` argument. The `genes` argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset.
 The clustering itself occurs by the `clusterExperiment` package [@Risso2018], hence the user may select any clustering algorithm that's built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within `clusterExperiment`, run `clusterExperiment::listBuiltInFunctions()` on the command line.
 
-```{r}
+```{r, warning=FALSE,message=F}
 library(clusterExperiment)
 nPointsClus <- 20
 clusPat <- clusterExpressionPatterns(gamList, nPoints = nPointsClus,
@@ -269,26 +269,36 @@ clusPat <- clusterExpressionPatterns(gamList, nPoints = nPointsClus,
 clusterLabels <- primaryCluster(clusPat$rsec)
 ```
 
-The clusters can be visualized using the normalized expression that the clustering is based upon.
+The clusters can be visualized using the normalized expression upon which the clustering is based.
 
 ```{r}
-par(mfrow = c(2, 2), bty = "l")
 cUniq <- unique(clusterLabels)
 cUniq <- cUniq[!cUniq == -1] # remove unclustered genes
+
+plots <- list()
 for (xx in cUniq) {
   cId <- which(clusterLabels == xx)
-  plot(x = 1:nPointsClus, y = rep(range(clusPat$yhatScaled[cId, ]),
-                                  nPointsClus / 2), type = "n",
-       main = paste0("Cluster ", xx), xlab = "Pseudotime",
-       ylab = "Normalized expression")
+  p <- ggplot(data = data.frame(x = 1:nPointsClus,
+                                y = rep(range(clusPat$yhatScaled[cId, ]),
+                                        nPointsClus / 2)),
+              aes(x = x, y = y)) +
+    geom_point(alpha = 0) +
+    labs(title = paste0("Cluster ", xx),  x = "Pseudotime", y = "Normalized expression")
   for (ii in 1:length(cId)) {
     geneId <- rownames(clusPat$yhatScaled)[cId[ii]]
-    yhatGene <- clusPat$yhatScaled[geneId, ]
-    lines(x = 1:nPointsClus, y = yhatGene[1:nPointsClus], col = "orange", lwd = 2)
-    lines(x = 1:nPointsClus, y = yhatGene[(nPointsClus + 1):(2 * nPointsClus)],
-          col = "darkseagreen3", lwd = 2)
+    p <- p +
+      geom_line(data = data.frame(x = rep(1:nPointsClus, 2),
+                                  y = clusPat$yhatScaled[geneId, ],
+                                  lineage = rep(0:1, each = nPointsClus)),
+                aes(col = as.character(lineage), group = lineage), lwd = 1.5)
   }
+  p <- p + guides(color = F) +
+    scale_color_manual(values = c("orange", "darkseagreen3"),
+                       breaks = c("0", "1"))  
+  plots[[xx]] <- p
 }
+plots$ncol <- 2
+do.call(plot_grid, plots)
 ```
 
 ```{r clean the file that was downloaded when knitting the vignette}
