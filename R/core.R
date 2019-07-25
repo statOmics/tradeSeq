@@ -875,7 +875,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   bicMat <- do.call(cbind,bicVals)
 
 
-  par(mfrow=c(2,5))
+  par(mfrow=c(2,4))
   # boxplots of AIC
   # boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
   devs <- matrix(NA,nrow=nrow(aicMat),ncol=length(k))
@@ -884,9 +884,9 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
           xlab="Number of knots", xaxt='n')
   axis(1, at=1:length(k), labels=k)
   # squared deviation
-  boxplot(log(devs^2), ylab="Log squared deviation from genewise average AIC",
-          xlab="Number of knots", xaxt='n')
-  axis(1, at=1:length(k), labels=k)
+  # boxplot(log(devs^2), ylab="Log squared deviation from genewise average AIC",
+  #         xlab="Number of knots", xaxt='n')
+  # axis(1, at=1:length(k), labels=k)
   # scatterplot of average AIC
   plot(x=k, y=colMeans(aicMat, na.rm=TRUE), type='b', ylab="Average AIC", xlab="Number of knots")
   # scatterplot of relative AIC
@@ -905,9 +905,9 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
           xlab="Number of knots", xaxt='n')
   axis(1, at=1:length(k), labels=k)
   # squared deviation
-  boxplot(log(devs^2), ylab="Log squared deviation from genewise average AIC",
-          xlab="Number of knots", xaxt='n')
-  axis(1, at=1:length(k), labels=k)
+  # boxplot(log(devs^2), ylab="Log squared deviation from genewise average AIC",
+  #         xlab="Number of knots", xaxt='n')
+  # axis(1, at=1:length(k), labels=k)
   # scatterplot of average BIC
   plot(x=k, y=colMeans(bicMat, na.rm=TRUE), type='b', ylab="Average BIC", xlab="Number of knots")
   # scatterplot of relative BIC
