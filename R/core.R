@@ -206,13 +206,15 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   }
 
   if(parallel){
-    gamList <- BiocParallel::bplapply(as.data.frame(t(counts)), counts_to_Gam,
-                                      BPPARAM = BPPARAM)
+    gamList <- BiocParallel::bplapply(as.data.frame(t(as.matrix(counts))),
+                                      counts_to_Gam, BPPARAM = BPPARAM)
   } else {
     if(verbose){
-      gamList <- pbapply::pblapply(as.data.frame(t(counts)), counts_to_Gam)
+      gamList <- pbapply::pblapply(as.data.frame(t(as.matrix(counts))),
+                                   counts_to_Gam)
     } else {
-      gamList <- lapply(as.data.frame(t(counts)), counts_to_Gam)
+      gamList <- lapply(as.data.frame(t(as.matrix(counts))),
+                        counts_to_Gam)
     }
   }
 
