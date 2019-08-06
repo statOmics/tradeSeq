@@ -175,7 +175,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   }
 
   # guarantees that first knot is 0 and last knot is maximum pseudotime.
-  knots[1] <- 0
+  knots[1] <- min(tAll)
   knots[nknots] <- max(tAll)
 
   knotList <- sapply(seq_len(ncol(pseudotime)), function(i){
