@@ -175,7 +175,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   }
 
   # guarantees that first knot is 0 and last knot is maximum pseudotime.
-  knots[1] <- 0
+  knots[1] <- min(tAll)
   knots[nknots] <- max(tAll)
 
   knotList <- sapply(seq_len(ncol(pseudotime)), function(i){
@@ -206,13 +206,15 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   }
 
   if(parallel){
-    gamList <- BiocParallel::bplapply(as.data.frame(t(counts)), counts_to_Gam,
-                                      BPPARAM = BPPARAM)
+    gamList <- BiocParallel::bplapply(as.data.frame(t(as.matrix(counts))),
+                                      counts_to_Gam, BPPARAM = BPPARAM)
   } else {
     if(verbose){
-      gamList <- pbapply::pblapply(as.data.frame(t(counts)), counts_to_Gam)
+      gamList <- pbapply::pblapply(as.data.frame(t(as.matrix(counts))),
+                                   counts_to_Gam)
     } else {
-      gamList <- lapply(as.data.frame(t(counts)), counts_to_Gam)
+      gamList <- lapply(as.data.frame(t(as.matrix(counts))),
+                        counts_to_Gam)
     }
   }
 
