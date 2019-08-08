@@ -27,6 +27,8 @@
 #'   back-end to be used for computations. See
 #'   \code{\link[BiocParallel]{bpparam}} for details.
 #' @param verbose Logical, should progress be printed?
+#' @param control Variables to control fitting of the GAM, see
+#' \code{gam.control}.
 #' @return A list of length the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
@@ -50,7 +52,8 @@
 #' @export
 fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                    seed = 81, offset = NULL, nknots = 10, verbose=TRUE,
-                   parallel=FALSE, BPPARAM = BiocParallel::bpparam()){
+                   parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
+                   control=mgcv::gam.control()){
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
@@ -201,7 +204,8 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     # fit smoother
     s = mgcv:::s
     try(
-      mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights),
+      mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights,
+                control=control),
       silent = TRUE)
   }
 
