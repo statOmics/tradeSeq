@@ -305,6 +305,25 @@ do.call(plot_grid, plots)
 file.remove("./se_paul.rda")
 ```
 
+# Convergence issues on small or zero-inflated datasets
+
+If you're working with a dataset that has a limited number of cells, or if you
+are incorporating zero inflation weights, the GAMs may be harder to fit, as
+noted by the warnings when running `fitGAM`. In that case, the situation 
+might improve if you allow for more iterations in the GAM fitting. This can be
+done with the `control` argument of `fitGAM`.
+
+```{r}
+control <- gam.control()
+control$maxit <- 1000 #set maximum number of iterations to 1K
+gamList <- fitGAM(counts = counts,
+                  pseudotime = slingPseudotime(crv, na = FALSE),
+                  cellWeights = slingCurveWeights(crv),
+                  control = control)
+```
+
+
+
 # Cheatsheet 
 
 To recapitulate the workflow, we have created a cheatsheet that users can refer to when deciding which tests to run.
