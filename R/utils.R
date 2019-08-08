@@ -341,6 +341,8 @@ getEigenStatGAM <- function(m, L){
 #' @param pch Plotting character of the data points. Passed to \code{\link{plot}}
 #' @param xlab x-axis label. Passed to \code{\link{plot}}
 #' @param ylab y-axis label. Passed to \code{\link{plot}}
+#' @param legendPos Position of the legend, see \code{legend}. Set by default to
+#' \code{"topleft"}.
 #' @param ... Further arguments passed to \code{\link{plot}}
 #' @return A plot that is printed.
 #' @examples
@@ -349,7 +351,7 @@ getEigenStatGAM <- function(m, L){
 #' @export
 plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
                           xlab="pseudotime", ylab=" expression + 1 (log-scale)",
-                          ...){
+                          legendPos="topleft", ...){
 
   data <- m$model
   y <- data$y
@@ -378,7 +380,7 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
     yhat <- predict(m, newdata = df, type = "response")
     lines(x = df[, paste0("t", jj)], y = log(yhat + 1), col = jj, lwd = lwd)
   }
-  legend("topleft", paste0("lineage", seq_len(nCurves)),col = seq_len(nCurves),
+  legend(legendPos, paste0("lineage", seq_len(nCurves)),col = seq_len(nCurves),
          lty = 1, lwd = 2, bty = "n", cex = 2 / 3)
 }
 
