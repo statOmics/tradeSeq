@@ -11,7 +11,7 @@ tradeSeq provides a flexible method for discovering genes that are differentiall
 To install the development version in `R`, run 
 
 ```r
-devtools::install_github("statOmics/tradeSeq/")
+devtools::install_github("statOmics/tradeSeq")
 ```
 
 The installation should only take a few seconds.
