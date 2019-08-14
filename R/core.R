@@ -20,7 +20,7 @@
 #' differences in sequencing depth., see \code{edgeR::calcNormFactors}.
 #' Alternatively, this may also be a matrix of the same dimensions as the
 #' expression matrix.
-#' @param nknots Number of knots used to fit the GAM.
+#' @param nknots Number of knots used to fit the GAM. Defaults to 6.
 #' @param parallel Logical, defaults to FALSE. Set to TRUE if you want to
 #' parallellize the fitting.
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
@@ -51,7 +51,7 @@
 #' @importFrom pbapply pblapply
 #' @export
 fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-                   seed = 81, offset = NULL, nknots = 10, verbose=TRUE,
+                   seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
                    parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
                    control=mgcv::gam.control()){
 
