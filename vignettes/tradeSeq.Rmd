@@ -67,9 +67,6 @@ celltype <- factor(colData(se)$cell_type2)
 
 plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = celltype, 
               title = "Colored by cell type")
-legend("topright", levels(celltype),
-       col = brewer.pal(9, "Set1")[1:nlevels(celltype)],
-       pch = 16, cex = 1 / 2, bty = "n")
 ```
 
 # Fit additive models

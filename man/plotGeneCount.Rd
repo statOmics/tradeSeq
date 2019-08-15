@@ -5,7 +5,7 @@
 \title{Plot the gene in reduced dimension space}
 \usage{
 plotGeneCount(rd, curve, counts, gene = NULL, clusters = NULL,
-  models = NULL, title = NULL, ...)
+  models = NULL, title = NULL)
 }
 \arguments{
 \item{rd}{the reduced dimentionality matrix. Must have at least two columns.
@@ -27,11 +27,9 @@ plot. Either \code{clusters} or \code{gene} must be supplied.
 \code{\link{fitGAM}}. Used to display the knots.}
 
 \item{title}{Title for the plot.}
-
-\item{...}{Further arguments passed to \code{\link{plot}}}
 }
 \value{
-A plot that is printed.
+A \code{\link{ggplot}} object
 }
 \description{
 Plot the gene in reduced dimension space

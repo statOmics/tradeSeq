@@ -407,10 +407,9 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 #' @param models the list of GAMs, typically the output from
 #'  \code{\link{fitGAM}}. Used to display the knots.
 #' @param title Title for the plot.
-#' @param ... Further arguments passed to \code{\link{plot}}
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the
 #'  plot will be colored according to gene count level.
-#' @return A plot that is printed.
+#' @return A \code{\link{ggplot}} object
 #' @examples
 #' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
 #' load("./se_paul.rda")
@@ -432,38 +431,57 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 #' @importFrom slingshot slingPseudotime slingCurves
 #' @importFrom SingleCellExperiment reducedDims
 #' @importFrom SummarizedExperiment assays
+#' @import ggplot2
 #' @export
 plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
-                          models = NULL, title=NULL, ...){
+                          models = NULL, title = NULL){
   if (is.null(gene) & is.null(clusters)) {
     stop("Either gene or clusters argument must be supplied")
   }
   if (!is.null(gene)) {
     logcounts <- log1p(counts[gene, ])
-    g <- cut(logcounts, 10)
-    cols <- grDevices::colorRampPalette(c("yellow", "red"))(10)[g]
-    if (is.null(title)) title <- paste0("color by expression of ", gene)
+    cols <- logcounts
+    scales <- scale_color_gradient(low = "yellow", high = 'red')
+    if (is.null(title)) title <- paste0("logged count of gene ", gene)
   } else {
-    cols <- brewer.pal(length(unique(clusters)), "Set1")[clusters]
-    if (is.null(title)) title <- "Colored by clusters"
+    cols <- as.character(clusters)
+    scales <- NULL
+    if (is.null(title)) title <- "Clusters"
   }
-
-  plot(rd[, seq_len(2)],
-       col = cols, main = title, xlab = "dim1", ylab = "dim2",
-       pch = 16, cex = 2 / 3, ...)
-  lines(curve, lwd = 2, col = "black")
+  # Getting the main plot
+  df <- data.frame(dim1 = rd[, 1], dim2 = rd[, 2], col = cols)
+  p <- ggplot(df, aes(x = dim1, y = dim2, col = col)) +
+    geom_point(size = 1) +
+    theme_classic() +
+    labs(col = title) +
+    scales
+  
+  # Adding the curves
+  for (i in seq_along(slingCurves(crv))) {
+    curve_i <- slingCurves(crv)[[i]]
+    curve_i 
+    curve_i <- curve_i$s[curve_i$ord, ]
+    colnames(curve_i) <- c("dim1", "dim2")
+    p <- p + geom_path(data = as.data.frame(curve_i), col = "black", size = 1)
+  }
+  
+  # Adding the knots
   if (!is.null(models)) {
     m <- .getModelReference(models)
     knots <- m$smooth[[1]]$xp
     times <- slingPseudotime(curve, na = FALSE)
-    knots_dim <- matrix(ncol = 2)
+    knots_dim <- matrix(ncol = 2, nrow = 0)
     for (kn in knots) {
       for (ii in seq_len(ncol(times))) {
-        p <- which.min(abs(times[, ii] - kn))
+        knot <- which.min(abs(times[, ii] - kn))
         knots_dim <- rbind(knots_dim,
-                           slingCurves(curve)[[ii]]$s[p, seq_len(2)])
+                           slingCurves(curve)[[ii]]$s[knot, seq_len(2)])
       }
     }
-    points(knots_dim, pch = 16, col = "black")
+    knots_dim <- as.data.frame(knots_dim)
+    colnames(knots_dim) <- c("dim1", "dim2")
+    p <- p +
+      geom_point(data = knots_dim, col = "black", size = 2)
   }
+  return(p)
 }
