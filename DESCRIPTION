@@ -31,12 +31,12 @@ Imports: mgcv,
     RColorBrewer,
     clusterExperiment,
     BiocParallel,
-    pbapply
+    pbapply,
+    ggplot2
 Suggests:
     knitr,
     rmarkdown,
     cowplot,
-    ggplot2,
     dplyr,
     tidyr
 VignetteBuilder: knitr

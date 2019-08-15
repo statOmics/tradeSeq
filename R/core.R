@@ -4,6 +4,8 @@
 # but print summary at end.
 
 #' Fit GAM model
+#' 
+#' This fits the NB-GAM model as described in Van den Berge et al.[2019]
 #'
 #' @param counts the count matrix.
 #' @param U the design matrix of fixed effects. The design matrix should not

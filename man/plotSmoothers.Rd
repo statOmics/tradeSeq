@@ -5,28 +5,24 @@
 \title{plot the logged-transformed counts and the fitted values for a particular
  gene along all trajectories.}
 \usage{
-plotSmoothers(m, nPoints = 100, lwd = 2, cex = 2/3, pch = 16,
-  xlab = "pseudotime", ylab = " expression + 1 (log-scale)", ...)
+plotSmoothers(m, nPoints = 100, lwd = 2, size = 2/3,
+  xlab = "pseudotime", ylab = " expression + 1 (log-scale)")
 }
 \arguments{
 \item{m}{the fitted model of a given gene}
 
 \item{nPoints}{The number of points used to extraplolate the fit}
 
-\item{lwd}{Line width of the smoother. Passed to \code{\link{lines}}}
+\item{lwd}{Line width of the smoother. Passed to \code{\link{geom_line}}}
 
-\item{cex}{Character expansion of the data points. Passed to \code{\link{plot}}}
+\item{size}{Character expansion of the data points. Passed to \code{\link{geom_point}}}
 
-\item{pch}{Plotting character of the data points. Passed to \code{\link{plot}}}
+\item{xlab}{x-axis label. Passed to \code{\link{labs}}}
 
-\item{xlab}{x-axis label. Passed to \code{\link{plot}}}
-
-\item{ylab}{y-axis label. Passed to \code{\link{plot}}}
-
-\item{...}{Further arguments passed to \code{\link{plot}}}
+\item{ylab}{y-axis label. Passed to \code{\link{labs}}}
 }
 \value{
-A plot that is printed.
+A \code{\link{ggplot}} object
 }
 \description{
 plot the logged-transformed counts and the fitted values for a particular

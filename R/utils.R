@@ -336,26 +336,23 @@ getEigenStatGAM <- function(m, L){
 #'
 #' @param m the fitted model of a given gene
 #' @param nPoints The number of points used to extraplolate the fit
-#' @param lwd Line width of the smoother. Passed to \code{\link{lines}}
-#' @param cex Character expansion of the data points. Passed to \code{\link{plot}}
-#' @param pch Plotting character of the data points. Passed to \code{\link{plot}}
-#' @param xlab x-axis label. Passed to \code{\link{plot}}
-#' @param ylab y-axis label. Passed to \code{\link{plot}}
-#' @param legendPos Position of the legend, see \code{legend}. Set by default to
-#' \code{"topleft"}.
-#' @param ... Further arguments passed to \code{\link{plot}}
-#' @return A plot that is printed.
+#' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}
+#' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}
+#' @param xlab x-axis label. Passed to \code{\link{labs}}
+#' @param ylab y-axis label. Passed to \code{\link{labs}}
+#' @return A \code{\link{ggplot}} object
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' plotSmoothers(gamList[[4]])
+#' @import ggplot2
 #' @export
-plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
-                          xlab="pseudotime", ylab=" expression + 1 (log-scale)",
-                          legendPos="topleft", ...){
-
+plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
+                          xlab="pseudotime", ylab=" expression + 1 (log-scale)")
+{
+  
   data <- m$model
   y <- data$y
-
+  
   #construct time variable based on cell assignments.
   nCurves <- length(m$smooth)
   col <- timeAll <- rep(0, nrow(data))
@@ -369,20 +366,31 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
       }
     }
   }
-
+  
   # plot raw data
-  plot(x = timeAll, y = log(y + 1), col = col, pch = pch, cex = cex,
-       ylab = ylab, xlab = xlab, ...)
-
-  #predict and plot smoothers across the range
+  df <- data.frame(time = timeAll,
+                   count = y,
+                   lineage = as.character(col))
+  p <- ggplot(df, aes(x = time, y = log1p(count), col = lineage)) +
+    geom_point(size = size) +
+    labs(x = xlab, y = ylab) +
+    theme_classic() +
+    scale_color_viridis_d()
+  
+  
+  # predict and plot smoothers across the range
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(m, jj, nPoints = nPoints)
     yhat <- predict(m, newdata = df, type = "response")
-    lines(x = df[, paste0("t", jj)], y = log(yhat + 1), col = jj, lwd = lwd)
+    p <- p +
+      geom_line(data = data.frame(time = df[, paste0("t", jj)],
+                                  count = yhat,
+                                  lineage = as.character(jj)),
+                lwd = lwd)
   }
-  legend(legendPos, paste0("lineage", seq_len(nCurves)),col = seq_len(nCurves),
-         lty = 1, lwd = 2, bty = "n", cex = 2 / 3)
+  return(p)
 }
+
 
 #' Plot the gene in reduced dimension space
 #'
