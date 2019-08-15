@@ -32,9 +32,12 @@ suppressPackageStartupMessages({
 })
 RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
-download.file(
-  "https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
-  destfile = "./se_paul.rda")
+if (!file.exists("./se_paul.rda")) {
+  download.file(
+    "https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+    destfile = "./se_paul.rda")  
+}
+
 load("./se_paul.rda")
 ```
 
