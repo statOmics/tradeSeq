@@ -57,7 +57,8 @@ fitGAM
 }
 \examples{
 set.seed(8)
-download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+destfile="./se_paul.rda")
 load("./se_paul.rda")
 se <- se[( 20:31)[-7], 25:40]
 pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)

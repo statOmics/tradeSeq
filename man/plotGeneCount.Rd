@@ -39,7 +39,8 @@ If both \code{gene} and \code{clusters} arguments are supplied, the
  plot will be colored according to gene count level.
 }
 \examples{
-download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+destfile="./se_paul.rda")
 load("./se_paul.rda")
 set.seed(97)
 data(se, package = "tradeSeq")

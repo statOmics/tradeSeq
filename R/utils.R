@@ -290,7 +290,7 @@ getEigenStatGAM <- function(m, L){
   est <- t(L) %*% beta
   sigma <- t(L) %*% m$Vp %*% L
   eSigma <- eigen(sigma, symmetric = TRUE)
-  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent=TRUE)
+  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent = TRUE)
   if (is(r)[1] == "try-error") {
     return(c(NA, NA))
   }
@@ -346,8 +346,9 @@ getEigenStatGAM <- function(m, L){
 #' plotSmoothers(gamList[[4]])
 #' @import ggplot2
 #' @export
-plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
-                          xlab="pseudotime", ylab=" expression + 1 (log-scale)")
+plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3, 
+                          xlab = "pseudotime",
+                          ylab = " expression + 1 (log-scale)")
 {
   
   data <- m$model
@@ -368,10 +369,10 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
   }
   
   # plot raw data
-  df <- data.frame(time = timeAll,
-                   count = y,
-                   lineage = as.character(col))
-  p <- ggplot(df, aes(x = time, y = log1p(count), col = lineage)) +
+  df <- data.frame("time" = timeAll,
+                   "gene_count" = y,
+                   "lineage" = as.character(col))
+  p <- ggplot(df, aes(x = time, y = log1p(gene_count), col = lineage)) +
     geom_point(size = size) +
     labs(x = xlab, y = ylab) +
     theme_classic() +
@@ -383,9 +384,9 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
     df <- .getPredictRangeDf(m, jj, nPoints = nPoints)
     yhat <- predict(m, newdata = df, type = "response")
     p <- p +
-      geom_line(data = data.frame(time = df[, paste0("t", jj)],
-                                  count = yhat,
-                                  lineage = as.character(jj)),
+      geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                  "gene_count" = yhat,
+                                  "lineage" = as.character(jj)),
                 lwd = lwd)
   }
   return(p)
@@ -411,7 +412,8 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 #'  plot will be colored according to gene count level.
 #' @return A \code{\link{ggplot}} object
 #' @examples
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+#' destfile="./se_paul.rda")
 #' load("./se_paul.rda")
 #' set.seed(97)
 #' data(se, package = "tradeSeq")
