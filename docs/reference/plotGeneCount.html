@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.38</span>
       </span>
     </div>
 
@@ -109,7 +109,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>plotGeneCount</span>(<span class='no'>rd</span>, <span class='no'>curve</span>, <span class='no'>counts</span>, <span class='kw'>gene</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,15 +148,11 @@ plot. Either <code>clusters</code> or <code>gene</code> must be supplied.
       <th>title</th>
       <td><p>Title for the plot.</p></td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Further arguments passed to <code><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></code></p></td>
-    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A plot that is printed.</p>
+    <p>A <code>ggplot</code> object</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -165,24 +161,20 @@ plot. Either <code>clusters</code> or <code>gene</code> must be supplied.
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/download.file'>download.file</a></span>(<span class='st'>"https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda"</span>,<span class='kw'>destfile</span><span class='kw'>=</span><span class='st'>"./se_paul.rda"</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/download.file'>download.file</a></span>(<span class='st'>"https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda"</span>,
+<span class='kw'>destfile</span><span class='kw'>=</span><span class='st'>"./se_paul.rda"</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/load'>load</a></span>(<span class='st'>"./se_paul.rda"</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>97</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>se</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
-<span class='no'>rd</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>SingleCellExperiment</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/SingleCellExperiment/topics/SCE-reducedDims'>reducedDims</a></span>(<span class='no'>se</span>)$<span class='no'>UMAP</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>se</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: data set ‘se’ not found</span></div><div class='input'><span class='no'>rd</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>SingleCellExperiment</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/SingleCellExperiment/topics/SCE-reducedDims'>reducedDims</a></span>(<span class='no'>se</span>)$<span class='no'>UMAP</span>
 <span class='no'>cl</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/kmeans'>kmeans</a></span>(<span class='no'>rd</span>, <span class='kw'>centers</span> <span class='kw'>=</span> <span class='fl'>7</span>)$<span class='no'>cluster</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>slingshot</span>)
-<span class='no'>lin</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/slingshot/topics/getLineages'>getLineages</a></span>(<span class='no'>rd</span>, <span class='kw'>clusterLabels</span> <span class='kw'>=</span> <span class='no'>cl</span>, <span class='kw'>start.clus</span> <span class='kw'>=</span> <span class='fl'>4</span>)
-<span class='no'>crv</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/slingshot/topics/getCurves'>getCurves</a></span>(<span class='no'>lin</span>)
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>slingshot</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: princurve</span></div><div class='input'><span class='no'>lin</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/slingshot/topics/getLineages'>getLineages</a></span>(<span class='no'>rd</span>, <span class='kw'>clusterLabels</span> <span class='kw'>=</span> <span class='no'>cl</span>, <span class='kw'>start.clus</span> <span class='kw'>=</span> <span class='fl'>4</span>)</div><div class='output co'>#&gt; <span class='message'>Using full covariance matrix</span></div><div class='input'><span class='no'>crv</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/slingshot/topics/getCurves'>getCurves</a></span>(<span class='no'>lin</span>)
 <span class='no'>counts</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>as.matrix</a></span>(<span class='kw pkg'>SummarizedExperiment</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class'>assays</a></span>(<span class='no'>se</span>)$<span class='no'>counts</span>)
 <span class='no'>filt</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/colSums'>rowSums</a></span>(<span class='no'>counts</span> <span class='kw'>&gt;</span> <span class='fl'>8</span>) <span class='kw'>&gt;</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol</a></span>(<span class='no'>counts</span>)/<span class='fl'>100</span>
 <span class='no'>counts</span> <span class='kw'>&lt;-</span> <span class='no'>counts</span>[<span class='no'>filt</span>, ]
 <span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>counts</span>,
  <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime'>slingPseudotime</a></span>(<span class='no'>crv</span>, <span class='kw'>na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>),
  <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime'>slingCurveWeights</a></span>(<span class='no'>crv</span>))
-<span class='fu'>plotGeneCount</span>(<span class='no'>rd</span>, <span class='no'>crv</span>, <span class='no'>counts</span>, <span class='kw'>gene</span> <span class='kw'>=</span> <span class='st'>"Mpo"</span>)
-<span class='co'># }</span></pre>
+<span class='fu'>plotGeneCount</span>(<span class='no'>rd</span>, <span class='no'>crv</span>, <span class='no'>counts</span>, <span class='kw'>gene</span> <span class='kw'>=</span> <span class='st'>"Mpo"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in slingCurves(crv): object 'crv' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

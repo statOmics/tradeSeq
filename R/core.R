@@ -4,7 +4,12 @@
 # but print summary at end.
 
 #' Fit GAM model
+#' 
+#' This fits the NB-GAM model as described in Van den Berge et al.[2019]
 #'
+#' @rdname fitGAM
+#' @name fitGAM
+#' @title fitGAM
 #' @param counts the count matrix.
 #' @param U the design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
@@ -35,7 +40,8 @@
 #'    message.
 #' @examples
 #' set.seed(8)
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+#' destfile="./se_paul.rda")
 #' load("./se_paul.rda")
 #' se <- se[( 20:31)[-7], 25:40]
 #' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
@@ -805,7 +811,8 @@ clusterExpressionPatterns <- function(models, nPoints, genes,
 #' @examples
 #' \dontrun{
 #' set.seed(8)
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+#' destfile="./se_paul.rda")
 #' load("./se_paul.rda")
 #' se <- se[( 20:31)[-7], 25:40]
 #' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
@@ -825,7 +832,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
                       weights=NULL, seed=81, offset=NULL, ncores=2, aicDiff=2,
                       bicDiff=2) {
 
-  if(any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
+  if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
 
 
   .getBIC <- function(model){
@@ -837,7 +844,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   }
 
   ## calculate offset on full matrix
-  if(is.null(offset)){
+  if (is.null(offset)) {
     nf <- edgeR::calcNormFactors(counts)
     libSize <- colSums(as.matrix(counts)) * nf
     offset <- log(libSize)
@@ -849,18 +856,19 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   countSub <- counts[geneSub,]
   weightSub <- weights[geneSub,]
   kList <- list()
-  for(ii in 1:length(k)) kList[[ii]] <- k[ii]
+  for (ii in 1:length(k)) kList[[ii]] <- k[ii]
   #gamLists <- BiocParallel::bplapply(kList, function(currK){
   gamLists <- lapply(kList, function(currK){
-    gamList <- fitGAM(counts=countSub, U=U, pseudotime=pseudotime,
-                      cellWeights=cellWeights, nknots=currK, weights=weightSub,
-                      seed=seed, offset=offset, BPPARAM = MulticoreParam(1))#, ...)
+    gamList <- fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
+                      cellWeights = cellWeights, nknots = currK,
+                      weights = weightSub, seed = seed, offset = offset,
+                      BPPARAM = MulticoreParam(1)) # , ...)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
   # return AIC, return NA if model failed to fit.
   aicVals <- lapply(gamLists, function(x) lapply(x, function(y){
-    if(class(y)[1] == "try-error"){
+    if (class(y)[1] == "try-error") {
       return(NA)
     } else {
       y$aic
@@ -871,7 +879,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
 
   # return BIC, return NA if model failed to fit.
   bicVals <- lapply(gamLists, function(x) lapply(x, function(y){
-    if(class(y)[1] == "try-error"){
+    if (class(y)[1] == "try-error") {
       return(NA)
     } else {
       .getBIC(y)
@@ -881,51 +889,55 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   bicMat <- do.call(cbind,bicVals)
 
 
-  par(mfrow=c(2,4))
+  par(mfrow = c(2, 4))
   # boxplots of AIC
   # boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
-  devs <- matrix(NA,nrow=nrow(aicMat),ncol=length(k))
-  for(ii in 1:length(k)) devs[ii,] <- aicMat[ii,] - mean(aicMat[ii,])
-  boxplot(devs, ylab="Deviation from genewise average AIC",
-          xlab="Number of knots", xaxt='n')
-  axis(1, at=1:length(k), labels=k)
+  devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
+  for (ii in 1:length(k)) devs[ii,] <- aicMat[ii,] - mean(aicMat[ii,])
+  boxplot(devs, ylab = "Deviation from genewise average AIC",
+          xlab = "Number of knots", xaxt = "n")
+  axis(1, at = 1:length(k), labels = k)
   # squared deviation
   # boxplot(log(devs^2), ylab="Log squared deviation from genewise average AIC",
   #         xlab="Number of knots", xaxt='n')
   # axis(1, at=1:length(k), labels=k)
   # scatterplot of average AIC
-  plot(x=k, y=colMeans(aicMat, na.rm=TRUE), type='b', ylab="Average AIC", xlab="Number of knots")
+  plot(x = k, y = colMeans(aicMat, na.rm = TRUE), type = "b",
+       ylab = "Average AIC", xlab = "Number of knots")
   # scatterplot of relative AIC
-  plot(x=k, y=colMeans(aicMat/aicMat[,1], na.rm=TRUE), type='b', ylab="Relative AIC", xlab="Number of knots")
+  plot(x = k, y = colMeans(aicMat / aicMat[, 1], na.rm = TRUE), type = "b",
+       ylab = "Relative AIC", xlab = "Number of knots")
   # barplot of optimal AIC for genes with at least a difference of 2.
   aicRange <- apply(apply(aicMat,1,range),2,diff)
-  varID <- which(aicRange>aicDiff)
+  varID <- which(aicRange > aicDiff)
   aicMatSub <- aicMat[varID,]
   tab <- table(k[apply(aicMatSub,1,which.min)])
-  barplot(tab, xlab="Number of knots", ylab="# Genes with optimal k")
+  barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
   # boxplots of BIC
   #boxplot(bicMat, names=k, ylab="BIC", xlab="Number of knots")
-  devs <- matrix(NA,nrow=nrow(bicMat),ncol=length(k))
-  for(ii in 1:length(k)) devs[ii,] <- bicMat[ii,] - mean(bicMat[ii,])
-  boxplot(devs, ylab="Deviation from genewise average BIC",
-          xlab="Number of knots", xaxt='n')
-  axis(1, at=1:length(k), labels=k)
+  devs <- matrix(NA, nrow = nrow(bicMat), ncol = length(k))
+  for (ii in 1:length(k)) devs[ii, ] <- bicMat[ii, ] - mean(bicMat[ii, ])
+  boxplot(devs, ylab = "Deviation from genewise average BIC",
+          xlab = "Number of knots", xaxt = "n")
+  axis(1, at = 1:length(k), labels = k)
   # squared deviation
   # boxplot(log(devs^2), ylab="Log squared deviation from genewise average AIC",
   #         xlab="Number of knots", xaxt='n')
   # axis(1, at=1:length(k), labels=k)
   # scatterplot of average BIC
-  plot(x=k, y=colMeans(bicMat, na.rm=TRUE), type='b', ylab="Average BIC", xlab="Number of knots")
+  plot(x = k, y = colMeans(bicMat, na.rm = TRUE), type = "b",
+       ylab = "Average BIC", xlab = "Number of knots")
   # scatterplot of relative BIC
-  plot(x=k, y=colMeans(bicMat/bicMat[,1], na.rm=TRUE), type='b', ylab="Relative BIC", xlab="Number of knots")
+  plot(x = k, y = colMeans(bicMat / bicMat[, 1], na.rm = TRUE), type = "b",
+       ylab = "Relative BIC", xlab = "Number of knots")
   # barplot of optimal BIC for genes with at least a difference of 2.
-  bicRange <- apply(apply(bicMat,1,range),2,diff)
-  varID <- which(bicRange>bicDiff)
-  bicMatSub <- bicMat[varID,]
-  tab <- table(k[apply(bicMatSub,1,which.min)])
-  barplot(tab, xlab="Number of knots", ylab="# Genes with optimal k")
+  bicRange <- apply(apply(bicMat, 1, range), 2, diff)
+  varID <- which(bicRange > bicDiff)
+  bicMatSub <- bicMat[varID, ]
+  tab <- table(k[apply(bicMatSub, 1, which.min)])
+  barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
 
-  return(list(BIC=bicMat, AIC=aicMat))
+  return(list(BIC = bicMat, AIC = aicMat))
 }
 
 

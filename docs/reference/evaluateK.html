@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>fitGAM — fitGAM • tradeSeq</title>
+<title>Evaluate the optimal number of knots required for fitGAM. — evaluateK • tradeSeq</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="fitGAM — fitGAM" />
+<meta property="og:title" content="Evaluate the optimal number of knots required for fitGAM. — evaluateK" />
 
-<meta property="og:description" content="fitGAM" />
+<meta property="og:description" content="Evaluate the optimal number of knots required for fitGAM." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -97,21 +97,20 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>fitGAM</h1>
+    <h1>Evaluate the optimal number of knots required for fitGAM.</h1>
     
-    <div class="hidden name"><code>fitGAM.Rd</code></div>
+    <div class="hidden name"><code>evaluateK.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>fitGAM</p>
+    <p>Evaluate the optimal number of knots required for fitGAM.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>pseudotime</span>, <span class='no'>cellWeights</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/BiocParallel/topics/register'>bpparam</a></span>(),
-  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/mgcv/topics/gam.control'>gam.control</a></span>())</pre>
+    <pre class="usage"><span class='fu'>evaluateK</span>(<span class='no'>counts</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>pseudotime</span>, <span class='no'>cellWeights</span>, <span class='kw'>nGenes</span> <span class='kw'>=</span> <span class='fl'>500</span>,
+  <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>:<span class='fl'>10</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>aicDiff</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>bicDiff</span> <span class='kw'>=</span> <span class='fl'>2</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -137,67 +136,77 @@ cell belongs to a particular lineage. Each row represents a cell and each
 column represents a lineage.</p></td>
     </tr>
     <tr>
+      <th>nGenes</th>
+      <td><p>The number of genes to use in the evaluation. Genes will be
+randomly selected. 500 by default.</p></td>
+    </tr>
+    <tr>
+      <th>k</th>
+      <td><p>The range of knots to evaluate. `3:10` by default.</p></td>
+    </tr>
+    <tr>
       <th>weights</th>
-      <td><p>a matrix of weights with identical dimensions
+      <td><p>Optional: a matrix of weights with identical dimensions
 as the <code>counts</code> matrix. Usually a matrix of zero-inflation weights.</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>the seed used for assigning cells to lineages.</p></td>
+      <td><p>Optional: the seed used for assigning cells to lineages.</p></td>
     </tr>
     <tr>
       <th>offset</th>
-      <td><p>the offset, on log-scale. If NULL, TMM is used to account for
-differences in sequencing depth., see <code><a href='https://www.rdocumentation.org/packages/edgeR/topics/calcNormFactors'>edgeR::calcNormFactors</a></code>.
-Alternatively, this may also be a matrix of the same dimensions as the
-expression matrix.</p></td>
+      <td><p>Optional: the offset, on log-scale. If NULL, TMM is used to
+account for differences in sequencing depth, see <code>fitGAM</code>.</p></td>
     </tr>
     <tr>
-      <th>nknots</th>
-      <td><p>Number of knots used to fit the GAM. Defaults to 6.</p></td>
+      <th>ncores</th>
+      <td><p>Number of cores to use.</p></td>
     </tr>
     <tr>
-      <th>verbose</th>
-      <td><p>Logical, should progress be printed?</p></td>
+      <th>aicDiff</th>
+      <td><p>Used for selecting genes with significantly varying AIC values
+over the range of evaluated knots to make the barplot output. Default is set
+to 2, meaning that only genes whose AIC range is larger than 2 will be used
+to check for the optimal number of knots through the barplot visualization
+that is part of the output of this function.</p></td>
     </tr>
     <tr>
-      <th>parallel</th>
-      <td><p>Logical, defaults to FALSE. Set to TRUE if you want to
-parallellize the fitting.</p></td>
-    </tr>
-    <tr>
-      <th>BPPARAM</th>
-      <td><p>object of class <code>bpparamClass</code> that specifies the
-back-end to be used for computations. See
-<code><a href='https://www.rdocumentation.org/packages/BiocParallel/topics/register'>bpparam</a></code> for details.</p></td>
-    </tr>
-    <tr>
-      <th>control</th>
-      <td><p>Variables to control fitting of the GAM, see
-<code>gam.control</code>.</p></td>
+      <th>bicDiff</th>
+      <td><p>Used for selecting genes with significantly varying BIC values
+over the range of evaluated knots to make the barplot output. Default is set
+to 2, meaning that only genes whose BIC range is larger than 2 will be used
+to check for the optimal number of knots through the barplot visualization
+that is part of the output of this function.
+<code><a href='https://www.rdocumentation.org/packages/edgeR/topics/calcNormFactors'>edgeR::calcNormFactors</a></code>. Alternatively, this may also be a matrix of
+the same dimensions as the expression matrix.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of length the number of genes
- (number of rows of <code>counts</code>). Each element of the list is either a
-  <code>gamObject</code> if the fiting procedure converged, or an error
-   message.</p>
+    <p>A plot of average AIC value over the range of selected knots, and a
+matrix of AIC values for the selected genes (rows) and the range of knots
+(columns).</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>8</span>)
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>8</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/download.file'>download.file</a></span>(<span class='st'>"https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda"</span>,
 <span class='kw'>destfile</span><span class='kw'>=</span><span class='st'>"./se_paul.rda"</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/load'>load</a></span>(<span class='st'>"./se_paul.rda"</span>)
 <span class='no'>se</span> <span class='kw'>&lt;-</span> <span class='no'>se</span>[( <span class='fl'>20</span>:<span class='fl'>31</span>)[-<span class='fl'>7</span>], <span class='fl'>25</span>:<span class='fl'>40</span>]
 <span class='no'>pseudotimes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/Uniform'>runif</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol</a></span>(<span class='no'>se</span>) * <span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>5</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 <span class='no'>cellWeights</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/Uniform'>runif</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol</a></span>(<span class='no'>se</span>) * <span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'>fitGAM</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>as.matrix</a></span>(
+<span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>as.matrix</a></span>(
                       <span class='kw pkg'>SummarizedExperiment</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class'>assays</a></span>(<span class='no'>se</span>)$<span class='no'>counts</span>),
                   <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='no'>pseudotimes</span>, <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='no'>cellWeights</span>,
-                  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div></pre>
+                  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>)
+<span class='no'>aicK</span> <span class='kw'>&lt;-</span> <span class='fu'>evaluateK</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>as.matrix</a></span>(
+                      <span class='kw pkg'>SummarizedExperiment</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class'>assays</a></span>(<span class='no'>se</span>)$<span class='no'>counts</span>),
+                  <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='no'>pseudotimes</span>, <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='no'>cellWeights</span>,
+                  <span class='kw'>nGenes</span><span class='kw'>=</span><span class='fl'>100</span>, <span class='kw'>k</span><span class='kw'>=</span><span class='fl'>3</span>:<span class='fl'>5</span>, <span class='kw'>ncores</span><span class='kw'>=</span><span class='fl'>2</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

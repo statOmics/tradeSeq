@@ -290,7 +290,7 @@ getEigenStatGAM <- function(m, L){
   est <- t(L) %*% beta
   sigma <- t(L) %*% m$Vp %*% L
   eSigma <- eigen(sigma, symmetric = TRUE)
-  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent=TRUE)
+  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent = TRUE)
   if (is(r)[1] == "try-error") {
     return(c(NA, NA))
   }
@@ -336,26 +336,24 @@ getEigenStatGAM <- function(m, L){
 #'
 #' @param m the fitted model of a given gene
 #' @param nPoints The number of points used to extraplolate the fit
-#' @param lwd Line width of the smoother. Passed to \code{\link{lines}}
-#' @param cex Character expansion of the data points. Passed to \code{\link{plot}}
-#' @param pch Plotting character of the data points. Passed to \code{\link{plot}}
-#' @param xlab x-axis label. Passed to \code{\link{plot}}
-#' @param ylab y-axis label. Passed to \code{\link{plot}}
-#' @param legendPos Position of the legend, see \code{legend}. Set by default to
-#' \code{"topleft"}.
-#' @param ... Further arguments passed to \code{\link{plot}}
-#' @return A plot that is printed.
+#' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}
+#' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}
+#' @param xlab x-axis label. Passed to \code{\link{labs}}
+#' @param ylab y-axis label. Passed to \code{\link{labs}}
+#' @return A \code{\link{ggplot}} object
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' plotSmoothers(gamList[[4]])
+#' @import ggplot2
 #' @export
-plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
-                          xlab="pseudotime", ylab=" expression + 1 (log-scale)",
-                          legendPos="topleft", ...){
-
+plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3, 
+                          xlab = "pseudotime",
+                          ylab = " expression + 1 (log-scale)")
+{
+  
   data <- m$model
   y <- data$y
-
+  
   #construct time variable based on cell assignments.
   nCurves <- length(m$smooth)
   col <- timeAll <- rep(0, nrow(data))
@@ -369,20 +367,31 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
       }
     }
   }
-
+  
   # plot raw data
-  plot(x = timeAll, y = log(y + 1), col = col, pch = pch, cex = cex,
-       ylab = ylab, xlab = xlab, ...)
-
-  #predict and plot smoothers across the range
+  df <- data.frame("time" = timeAll,
+                   "gene_count" = y,
+                   "lineage" = as.character(col))
+  p <- ggplot(df, aes(x = time, y = log1p(gene_count), col = lineage)) +
+    geom_point(size = size) +
+    labs(x = xlab, y = ylab) +
+    theme_classic() +
+    scale_color_viridis_d()
+  
+  
+  # predict and plot smoothers across the range
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(m, jj, nPoints = nPoints)
     yhat <- predict(m, newdata = df, type = "response")
-    lines(x = df[, paste0("t", jj)], y = log(yhat + 1), col = jj, lwd = lwd)
+    p <- p +
+      geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                  "gene_count" = yhat,
+                                  "lineage" = as.character(jj)),
+                lwd = lwd)
   }
-  legend(legendPos, paste0("lineage", seq_len(nCurves)),col = seq_len(nCurves),
-         lty = 1, lwd = 2, bty = "n", cex = 2 / 3)
+  return(p)
 }
+
 
 #' Plot the gene in reduced dimension space
 #'
@@ -399,12 +408,12 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
 #' @param models the list of GAMs, typically the output from
 #'  \code{\link{fitGAM}}. Used to display the knots.
 #' @param title Title for the plot.
-#' @param ... Further arguments passed to \code{\link{plot}}
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the
 #'  plot will be colored according to gene count level.
-#' @return A plot that is printed.
+#' @return A \code{\link{ggplot}} object
 #' @examples
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",destfile="./se_paul.rda")
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+#' destfile="./se_paul.rda")
 #' load("./se_paul.rda")
 #' set.seed(97)
 #' data(se, package = "tradeSeq")
@@ -424,38 +433,57 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, cex=2/3, pch=16,
 #' @importFrom slingshot slingPseudotime slingCurves
 #' @importFrom SingleCellExperiment reducedDims
 #' @importFrom SummarizedExperiment assays
+#' @import ggplot2
 #' @export
 plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
-                          models = NULL, title=NULL, ...){
+                          models = NULL, title = NULL){
   if (is.null(gene) & is.null(clusters)) {
     stop("Either gene or clusters argument must be supplied")
   }
   if (!is.null(gene)) {
     logcounts <- log1p(counts[gene, ])
-    g <- cut(logcounts, 10)
-    cols <- grDevices::colorRampPalette(c("yellow", "red"))(10)[g]
-    if (is.null(title)) title <- paste0("color by expression of ", gene)
+    cols <- logcounts
+    scales <- scale_color_gradient(low = "yellow", high = 'red')
+    if (is.null(title)) title <- paste0("logged count of gene ", gene)
   } else {
-    cols <- brewer.pal(length(unique(clusters)), "Set1")[clusters]
-    if (is.null(title)) title <- "Colored by clusters"
+    cols <- as.character(clusters)
+    scales <- NULL
+    if (is.null(title)) title <- "Clusters"
   }
-
-  plot(rd[, seq_len(2)],
-       col = cols, main = title, xlab = "dim1", ylab = "dim2",
-       pch = 16, cex = 2 / 3, ...)
-  lines(curve, lwd = 2, col = "black")
+  # Getting the main plot
+  df <- data.frame(dim1 = rd[, 1], dim2 = rd[, 2], col = cols)
+  p <- ggplot(df, aes(x = dim1, y = dim2, col = col)) +
+    geom_point(size = 1) +
+    theme_classic() +
+    labs(col = title) +
+    scales
+  
+  # Adding the curves
+  for (i in seq_along(slingCurves(crv))) {
+    curve_i <- slingCurves(crv)[[i]]
+    curve_i 
+    curve_i <- curve_i$s[curve_i$ord, ]
+    colnames(curve_i) <- c("dim1", "dim2")
+    p <- p + geom_path(data = as.data.frame(curve_i), col = "black", size = 1)
+  }
+  
+  # Adding the knots
   if (!is.null(models)) {
     m <- .getModelReference(models)
     knots <- m$smooth[[1]]$xp
     times <- slingPseudotime(curve, na = FALSE)
-    knots_dim <- matrix(ncol = 2)
+    knots_dim <- matrix(ncol = 2, nrow = 0)
     for (kn in knots) {
       for (ii in seq_len(ncol(times))) {
-        p <- which.min(abs(times[, ii] - kn))
+        knot <- which.min(abs(times[, ii] - kn))
         knots_dim <- rbind(knots_dim,
-                           slingCurves(curve)[[ii]]$s[p, seq_len(2)])
+                           slingCurves(curve)[[ii]]$s[knot, seq_len(2)])
       }
     }
-    points(knots_dim, pch = 16, col = "black")
+    knots_dim <- as.data.frame(knots_dim)
+    colnames(knots_dim) <- c("dim1", "dim2")
+    p <- p +
+      geom_point(data = knots_dim, col = "black", size = 2)
   }
+  return(p)
 }
