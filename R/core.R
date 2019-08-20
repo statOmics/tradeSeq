@@ -4,7 +4,7 @@
 # but print summary at end.
 
 #' Fit GAM model
-#' 
+#'
 #' This fits the NB-GAM model as described in Van den Berge et al.[2019]
 #'
 #' @rdname fitGAM
@@ -34,6 +34,8 @@
 #' @param verbose Logical, should progress be printed?
 #' @param control Variables to control fitting of the GAM, see
 #' \code{gam.control}.
+#' @param sce Should output be of SingleCellExperiment class? This argument
+#' should not be changed by users.
 #' @return A list of length the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
@@ -56,10 +58,10 @@
 #' @importFrom BiocParallel bplapply bpparam
 #' @importFrom pbapply pblapply
 #' @export
-fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
+.fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                    seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
                    parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
-                   control=mgcv::gam.control()){
+                   control=mgcv::gam.control(), sce=FALSE){
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
@@ -209,10 +211,21 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     )
     # fit smoother
     s = mgcv:::s
-    try(
+    m <- try(
       mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights,
                 control=control),
       silent = TRUE)
+
+    if(sce){ #don't return full GAM model for sce output.
+      beta <- matrix(coef(m), ncol = 1)
+      rownames(beta) <- names(coef(m))
+      Sigma <- m$Vp
+      if(!exists("X", where="package:tradeSeq")){
+        X <<- predict(m, type="lpmatrix")
+      }
+      return(list(beta=beta, Sigma=Sigma))
+    } else return(m)
+
   }
 
   if(parallel){
@@ -228,7 +241,22 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     }
   }
 
-  return(gamList)
+  if(sce){ #tidy output: also return X
+    # tidy smoother regression coefficients
+    betaAll <- lapply(gamList,"[[",1)
+    betaAllDf <- data.frame(t(do.call(cbind,betaAll)))
+    rownames(betaAllDf) <- rownames(counts)
+
+    # list of variance covariance matrices
+    SigmaAll <- lapply(gamList,"[[",2)
+
+    # return output
+    return(list(beta = betaAllDf,
+                Sigma=SigmaAll,
+                X=X))
+     } else {
+       return(gamList)
+     }
 }
 
 #' Get smoother p-value

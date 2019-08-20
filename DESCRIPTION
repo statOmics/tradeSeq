@@ -17,9 +17,11 @@ LazyData: true
 URL: https://statomics.github.io/tradeSeq/index.html
 Depends: R (>= 3.5)
 Collate:
+    'AllGenerics.R'
     'utils.R'
     'core.R'
     'data.R'
+    'sceMethods.R'
 RoxygenNote: 6.1.1
 Imports: mgcv,
     edgeR,
