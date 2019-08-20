@@ -2,10 +2,13 @@
 #' @export
 #' @import slingshot
 #' @import SingleCellExperiment
+#' @import tibble
 setMethod(f = "fitGAM",
-          signature = c(sds = "SlingshotDataSet"), #sds must be SlingshotDataSet class
-          definition = function(sds,
-                                counts = NULL,
+          signature = c(counts = "matrix"), #sds must be SlingshotDataSet class
+          definition = function(counts,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
                                 U = NULL,
                                 weights = NULL,
                                 seed = 81,
@@ -17,17 +20,26 @@ setMethod(f = "fitGAM",
                                 control = mgcv::gam.control(),
                                 sce = FALSE){
 
-            # check if input is slingshotdataset
-            if(is(sds, "SlingshotDataSet")){
-              sce <- TRUE
-            } else stop("Input must be a SlingshotDataSet.")
+            ## either pseudotime or slingshot object should be provided
+            if(is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))){
+              stop("Either provide the slingshot object using the sds ",
+                   "argument, or provide pseudotime and cell-level weights ",
+                   "manually using pseudotime and cellWeights arguments.")
+            }
+
+            if(!is.null(sds)){
+              # check if input is slingshotdataset
+              if(is(sds, "SlingshotDataSet")){
+                sce <- TRUE
+              } else stop("sds argument must be a SlingshotDataSet object.")
+
+              # extract variables from slingshotdataset
+              pseudotime <- slingPseudotime(sds, na=FALSE)
+              cellWeights <- slingCurveWeights(sds)
+            }
 
             if(is.null(counts)) stop("Provide expression counts using counts",
                                      " argument.")
-
-            # extract variables from slingshotdataset
-            pseudotime <- slingPseudotime(sds, na=FALSE)
-            cellWeights <- slingCurveWeights(sds)
 
             gamOutput <- .fitGAM(counts = counts,
                                  U = U,
@@ -43,6 +55,9 @@ setMethod(f = "fitGAM",
                                  control = control,
                                  sce = sce)
 
+            # default behaviour: return list
+            if(!sce) return(gamOutput)
+
             # return SingleCellExperiment object
             sce <- SingleCellExperiment(assays = list(counts = counts))
             # slingshot info
@@ -56,6 +71,29 @@ setMethod(f = "fitGAM",
             rowData(sce)$tradeSeq <- df
             # tradeSeq cell-level info
             colData(sce)$tradeSeq <- tibble(X=X)
+
+          }
+)
+
+
+#' @rdname diffEndTest
+#' @export
+#' @import SingleCellExperiment
+#' @import tibble
+setMethod(f = "diffEndTest",
+          signature = c(sce = "SingleCellExperiment"),
+          definition = function(sce,
+                                global = TRUE,
+                                pairwise = FALSE){
+
+            # check if input is SingleCellExperiment
+            if(!is(sds, "SingleCellExperiment")){
+              stop("Provided object must be a SingleCellExperiment.")
+            }
+
+            res <- .diffEndTest(sce = sce,
+                                global = global,
+                                pairwise = pairwise)
 
           }
 )

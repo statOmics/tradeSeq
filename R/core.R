@@ -322,7 +322,7 @@ getSmootherTestStats <- function(models){
 #'  procedure was unsuccessful, the procedure will return NA test statistics and
 #'  p-values.
 #' @export
-diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
+.diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
 
   # TODO: add fold changes
   # TODO: check if this is different to comparing knot coefficients
