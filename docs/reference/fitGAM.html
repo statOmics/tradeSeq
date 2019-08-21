@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.38</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.42</span>
       </span>
     </div>
 
@@ -111,7 +111,7 @@
     <pre class="usage"><span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>pseudotime</span>, <span class='no'>cellWeights</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/BiocParallel/topics/register'>bpparam</a></span>(),
-  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/mgcv/topics/gam.control'>gam.control</a></span>())</pre>
+  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/mgcv/topics/gam.control'>gam.control</a></span>(), <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -175,6 +175,11 @@ back-end to be used for computations. See
       <th>control</th>
       <td><p>Variables to control fitting of the GAM, see
 <code>gam.control</code>.</p></td>
+    </tr>
+    <tr>
+      <th>family</th>
+      <td><p>The assumed distribution for the response, set to <code>"nb"</code>
+by default.</p></td>
     </tr>
     </table>
     

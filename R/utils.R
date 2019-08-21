@@ -395,8 +395,6 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 
 #' Plot the gene in reduced dimension space
 #'
-#' @param rd the reduced dimentionality matrix. Must have at least two columns.
-#'  Only the first two columns will be used for plotting.
 #' @param curve The output from a lineage computation
 #' @param counts the count matrix.
 #' @param gene The name of gene for which you want to plot the count or the row
@@ -428,15 +426,16 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 #' gamList <- fitGAM(counts = counts,
 #'  pseudotime = slingPseudotime(crv, na = FALSE),
 #'  cellWeights = slingCurveWeights(crv))
-#' plotGeneCount(rd, crv, counts, gene = "Mpo")
+#' plotGeneCount(crv, counts, gene = "Mpo")
 #' @import RColorBrewer
 #' @importFrom slingshot slingPseudotime slingCurves
 #' @importFrom SingleCellExperiment reducedDims
 #' @importFrom SummarizedExperiment assays
 #' @import ggplot2
 #' @export
-plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
+plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
                           models = NULL, title = NULL){
+  rd <- reducedDim(curve)
   if (is.null(gene) & is.null(clusters)) {
     stop("Either gene or clusters argument must be supplied")
   }

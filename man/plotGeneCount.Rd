@@ -4,13 +4,10 @@
 \alias{plotGeneCount}
 \title{Plot the gene in reduced dimension space}
 \usage{
-plotGeneCount(rd, curve, counts, gene = NULL, clusters = NULL,
+plotGeneCount(curve, counts, gene = NULL, clusters = NULL,
   models = NULL, title = NULL)
 }
 \arguments{
-\item{rd}{the reduced dimentionality matrix. Must have at least two columns.
-Only the first two columns will be used for plotting.}
-
 \item{curve}{The output from a lineage computation}
 
 \item{counts}{the count matrix.}
@@ -55,5 +52,5 @@ counts <- counts[filt, ]
 gamList <- fitGAM(counts = counts,
  pseudotime = slingPseudotime(crv, na = FALSE),
  cellWeights = slingCurveWeights(crv))
-plotGeneCount(rd, crv, counts, gene = "Mpo")
+plotGeneCount(crv, counts, gene = "Mpo")
 }

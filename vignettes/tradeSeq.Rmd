@@ -61,10 +61,10 @@ crv <- getCurves(lin)
 We find two lineages for this dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
 
 ```{r, fig.height=5}
-plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl)
+plotGeneCount(curve = crv, counts = counts, clusters = cl)
 
 celltype <- factor(colData(se)$cell_type2)
-plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = celltype, 
+plotGeneCount(curve = crv, counts = counts, clusters = celltype, 
               title = "Colored by cell type")
 ```
 
@@ -104,7 +104,7 @@ summary(gamList[["Irf8"]])
 You can also plot the cells in reduced dimension to see where the knots are located.
 
 ```{r, fig.height=5}
-plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl,
+plotGeneCount(curve = crv, counts = counts, clusters = cl,
               models = gamList)
 ```
 
@@ -152,7 +152,7 @@ plotSmoothers(gamList[[sigGeneStart]])
 Alternatively, we can color the cells in UMAP space with that gene's expression.
 
 ```{r, fig.height=5}
-plotGeneCount(rd, crv, counts, gene = sigGeneStart)
+plotGeneCount(crv, counts, gene = sigGeneStart)
 ```
 
 
@@ -179,7 +179,7 @@ plotSmoothers(gamList[[sigGene]])
 Alternatively, we can color the cells in UMAP space with that gene's expression.
 
 ```{r, fig.height=5}
-plotGeneCount(rd, crv, counts, gene = sigGene)
+plotGeneCount(crv, counts, gene = sigGene)
 ```
 
 ## Discovering genes with different expression patterns
@@ -195,7 +195,7 @@ plotSmoothers(gamList[[rownames(patternRes)[oPat][1]]])
 ```
 
 ```{r, fig.height=5}
-plotGeneCount(rd, crv, counts, gene = rownames(patternRes)[oPat][1])
+plotGeneCount(crv, counts, gene = rownames(patternRes)[oPat][1])
 ```
 
 We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the *patternTest* and their rank in decreasing Wald statistics for the *diffEndTest*.
@@ -227,7 +227,7 @@ plotSmoothers(gamList[[topTransient]])
 ```
 
 ```{r, fig.height=5}
-plotGeneCount(rd, crv, counts, gene = topTransient)
+plotGeneCount(crv, counts, gene = topTransient)
 ```
 
 Interestingly, we recover the Irf8 gene in the top 5 genes according to that ranking.
@@ -243,7 +243,7 @@ plotSmoothers(gamList[["Irf8"]])
 ```
 
 ```{r, fig.height=5}
-plotGeneCount(rd, crv, counts, gene = "Irf8")
+plotGeneCount(crv, counts, gene = "Irf8")
 ```
 
 ## Early drivers of differentiation
@@ -253,7 +253,7 @@ The function `earlyDETest` implements a statistical method to tests the null hyp
 Again, the knots can be visualized with the `plotGeneCount` function. By selecting the region covering the first two knot points to test for differential patterns between the lineages, we check which genes are behaving differently around the bifurcation point.
 
 ```{r, fig.height=5}
-plotGeneCount(rd = rd, curve = crv, counts = counts, clusters = cl,
+plotGeneCount(curve = crv, counts = counts, clusters = cl,
               models = gamList)
 
 earlyDERes <- earlyDETest(gamList, knots = c(1, 2))
@@ -266,7 +266,7 @@ plotSmoothers(gamList[[rownames(earlyDERes)[oEarly][2]]])
 ```
 
 ```{r, fig.height=5}
-plotGeneCount(rd, crv, counts, gene = rownames(earlyDERes)[oEarly][2])
+plotGeneCount(crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 ```
 
 
@@ -297,7 +297,8 @@ for (xx in cUniq) {
                                         nPointsClus / 2)),
               aes(x = x, y = y)) +
     geom_point(alpha = 0) +
-    labs(title = paste0("Cluster ", xx),  x = "Pseudotime", y = "Normalized expression")
+    labs(title = paste0("Cluster ", xx),  x = "Pseudotime", y = "Normalized expression") +
+    theme_classic()
   for (ii in 1:length(cId)) {
     geneId <- rownames(clusPat$yhatScaled)[cId[ii]]
     p <- p +
