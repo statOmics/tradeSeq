@@ -4,7 +4,7 @@
 # but print summary at end.
 
 #' Fit GAM model
-#' 
+#'
 #' This fits the NB-GAM model as described in Van den Berge et al.[2019]
 #'
 #' @rdname fitGAM
@@ -34,6 +34,8 @@
 #' @param verbose Logical, should progress be printed?
 #' @param control Variables to control fitting of the GAM, see
 #' \code{gam.control}.
+#' @param family The assumed distribution for the response, set to \code{"nb"}
+#' by default.
 #' @return A list of length the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
@@ -59,7 +61,7 @@
 fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                    seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
                    parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
-                   control=mgcv::gam.control()){
+                   control=mgcv::gam.control(), family ="nb"){
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
@@ -210,7 +212,7 @@ fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
     # fit smoother
     s = mgcv:::s
     try(
-      mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights,
+      mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
                 control=control),
       silent = TRUE)
   }
