@@ -37,6 +37,7 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   # INPUT:
   # lpmatrix is the linear predictor matrix of the GAM model
   # df is a data frame of values for which we want the lpmatrix
+  # pseudotime is the n x l matrix of pseudotimes
 
   # for each curve, specify basis function IDs for lpmatrix
   allBs <- grep(x = colnames(lpmatrix), pattern = "t[1-9]):l[1-9]")
@@ -89,11 +90,10 @@ predictGAM <- function(lpmatrix, df, pseudotime){
 
 
 # get predictor matrix for the end point of a smoother.
-.getPredictEndPointDf <- function(m, lineageId){
+.getPredictEndPointDf <- function(dm, lineageId){
   # note that X or offset variables dont matter as long as they are the same,
   # since they will get canceled.
-  data <- m$model
-  vars <- m$model[1, ]
+  vars <- dm[1, ]
   vars <- vars[!colnames(vars) %in% "y"]
   offsetId <- grep(x = colnames(vars), pattern = "offset")
   offsetName <- colnames(vars)[offsetId]
@@ -104,18 +104,16 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set max pseudotime for lineage of interest
-  vars[, paste0("t", lineageId)] <- max(data[data[, paste0("l",
+  vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l",
                                                            lineageId)] == 1,
                                              paste0("t", lineageId)])
   # set lineage
   vars[, paste0("l", lineageId)] <- 1
   # set offset
-  vars[, offsetName] <- mean(m$model[, grep(x = colnames(m$model),
+  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
   return(vars)
 }
-
-
 
 
 # get predictor matrix for the start point of a smoother.
@@ -210,11 +208,10 @@ predictGAM <- function(lpmatrix, df, pseudotime){
 
 
 # perform Wald test ----
-waldTest <- function(model, L){
+waldTest <- function(beta, Sigma, L){
   ### build a contrast matrix for a multivariate Wald test
-  beta <- matrix(coef(model), ncol = 1)
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  sigmaInv <- try(solve(t(LQR) %*% model$Vp %*% LQR), silent=TRUE)
+  sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent=TRUE)
   if (is(sigmaInv)[1] == "try-error") return(c(NA,NA,NA))
   wald <- t(t(LQR) %*% beta) %*%
           sigmaInv %*%

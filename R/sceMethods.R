@@ -55,7 +55,7 @@ setMethod(f = "fitGAM",
                                  control = control,
                                  sce = sce)
 
-            # default behaviour: return list
+            # old behaviour: return list
             if(!sce) return(gamOutput)
 
             # return SingleCellExperiment object
@@ -70,36 +70,44 @@ setMethod(f = "fitGAM",
             df$beta <- tibble::tibble(gamOutput$beta)
             rowData(sce)$tradeSeq <- df
             # tradeSeq cell-level info
-            colData(sce)$tradeSeq <- tibble(X=X)
+            colData(sce)$tradeSeq <- tibble::tibble(X = X,
+                                                    dm = dm)
             return(sce)
 
           }
 )
 
 
+### diffEndTest
 #' @rdname diffEndTest
 #' @export
 #' @import SingleCellExperiment
-#' @import tibble
 setMethod(f = "diffEndTest",
-          signature = c(sce = "SingleCellExperiment"),
-          definition = function(sce,
+          signature = c(models = "SingleCellExperiment"),
+          definition = function(models,
                                 global = TRUE,
                                 pairwise = FALSE){
 
-            ### SCE PART ###
-
-            # check if input is SingleCellExperiment
-            if(!is(sce, "SingleCellExperiment")){
-              stop("Provided object must be a SingleCellExperiment.")
-            }
-
-            res <- .diffEndTest(sce = sce,
+            res <- .diffEndTest(models = models,
                                 global = global,
                                 pairwise = pairwise)
+            return(res)
 
+          }
+)
 
-            ### LIST PART ###
+#' @rdname diffEndTest
+#' @export
+setMethod(f = "diffEndTest",
+          signature = c(models = "list"),
+          definition = function(models,
+                                global = TRUE,
+                                pairwise = FALSE){
+
+            res <- .diffEndTest(models = models,
+                                global = global,
+                                pairwise = pairwise)
+            return(res)
 
           }
 )

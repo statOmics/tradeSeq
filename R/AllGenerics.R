@@ -14,8 +14,8 @@ setGeneric(
 #' @export
 setGeneric(
   name = "diffEndTest",
-  signature = 'sce',
-  def = function(sce, ...) {
+  #signature = 'models',
+  def = function(models, ...) {
     standardGeneric("diffEndTest")
   }
 )

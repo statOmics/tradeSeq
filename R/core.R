@@ -220,8 +220,13 @@
       beta <- matrix(coef(m), ncol = 1)
       rownames(beta) <- names(coef(m))
       Sigma <- m$Vp
+      # define lpmatrix in top environment to return once for all genes
       if(!exists("X", where="package:tradeSeq")){
         X <<- predict(m, type="lpmatrix")
+      }
+      # define model frame in top environment to return once for all genes
+      if(!exists("dm", where="package:tradeSeq")){
+        dm <<- m$model[,-1] # rm expression counts since different betw. genes
       }
       return(list(beta=beta, Sigma=Sigma))
     } else return(m)
@@ -252,8 +257,9 @@
 
     # return output
     return(list(beta = betaAllDf,
-                Sigma=SigmaAll,
-                X=X))
+                Sigma = SigmaAll,
+                X = X,
+                dm = dm))
      } else {
        return(gamList)
      }
@@ -309,8 +315,9 @@ getSmootherTestStats <- function(models){
 
 #' Perform statistical test to check for DE between final stages of every
 #'  lineage.
-#' @param models the list of GAMs, typically the output from
-#' \code{\link{fitGAM}}.
+#' @param models Typically the output from
+#' \code{\link{fitGAM}}, either a list of fitted GAM models, or an object of
+#' \code{SingleCellExperiment} class.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
@@ -323,40 +330,91 @@ getSmootherTestStats <- function(models){
 #'  p-values.
 #' @export
 .diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
-
   # TODO: add fold changes
   # TODO: check if this is different to comparing knot coefficients
   # TODO: adjust null distribution with weights
 
-  modelTemp <- .getModelReference(models)
-  nCurves <- length(modelTemp$smooth)
-  if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-
-  data <- modelTemp$model
-
-  # get predictor matrix for every lineage.
-  for (jj in seq_len(nCurves)) {
-    df <- .getPredictEndPointDf(modelTemp, jj)
-    assign(paste0("X",jj),
-           predict(modelTemp, newdata = df, type = "lpmatrix"))
+  if(is(models, "list")){
+    sce <- FALSE
+  } else if(is(models, "SingleCellExperiment")){
+    sce <- TRUE
   }
 
+  # get predictor matrix for every lineage.
+  if(!sce){ # list output of fitGAM
+    modelTemp <- .getModelReference(models)
+    nCurves <- length(modelTemp$smooth)
+    if (nCurves == 1) stop("You cannot run this test with only one lineage.")
+    if(nCurves == 2 & pairwise == TRUE){
+      message("Only two lineages; skipping pairwise comparison.")
+      pairwise <- FALSE
+    }
+
+    data <- modelTemp$model
+
+    for (jj in seq_len(nCurves)) {
+      df <- .getPredictEndPointDf(modelTemp$model, jj)
+      assign(paste0("X",jj),
+             predict(modelTemp, newdata = df, type = "lpmatrix"))
+    }
+  } else if(sce){
+
+    dm <- colData(models)$tradeSeq$dm # design matrix
+    nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+    if (nCurves == 1) stop("You cannot run this test with only one lineage.")
+    if(nCurves == 2 & pairwise == TRUE){
+      message("Only two lineages; skipping pairwise comparison.")
+      pairwise <- FALSE
+    }
+
+    # get lp matrix
+    slingshotColData <- colData(models)$slingshot
+    for (jj in seq_len(nCurves)) {
+      df <- .getPredictEndPointDf(dm, jj)
+      assign(paste0("X",jj),
+             predictGAM(lpmatrix = colData(models)$tradeSeq$X,
+                        df = df,
+                        pseudotime = slingshotColData[,grep(x = colnames(slingshotColData),
+                                                            pattern = "pseudotime")]))
+    }
+  }
+
+
   # construct pairwise contrast matrix
+  if(!sce){
+    p <- length(coef(modelTemp))
+  } else if(sce){
+    p <- ncol(colData(models)$tradeSeq$X)
+  }
+
   combs <- combn(nCurves,m = 2)
-  L <- matrix(0, nrow = length(coef(modelTemp)), ncol = ncol(combs))
+  L <- matrix(0, nrow = p, ncol = ncol(combs))
   colnames(L) <- apply(combs, 2, paste, collapse = "_")
   for (jj in seq_len(ncol(combs))) {
     curvesNow <- combs[,jj]
     L[,jj] <- get(paste0("X", curvesNow[1])) - get(paste0("X",curvesNow[2]))
   }
-  rm(modelTemp)
+  if(!sce) rm(modelTemp)
 
   # perform global statistical test for every model
   if (global) {
-    waldResultsOmnibus <- lapply(models, function(m){
-      if (is(m)[1] == "try-error") return(c(NA, NA, NA))
-      waldTest(m, L)
-    })
+    if(!sce){ #gam list output
+      waldResultsOmnibus <- lapply(models, function(m){
+        if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+        beta <- matrix(coef(m), ncol = 1)
+        Sigma <- m$Vp
+        waldTest(beta, Sigma, L)
+      })
+
+    } else if(sce){ #singleCellExperiment output
+      waldResultsOmnibus <- lapply(1:nrow(models), function(ii){
+        beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+        Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        waldTest(beta, Sigma, L)
+      })
+    }
+
+    #process output.
     waldResults <- do.call(rbind,waldResultsOmnibus)
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResults <- as.data.frame(waldResults)
@@ -364,29 +422,41 @@ getSmootherTestStats <- function(models){
 
   # perform pairwise comparisons
   if (pairwise) {
-    waldResultsPairwise <- lapply(models, function(m){
-      if (is(m)[1] == "try-error") {
-        return(matrix(NA, nrow = ncol(L), ncol = 3))
-      }
-      t(sapply(seq_len(ncol(L)), function(ii){
-        waldTest(m, L[, ii, drop = FALSE])
-      }))
-    })
+    if(!sce){ # gam list output
+      waldResultsPairwise <- lapply(models, function(m){
+        if (class(m)[1] == "try-error") {
+          return(matrix(NA, nrow = ncol(L), ncol = 3))
+        }
+        beta <- matrix(coef(m), ncol = 1)
+        Sigma <- m$Vp
+        t(sapply(seq_len(ncol(L)), function(ii){
+          waldTest(beta, Sigma, L[, ii, drop = FALSE])
+        }))
+      })
+    } else if(sce){
+      waldResultsPairwise <- lapply(1:nrow(models), function(ii){
+        beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+        Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        t(sapply(seq_len(ncol(L)), function(ii){
+          waldTest(beta, Sigma, L[, ii, drop = FALSE])
+        }))
+      })
+    }
 
     # clean pairwise results
     contrastNames <- unlist(lapply(strsplit(colnames(L), split = "_"),
-                                   paste, collapse = "vs"))
+                                    paste, collapse = "vs"))
 
     colNames <- c(paste0("waldStat_",contrastNames),
                   paste0("df_",contrastNames),
                   paste0("pvalue_",contrastNames))
     orderByContrast <- unlist(c(mapply(seq, seq_along(colNames),
-                                       length(waldResultsPairwise[[1]]),
-                                       by = 3)))
+                                        length(waldResultsPairwise[[1]]),
+                                        by = 3)))
     waldResAllPair <- do.call(rbind,
-            lapply(waldResultsPairwise,function(x){
-      matrix(x, nrow = 1, dimnames = list(NULL, colNames))[, orderByContrast]
-    }))
+                              lapply(waldResultsPairwise,function(x){
+                                matrix(x, nrow = 1, dimnames = list(NULL, colNames))[, orderByContrast]
+                              }))
   }
 
   # return output
