@@ -459,9 +459,8 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
     scales
   
   # Adding the curves
-  for (i in seq_along(slingCurves(crv))) {
-    curve_i <- slingCurves(crv)[[i]]
-    curve_i 
+  for (i in seq_along(slingCurves(curve))) {
+    curve_i <- slingCurves(curve)[[i]]
     curve_i <- curve_i$s[curve_i$ord, ]
     colnames(curve_i) <- c("dim1", "dim2")
     p <- p + geom_path(data = as.data.frame(curve_i), col = "black", size = 1)
@@ -472,13 +471,15 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
     m <- .getModelReference(models)
     knots <- m$smooth[[1]]$xp
     # times <- slingPseudotime(curve, na = FALSE)
-    knots_dim <- matrix(ncol = 2, nrow = 0)
-    for (kn in knots) {
-      for (ii in seq_along(slingCurves(crv))) {
-        times <- slingCurves(crv)[[ii]]$lambda
+    knots_dim <- matrix(ncol = 2, nrow = 2 * length(knots))
+    for (ii in seq_along(slingCurves(curve))) {
+      S <- project_to_curve(x = slingCurves(curve)[[ii]]$s,
+                            s = slingCurves(curve)[[ii]]$s[slingCurves(curve)[[ii]]$ord, ], stretch = 0)
+      for (jj in seq_along(knots)) {
+        kn <- knots[jj]
+        times <- S$lambda
         knot <- which.min(abs(times - kn))
-        knots_dim <- rbind(knots_dim,
-                           slingCurves(curve)[[ii]]$s[knot, seq_len(2)])
+        knots_dim[2 * (jj - 1) + ii, ] <- S$s[knot, seq_len(2)]
       }
     }
     knots_dim <- as.data.frame(knots_dim)

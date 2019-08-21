@@ -82,7 +82,7 @@ For the vignette, we fit smoothers for a filtered set of genes in the dataset, 2
 The `fitGam` function relies on __BiocParallel__ to implement parallelization, progress bars and so on.
 
 ```{r}
-# Register BiocParallel Serial Execution
+# Register BiocParallel Serial Execution (no parallelization in that case)
 BiocParallel::register(BiocParallel::SerialParam())
 
 counts <- assays(se)$counts %>% as.matrix()
