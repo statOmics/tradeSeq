@@ -471,11 +471,12 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
   if (!is.null(models)) {
     m <- .getModelReference(models)
     knots <- m$smooth[[1]]$xp
-    times <- slingPseudotime(curve, na = FALSE)
+    # times <- slingPseudotime(curve, na = FALSE)
     knots_dim <- matrix(ncol = 2, nrow = 0)
     for (kn in knots) {
-      for (ii in seq_len(ncol(times))) {
-        knot <- which.min(abs(times[, ii] - kn))
+      for (ii in seq_along(slingCurves(crv))) {
+        times <- slingCurves(crv)[[ii]]$lambda
+        knot <- which.min(abs(times - kn))
         knots_dim <- rbind(knots_dim,
                            slingCurves(curve)[[ii]]$s[knot, seq_len(2)])
       }
