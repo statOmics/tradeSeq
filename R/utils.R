@@ -31,6 +31,63 @@
   }
 }
 
+### lpmatrix given X and design
+predictGAM <- function(lpmatrix, df, pseudotime){
+  # this function is an alternative of predict.gam(model, newdata = df, type = "lpmatrix")
+  # INPUT:
+  # lpmatrix is the linear predictor matrix of the GAM model
+  # df is a data frame of values for which we want the lpmatrix
+
+  # for each curve, specify basis function IDs for lpmatrix
+  allBs <- grep(x = colnames(lpmatrix), pattern = "t[1-9]):l[1-9]")
+  lineages <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
+                                start = 4, stop = 4))
+  nCurves <- length(unique(lineages))
+  for(ii in seq_len(nCurves)){
+    assign(paste0("id",ii), allBs[which(lineages == ii)])
+  }
+
+  # specify lineage assignment for each cell (i.e., row of lpmatrix)
+  lineageID <- apply(lpmatrix, 1, function(x){
+    for(ii in seq_len(nCurves)){
+      if(!all(x[get(paste0("id", ii))] == 0)){
+        return(ii)
+      }
+    }
+  })
+
+  # fit splinefun for each basis function based on assigned cells
+  for(ii in seq_len(nCurves)){ # loop over curves
+    for(jj in seq_len(length(allBs)/nCurves)){ #within curve, loop over basis functions
+      assign(paste0("l",ii,".",jj),
+             splinefun(x = pseudotime[lineageID == ii, ii],
+                       y = lpmatrix[lineageID == ii, #only cells for lineage
+                                    get(paste0("id", ii))[jj]])) #basis function
+    }
+  }
+
+  # use input to estimate X for each basis function
+  Xout <- matrix(0, nrow=nrow(df), ncol=ncol(lpmatrix))
+  for(ii in seq_len(nCurves)){ # loop over curves
+    if(df[,paste0("l",ii)] == 1){ # only predict if weight = 1
+      for(jj in seq_len(length(allBs)/nCurves)){ #within curve, loop over basis functions
+        f <- get(paste0("l",ii,".",jj))
+        Xout[, get(paste0("id",ii))[jj]] <- f(df[,paste0("t",ii)])
+      }
+    }
+  }
+
+  # add fixed covariates as in df
+  dfSmoothID <- grep(x = colnames(df), pattern = "[t|l][1-9]")
+  dfOffsetID <- grep(x = colnames(df), pattern = "offset")
+  Xout[, -allBs] <- df[, -c(dfSmoothID, dfOffsetID)]
+
+  # return
+  colnames(Xout) <- colnames(lpmatrix)
+  return(Xout)
+}
+
+
 # get predictor matrix for the end point of a smoother.
 .getPredictEndPointDf <- function(m, lineageId){
   # note that X or offset variables dont matter as long as they are the same,
@@ -57,6 +114,8 @@
                                             pattern = "offset")])
   return(vars)
 }
+
+
 
 
 # get predictor matrix for the start point of a smoother.
@@ -346,14 +405,14 @@ getEigenStatGAM <- function(m, L){
 #' plotSmoothers(gamList[[4]])
 #' @import ggplot2
 #' @export
-plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3, 
+plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
                           xlab = "pseudotime",
                           ylab = " expression + 1 (log-scale)")
 {
-  
+
   data <- m$model
   y <- data$y
-  
+
   #construct time variable based on cell assignments.
   nCurves <- length(m$smooth)
   col <- timeAll <- rep(0, nrow(data))
@@ -367,7 +426,7 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
       }
     }
   }
-  
+
   # plot raw data
   df <- data.frame("time" = timeAll,
                    "gene_count" = y,
@@ -377,8 +436,8 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
     labs(x = xlab, y = ylab) +
     theme_classic() +
     scale_color_viridis_d()
-  
-  
+
+
   # predict and plot smoothers across the range
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(m, jj, nPoints = nPoints)
@@ -457,16 +516,16 @@ plotGeneCount <- function(rd, curve, counts, gene = NULL, clusters = NULL,
     theme_classic() +
     labs(col = title) +
     scales
-  
+
   # Adding the curves
   for (i in seq_along(slingCurves(crv))) {
     curve_i <- slingCurves(crv)[[i]]
-    curve_i 
+    curve_i
     curve_i <- curve_i$s[curve_i$ord, ]
     colnames(curve_i) <- c("dim1", "dim2")
     p <- p + geom_path(data = as.data.frame(curve_i), col = "black", size = 1)
   }
-  
+
   # Adding the knots
   if (!is.null(models)) {
     m <- .getModelReference(models)

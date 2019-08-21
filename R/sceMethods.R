@@ -71,6 +71,7 @@ setMethod(f = "fitGAM",
             rowData(sce)$tradeSeq <- df
             # tradeSeq cell-level info
             colData(sce)$tradeSeq <- tibble(X=X)
+            return(sce)
 
           }
 )
@@ -86,14 +87,19 @@ setMethod(f = "diffEndTest",
                                 global = TRUE,
                                 pairwise = FALSE){
 
+            ### SCE PART ###
+
             # check if input is SingleCellExperiment
-            if(!is(sds, "SingleCellExperiment")){
+            if(!is(sce, "SingleCellExperiment")){
               stop("Provided object must be a SingleCellExperiment.")
             }
 
             res <- .diffEndTest(sce = sce,
                                 global = global,
                                 pairwise = pairwise)
+
+
+            ### LIST PART ###
 
           }
 )
