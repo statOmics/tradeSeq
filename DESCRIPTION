@@ -21,6 +21,9 @@ Collate:
     'utils.R'
     'core.R'
     'data.R'
+    'diffEndTest.R'
+    'evaluateK.R'
+    'fitGAM.R'
     'sceMethods.R'
 RoxygenNote: 6.1.1
 Imports: mgcv,

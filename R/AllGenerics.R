@@ -19,3 +19,14 @@ setGeneric(
     standardGeneric("diffEndTest")
   }
 )
+
+#' @title evaluate the required number of knots to fit the GAMs.
+#' @name evaluateK
+#' @export
+setGeneric(
+  name = "evaluateK",
+  signature = 'counts',
+  def = function(counts, ...) {
+    standardGeneric("evaluateK")
+  }
+)

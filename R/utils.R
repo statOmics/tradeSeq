@@ -1,35 +1,3 @@
-# helper functions ----
-
-.assignCells <- function(cellWeights) {
-  if (is.null(dim(cellWeights))) {
-    if (any(cellWeights == 0)) {
-      stop("Some cells have no positive cell weights.")
-    } else {
-      return(matrix(1, nrow = length(cellWeights), ncol = 1))
-    }
-  } else {
-    if (any(rowSums(cellWeights) == 0)) {
-      stop("Some cells have no positive cell weights.")
-    } else {
-      # normalize weights
-      normWeights <- sweep(cellWeights, 1,
-        FUN = "/",
-        STATS = apply(cellWeights, 1, sum)
-      )
-      # sample weights
-      wSamp <- apply(normWeights, 1, function(prob) {
-        rmultinom(n = 1, prob = prob, size = 1)
-      })
-      # If there is only one lineage, wSamp is a vector so we need to adjust for that
-      if (is.null(dim(wSamp))) {
-        wSamp <- matrix(wSamp, ncol = 1)
-      } else {
-        wSamp <- t(wSamp)
-      }
-      return(wSamp)
-    }
-  }
-}
 
 ### lpmatrix given X and design
 predictGAM <- function(lpmatrix, df, pseudotime){
