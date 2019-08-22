@@ -402,7 +402,6 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 #'  the cluster arguments
 #' @param clusters The assignation of each cell to a cluster. Used to color the
 #'  plot. Either \code{clusters} or \code{gene} must be supplied.
-#'  @param title The main title for the plot.
 #' @param models the list of GAMs, typically the output from
 #'  \code{\link{fitGAM}}. Used to display the knots.
 #' @param title Title for the plot.
