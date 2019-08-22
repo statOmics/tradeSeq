@@ -38,6 +38,7 @@
 #' should not be changed by users.
 #' @param family The assumed distribution for the response, set to \code{"nb"}
 #' by default.
+#' @param aic Logical; should AIC be returned? Used for \code{\link{evaluateK}}.
 #' @return A list of length the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
@@ -63,7 +64,8 @@
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                    seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
                    parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
-                   control=mgcv::gam.control(), sce=FALSE, family ="nb"){
+                   control=mgcv::gam.control(), sce=FALSE, family ="nb",
+                   aic = TRUE){
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
@@ -213,7 +215,7 @@
     )
     # fit smoother
     s = mgcv:::s
-    try(
+    m <- try(
       mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
                 control=control),
       silent = TRUE)
@@ -959,10 +961,10 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
   for (ii in 1:length(k)) kList[[ii]] <- k[ii]
   #gamLists <- BiocParallel::bplapply(kList, function(currK){
   gamLists <- lapply(kList, function(currK){
-    gamList <- fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
+    gamList <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
                       cellWeights = cellWeights, nknots = currK,
                       weights = weightSub, seed = seed, offset = offset,
-                      ...)
+                      aic = TRUE, ...)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
