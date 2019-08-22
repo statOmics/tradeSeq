@@ -864,7 +864,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
     gamList <- fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
                       cellWeights = cellWeights, nknots = currK,
                       weights = weightSub, seed = seed, offset = offset,
-                      BPPARAM = MulticoreParam(1)) # , ...)
+                      ...)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
