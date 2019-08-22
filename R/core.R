@@ -36,6 +36,8 @@
 #' \code{gam.control}.
 #' @param sce Should output be of SingleCellExperiment class? This argument
 #' should not be changed by users.
+#' @param family The assumed distribution for the response, set to \code{"nb"}
+#' by default.
 #' @return A list of length the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
@@ -61,7 +63,7 @@
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                    seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
                    parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
-                   control=mgcv::gam.control(), sce=FALSE){
+                   control=mgcv::gam.control(), sce=FALSE, family ="nb"){
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
@@ -211,8 +213,8 @@
     )
     # fit smoother
     s = mgcv:::s
-    m <- try(
-      mgcv::gam(smoothForm, family = "nb", knots = knotList, weights = weights,
+    try(
+      mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
                 control=control),
       silent = TRUE)
 
@@ -960,7 +962,7 @@ evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:1
     gamList <- fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
                       cellWeights = cellWeights, nknots = currK,
                       weights = weightSub, seed = seed, offset = offset,
-                      BPPARAM = MulticoreParam(1)) # , ...)
+                      ...)
   })
   #, BPPARAM = MulticoreParam(ncores))
 

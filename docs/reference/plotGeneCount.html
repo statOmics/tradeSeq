@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.38</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.42</span>
       </span>
     </div>
 
@@ -108,17 +108,12 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>plotGeneCount</span>(<span class='no'>rd</span>, <span class='no'>curve</span>, <span class='no'>counts</span>, <span class='kw'>gene</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+    <pre class="usage"><span class='fu'>plotGeneCount</span>(<span class='no'>curve</span>, <span class='no'>counts</span>, <span class='kw'>gene</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>rd</th>
-      <td><p>the reduced dimentionality matrix. Must have at least two columns.
-Only the first two columns will be used for plotting.</p></td>
-    </tr>
     <tr>
       <th>curve</th>
       <td><p>The output from a lineage computation</p></td>
@@ -174,7 +169,7 @@ plot. Either <code>clusters</code> or <code>gene</code> must be supplied.
 <span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>counts</span>,
  <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime'>slingPseudotime</a></span>(<span class='no'>crv</span>, <span class='kw'>na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>),
  <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime'>slingCurveWeights</a></span>(<span class='no'>crv</span>))
-<span class='fu'>plotGeneCount</span>(<span class='no'>rd</span>, <span class='no'>crv</span>, <span class='no'>counts</span>, <span class='kw'>gene</span> <span class='kw'>=</span> <span class='st'>"Mpo"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in slingCurves(crv): object 'crv' not found</span></div></pre>
+<span class='fu'>plotGeneCount</span>(<span class='no'>crv</span>, <span class='no'>counts</span>, <span class='kw'>gene</span> <span class='kw'>=</span> <span class='st'>"Mpo"</span>)</div><div class='img'><img src='plotGeneCount-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

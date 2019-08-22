@@ -7,7 +7,7 @@
 fitGAM(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
   seed = 81, offset = NULL, nknots = 6, verbose = TRUE,
   parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
-  control = mgcv::gam.control())
+  control = mgcv::gam.control(), family = "nb")
 }
 \arguments{
 \item{counts}{the count matrix.}
@@ -45,6 +45,9 @@ back-end to be used for computations. See
 
 \item{control}{Variables to control fitting of the GAM, see
 \code{gam.control}.}
+
+\item{family}{The assumed distribution for the response, set to \code{"nb"}
+by default.}
 }
 \value{
 A list of length the number of genes
