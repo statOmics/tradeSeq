@@ -52,7 +52,6 @@
 #'                       SummarizedExperiment::assays(se)$counts),
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
 #'                   nknots = 5)
-#' @importFrom plyr alply .
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays
 #' @importFrom BiocParallel bplapply bpparam

@@ -428,10 +428,10 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 #'  cellWeights = slingCurveWeights(crv))
 #' plotGeneCount(crv, counts, gene = "Mpo")
 #' @import RColorBrewer
-#' @importFrom slingshot slingPseudotime slingCurves
-#' @importFrom SingleCellExperiment reducedDims
+#' @importFrom slingshot slingPseudotime slingCurves reducedDim
 #' @importFrom SummarizedExperiment assays
 #' @import ggplot2
+#' @importFrom princurve project_to_curve
 #' @export
 plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
                           models = NULL, title = NULL){
