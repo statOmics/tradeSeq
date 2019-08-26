@@ -472,7 +472,8 @@ plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
     knots_dim <- matrix(ncol = 2, nrow = 2 * length(knots))
     for (ii in seq_along(slingCurves(curve))) {
       S <- project_to_curve(x = slingCurves(curve)[[ii]]$s,
-                            s = slingCurves(curve)[[ii]]$s[slingCurves(curve)[[ii]]$ord, ], stretch = 0)
+                            s = slingCurves(curve)[[ii]]$s[slingCurves(curve)[[ii]]$ord, ],
+                            stretch = 0)
       for (jj in seq_along(knots)) {
         kn <- knots[jj]
         times <- S$lambda
