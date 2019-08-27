@@ -157,7 +157,14 @@ plotGeneCount(crv, counts, gene = sigGeneStart)
 
 ## Comparing specific pseudotime values within a lineage
 
-TODO: discuss `startVsEndTest` with `pseudotimeValues` argument.
+The `startVsEndTest` compares two points on a lineage, and by default it is comparing the inception point with the end point.
+However, this is a specific form of a more general capability of the `startVsEndTest` to compare any two points on any lineage.
+If the interest lies in comparing any two custom pseudotime values, one can specify this using the `pseudotimeValues` arguments in `startVsEndTest`.
+For example, below we'd like to compare the expression for each gene at pseudotime values of $0.8$ and $0.1$.
+
+```{r}
+customRes <- startVsEndTest(gamList, pseudotimeValues = c(0.1, 0.8))
+```
 
 
 # Between-lineage comparisons
