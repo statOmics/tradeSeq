@@ -20,6 +20,17 @@ setGeneric(
   }
 )
 
+#' @title Test start versus end points of lineages for DE
+#' @name startVsEndTest
+#' @export
+setGeneric(
+  name = "startVsEndTest",
+  #signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("startVsEndTest")
+  }
+)
+
 #' @title evaluate the required number of knots to fit the GAMs.
 #' @name evaluateK
 #' @export

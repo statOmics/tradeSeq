@@ -95,7 +95,7 @@
                     seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
                     parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
                     control=mgcv::gam.control(), sce=FALSE, family ="nb",
-                    aic = TRUE){
+                    aic = FALSE){
 
   # TODO: make sure warning message for knots prints after looping
   # TODO: verify working with U provided
@@ -371,20 +371,20 @@ setMethod(f = "fitGAM",
             if(!sce) return(gamOutput)
 
             # return SingleCellExperiment object
-            sce <- SingleCellExperiment(assays = list(counts = counts))
+            sc <- SingleCellExperiment(assays = list(counts = counts))
             # slingshot info
-            colData(sce)$slingshot <- DataFrame(
+            colData(sc)$slingshot <- DataFrame(
               pseudotime = pseudotime,
               cellWeights = cellWeights)
             # tradeSeq gene-level info
             df <- tibble::enframe(gamOutput$Sigma)
             colnames(df)[2] <- "Sigma"
             df$beta <- tibble::tibble(gamOutput$beta)
-            rowData(sce)$tradeSeq <- df
+            rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
-            colData(sce)$tradeSeq <- tibble::tibble(X = X,
+            colData(sc)$tradeSeq <- tibble::tibble(X = X,
                                                     dm = dm)
-            return(sce)
+            return(sc)
 
           }
 )

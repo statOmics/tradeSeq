@@ -85,11 +85,10 @@ predictGAM <- function(lpmatrix, df, pseudotime){
 
 
 # get predictor matrix for the start point of a smoother.
-.getPredictStartPointDf <- function(m, lineageId){
+.getPredictStartPointDf <- function(dm, lineageId){
   # note that X or offset variables dont matter as long as they are the same,
   # since they will get canceled.
-  data <- m$model
-  vars <- m$model[1, ]
+  vars <- dm[1, ]
   vars <- vars[!colnames(vars) %in% "y"]
   offsetId <- grep(x = colnames(vars), pattern = "offset")
   offsetName <- colnames(vars)[offsetId]
