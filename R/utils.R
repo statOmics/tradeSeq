@@ -346,14 +346,14 @@ getEigenStatGAM <- function(m, L){
 #' plotSmoothers(gamList[[4]])
 #' @import ggplot2
 #' @export
-plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3, 
+plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
                           xlab = "pseudotime",
                           ylab = " expression + 1 (log-scale)")
 {
-  
+
   data <- m$model
   y <- data$y
-  
+
   #construct time variable based on cell assignments.
   nCurves <- length(m$smooth)
   col <- timeAll <- rep(0, nrow(data))
@@ -367,7 +367,7 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
       }
     }
   }
-  
+
   # plot raw data
   df <- data.frame("time" = timeAll,
                    "gene_count" = y,
@@ -377,8 +377,8 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
     labs(x = xlab, y = ylab) +
     theme_classic() +
     scale_color_viridis_d()
-  
-  
+
+
   # predict and plot smoothers across the range
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(m, jj, nPoints = nPoints)
@@ -455,21 +455,22 @@ plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
     theme_classic() +
     labs(col = title) +
     scales
-  
+
   # Adding the curves
   for (i in seq_along(slingCurves(curve))) {
     curve_i <- slingCurves(curve)[[i]]
-    curve_i <- curve_i$s[curve_i$ord, ]
+    curve_i <- curve_i$s[curve_i$ord, 1:2]
     colnames(curve_i) <- c("dim1", "dim2")
     p <- p + geom_path(data = as.data.frame(curve_i), col = "black", size = 1)
   }
-  
+
   # Adding the knots
+  nCurves <- length(slingCurves(curve))
   if (!is.null(models)) {
     m <- .getModelReference(models)
     knots <- m$smooth[[1]]$xp
     # times <- slingPseudotime(curve, na = FALSE)
-    knots_dim <- matrix(ncol = 2, nrow = 2 * length(knots))
+    knots_dim <- matrix(ncol = 2, nrow = nCurves * length(knots))
     for (ii in seq_along(slingCurves(curve))) {
       S <- project_to_curve(x = slingCurves(curve)[[ii]]$s,
                             s = slingCurves(curve)[[ii]]$s[slingCurves(curve)[[ii]]$ord, ],
@@ -478,7 +479,7 @@ plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
         kn <- knots[jj]
         times <- S$lambda
         knot <- which.min(abs(times - kn))
-        knots_dim[2 * (jj - 1) + ii, ] <- S$s[knot, seq_len(2)]
+        knots_dim[jj + (ii-1)*length(knots), ] <- S$s[knot, seq_len(2)]
       }
     }
     knots_dim <- as.data.frame(knots_dim)
