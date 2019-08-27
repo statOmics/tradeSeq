@@ -99,6 +99,7 @@
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         waldTest(beta, Sigma, L)
       })
+      names(waldResultsOmnibus) <- rownames(models)
     }
 
     #process output.
@@ -128,6 +129,7 @@
           waldTest(beta, Sigma, L[, ii, drop = FALSE])
         }))
       })
+      names(waldResultsPairwise) <- rownames(models)
     }
 
     # clean pairwise results

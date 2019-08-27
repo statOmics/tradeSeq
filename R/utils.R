@@ -101,17 +101,16 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   # set lineage
   vars[, paste0("l", lineageId)] <- 1
   # set offset
-  vars[, offsetName] <- mean(m$model[, grep(x = colnames(m$model),
+  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
   return(vars)
 }
 
 # get predictor matrix for a custom pseudotime point.
-.getPredictCustomPointDf <- function(m, lineageId, pseudotime){
+.getPredictCustomPointDf <- function(dm, lineageId, pseudotime){
   # note that X or offset variables dont matter as long as they are the same,
   # since they will get canceled.
-  data <- m$model
-  vars <- m$model[1, ]
+  vars <- dm[1, ]
   vars <- vars[!colnames(vars) %in% "y"]
   offsetId <- grep(x = colnames(vars), pattern = "offset")
   offsetName <- colnames(vars)[offsetId]
@@ -126,7 +125,7 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   # set custom pseudotime
   vars[, paste0("t", lineageId)] <- pseudotime
   # set offset
-  vars[, offsetName] <- mean(m$model[, grep(x = colnames(m$model),
+  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
   return(vars)
 }

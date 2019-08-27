@@ -25,6 +25,7 @@ Collate:
     'evaluateK.R'
     'fitGAM.R'
     'sceMethods.R'
+    'startVsEndTest.R'
 RoxygenNote: 6.1.1
 Imports: mgcv,
     edgeR,

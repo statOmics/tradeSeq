@@ -155,6 +155,10 @@ Alternatively, we can color the cells in UMAP space with that gene's expression.
 plotGeneCount(crv, counts, gene = sigGeneStart)
 ```
 
+## Comparing specific pseudotime values within a lineage
+
+TODO: discuss `startVsEndTest` with `pseudotimeValues` argument.
+
 
 # Between-lineage comparisons
 
