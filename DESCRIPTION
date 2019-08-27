@@ -2,7 +2,7 @@ Package: tradeSeq
 Type: Package
 Title: trajectory-based differential expression analysis for sequencing data
 Date: 2019-03-15
-Version: 0.99.42
+Version: 0.99.45
 Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "koen.vandenberge@ugent.be"),
               person("Hector", "Roux de Bézieux", role = c("aut", "cre"),
@@ -27,18 +27,19 @@ Collate:
     'sceMethods.R'
     'startVsEndTest.R'
 RoxygenNote: 6.1.1
-Imports: mgcv,
+Imports: 
+    mgcv,
     edgeR,
     SingleCellExperiment,
     SummarizedExperiment,
     slingshot,
     magrittr,
-    plyr,
     RColorBrewer,
     clusterExperiment,
     BiocParallel,
     pbapply,
-    ggplot2
+    ggplot2,
+    princurve
 Suggests:
     knitr,
     rmarkdown,

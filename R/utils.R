@@ -424,7 +424,6 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 #'  the cluster arguments
 #' @param clusters The assignation of each cell to a cluster. Used to color the
 #'  plot. Either \code{clusters} or \code{gene} must be supplied.
-#'  @param title The main title for the plot.
 #' @param models the list of GAMs, typically the output from
 #'  \code{\link{fitGAM}}. Used to display the knots.
 #' @param title Title for the plot.
@@ -450,10 +449,10 @@ plotSmoothers <- function(m, nPoints = 100, lwd = 2, size = 2/3,
 #'  cellWeights = slingCurveWeights(crv))
 #' plotGeneCount(crv, counts, gene = "Mpo")
 #' @import RColorBrewer
-#' @importFrom slingshot slingPseudotime slingCurves
-#' @importFrom SingleCellExperiment reducedDims
+#' @importFrom slingshot slingPseudotime slingCurves reducedDim
 #' @importFrom SummarizedExperiment assays
 #' @import ggplot2
+#' @importFrom princurve project_to_curve
 #' @export
 plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
                           models = NULL, title = NULL){
@@ -495,7 +494,8 @@ plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
     knots_dim <- matrix(ncol = 2, nrow = 2 * length(knots))
     for (ii in seq_along(slingCurves(curve))) {
       S <- project_to_curve(x = slingCurves(curve)[[ii]]$s,
-                            s = slingCurves(curve)[[ii]]$s[slingCurves(curve)[[ii]]$ord, ], stretch = 0)
+                            s = slingCurves(curve)[[ii]]$s[slingCurves(curve)[[ii]]$ord, ],
+                            stretch = 0)
       for (jj in seq_along(knots)) {
         kn <- knots[jj]
         times <- S$lambda
