@@ -31,16 +31,16 @@ setGeneric(
   }
 )
 
-#' #' @title Perform test of early differences between lineages
-#' #' @name earlyDETest
-#' #' @export
-#' setGeneric(
-#'   name = "earlyDETest",
-#'   #signature = 'models',
-#'   def = function(models, ...) {
-#'     standardGeneric("earlyDETest")
-#'   }
-#' )
+#' @title Perform test of early differences between lineages
+#' @name earlyDETest
+#' @export
+setGeneric(
+  name = "earlyDETest",
+  #signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("earlyDETest")
+  }
+)
 
 #' @title evaluate the required number of knots to fit the GAMs.
 #' @name evaluateK

@@ -21,7 +21,7 @@
 #'    defining the branching
 #' @export
 #'
-earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
+.earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
                         pairwise = FALSE){
 
   if(is(models, "list")){
@@ -44,6 +44,11 @@ earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
   } else if(sce){
 
     dm <- colData(models)$tradeSeq$dm # design matrix
+    X <- colData(models)$tradeSeq$X # linear predictor
+    knotPoints <- metadata(models)$tradeSeq$knots #knot points
+    slingshotColData <- colData(models)$slingshot
+    pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
+                                         pattern = "pseudotime")]
     nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
     if (nCurves == 1) stop("You cannot run this test with only one lineage.")
     if(nCurves == 2 & pairwise == TRUE){
@@ -53,14 +58,67 @@ earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
   }
 
   # do statistical test for every model through eigenvalue decomposition
-  if (global) {
-    # get contrast matrix
-    L <- .patternContrast(mTemp, nPoints = nPoints, knots = knots)
+  if(global){
+    if(!sce){
+      # get df
+      dfList <- .patternDf(dm = modelTemp$model,
+                      nPoints = nPoints,
+                      knots = knots,
+                      knotPoints = modelTemp$smooth[[1]]$xp)
+      # get linear predictor
+      for(jj in seq_len(nCurves)){
+        assign(paste0("X", jj), predict(modelTemp,
+                                        newdata = dfList[[jj]],
+                                        type = "lpmatrix"))
+      }
+    } else if(sce){
+      # get df
+      dfList <- .patternDf(dm = dm,
+                      nPoints = nPoints,
+                      knots = knots,
+                      knotPoints = knotPoints)
+      # get linear predictor
+      for(jj in seq_len(nCurves)){
+        assign(paste0("X", jj), predictGAM(lpmatrix = X,
+                                        df = dfList[[jj]],
+                                        pseudotime = pseudotime))
+      }
+    }
+
+    # construct pairwise contrast matrix
+    combs <- combn(nCurves, m = 2)
+    for (jj in seq_len(ncol(combs))) {
+      curvesNow <- combs[, jj]
+      if (jj == 1) {
+        L <- get(paste0("X", curvesNow[1])) - get(paste0("X", curvesNow[2]))
+      } else if (jj > 1) {
+        L <- rbind(L, get(paste0("X", curvesNow[1])) -
+                     get(paste0("X", curvesNow[2])))
+      }
+    }
+    # point x comparison y colnames
+    rownames(L) <- paste0("p", rep(seq_len(nPoints), ncol(combs)), "_", "c",
+                          rep(seq_len(ncol(combs)), each = nPoints))
+    #transpose => one column is one contrast.
+    L <- t(L)
+
     # perform Wald test and calculate p-value
-    waldResOmnibus <- lapply(models, function(m){
-      if (is(m)[1] == "try-error") return(c(NA))
-      getEigenStatGAM(m, L)
-    })
+    if(!sce){
+      waldResOmnibus <- lapply(models, function(m){
+        if (is(m)[1] == "try-error") return(c(NA))
+        beta <- matrix(coef(m), ncol = 1)
+        Sigma <- m$Vp
+        getEigenStatGAM(beta, Sigma, L)
+      })
+    } else if(sce){
+      waldResOmnibus <- lapply(1:nrow(models), function(ii){
+        beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+        Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        getEigenStatGAM(beta, Sigma, L)
+      })
+      names(waldResOmnibus) <- rownames(models)
+    }
+    #tidy output
     waldResults <- do.call(rbind, waldResOmnibus)
     pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
     waldResults <- cbind(waldResults, pval)
@@ -70,16 +128,50 @@ earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
 
   #perform pairwise comparisons
   if (pairwise) {
-    nCurves <- length(mTemp$smooth)
     combs <- combn(x = nCurves, m = 2)
     for (jj in seq_len(ncol(combs))) {
       curvesNow <- combs[,jj]
-      L <- .patternContrastPairwise(mTemp, nPoints = nPoints,
-                                    curves = curvesNow, knots = knots)
-      waldResPair <- lapply(models, function(m){
-        if (is(m)[1] == "try-error") return(c(NA))
-        getEigenStatGAM(m, L)
-      })
+      if(!sce){
+        # get df
+        dfListPair <- .patternDfPairwise(dm = modelTemp$model,
+                                     curves = curvesNow,
+                                     nPoints = nPoints,
+                                     knots = knots,
+                                     knotPoints = modelTemp$smooth[[1]]$xp)
+        # get linear predictor
+        for(jj in 1:2){ #always 2 curves we're comparing
+          assign(paste0("X", jj), predict(modelTemp,
+                                          newdata = dfListPair[[jj]],
+                                          type = "lpmatrix"))
+        }
+        L <- t(X2-X1)
+        waldResPair <- lapply(models, function(m){
+          if (is(m)[1] == "try-error") return(c(NA))
+          beta <- matrix(coef(m), ncol = 1)
+          Sigma <- m$Vp
+          getEigenStatGAM(beta, Sigma, L)
+          })
+
+      } else if(sce){
+        # get df
+        dfList <- .patternDfPairwise(dm = dm,
+                             nPoints = nPoints,
+                             knots = knots,
+                             knotPoints = knotPoints)
+        # get linear predictor
+        for(jj in 1:2){ #pairwise => always 2 curves
+          assign(paste0("X", jj), predictGAM(lpmatrix = X,
+                                             df = dfList[[jj]],
+                                             pseudotime = pseudotime))
+        }
+        L <- t(X2-X1)
+        waldResPair <- lapply(models, function(m){
+          beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+          Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+          getEigenStatGAM(beta, Sigma, L)
+        })
+      }
+      # tidy output
       waldResults <- do.call(rbind, waldResPair)
       pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
       waldResults <- cbind(waldResults, pval)
@@ -101,3 +193,45 @@ earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
     return(waldAll)
   }
 }
+
+
+#' @rdname earlyDETest
+#' @export
+#' @import SingleCellExperiment
+setMethod(f = "earlyDETest",
+          signature = c(models = "SingleCellExperiment"),
+          definition = function(models,
+                                global = TRUE,
+                                pairwise = FALSE,
+                                knots = NULL,
+                                nPoints = 100){
+
+            res <- .earlyDETest(models = models,
+                                global = global,
+                                pairwise = pairwise,
+                                knots = knots,
+                                nPoints = nPoints)
+            return(res)
+
+          }
+)
+
+#' @rdname earlyDETest
+#' @export
+setMethod(f = "earlyDETest",
+          signature = c(models = "list"),
+          definition = function(models,
+                                global = TRUE,
+                                pairwise = FALSE,
+                                knots = NULL,
+                                nPoints = 100){
+
+            res <- .earlyDETest(models = models,
+                                global = global,
+                                pairwise = pairwise,
+                                knots = knots,
+                                nPoints = nPoints)
+            return(res)
+          }
+)
+

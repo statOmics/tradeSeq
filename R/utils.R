@@ -38,7 +38,7 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   # use input to estimate X for each basis function
   Xout <- matrix(0, nrow=nrow(df), ncol=ncol(lpmatrix))
   for(ii in seq_len(nCurves)){ # loop over curves
-    if(df[,paste0("l",ii)] == 1){ # only predict if weight = 1
+    if(all(df[,paste0("l",ii)] == 1)){ # only predict if weight = 1
       for(jj in seq_len(length(allBs)/nCurves)){ #within curve, loop over basis functions
         f <- get(paste0("l",ii,".",jj))
         Xout[, get(paste0("id",ii))[jj]] <- f(df[,paste0("t",ii)])
@@ -139,6 +139,145 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   stop("All models errored")
 }
 
+
+# perform Wald test ----
+waldTest <- function(beta, Sigma, L){
+  ### build a contrast matrix for a multivariate Wald test
+  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
+  sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent=TRUE)
+  if (is(sigmaInv)[1] == "try-error") return(c(NA,NA,NA))
+  wald <- t(t(LQR) %*% beta) %*%
+    sigmaInv %*%
+    t(LQR) %*% beta
+  if(wald < 0) wald <- 0
+  df <- ncol(LQR)
+  pval <- 1 - pchisq(wald, df = df)
+  return(c(wald, df, pval))
+}
+
+# get predictor matrix for a range of pseudotimes of a smoother.
+.getPredictRangeDf <- function(dm, lineageId, nPoints=100){
+  vars <- dm[1, ]
+  vars <- vars[!colnames(vars) %in% "y"]
+  offsetId <- grep(x = colnames(vars), pattern = "offset")
+  offsetName <- colnames(vars)[offsetId]
+  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
+  names(vars)[offsetId] <- offsetName
+  # set all times on 0
+  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
+  # set all lineages on 0
+  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # duplicate to nPoints
+  vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
+  # set range of pseudotime for lineage of interest
+  lineageData <- dm[dm[, paste0("l", lineageId)] == 1,
+                      paste0("t", lineageId)]
+  vars[, paste0("t", lineageId)] <- seq(min(lineageData),
+                                        max(lineageData),
+                                        length = nPoints)
+  # set lineage
+  vars[, paste0("l", lineageId)] <- 1
+  # set offset
+  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
+                                            pattern = "offset")])
+  return(vars)
+}
+
+
+.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints=100){
+
+  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- knotPoints[knots[1]]
+    t2 <- knotPoints[knots[2]]
+  }
+
+  # get predictor matrix for every lineage.
+  dfList <- list()
+  for (jj in seq_len(nCurves)) {
+    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+    }
+    dfList[[jj]] <- df
+  }
+  return(dfList)
+}
+
+.patternDfPairwise <- function(dm, curves, knots = NULL, knotPoints = NULL,
+                               nPoints=100){
+
+  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- knotPoints[knots[1]]
+    t2 <- knotPoints[knots[2]]
+  }
+
+  # get predictor matrix for every lineage.
+  dfList <- list()
+  for (jj in 1:2) {
+    df <- .getPredictRangeDf(dm, curves[jj], nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+    }
+    dfList[[jj]] <- df
+  }
+  return(dfList)
+}
+
+getEigenStatGAM <- function(beta, Sigma, L){
+  est <- t(L) %*% beta
+  sigma <- t(L) %*% Sigma %*% L
+  eSigma <- eigen(sigma, symmetric = TRUE)
+  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent = TRUE)
+  if (is(r)[1] == "try-error") {
+    return(c(NA, NA))
+  }
+  if (r == 1) return(c(NA, NA)) # CHECK
+  halfCovInv <- eSigma$vectors[, seq_len(r)] %*% (diag(1 / sqrt(eSigma$values[seq_len(r)])))
+  halfStat <- t(est) %*% halfCovInv
+  stat <- crossprod(t(halfStat))
+  return(c(stat, r))
+}
+
+.patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
+                                     knots = NULL){
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- model$smooth[[2]]$xp[knots[1]]
+    t2 <- model$smooth[[2]]$xp[knots[2]]
+  }
+
+  # get predictor matrix for every lineage.
+  for (jj in curves) {
+    df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+    }
+    assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
+  }
+
+  # construct pairwise contrast matrix
+  L <- get(paste0("X", curves[1])) - get(paste0("X", curves[2]))
+
+  # point x comparison y colnames
+  rownames(L) <- paste0("p", seq_len(nPoints), "_", "c",
+                        paste(curves, collapse = "_"))
+  #transpose => one column is one contrast.
+  L <- t(L)
+  return(L)
+}
+
+
+
+
+
+
+
+### not yet adapted
+
 #
 .getPredictKnots <- function(m, lineageId){
   # note that X or offset variables dont matter as long as they are the same,
@@ -173,20 +312,7 @@ predictGAM <- function(lpmatrix, df, pseudotime){
 }
 
 
-# perform Wald test ----
-waldTest <- function(beta, Sigma, L){
-  ### build a contrast matrix for a multivariate Wald test
-  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent=TRUE)
-  if (is(sigmaInv)[1] == "try-error") return(c(NA,NA,NA))
-  wald <- t(t(LQR) %*% beta) %*%
-          sigmaInv %*%
-          t(LQR) %*% beta
-  if(wald < 0) wald <- 0
-  df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
-  return(c(wald, df, pval))
-}
+
 
 ### perform individual wald test
 indWaldTest <- function(model, L){
@@ -230,73 +356,9 @@ waldTestFullSub <- function(model, L){
   return(c(est, var, wald, df, pval))
 }
 
-# Pattern contrast ----
-.patternContrast <- function(model, knots = NULL, nPoints=100){
 
-  modelTemp <- model
-  nCurves <- length(modelTemp$smooth)
-  data <- modelTemp$model
-  Knot <- !is.null(knots)
-  if (Knot) {
-    t1 <- model$smooth[[2]]$xp[knots[1]]
-    t2 <- model$smooth[[2]]$xp[knots[2]]
-  }
 
-  # get predictor matrix for every lineage.
-  for (jj in seq_len(nCurves)) {
-    df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
-    if (Knot) {
-      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-    }
-    assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
-  }
 
-  # construct pairwise contrast matrix
-  combs <- combn(nCurves, m = 2)
-  for (jj in seq_len(ncol(combs))) {
-    curvesNow <- combs[, jj]
-    if (jj == 1) {
-      L <- get(paste0("X", curvesNow[1])) - get(paste0("X", curvesNow[2]))
-    } else if (jj > 1) {
-      L <- rbind(L, get(paste0("X", curvesNow[1])) -
-                    get(paste0("X", curvesNow[2])))
-    }
-  }
-  # point x comparison y colnames
-  rownames(L) <- paste0("p", rep(seq_len(nPoints), ncol(combs)), "_", "c",
-                        rep(seq_len(ncol(combs)), each = nPoints))
-  #transpose => one column is one contrast.
-  L <- t(L)
-  return(L)
-}
-
-.patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
-                                     knots = NULL){
-  Knot <- !is.null(knots)
-  if (Knot) {
-    t1 <- model$smooth[[2]]$xp[knots[1]]
-    t2 <- model$smooth[[2]]$xp[knots[2]]
-  }
-
-  # get predictor matrix for every lineage.
-  for (jj in curves) {
-    df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
-    if (Knot) {
-      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-    }
-    assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
-  }
-
-  # construct pairwise contrast matrix
-  L <- get(paste0("X", curves[1])) - get(paste0("X", curves[2]))
-
-  # point x comparison y colnames
-  rownames(L) <- paste0("p", seq_len(nPoints), "_", "c",
-                        paste(curves, collapse = "_"))
-  #transpose => one column is one contrast.
-  L <- t(L)
-  return(L)
-}
 
 getRank <- function(m,L){
   beta <- matrix(coef(m), ncol = 1)
@@ -307,50 +369,7 @@ getRank <- function(m,L){
   return(r)
 }
 
-getEigenStatGAM <- function(m, L){
-  beta <- matrix(coef(m), ncol = 1)
-  est <- t(L) %*% beta
-  sigma <- t(L) %*% m$Vp %*% L
-  eSigma <- eigen(sigma, symmetric = TRUE)
-  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent = TRUE)
-  if (is(r)[1] == "try-error") {
-    return(c(NA, NA))
-  }
-  if (r == 1) return(c(NA, NA)) # CHECK
-  halfCovInv <- eSigma$vectors[, seq_len(r)] %*% (diag(1 / sqrt(eSigma$values[seq_len(r)])))
-  halfStat <- t(est) %*% halfCovInv
-  stat <- crossprod(t(halfStat))
-  return(c(stat, r))
-}
 
-# get predictor matrix for a range of pseudotimes of a smoother.
-.getPredictRangeDf <- function(m, lineageId, nPoints=100){
-  data <- m$model
-  vars <- m$model[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
-  offsetId <- grep(x = colnames(vars), pattern = "offset")
-  offsetName <- colnames(vars)[offsetId]
-  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
-  names(vars)[offsetId] <- offsetName
-  # set all times on 0
-  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
-  # set all lineages on 0
-  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
-  # duplicate to nPoints
-  vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
-  # set range of pseudotime for lineage of interest
-  lineageData <- data[data[, paste0("l", lineageId)] == 1,
-                      paste0("t", lineageId)]
-  vars[, paste0("t", lineageId)] <- seq(min(lineageData),
-                                        max(lineageData),
-                                        length = nPoints)
-  # set lineage
-  vars[, paste0("l", lineageId)] <- 1
-  # set offset
-  vars[, offsetName] <- mean(m$model[, grep(x = colnames(m$model),
-                                            pattern = "offset")])
-  return(vars)
-}
 
 # Plotting ----
 #' plot the logged-transformed counts and the fitted values for a particular
