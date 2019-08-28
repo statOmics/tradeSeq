@@ -262,6 +262,10 @@
       if(!exists("dm", where="package:tradeSeq")){
         dm <<- m$model[,-1] # rm expression counts since different betw. genes
       }
+      # define knots in top environment to return once for all genes
+      if(!exists("knotPoints", where="package:tradeSeq")){
+        knotPoints <<- m$smooth[[1]]$xp
+      }
       return(list(beta=beta, Sigma=Sigma))
     } else return(m)
 
@@ -302,7 +306,8 @@
     return(list(beta = betaAllDf,
                 Sigma = SigmaAll,
                 X = X,
-                dm = dm))
+                dm = dm,
+                knotPoints = knotPoints))
   } else {
     return(gamList)
   }
@@ -384,6 +389,8 @@ setMethod(f = "fitGAM",
             # tradeSeq cell-level info
             colData(sc)$tradeSeq <- tibble::tibble(X = X,
                                                     dm = dm)
+            # metadata: tradeSeq knots
+            metadata(sc)$tradeSeq <- list(knots=gamOutput$knotPoints)
             return(sc)
 
           }

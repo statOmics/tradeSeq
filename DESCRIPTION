@@ -22,6 +22,7 @@ Collate:
     'core.R'
     'data.R'
     'diffEndTest.R'
+    'earlyDETest.R'
     'evaluateK.R'
     'fitGAM.R'
     'sceMethods.R'
