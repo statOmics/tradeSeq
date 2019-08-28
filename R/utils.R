@@ -220,7 +220,7 @@ waldTest <- function(beta, Sigma, L){
   for (jj in 1:2) {
     df <- .getPredictRangeDf(dm, curves[jj], nPoints = nPoints)
     if (Knot) {
-      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+      df[, paste0("t", curves[jj])] <- seq(t1, t2, length.out = nPoints)
     }
     dfList[[jj]] <- df
   }
