@@ -139,9 +139,9 @@
                                      knots = knots,
                                      knotPoints = modelTemp$smooth[[1]]$xp)
         # get linear predictor
-        for(jj in 1:2){ #always 2 curves we're comparing
-          assign(paste0("X", jj), predict(modelTemp,
-                                          newdata = dfListPair[[jj]],
+        for(ii in 1:2){ #always 2 curves we're comparing
+          assign(paste0("X", ii), predict(modelTemp,
+                                          newdata = dfListPair[[ii]],
                                           type = "lpmatrix"))
         }
         L <- t(X2-X1)
@@ -159,9 +159,9 @@
                              knots = knots,
                              knotPoints = knotPoints)
         # get linear predictor
-        for(jj in 1:2){ #pairwise => always 2 curves
-          assign(paste0("X", jj), predictGAM(lpmatrix = X,
-                                             df = dfList[[jj]],
+        for(ii in 1:2){ #pairwise => always 2 curves
+          assign(paste0("X", ii), predictGAM(lpmatrix = X,
+                                             df = dfList[[ii]],
                                              pseudotime = pseudotime))
         }
         L <- t(X2-X1)
