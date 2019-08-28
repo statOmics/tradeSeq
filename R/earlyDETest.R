@@ -127,6 +127,7 @@
   }
 
   #perform pairwise comparisons
+  # TODO: BUG! This doesn't correspond with legacy version.
   if (pairwise) {
     combs <- combn(x = nCurves, m = 2)
     for (jj in seq_len(ncol(combs))) {
@@ -144,7 +145,7 @@
                                           newdata = dfListPair[[ii]],
                                           type = "lpmatrix"))
         }
-        L <- t(X2-X1)
+        L <- t(X1-X2)
         waldResPair <- lapply(models, function(m){
           if (is(m)[1] == "try-error") return(c(NA))
           beta <- matrix(coef(m), ncol = 1)
@@ -164,7 +165,7 @@
                                              df = dfList[[ii]],
                                              pseudotime = pseudotime))
         }
-        L <- t(X2-X1)
+        L <- t(X1-X2)
         waldResPair <- lapply(models, function(m){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
