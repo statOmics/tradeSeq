@@ -53,27 +53,7 @@ getSmootherTestStats <- function(models){
 
 
 
-#' Perform pattern test between lineages
-#'
-#' @param models the list of GAMs, typically the output from
-#' \code{\link{fitGAM}}.
-#' @param nPoints the number of points to be compared between lineages.
-#' @param global If TRUE, test for all pairwise comparisons simultaneously.
-#' @param pairwise If TRUE, test for all pairwise comparisons independently.
-#' @importFrom magrittr %>%
-#' @examples
-#' data(gamList, package = "tradeSeq")
-#' patternTest(gamList, global = TRUE, pairwise = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
-#' @export
-#'
-patternTest <- function(models, nPoints = 100, global = TRUE,
-                        pairwise = FALSE){
-  return(earlyDETest(models, knots = NULL, nPoints, global, pairwise))
-}
+
 
 
 

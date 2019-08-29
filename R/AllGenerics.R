@@ -42,6 +42,17 @@ setGeneric(
   }
 )
 
+#' @title Assess differential expression pattern between lineages.
+#' @name patternTest
+#' @export
+setGeneric(
+  name = "patternTest",
+  #signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("patternTest")
+  }
+)
+
 #' @title evaluate the required number of knots to fit the GAMs.
 #' @name evaluateK
 #' @export

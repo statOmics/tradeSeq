@@ -25,6 +25,7 @@ Collate:
     'earlyDETest.R'
     'evaluateK.R'
     'fitGAM.R'
+    'patternTest.R'
     'sceMethods.R'
     'startVsEndTest.R'
 RoxygenNote: 6.1.1
