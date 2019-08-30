@@ -53,6 +53,18 @@ setGeneric(
   }
 )
 
+#' @title Perform statistical test to check whether gene expression is constant across
+#'  pseudotime within a lineage
+#' @name associationTest
+#' @export
+setGeneric(
+  name = "associationTest",
+  #signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("associationTest")
+  }
+)
+
 #' @title evaluate the required number of knots to fit the GAMs.
 #' @name evaluateK
 #' @export

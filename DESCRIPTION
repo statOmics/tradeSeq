@@ -19,6 +19,7 @@ Depends: R (>= 3.5)
 Collate:
     'AllGenerics.R'
     'utils.R'
+    'associationTest.R'
     'core.R'
     'data.R'
     'diffEndTest.R'
