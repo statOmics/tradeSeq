@@ -129,6 +129,7 @@ pvalLineage <- getSmootherPvalues(gamList)
 statLineage <- getSmootherTestStats(gamList)
 ```
 
+
 ## Discovering progenitor marker genes
 
 In order to discover marker genes of the progenitor cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a lineage) with the differentiated cell type population (i.e., the end point of a lineage).
@@ -280,6 +281,9 @@ plotSmoothers(gamList[[rownames(earlyDERes)[oEarly][2]]])
 plotGeneCount(crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 ```
 
+## Identical expression
+
+TODO: explain identicalTest.
 
 # Clustering of genes according to their expression pattern
 
