@@ -1,2 +1,10 @@
+Changes in version 0.99.47 (2019-09-02)
++ tradeSeq now relies on `singleCellExperiment`
+  o fitGam now accept a `singleCellExperiment` object as input
+  o All tests and plotting functions also do
+
+Changes in version 0.99.0 (2019-06-22)
++ Submitted to Bioconductor
+
 Changes in version 0.9.0 (2019-03-15)
 + Reformatted to fulfill Bioconductor guidelines
