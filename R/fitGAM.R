@@ -98,7 +98,6 @@
                     aic = FALSE){
 
   # TODO: make sure warning message for knots prints after looping
-  # TODO: verify working with U provided
 
   if(parallel){
     BiocParallel::register(BPPARAM)

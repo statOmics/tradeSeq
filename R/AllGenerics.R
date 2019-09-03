@@ -65,6 +65,17 @@ setGeneric(
   }
 )
 
+#' @title Cluster gene expression patterns.
+#' @name clusterExpressionPatterns
+#' @export
+setGeneric(
+  name = "clusterExpressionPatterns",
+  #signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("clusterExpressionPatterns")
+  }
+)
+
 #' @title evaluate the required number of knots to fit the GAMs.
 #' @name evaluateK
 #' @export

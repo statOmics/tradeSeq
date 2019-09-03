@@ -20,6 +20,7 @@ Collate:
     'AllGenerics.R'
     'utils.R'
     'associationTest.R'
+    'clusterExpressionPatterns.R'
     'core.R'
     'data.R'
     'diffEndTest.R'
