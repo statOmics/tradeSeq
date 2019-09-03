@@ -39,7 +39,7 @@
   # TODO: extend documentation to contain RSEC functions.
 
   # check if all gene IDs provided are present in the models object.
-  if ("character" %in% is(genes)) {
+  if (is(genes, "character")) {
     if (!all(genes %in% names(gamList))) {
       stop("Not all gene IDs are present in the models object.")
     }

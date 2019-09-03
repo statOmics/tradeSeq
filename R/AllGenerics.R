@@ -75,3 +75,12 @@ setGeneric(
     standardGeneric("evaluateK")
   }
 )
+
+#' @export
+setGeneric(
+  name = "plotSmoothers",
+  #signature = 'counts',
+  def = function(models, ...) {
+    standardGeneric("plotSmoothers")
+  }
+)

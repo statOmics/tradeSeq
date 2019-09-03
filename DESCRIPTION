@@ -29,6 +29,8 @@ Collate:
     'getSmootherPvalues.R'
     'getSmootherTestStats.R'
     'patternTest.R'
+    'plotGeneCount.R'
+    'plotSmoothers.R'
     'sceMethods.R'
     'startVsEndTest.R'
 RoxygenNote: 6.1.1
