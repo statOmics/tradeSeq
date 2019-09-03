@@ -301,64 +301,6 @@ getEigenStatGAM <- function(beta, Sigma, L){
   return(vars)
 }
 
-
-
-
-
-### not yet adapted
-
-#
-
-
-
-
-
-### perform individual wald test
-indWaldTest <- function(model, L){
-  ### build a contrast matrix for a multivariate Wald test
-  beta <- matrix(coef(model), ncol = 1)
-  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  # Test equality for each coefficient
-  wald <- lapply(seq_len(ncol(LQR)), FUN = function(i) {
-    (t(LQR[, i]) %*% beta)^2 / model$Vp[i, i]
-  }) %>% unlist()
-  if(wald < 0) wald <- 0
-  pval <- 1 - pchisq(wald, df = 1)
-  return(list("pval" = unlist(pval), "wald" = unlist(wald)))
-}
-
-waldTestFull <- function(model, L){
-  ### build a contrast matrix for a multivariate Wald test
-  beta <- matrix(coef(model), ncol = 1)
-  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  est <- t(LQR) %*% beta
-  var <- t(LQR) %*% model$Vp %*% LQR
-  wald <- t(est) %*% solve(var) %*% est
-  if(wald < 0) wald <- 0
-  df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
-  return(c(est, var, wald, df, pval))
-}
-
-waldTestFullSub <- function(model, L){
-  ### build a contrast matrix for a multivariate Wald test
-  beta <- matrix(coef(model), ncol = 1)
-  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  est <- t(LQR) %*% beta
-  var <- t(LQR) %*% model$Vp %*% LQR
-  sub <- qr(var)$pivot[seq_len(qr(var)$rank)]
-  est <- est[sub, , drop = FALSE]
-  var <- var[sub, sub, drop = FALSE]
-  wald <- t(est) %*% solve(var) %*% est
-  df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
-  return(c(est, var, wald, df, pval))
-}
-
-
-
-
-
 getRank <- function(m,L){
   beta <- matrix(coef(m), ncol = 1)
   est <- t(L) %*% beta
