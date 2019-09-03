@@ -1,26 +1,6 @@
 #' @include utils.R
 
-#' Perform test of early differences between lineages
-#'
-#' @param models the list of GAMs, typically the output from
-#' \code{\link{fitGAM}}.
-#' @param knots A vector of length 2 specifying the knots before and after the
-#'  branching of interest.
-#' @param nPoints the number of points to be compared between lineages.
-#' @param global If TRUE, test for all pairwise comparisons simultaneously.
-#' @param pairwise If TRUE, test for all pairwise comparisons independently.
-#' @importFrom magrittr %>%
-#' @examples
-#' data(gamList, package = "tradeSeq")
-#' earlyDETest(gamList, knots = c(1, 2), global = TRUE, pairwise = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed.
-#' @details To help in choosing the knots, the \code{\link{plotGeneCount}}
-#'  function has a models optional parameter that can be used to visualize
-#'   where the knots are. This helps the user to decide which knots to use when
-#'    defining the branching
-#' @export
-#'
+
 .earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
                         pairwise = FALSE){
 
@@ -196,7 +176,26 @@
 }
 
 
-#' @rdname earlyDETest
+#' Perform test of early differences between lineages
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#' @param knots A vector of length 2 specifying the knots before and after the
+#'  branching of interest.
+#' @param nPoints the number of points to be compared between lineages.
+#' @param global If TRUE, test for all pairwise comparisons simultaneously.
+#' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeSeq")
+#' earlyDETest(gamList, knots = c(1, 2), global = TRUE, pairwise = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed.
+#' @details To help in choosing the knots, the \code{\link{plotGeneCount}}
+#'  function has a models optional parameter that can be used to visualize
+#'   where the knots are. This helps the user to decide which knots to use when
+#'    defining the branching
+#' @name earlyDETest
 #' @export
 #' @import SingleCellExperiment
 setMethod(f = "earlyDETest",

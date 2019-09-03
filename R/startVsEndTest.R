@@ -1,27 +1,6 @@
 #' @include utils.R
 
-#' Perform statistical test to check for DE between starting point and the end
-#' stages of every lineage
-#'
-#' @param models the list of GAMs, typically the output from
-#' \code{\link{fitGAM}}.
-#' @param global If TRUE, test for all lineages simultaneously.
-#' @param lineages If TRUE, test for all lineages independently.
-#' @param pseudotimeValues a vector of length 2, specifying two pseudotime
-#' values to be compared against each other, for every lineage of
-#'  the trajectory.
-#'  @details Note that this test assumes that all lineages start at a
-#'  pseudotime value of zero, which is the starting point against which the
-#'  end point is compared.
-#' @importFrom magrittr %>%
-#' @examples
-#' data(gamList, package = "tradeSeq")
-#' startVsEndTest(gamList, global = TRUE, lineages = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
-#' @export
+
 .startVsEndTest <- function(models, global = TRUE, lineages = FALSE,
                            pseudotimeValues = NULL){
 
@@ -173,8 +152,29 @@
 }
 
 
-#' @rdname startVsEndTest
+#' Perform statistical test to check for DE between starting point and the end
+#' stages of every lineage
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#' @param global If TRUE, test for all lineages simultaneously.
+#' @param lineages If TRUE, test for all lineages independently.
+#' @param pseudotimeValues a vector of length 2, specifying two pseudotime
+#' values to be compared against each other, for every lineage of
+#'  the trajectory.
+#'  @details Note that this test assumes that all lineages start at a
+#'  pseudotime value of zero, which is the starting point against which the
+#'  end point is compared.
+#' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeSeq")
+#' startVsEndTest(gamList, global = TRUE, lineages = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics and
+#'  p-values.
 #' @export
+#' @name startVsEndTest
 #' @import SingleCellExperiment
 setMethod(f = "startVsEndTest",
           signature = c(models = "SingleCellExperiment"),

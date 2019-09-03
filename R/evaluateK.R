@@ -1,52 +1,4 @@
-#' Evaluate the optimal number of knots required for fitGAM.
-#'
-#' @param counts the count matrix.
-#' @param U the design matrix of fixed effects. The design matrix should not
-#' contain an intercept to ensure identifiability.
-#' @param pseudotime a matrix of pseudotime values, each row represents a cell
-#' and each column represents a lineage.
-#' @param cellWeights a matrix of cell weights defining the probability that a
-#' cell belongs to a particular lineage. Each row represents a cell and each
-#' column represents a lineage.
-#' @param nGenes The number of genes to use in the evaluation. Genes will be
-#' randomly selected. 500 by default.
-#' @param k The range of knots to evaluate. `3:10` by default.
-#' @param weights Optional: a matrix of weights with identical dimensions
-#' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
-#' @param seed Optional: the seed used for assigning cells to lineages.
-#' @param offset Optional: the offset, on log-scale. If NULL, TMM is used to
-#' account for differences in sequencing depth, see \code{fitGAM}.
-#' @param aicDiff Used for selecting genes with significantly varying AIC values
-#' over the range of evaluated knots to make the barplot output. Default is set
-#' to 2, meaning that only genes whose AIC range is larger than 2 will be used
-#' to check for the optimal number of knots through the barplot visualization
-#' that is part of the output of this function.
-#' \code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
-#' the same dimensions as the expression matrix.
-#' @param ncores Number of cores to use.
-#' @return A plot of average AIC value over the range of selected knots, and a
-#' matrix of AIC values for the selected genes (rows) and the range of knots
-#' (columns).
-#' @examples
-#' \dontrun{
-#' set.seed(8)
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
-#' destfile="./se_paul.rda")
-#' load("./se_paul.rda")
-#' se <- se[( 20:31)[-7], 25:40]
-#' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
-#' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
-#' gamList <- fitGAM(counts = as.matrix(
-#'                       SummarizedExperiment::assays(se)$counts),
-#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
-#'                   nknots = 5)
-#' aicK <- evaluateK(counts = as.matrix(
-#'                       SummarizedExperiment::assays(se)$counts),
-#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
-#'                   nGenes=100, k=3:5, ncores=2)
-#' }
-#' @importFrom BiocParallel bplapply bpparam MulticoreParam
-#' @export
+
 .evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
                       weights=NULL, seed=81, offset=NULL, ncores=2, aicDiff=2,
                       ...) {
@@ -107,7 +59,55 @@
   return(aicMat)
 }
 
-#' @rdname evaluateK
+#' @title Evaluate the optimal number of knots required for fitGAM.
+#'
+#' @param counts the count matrix.
+#' @param U the design matrix of fixed effects. The design matrix should not
+#' contain an intercept to ensure identifiability.
+#' @param pseudotime a matrix of pseudotime values, each row represents a cell
+#' and each column represents a lineage.
+#' @param cellWeights a matrix of cell weights defining the probability that a
+#' cell belongs to a particular lineage. Each row represents a cell and each
+#' column represents a lineage.
+#' @param nGenes The number of genes to use in the evaluation. Genes will be
+#' randomly selected. 500 by default.
+#' @param k The range of knots to evaluate. `3:10` by default.
+#' @param weights Optional: a matrix of weights with identical dimensions
+#' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
+#' @param seed Optional: the seed used for assigning cells to lineages.
+#' @param offset Optional: the offset, on log-scale. If NULL, TMM is used to
+#' account for differences in sequencing depth, see \code{fitGAM}.
+#' @param aicDiff Used for selecting genes with significantly varying AIC values
+#' over the range of evaluated knots to make the barplot output. Default is set
+#' to 2, meaning that only genes whose AIC range is larger than 2 will be used
+#' to check for the optimal number of knots through the barplot visualization
+#' that is part of the output of this function.
+#' \code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
+#' the same dimensions as the expression matrix.
+#' @param ncores Number of cores to use.
+#' @return A plot of average AIC value over the range of selected knots, and a
+#' matrix of AIC values for the selected genes (rows) and the range of knots
+#' (columns).
+#' @examples
+#' \dontrun{
+#' set.seed(8)
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+#' destfile="./se_paul.rda")
+#' load("./se_paul.rda")
+#' se <- se[( 20:31)[-7], 25:40]
+#' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
+#' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
+#' gamList <- fitGAM(counts = as.matrix(
+#'                       SummarizedExperiment::assays(se)$counts),
+#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
+#'                   nknots = 5)
+#' aicK <- evaluateK(counts = as.matrix(
+#'                       SummarizedExperiment::assays(se)$counts),
+#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
+#'                   nGenes=100, k=3:5, ncores=2)
+#' }
+#' @importFrom BiocParallel bplapply bpparam MulticoreParam
+#' @name evaluateK
 #' @export
 #' @import slingshot
 #' @import SingleCellExperiment

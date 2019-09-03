@@ -1,6 +1,6 @@
 #' @include utils.R
 
-#' Cluster gene expression patterns.
+#' @title Cluster gene expression patterns.
 #'
 #' @param models The list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
@@ -29,7 +29,7 @@
 #' data(gamList, package = "tradeSeq")
 #' clusterExpressionPatterns(gamList, 200, seq_len(11))
 #' @importFrom clusterExperiment RSEC
-#' @export
+#' @name clusterExpressionPatterns
 .clusterExpressionPatterns <- function(models, nPoints, genes,
                                       reduceMethod = "PCA", nReducedDims = 10,
                                       minSizes = 6, ncores = 1,

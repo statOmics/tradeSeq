@@ -1,21 +1,6 @@
 #' @include utils.R
 
-#' Perform statistical test to check whether gene expression is constant across
-#'  pseudotime within a lineage
-#'
-#' @param models the list of GAMs, typically the output from
-#' \code{\link{fitGAM}}.
-#' @param global If TRUE, test for all lineages simultaneously.
-#' @param lineages If TRUE, test for all lineages independently.
-#' @importFrom magrittr %>%
-#' @examples
-#' data(gamList, package = "tradeSeq")
-#' associationTest(gamList, global = TRUE, lineages = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
-#' @export
+
 .associationTest <- function(models, global = TRUE, lineages = FALSE){
 
   if(is(models, "list")){
@@ -153,7 +138,22 @@
 }
 
 
-#' @rdname associationTest
+#' Perform statistical test to check whether gene expression is constant across
+#'  pseudotime within a lineage
+#'
+#' @param models the list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#' @param global If TRUE, test for all lineages simultaneously.
+#' @param lineages If TRUE, test for all lineages independently.
+#' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeSeq")
+#' associationTest(gamList, global = TRUE, lineages = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics and
+#'  p-values.
+#' @name associationTest
 #' @export
 #' @import SingleCellExperiment
 setMethod(f = "associationTest",

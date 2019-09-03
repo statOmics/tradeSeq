@@ -1,21 +1,6 @@
 #' @include utils.R
 
-#' Perform statistical test to check for DE between final stages of every
-#'  lineage.
-#' @param models Typically the output from
-#' \code{\link{fitGAM}}, either a list of fitted GAM models, or an object of
-#' \code{SingleCellExperiment} class.
-#' @param global If TRUE, test for all pairwise comparisons simultaneously.
-#' @param pairwise If TRUE, test for all pairwise comparisons independently.
-#' @importFrom magrittr %>%
-#' @examples
-#' data(gamList, package = "tradeSeq")
-#' diffEndTest(gamList, global = TRUE, pairwise = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
-#' @export
+
 .diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
   # TODO: add fold changes
   # TODO: check if this is different to comparing knot coefficients
@@ -158,8 +143,23 @@
 }
 
 
-#' @rdname diffEndTest
+#' Perform statistical test to check for DE between final stages of every
+#'  lineage.
+#' @param models Typically the output from
+#' \code{\link{fitGAM}}, either a list of fitted GAM models, or an object of
+#' \code{SingleCellExperiment} class.
+#' @param global If TRUE, test for all pairwise comparisons simultaneously.
+#' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' @importFrom magrittr %>%
+#' @examples
+#' data(gamList, package = "tradeSeq")
+#' diffEndTest(gamList, global = TRUE, pairwise = TRUE)
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics and
+#'  p-values.
 #' @export
+#' @name diffEndTest
 #' @import SingleCellExperiment
 setMethod(f = "diffEndTest",
           signature = c(models = "SingleCellExperiment"),

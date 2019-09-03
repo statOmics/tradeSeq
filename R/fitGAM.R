@@ -33,64 +33,7 @@
 # TODO: make sure error messages in fitting are silent,
 # but print summary at end.
 
-#' Fit GAM model
-#'
-#' This fits the NB-GAM model as described in Van den Berge et al.[2019]
-#'
-#' @rdname fitGAM
-#' @name fitGAM
-#' @title fitGAM
-#' @param counts the count matrix.
-#' @param U the design matrix of fixed effects. The design matrix should not
-#' contain an intercept to ensure identifiability.
-#' @param pseudotime a matrix of pseudotime values, each row represents a cell
-#' and each column represents a lineage.
-#' @param cellWeights a matrix of cell weights defining the probability that a
-#' cell belongs to a particular lineage. Each row represents a cell and each
-#' column represents a lineage.
-#' @param weights a matrix of weights with identical dimensions
-#' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
-#' @param seed the seed used for assigning cells to lineages.
-#' @param offset the offset, on log-scale. If NULL, TMM is used to account for
-#' differences in sequencing depth., see \code{edgeR::calcNormFactors}.
-#' Alternatively, this may also be a matrix of the same dimensions as the
-#' expression matrix.
-#' @param nknots Number of knots used to fit the GAM. Defaults to 6.
-#' @param parallel Logical, defaults to FALSE. Set to TRUE if you want to
-#' parallellize the fitting.
-#' @param BPPARAM object of class \code{bpparamClass} that specifies the
-#'   back-end to be used for computations. See
-#'   \code{\link[BiocParallel]{bpparam}} for details.
-#' @param verbose Logical, should progress be printed?
-#' @param control Variables to control fitting of the GAM, see
-#' \code{gam.control}.
-#' @param sce Should output be of SingleCellExperiment class? This argument
-#' should not be changed by users.
-#' @param family The assumed distribution for the response, set to \code{"nb"}
-#' by default.
-#' @param aic Logical; should AIC be returned? Used for \code{\link{evaluateK}}.
-#' @return A list of length the number of genes
-#'  (number of rows of \code{counts}). Each element of the list is either a
-#'   \code{\link{gamObject}} if the fiting procedure converged, or an error
-#'    message.
-#' @examples
-#' set.seed(8)
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
-#' destfile="./se_paul.rda")
-#' load("./se_paul.rda")
-#' se <- se[( 20:31)[-7], 25:40]
-#' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
-#' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
-#' gamList <- fitGAM(counts = as.matrix(
-#'                       SummarizedExperiment::assays(se)$counts),
-#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
-#'                   nknots = 5)
-#' @importFrom plyr alply .
-#' @importFrom magrittr %>%
-#' @importFrom SummarizedExperiment assays
-#' @importFrom BiocParallel bplapply bpparam
-#' @importFrom pbapply pblapply
-#' @export
+
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                     seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
                     parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
@@ -312,11 +255,67 @@
   }
 }
 
+#' Fit GAM model
+#'
+#' This fits the NB-GAM model as described in Van den Berge et al.[2019]
+#'
 #' @rdname fitGAM
+#' @name fitGAM
+#' @title fitGAM
+#' @param counts the count matrix.
+#' @param U the design matrix of fixed effects. The design matrix should not
+#' contain an intercept to ensure identifiability.
+#' @param pseudotime a matrix of pseudotime values, each row represents a cell
+#' and each column represents a lineage.
+#' @param cellWeights a matrix of cell weights defining the probability that a
+#' cell belongs to a particular lineage. Each row represents a cell and each
+#' column represents a lineage.
+#' @param sds an object of class \code{SlingshotDataSet}, typically obtained
+#' after running Slingshot. If this is provided, \code{pseudotime} and
+#' \code{cellWeights} arguments are derived from this object.
+#' @param weights a matrix of weights with identical dimensions
+#' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
+#' @param seed the seed used for assigning cells to lineages.
+#' @param offset the offset, on log-scale. If NULL, TMM is used to account for
+#' differences in sequencing depth., see \code{edgeR::calcNormFactors}.
+#' Alternatively, this may also be a matrix of the same dimensions as the
+#' expression matrix.
+#' @param nknots Number of knots used to fit the GAM. Defaults to 6.
+#' @param parallel Logical, defaults to FALSE. Set to TRUE if you want to
+#' parallellize the fitting.
+#' @param BPPARAM object of class \code{bpparamClass} that specifies the
+#'   back-end to be used for computations. See
+#'   \code{\link[BiocParallel]{bpparam}} for details.
+#' @param verbose Logical, should progress be printed?
+#' @param control Variables to control fitting of the GAM, see
+#' \code{gam.control}.
+#' @param sce Should output be of SingleCellExperiment class? This argument
+#' should not be changed by users.
+#' @param family The assumed distribution for the response, set to \code{"nb"}
+#' by default.
+#' @param aic Logical; should AIC be returned? Used for \code{\link{evaluateK}}.
+#' @return A list of length the number of genes
+#'  (number of rows of \code{counts}). Each element of the list is either a
+#'   \code{\link{gamObject}} if the fiting procedure converged, or an error
+#'    message.
+#' @examples
+#' set.seed(8)
+#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+#' destfile="./se_paul.rda")
+#' load("./se_paul.rda")
+#' se <- se[( 20:31)[-7], 25:40]
+#' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
+#' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
+#' gamList <- fitGAM(counts = as.matrix(
+#'                       SummarizedExperiment::assays(se)$counts),
+#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
+#'                   nknots = 5)
+#' @importFrom plyr alply .
+#' @importFrom magrittr %>%
+#' @importFrom SummarizedExperiment assays
+#' @importFrom BiocParallel bplapply bpparam
+#' @importFrom pbapply pblapply
 #' @export
-#' @import slingshot
-#' @import SingleCellExperiment
-#' @import tibble
 setMethod(f = "fitGAM",
           signature = c(counts = "matrix"), #sds must be SlingshotDataSet class
           definition = function(counts,

@@ -1,5 +1,3 @@
-#' @title Fit NB-GAM models
-#' @name fitGAM
 #' @export
 setGeneric(
   name = "fitGAM",
@@ -9,8 +7,6 @@ setGeneric(
   }
 )
 
-#' @title Test end points of lineages for DE
-#' @name diffEndTest
 #' @export
 setGeneric(
   name = "diffEndTest",
@@ -20,8 +16,7 @@ setGeneric(
   }
 )
 
-#' @title Test start versus end points of lineages for DE
-#' @name startVsEndTest
+
 #' @export
 setGeneric(
   name = "startVsEndTest",
@@ -31,8 +26,7 @@ setGeneric(
   }
 )
 
-#' @title Perform test of early differences between lineages
-#' @name earlyDETest
+
 #' @export
 setGeneric(
   name = "earlyDETest",
@@ -42,8 +36,7 @@ setGeneric(
   }
 )
 
-#' @title Assess differential expression pattern between lineages.
-#' @name patternTest
+
 #' @export
 setGeneric(
   name = "patternTest",
@@ -53,9 +46,7 @@ setGeneric(
   }
 )
 
-#' @title Perform statistical test to check whether gene expression is constant across
-#'  pseudotime within a lineage
-#' @name associationTest
+
 #' @export
 setGeneric(
   name = "associationTest",
@@ -65,8 +56,7 @@ setGeneric(
   }
 )
 
-#' @title Cluster gene expression patterns.
-#' @name clusterExpressionPatterns
+
 #' @export
 setGeneric(
   name = "clusterExpressionPatterns",
@@ -76,8 +66,7 @@ setGeneric(
   }
 )
 
-#' @title evaluate the required number of knots to fit the GAMs.
-#' @name evaluateK
+
 #' @export
 setGeneric(
   name = "evaluateK",
