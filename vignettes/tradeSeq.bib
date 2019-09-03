@@ -1,4 +1,15 @@
-
+@article{VandenBerge2019a,
+abstract = {Trajectory inference has radically enhanced single-cell RNA-seq research by enabling the study of dynamic changes in gene expression levels during biological processes such as the cell cycle, cell type differentiation, and cellular activation. Downstream of trajectory inference, it is vital to discover genes that are associated with the lineages in the trajectory to illuminate the underlying biological processes. Furthermore, genes that are differentially expressed between developmental/activational lineages might be highly relevant to further unravel the system under study. Current data analysis procedures, however, typically cluster cells and assess differential expression between the clusters, which fails to exploit the continuous resolution provided by trajectory inference to its full potential. The few available non-cluster-based methods only assess broad differences in gene expression between lineages, hence failing to pinpoint the exact types of divergence. We introduce a powerful generalized additive model framework based on the negative binomial distribution that allows flexible inference of (i) within-lineage differential expression by detecting associations between gene expression and pseudotime over an entire lineage or by comparing gene expression between points/regions within the lineage and (ii) between-lineage differential expression by comparing gene expression between lineages over the entire lineages or at specific points/regions. By incorporating observation-level weights, the model additionally allows to account for zero inflation, commonly observed in single-cell RNA-seq data from full-length protocols. We evaluate the method on simulated and real datasets from droplet-based and full-length protocols, and show that the flexible inference framework is capable of yielding biological insights through a clear interpretation of the data.},
+author = {{Van den Berge}, Koen and {Roux de B{\'{e}}zieux}, Hector and Street, Kelly and Saelens, Wouter and Cannoodt, Robrecht and Saeys, Yvan and Dudoit, Sandrine and Clement, Lieven},
+doi = {10.1101/623397},
+journal = {bioRxiv},
+month = {may},
+pages = {623397},
+publisher = {Cold Spring Harbor Laboratory},
+title = {{Trajectory-based differential expression analysis for single-cell sequencing data}},
+url = {https://www.biorxiv.org/content/10.1101/623397v1},
+year = {2019}
+}
 @article{VandenBerge2018,
 abstract = {Dropout events in single-cell RNA sequencing (scRNA-seq) cause many transcripts to go undetected and induce an excess of zero read counts, leading to power issues in differential expression (DE) analysis. This has triggered the development of bespoke scRNA-seq DE methods to cope with zero inflation. Recent evaluations, however, have shown that dedicated scRNA-seq tools provide no advantage compared to traditional bulk RNA-seq tools. We introduce a weighting strategy, based on a zero-inflated negative binomial model, that identifies excess zero counts and generates gene- and cell-specific weights to unlock bulk RNA-seq DE pipelines for zero-inflated data, boosting performance for scRNA-seq.},
 author = {{Van den Berge}, Koen and Perraudeau, Fanny and Soneson, Charlotte and Love, Michael I. and Risso, Davide and Vert, Jean-Philippe and Robinson, Mark D. and Dudoit, Sandrine and Clement, Lieven},

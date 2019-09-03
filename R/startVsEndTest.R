@@ -53,6 +53,9 @@
     slingshotColData <- colData(models)$slingshot
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime")]
+    # construct within-lineage contrast matrix
+    L <- matrix(0, nrow = ncol(X), ncol = nCurves)
+    colnames(L) <- paste0("lineage", seq_len(nCurves))
 
     if (is.null(pseudotimeValues)) { # start vs end
       for (jj in seq_len(nCurves)) {
@@ -180,11 +183,13 @@ setMethod(f = "startVsEndTest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,
                                 global = TRUE,
-                                lineages = FALSE){
+                                lineages = FALSE,
+                                pseudotimeValues = NULL){
 
             res <- .startVsEndTest(models = models,
                                 global = global,
-                                lineages = lineages)
+                                lineages = lineages,
+                                pseudotimeValues = pseudotimeValues)
             return(res)
 
           }
@@ -196,11 +201,13 @@ setMethod(f = "startVsEndTest",
           signature = c(models = "list"),
           definition = function(models,
                                 global = TRUE,
-                                lineages = FALSE){
+                                lineages = FALSE,
+                                pseudotimeValues = NULL){
 
             res <- .startVsEndTest(models = models,
                                 global = global,
-                                lineages = lineages)
+                                lineages = lineages,
+                                pseudotimeValues = pseudotimeValues)
             return(res)
 
           }

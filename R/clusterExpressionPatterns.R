@@ -40,7 +40,7 @@
 
   # check if all gene IDs provided are present in the models object.
   if (is(genes, "character")) {
-    if (!all(genes %in% names(gamList))) {
+    if (!all(genes %in% names(models))) {
       stop("Not all gene IDs are present in the models object.")
     }
     id <- which(names(models) %in% genes)

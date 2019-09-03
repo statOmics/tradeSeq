@@ -309,8 +309,3 @@ getRank <- function(m,L){
   r <- sum(eSigma$values / eSigma$values[1] > 1e-8)
   return(r)
 }
-
-
-
-
-
