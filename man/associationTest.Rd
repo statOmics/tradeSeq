@@ -10,7 +10,8 @@
 \S4method{associationTest}{SingleCellExperiment}(models, global = TRUE,
   lineages = FALSE)
 
-\S4method{associationTest}{list}(models, global = TRUE, lineages = FALSE)
+\S4method{associationTest}{list}(models, global = TRUE,
+  lineages = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from

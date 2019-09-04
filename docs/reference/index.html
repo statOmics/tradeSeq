@@ -8,11 +8,13 @@
 
 <title>Function reference • tradeSeq</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -30,7 +32,9 @@
 
 
 
+
 <meta property="og:title" content="Function reference" />
+
 
 
 
@@ -60,7 +64,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.52</span>
       </span>
     </div>
 
@@ -79,7 +83,6 @@
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -109,13 +112,13 @@
       <tr>
         <th colspan="2">
           <h2 id="section-model-fit-and-check" class="hasAnchor"><a href="#section-model-fit-and-check" class="anchor"></a>Model fit and check</h2>
-          <p class="section-desc"><p>Contain the fitGam function used to fit the model, as well as functions to check the fit and extract components</p></p>
+          <p class="section-desc"><p>Contain the fitGam function used to fit the model, as well as functions to check the fit, extract components and decide on the appropriate number of knots.</p></p>
         </th>
       </tr>
       <tr>
         
         <td>
-          <p><code><a href="fitGAM.html">fitGAM()</a></code> </p>
+          <p><code><a href="fitGAM.html">fitGAM(<i>&lt;matrix&gt;</i>)</a></code> </p>
         </td>
         <td><p>fitGAM</p></td>
       </tr><tr>
@@ -123,13 +126,19 @@
         <td>
           <p><code><a href="getSmootherPvalues.html">getSmootherPvalues()</a></code> </p>
         </td>
-        <td><p>Get smoother p-value</p></td>
+        <td><p>Get smoother p-value as returned by <code>mgcv</code>.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="getSmootherTestStats.html">getSmootherTestStats()</a></code> </p>
         </td>
         <td><p>Get smoother Chi-squared test statistics</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="evaluateK.html">evaluateK(<i>&lt;matrix&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Evaluate the optimal number of knots required for fitGAM.</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -141,40 +150,33 @@
       <tr>
         
         <td>
-          <p><code><a href="associationTest.html">associationTest()</a></code> </p>
+          <p><code><a href="associationTest.html">associationTest(<i>&lt;SingleCellExperiment&gt;</i>)</a></code> <code><a href="associationTest.html">associationTest(<i>&lt;list&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Perform statistical test to check whether a gene is constant across
- a lineage</p></td>
+        <td><p>Perform statistical test to check whether gene expression is constant across
+ pseudotime within a lineage</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="diffEndTest.html">diffEndTest()</a></code> </p>
+          <p><code><a href="diffEndTest.html">diffEndTest(<i>&lt;SingleCellExperiment&gt;</i>)</a></code> <code><a href="diffEndTest.html">diffEndTest(<i>&lt;list&gt;</i>)</a></code> </p>
         </td>
         <td><p>Perform statistical test to check for DE between final stages of every
  lineage.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="earlyDETest.html">earlyDETest()</a></code> </p>
+          <p><code><a href="earlyDETest.html">earlyDETest(<i>&lt;SingleCellExperiment&gt;</i>)</a></code> <code><a href="earlyDETest.html">earlyDETest(<i>&lt;list&gt;</i>)</a></code> </p>
         </td>
         <td><p>Perform test of early differences between lineages</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="identicalTest.html">identicalTest()</a></code> </p>
+          <p><code><a href="patternTest.html">patternTest(<i>&lt;list&gt;</i>)</a></code> <code><a href="patternTest.html">patternTest(<i>&lt;SingleCellExperiment&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Perform test between lineages to check whether the gene dynamics are
- identical.</p></td>
+        <td><p>Assess differential expression pattern between lineages.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="patternTest.html">patternTest()</a></code> </p>
-        </td>
-        <td><p>Perform pattern test between lineages</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="startVsEndTest.html">startVsEndTest()</a></code> </p>
+          <p><code><a href="startVsEndTest.html">startVsEndTest(<i>&lt;SingleCellExperiment&gt;</i>)</a></code> <code><a href="startVsEndTest.html">startVsEndTest(<i>&lt;list&gt;</i>)</a></code> </p>
         </td>
         <td><p>Perform statistical test to check for DE between starting point and the end
 stages of every lineage</p></td>
@@ -195,10 +197,10 @@ stages of every lineage</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotSmoothers.html">plotSmoothers()</a></code> </p>
+          <p><code><a href="plotSmoothers.html">plotSmoothers(<i>&lt;gam&gt;</i>)</a></code> <code><a href="plotSmoothers.html">plotSmoothers(<i>&lt;SingleCellExperiment&gt;</i>)</a></code> </p>
         </td>
-        <td><p>plot the logged-transformed counts and the fitted values for a particular
- gene along all trajectories.</p></td>
+        <td><p>Plot the log-transformed counts and the fitted values for a particular
+ gene along all linesges</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -224,7 +226,7 @@ stages of every lineage</p></td>
       <tr>
         
         <td>
-          <p><code><a href="clusterExpressionPatterns.html">clusterExpressionPatterns()</a></code> </p>
+          <p><code><a href="clusterExpressionPatterns.html">.clusterExpressionPatterns()</a></code> <code><a href="clusterExpressionPatterns.html">clusterExpressionPatterns(<i>&lt;SingleCellExperiment&gt;</i>)</a></code> <code><a href="clusterExpressionPatterns.html">clusterExpressionPatterns(<i>&lt;list&gt;</i>)</a></code> </p>
         </td>
         <td><p>Cluster gene expression patterns.</p></td>
       </tr>

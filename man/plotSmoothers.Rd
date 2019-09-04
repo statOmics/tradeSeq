@@ -7,8 +7,8 @@
 \title{Plot the log-transformed counts and the fitted values for a particular
  gene along all linesges}
 \usage{
-\S4method{plotSmoothers}{gam}(models, nPoints = 100, lwd = 2, size = 2/3,
-  xlab = "Pseudotime", ylab = "Log(expression + 1)")
+\S4method{plotSmoothers}{gam}(models, nPoints = 100, lwd = 2,
+  size = 2/3, xlab = "Pseudotime", ylab = "Log(expression + 1)")
 
 \S4method{plotSmoothers}{SingleCellExperiment}(models, counts, gene,
   nPoints = 100, lwd = 2, size = 2/3, xlab = "Pseudotime",
@@ -29,6 +29,10 @@
 }
 \value{
 A \code{\link{ggplot}} object
+}
+\description{
+Plot the log-transformed counts and the fitted values for a particular
+ gene along all linesges
 }
 \examples{
 data(gamList, package = "tradeSeq")

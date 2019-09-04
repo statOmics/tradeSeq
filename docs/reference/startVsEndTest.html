@@ -9,11 +9,13 @@
 <title>Perform statistical test to check for DE between starting point and the end
 stages of every lineage — startVsEndTest • tradeSeq</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -31,12 +33,13 @@ stages of every lineage — startVsEndTest • tradeSeq</title>
 
 
 
+
 <meta property="og:title" content="Perform statistical test to check for DE between starting point and the end
 stages of every lineage — startVsEndTest" />
-
 <meta property="og:description" content="Perform statistical test to check for DE between starting point and the end
 stages of every lineage" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -66,7 +69,7 @@ stages of every lineage" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.52</span>
       </span>
     </div>
 
@@ -85,7 +88,6 @@ stages of every lineage" />
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -107,15 +109,18 @@ stages of every lineage</h1>
     </div>
 
     <div class="ref-description">
-    
     <p>Perform statistical test to check for DE between starting point and the end
 stages of every lineage</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>startVsEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>pseudotimeValues</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
-    
+    <pre class="usage"><span class='co'># S4 method for SingleCellExperiment</span>
+<span class='fu'>startVsEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pseudotimeValues</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='co'># S4 method for list</span>
+<span class='fu'>startVsEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pseudotimeValues</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -136,40 +141,41 @@ stages of every lineage</p>
       <th>pseudotimeValues</th>
       <td><p>a vector of length 2, specifying two pseudotime
 values to be compared against each other, for every lineage of
- the trajectory.</p></td>
+ the trajectory.
+ @details Note that this test assumes that all lineages start at a
+ pseudotime value of zero, which is the starting point against which the
+ end point is compared.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A matrix with the wald statistic, the number of df and the p-value
  associated with each gene for all the tests performed. If the testing
  procedure was unsuccessful, the procedure will return NA test statistics and
- p-values.</p>
-    
+ p-values. If both <code>global</code> and <code>lineages</code> are TRUE, then a matrix
+ of p-values is returned.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
-<span class='fu'>startVsEndTest</span>(<span class='no'>gamList</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                  global  lineage1  lineage2
-#&gt; 1700012B09Rik 1.0000000 1.0000000 1.0000000
-#&gt; 1700017B05Rik 0.8058777 0.5222756 0.8814257
-#&gt; 1700020L24Rik 1.0000000 1.0000000 1.0000000
-#&gt; 1810009A15Rik 0.5003812 0.9041920 0.2417635
-#&gt; 1810011H11Rik 1.0000000 1.0000000 1.0000000
-#&gt; 1810027O10Rik 0.2739772 0.4675587 0.1510435
-#&gt; 1810031K17Rik 0.4055413 0.2046942 0.6575575
-#&gt; 1810033B17Rik 1.0000000 1.0000000 1.0000000
-#&gt; 1810037I17Rik 0.7046104 0.4508052 0.7167850
-#&gt; 2010002N04Rik 1.0000000 1.0000000 1.0000000
-#&gt; 2010011I20Rik 0.7980446 0.5078248 0.9105017</div></pre>
+<span class='fu'>startVsEndTest</span>(<span class='no'>gamList</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                     global  lineage1  lineage2
+#&gt; 1700012B09Rik 1.489419e-16 1.0000000 1.0000000
+#&gt; 1700017B05Rik 4.316466e-01 0.5222756 0.8814257
+#&gt; 1700020L24Rik 1.489419e-16 1.0000000 1.0000000
+#&gt; 1810009A15Rik 1.384770e+00 0.9041920 0.2417635
+#&gt; 1810011H11Rik 1.489419e-16 1.0000000 1.0000000
+#&gt; 1810027O10Rik 2.589421e+00 0.4675587 0.1510435
+#&gt; 1810031K17Rik 1.805065e+00 0.2046942 0.6575575
+#&gt; 1810033B17Rik 1.489419e-16 1.0000000 1.0000000
+#&gt; 1810037I17Rik 7.002206e-01 0.4508052 0.7167850
+#&gt; 2010002N04Rik 1.489419e-16 1.0000000 1.0000000
+#&gt; 2010011I20Rik 4.511815e-01 0.5078248 0.9105017</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 

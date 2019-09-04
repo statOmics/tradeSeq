@@ -28,6 +28,9 @@ A matrix with the wald statistic, the number of df and the p-value
  procedure was unsuccessful, the procedure will return NA test statistics and
  p-values.
 }
+\description{
+Assess differential expression pattern between lineages.
+}
 \examples{
 data(gamList, package = "tradeSeq")
 patternTest(gamList, global = TRUE, pairwise = TRUE)

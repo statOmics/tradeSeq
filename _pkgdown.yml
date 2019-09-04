@@ -2,11 +2,12 @@ reference:
   - title: "Model fit and check"
     desc: >
       Contain the fitGam function used to fit the model, as well as functions to
-      check the fit and extract components
+      check the fit, extract components and decide on the appropriate number of knots.
     contents:
       - '`fitGAM`'
       - '`getSmootherPvalues`'
       - '`getSmootherTestStats`'
+      - '`evaluateK`'
   - title: "Tests"
     desc: >
       All tests currently implemented in tradeSeq. All tests are of the form
@@ -17,7 +18,6 @@ reference:
       - '`associationTest`'
       - '`diffEndTest`'
       - '`earlyDETest`'
-      - '`identicalTest`'
       - '`patternTest`'
       - '`startVsEndTest`'
   - title: Visualization

@@ -5,11 +5,12 @@
 \alias{evaluateK}
 \title{Evaluate the optimal number of knots required for fitGAM.}
 \usage{
-\S4method{evaluateK}{matrix}(counts, k = 3:10, nGenes = 500, sds = NULL,
-  pseudotime = NULL, cellWeights = NULL, U = NULL, weights = NULL,
-  seed = 81, offset = NULL, ncores = 2, aicDiff = 2, verbose = TRUE,
-  parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
-  control = mgcv::gam.control(), sce = FALSE, family = "nb", ...)
+\S4method{evaluateK}{matrix}(counts, k = 3:10, nGenes = 500,
+  sds = NULL, pseudotime = NULL, cellWeights = NULL, U = NULL,
+  weights = NULL, seed = 81, offset = NULL, ncores = 2,
+  aicDiff = 2, verbose = TRUE, parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(), control = mgcv::gam.control(),
+  sce = FALSE, family = "nb", ...)
 }
 \arguments{
 \item{counts}{the count matrix.}
@@ -51,6 +52,9 @@ the same dimensions as the expression matrix.}
 A plot of average AIC value over the range of selected knots, and a
 matrix of AIC values for the selected genes (rows) and the range of knots
 (columns).
+}
+\description{
+Evaluate the optimal number of knots required for fitGAM.
 }
 \examples{
 \dontrun{

@@ -8,11 +8,13 @@
 
 <title>fitGAM — fitGAM • tradeSeq</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -30,10 +32,11 @@
 
 
 
-<meta property="og:title" content="fitGAM — fitGAM" />
 
-<meta property="og:description" content="fitGAM" />
+<meta property="og:title" content="fitGAM — fitGAM" />
+<meta property="og:description" content="Fit GAM model" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -63,7 +66,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.52</span>
       </span>
     </div>
 
@@ -82,7 +85,6 @@
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -103,16 +105,16 @@
     </div>
 
     <div class="ref-description">
-    
-    <p>fitGAM</p>
-    
+    <p>Fit GAM model</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>pseudotime</span>, <span class='no'>cellWeights</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/BiocParallel/topics/register'>bpparam</a></span>(),
-  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/mgcv/topics/gam.control'>gam.control</a></span>(), <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>)</pre>
-    
+    <pre class="usage"><span class='co'># S4 method for matrix</span>
+<span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>,
+  <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/BiocParallel/topics/register'>bpparam</a></span>(), <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/mgcv/topics/gam.control'>gam.control</a></span>(),
+  <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -121,9 +123,10 @@
       <td><p>the count matrix.</p></td>
     </tr>
     <tr>
-      <th>U</th>
-      <td><p>the design matrix of fixed effects. The design matrix should not
-contain an intercept to ensure identifiability.</p></td>
+      <th>sds</th>
+      <td><p>an object of class <code>SlingshotDataSet</code>, typically obtained
+after running Slingshot. If this is provided, <code>pseudotime</code> and
+<code>cellWeights</code> arguments are derived from this object.</p></td>
     </tr>
     <tr>
       <th>pseudotime</th>
@@ -135,6 +138,11 @@ and each column represents a lineage.</p></td>
       <td><p>a matrix of cell weights defining the probability that a
 cell belongs to a particular lineage. Each row represents a cell and each
 column represents a lineage.</p></td>
+    </tr>
+    <tr>
+      <th>U</th>
+      <td><p>the design matrix of fixed effects. The design matrix should not
+contain an intercept to ensure identifiability.</p></td>
     </tr>
     <tr>
       <th>weights</th>
@@ -177,19 +185,30 @@ back-end to be used for computations. See
 <code>gam.control</code>.</p></td>
     </tr>
     <tr>
+      <th>sce</th>
+      <td><p>Should output be of SingleCellExperiment class? This argument
+should not be changed by users.</p></td>
+    </tr>
+    <tr>
       <th>family</th>
       <td><p>The assumed distribution for the response, set to <code>"nb"</code>
 by default.</p></td>
     </tr>
+    <tr>
+      <th>aic</th>
+      <td><p>Logical; should AIC be returned? Used for <code><a href='evaluateK.html'>evaluateK</a></code>.</p></td>
+    </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list of length the number of genes
  (number of rows of <code>counts</code>). Each element of the list is either a
   <code>gamObject</code> if the fiting procedure converged, or an error
    message.</p>
-    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This fits the NB-GAM model as described in Van den Berge et al.[2019]</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>8</span>)
@@ -208,9 +227,8 @@ by default.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-      
+      <li><a href="#details">Details</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 

@@ -10,8 +10,8 @@ stages of every lineage}
 \S4method{startVsEndTest}{SingleCellExperiment}(models, global = TRUE,
   lineages = FALSE, pseudotimeValues = NULL)
 
-\S4method{startVsEndTest}{list}(models, global = TRUE, lineages = FALSE,
-  pseudotimeValues = NULL)
+\S4method{startVsEndTest}{list}(models, global = TRUE,
+  lineages = FALSE, pseudotimeValues = NULL)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from

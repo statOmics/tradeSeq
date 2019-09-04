@@ -6,14 +6,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Perform statistical test to check whether a gene is constant across
- a lineage — associationTest • tradeSeq</title>
+<title>Perform statistical test to check whether gene expression is constant across
+ pseudotime within a lineage — associationTest • tradeSeq</title>
+
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -31,12 +33,13 @@
 
 
 
-<meta property="og:title" content="Perform statistical test to check whether a gene is constant across
- a lineage — associationTest" />
 
-<meta property="og:description" content="Perform statistical test to check whether a gene is constant across
- a lineage" />
+<meta property="og:title" content="Perform statistical test to check whether gene expression is constant across
+ pseudotime within a lineage — associationTest" />
+<meta property="og:description" content="Perform statistical test to check whether gene expression is constant across
+ pseudotime within a lineage" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -66,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.52</span>
       </span>
     </div>
 
@@ -85,7 +88,6 @@
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -100,21 +102,25 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Perform statistical test to check whether a gene is constant across
- a lineage</h1>
+    <h1>Perform statistical test to check whether gene expression is constant across
+ pseudotime within a lineage</h1>
     
     <div class="hidden name"><code>associationTest.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    
-    <p>Perform statistical test to check whether a gene is constant across
- a lineage</p>
-    
+    <p>Perform statistical test to check whether gene expression is constant across
+ pseudotime within a lineage</p>
     </div>
 
-    <pre class="usage"><span class='fu'>associationTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
-    
+    <pre class="usage"><span class='co'># S4 method for SingleCellExperiment</span>
+<span class='fu'>associationTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># S4 method for list</span>
+<span class='fu'>associationTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -132,29 +138,28 @@
       <td><p>If TRUE, test for all lineages independently.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A matrix with the wald statistic, the number of df and the p-value
  associated with each gene for all the tests performed. If the testing
  procedure was unsuccessful, the procedure will return NA test statistics and
  p-values.</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
 <span class='fu'>associationTest</span>(<span class='no'>gamList</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                   waldStat df    pvalue   waldStat_1 df_1  pvalue_1
-#&gt; 1700012B09Rik 1.482633e-16  8 1.0000000 1.445848e-16    4 1.0000000
-#&gt; 1700017B05Rik 6.692216e+00  8 0.5701747 5.039709e+00    4 0.2832473
-#&gt; 1700020L24Rik 1.482633e-16  8 1.0000000 1.445848e-16    4 1.0000000
-#&gt; 1810009A15Rik 1.611904e+00  8 0.9906901 2.014787e-01    4 0.9952540
-#&gt; 1810011H11Rik 1.482633e-16  8 1.0000000 1.445848e-16    4 1.0000000
-#&gt; 1810027O10Rik 3.689204e+00  8 0.8840200 1.312632e+00    4 0.8592287
-#&gt; 1810031K17Rik 6.500873e+00  8 0.5913108 4.257615e+00    4 0.3722627
-#&gt; 1810033B17Rik 1.482633e-16  8 1.0000000 1.445848e-16    4 1.0000000
-#&gt; 1810037I17Rik 7.002418e-01  8 0.9995260 5.686310e-01    4 0.9664849
-#&gt; 2010002N04Rik 1.482633e-16  8 1.0000000 1.445848e-16    4 1.0000000
-#&gt; 2010011I20Rik 1.856377e+00  8 0.9851027 9.375178e-01    4 0.9191176
+#&gt; 1700012B09Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
+#&gt; 1700017B05Rik 6.093472e+00  7 0.5288785 4.440966e+00    3 0.2176169
+#&gt; 1700020L24Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
+#&gt; 1810009A15Rik 1.609616e+00  7 0.9782704 1.991907e-01    3 0.9777198
+#&gt; 1810011H11Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
+#&gt; 1810027O10Rik 3.603153e+00  7 0.8241819 1.226581e+00    3 0.7466363
+#&gt; 1810031K17Rik 6.217084e+00  7 0.5146428 3.973826e+00    3 0.2643043
+#&gt; 1810033B17Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
+#&gt; 1810037I17Rik 7.002411e-01  7 0.9983339 5.686303e-01    3 0.9035747
+#&gt; 2010002N04Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
+#&gt; 2010011I20Rik 1.496596e+00  7 0.9824273 5.777372e-01    3 0.9015095
 #&gt;                 waldStat_2 df_2  pvalue_2
 #&gt; 1700012B09Rik 3.569196e-18    4 1.0000000
 #&gt; 1700017B05Rik 1.652507e+00    4 0.7993256
@@ -172,9 +177,7 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 

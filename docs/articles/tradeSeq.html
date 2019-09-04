@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.52</span>
       </span>
     </div>
 
@@ -73,7 +73,7 @@
 
     
     
-<p>In this vignette, we analyse a subset of the data from <span class="citation">(Paul et al. 2015)</span>. A <code>SingleCellExperiment</code> object of the data has been provided with the <a href="https://github.com/statOmics/tradeSeqpaper"><code>tradeSeq</code></a> package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the <a href="http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3">Monocle 3 vignette</a>.</p>
+<p>In this vignette, we analyse a subset of the data from <span class="citation">(Paul et al. 2015)</span>. All details about the <code>tradeSeq</code> model and statistical tests are described in our preprint <span class="citation">(Van den Berge et al. 2019)</span>. A <code>SingleCellExperiment</code> object of the data has been provided with the <a href="https://github.com/statOmics/tradeSeqpaper"><code>tradeSeq</code></a> package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the <a href="http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3">Monocle 3 vignette</a>.</p>
 <div id="load-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#load-data" class="anchor"></a>Load data</h1>
@@ -120,27 +120,1145 @@
 <a class="sourceLine" id="cb7-3" data-line-number="3">              <span class="dt">title =</span> <span class="st">"Colored by cell type"</span>)</a></code></pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
 </div>
+<div id="determining-the-number-of-knots" class="section level1">
+<h1 class="hasAnchor">
+<a href="#determining-the-number-of-knots" class="anchor"></a>Determining the number of knots</h1>
+<p>After estimating the trajectory, we can fit generalized additive models (GAMs) with the <code>tradeSeq</code> package. Internally, this package builds on the <code>mgcv</code> package by fitting additive models using the <code>gam</code> function. The core function from <code>tradeSeq</code>, <code>fitGAM</code>, will use cubic splines as basis functions, and it tries to ensure that every lineage will end at a knot point of a smoother. By default, we allow for <span class="math inline">\(6\)</span> knots for every lineage, but this can be changed with the <code>nknots</code> argument. More knots will allow more flexibility, but also increase the risk of overfitting.</p>
+<p>Ideally, the number of knots should be selected to reach an optimal bias-variance trade-off for the smoother, where one explains as much variability in the expression data as possible with only a few regression coefficients. In order to guide that choice, we developed diagnostic plots using the Akaike Informaction Criterion (AIC). This is implemented in the <code>evaluateK</code> function in <code>tradeSeq</code>. The function takes as input the expression count matrix, a <code>SlingshotDataSet</code> (or alternatively, a matrix of pseudotimes and cell-level weights). The range of knots to evaluate is provided with the <code>knots</code> argument. The minimum allowed number of knots is <span class="math inline">\(3\)</span>. While there is no boundary on the maximum number of knots, typically the interesting range is around <span class="math inline">\(3\)</span> to <span class="math inline">\(10\)</span> knots. The function will fit NB-GAM models for some number of genes, provided by the <code>nGenes</code> argument, over the range of knots that are provided, and return the AIC for each gene fitted with each number of knots. It is generally a good idea to evaluate this multiple times using different seeds (specified with the <code>seed</code> argument), to check whether the results are reproducible across different gene subsets.</p>
+<p>This task can be computationally demanding, since the models must be fit multiple times for each gene. We therefore skip this in the vignette, but show the output one can expect instead.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">sds =</span> crv, <span class="dt">knots=</span><span class="dv">3</span><span class="op">:</span><span class="dv">20</span>, <span class="dt">nGenes =</span> <span class="dv">200</span>, <span class="dt">verbose=</span><span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co"># alternatively:</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">knots=</span><span class="dv">3</span><span class="op">:</span><span class="dv">20</span>, <span class="dt">nGenes =</span> <span class="dv">200</span>,</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">                   <span class="dt">pseudotime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>),</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">                   <span class="dt">cellWeights =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime">slingCurveWeights</a></span>(crv))</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-5-1.png" width="700"><img src="tradeSeq_files/figure-html/unnamed-chunk-5-2.png" width="700"></p>
+<p>The output graphics are organized into four panels. The left panel plots a boxplot for each number of knots we wanted to evaluate. The plotted values are the deviation from a gene’s AIC at that specific knot value from the average AIC of that gene across all the knots under evaluation. Typically, AIC values are somewhat higher for low number of knots, and we expect them to decrease as the number of knots gets higher. The two middle panels plot the average drop in AIC across all genes. The middle left panel simply plots the average AIC, while the middle right panel plots the change in AIC relative to the average AIC at the lowest knot number (here, this is 3 knots, as can also be seen from the plot since the relative AIC equals <span class="math inline">\(1\)</span>). Finally, rhe right panel only plots a subset of genes where the AIC value changes significantly across the evaluated number of knots. Here, a significant change is defined as a change in absolute value of at least <span class="math inline">\(2\)</span>, but this can be tuned using the <code>aicDiff</code> argument to <code>evaluateK</code>. For the subset of genes, a barplot is displayed that shows the number of genes that have their lowest AIC at a specific knot value.</p>
+<p>The middle panels show that the drop in AIC levels off if the number of knots is increased beyond <span class="math inline">\(6\)</span>. In the right panel, <span class="math inline">\(6\)</span> knots also corresponds the highest number of genes with lowest AIC value. Based on these plots, we thus believe that fitting the NB-GAM models with <span class="math inline">\(6\)</span> knots is an appropriate choice.</p>
+</div>
 <div id="fit-additive-models" class="section level1">
 <h1 class="hasAnchor">
 <a href="#fit-additive-models" class="anchor"></a>Fit additive models</h1>
-<p>After estimating the trajectory, we can fit generalized additive models (GAMs) with the <code>tradeSeq</code> package. Internally, this package builds on the <code>mgcv</code> package by fitting additive models using the <code>gam</code> function. The core function from <code>tradeSeq</code>, <code>fitGAM</code>, will use cubic splines as basis functions, and it tries to ensure that every lineage will end at a knot point of a smoother. By default, we allow for <span class="math inline">\(10\)</span> knots for every lineage, but this can be changed with the <code>nknots</code> function. More knots will allow more flexibility, but also increase the risk of overfitting. By default, the GAM model estimates one smoother for every lineage using the negative binomial distribution. If you want to allow for other fixed effects (e.g. batch effects), then an additional model matrix can be provided with the <code>U</code> argument.</p>
+<p>By default, the GAM model estimates one smoother for every lineage using the negative binomial distribution. If you want to allow for other fixed effects (e.g., batch effects), then an additional model matrix, typically created using the <code>model.matrix</code> function, can be provided with the <code>U</code> argument. The precise model definition of the statistical model is described in our preprint <span class="citation">(Van den Berge et al. 2019)</span>.</p>
 <p>We use the effective library size, estimated with TMM <span class="citation">(Robinson and Oshlack 2010)</span>, as offset in the model. We allow for alternatives by allowing a user-defined offset with the <code>offset</code> argument.</p>
 <p>This dataset consists of UMI counts, and we do not expect zero inflation to be a big problem. However, we also allow to fit zero inflated negative binomial (ZINB) GAMs by providing observation-level weights to <code>fitGAM</code> using the <code>weights</code> argument. The <code>weights</code> must correspond to the posterior probability that a count belongs to the count component of the ZINB distribution <span class="citation">(Van den Berge et al. 2018)</span>.</p>
 <p>For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239 genes in total. We also include the <em>Irf8</em> gene, since it is a known transcription factor involved in hematopoiesis.</p>
-<p>The <code>fitGam</code> function relies on <strong>BiocParallel</strong> to implement parallelization, progress bars and so on.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># Register BiocParallel Serial Execution (no parallelization in that case)</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">BiocParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocParallel/topics/register">register</a></span>(BiocParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocParallel/topics/SerialParam-class">SerialParam</a></span>())</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">counts &lt;-<span class="st"> </span><span class="kw">assays</span>(se)<span class="op">$</span>counts <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>()</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5">filt &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>(counts <span class="op">&gt;</span><span class="st"> </span><span class="dv">8</span>) <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(counts)<span class="op">/</span><span class="dv">100</span></a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">filt[<span class="st">"Irf8"</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">counts &lt;-<span class="st"> </span>counts[filt, ]</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8">gamList &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts,</a>
-<a class="sourceLine" id="cb8-9" data-line-number="9">                  <span class="dt">pseudotime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>),</a>
-<a class="sourceLine" id="cb8-10" data-line-number="10">                  <span class="dt">cellWeights =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime">slingCurveWeights</a></span>(crv))</a>
-<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co"># This takes about 1mn to run</span></a></code></pre></div>
-<p>One may explore the results of a model by requesting its summary.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(gamList[[<span class="st">"Irf8"</span>]])</a></code></pre></div>
+<p>The <code>fitGAM</code> function relies on <strong>BiocParallel</strong> to implement parallelization, progress bars and so on. Similar to <code>evaluateK</code>, fitGAM can either take a <code>SlingshotDataSet</code> object as input (<code>sds</code> argument), or a matrix of pseudotimes and cell-level weights (<code>pseudotime</code> and <code>cellWeights</code> argument). If a <code>SlingshotDataSet</code> is provided, the function will return a <code>SingleCellExperiment</code> object that contains the essential output from <code>tradeSeq</code>. This is much more efficient than providing the pseudotime and cell-level weights as matrices, when a list of GAM models will be returned.</p>
+<p>While in this vignette we will proceed with using the <code>sds</code> argument, hence a <code>SingleCellExperiment</code> object as output, <code>tradeSeq</code> allows input from any trajectory inference method with the <code>pseudotime</code> and <code>cellWeights</code> arguments. All functions work with both the <code>SingleCellExperiment</code> (i.e., <code>sds</code> input to <code>fitGAM</code>) output as well as the list output (i.e., <code>pseudotime</code> and <code>cellWeights</code> input to <code>fitGAM</code>).</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># Register BiocParallel Serial Execution (no parallelization in that case)</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">BiocParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocParallel/topics/register">register</a></span>(BiocParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocParallel/topics/SerialParam-class">SerialParam</a></span>())</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">counts &lt;-<span class="st"> </span><span class="kw">assays</span>(se)<span class="op">$</span>counts <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>()</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">filt &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>(counts <span class="op">&gt;</span><span class="st"> </span><span class="dv">8</span>) <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(counts)<span class="op">/</span><span class="dv">100</span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">filt[<span class="st">"Irf8"</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">counts &lt;-<span class="st"> </span>counts[filt, ]</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8">sce &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts,</a>
+<a class="sourceLine" id="cb9-9" data-line-number="9">                  <span class="dt">sds =</span> crv)</a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co"># This takes about 1mn to run</span></a></code></pre></div>
+<p>You can also plot the cells in reduced dimension to see where the knots are located.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl,</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">              <span class="dt">models =</span> sce)</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+</div>
+<div id="within-lineage-comparisons" class="section level1">
+<h1 class="hasAnchor">
+<a href="#within-lineage-comparisons" class="anchor"></a>Within-lineage comparisons</h1>
+<div id="association-of-gene-expression-with-pseudotime" class="section level2">
+<h2 class="hasAnchor">
+<a href="#association-of-gene-expression-with-pseudotime" class="anchor"></a>Association of gene expression with pseudotime</h2>
+<p>A first exploration of the data analysis may consist in checking whether gene expression is associated with a particular lineage. The statistical test performed here, implemented in the <code>associationTest</code> function, is testing the null hypothesis that all smoother coefficients are equal to each other. This can be interpreted as testing whether the smoothed gene expression is significantly changing along pseudotime.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">assoRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/associationTest.html">associationTest</a></span>(sce)</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(assoRes)</a></code></pre></div>
+<pre><code>##        waldStat df       pvalue
+## Acin1 132.68744  9 0.000000e+00
+## Actb  463.67322  9 0.000000e+00
+## Ak2    88.04778  9 3.996803e-15
+## Alad  186.60115  9 0.000000e+00
+## Alas1 990.17356  9 0.000000e+00
+## Aldoa 254.57410  9 0.000000e+00</code></pre>
+</div>
+<div id="discovering-progenitor-marker-genes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#discovering-progenitor-marker-genes" class="anchor"></a>Discovering progenitor marker genes</h2>
+<p>In order to discover marker genes of the progenitor cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a lineage) with the differentiated cell type population (i.e., the end point of a lineage). In the function <code>startVsEndTest</code>, we have implemented a Wald test that tests the null hypothesis that the expression at the starting point of the smoother (progenitor population) is identical to the expression at the end point of the smoother (differentiated population). The test basically involves a comparison between two smoother coefficients for every lineage. The function <code>startVsEndTest</code> performs an omnibus test across all lineages by default, but you can also assess all lineages separately by setting <code>lineages=TRUE</code>. Below, we adopt an omnibus test across the two lineages.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">startRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(sce)</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<p>We can visualize the estimated smoothers for the most significant gene.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">oStart &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/order">order</a></span>(startRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">sigGeneStart &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sce)[oStart[<span class="dv">1</span>]]</a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene=</span>sigGeneStart)</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
+<p>Alternatively, we can color the cells in UMAP space with that gene’s expression.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> sigGeneStart)</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+</div>
+<div id="comparing-specific-pseudotime-values-within-a-lineage" class="section level2">
+<h2 class="hasAnchor">
+<a href="#comparing-specific-pseudotime-values-within-a-lineage" class="anchor"></a>Comparing specific pseudotime values within a lineage</h2>
+<p>The <code>startVsEndTest</code> compares two points on a lineage, and by default it is comparing the inception point with the end point. However, this is a specific form of a more general capability of the <code>startVsEndTest</code> to compare any two points on any lineage. If the interest lies in comparing any two custom pseudotime values, one can specify this using the <code>pseudotimeValues</code> arguments in <code>startVsEndTest</code>. For example, below we’d like to compare the expression for each gene at pseudotime values of <span class="math inline">\(0.8\)</span> and <span class="math inline">\(0.1\)</span>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">customRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(sce, <span class="dt">pseudotimeValues =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.1</span>, <span class="fl">0.8</span>))</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+</div>
+</div>
+<div id="between-lineage-comparisons" class="section level1">
+<h1 class="hasAnchor">
+<a href="#between-lineage-comparisons" class="anchor"></a>Between-lineage comparisons</h1>
+<div id="discovering-differentiated-cell-type-markers" class="section level2">
+<h2 class="hasAnchor">
+<a href="#discovering-differentiated-cell-type-markers" class="anchor"></a>Discovering differentiated cell type markers</h2>
+<p><code>tradeSeq</code> can discover marker genes for the differentiated cell types by comparing the end points of the lineage-specific smoothers. This is implemented in the <code>diffEndTest</code> function. By default, <code>diffEndTest</code> performs an omnibus test, testing the null hypothesis that the endpoint expression is equal for all lineages using a multivariate Wald test. If more than two trajectories are present, one can assess all pairwise comparisons using the <code>pairwise=TRUE</code> argument.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">endRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/diffEndTest.html">diffEndTest</a></span>(sce)</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<p>We can plot the most significant gene using the <code>plotSmoothers</code> function.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/order">order</a></span>(endRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb22-2" data-line-number="2">sigGene &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sce)[o[<span class="dv">1</span>]]</a>
+<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, sigGene)</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-14-1.png" width="672"></p>
+<p>Alternatively, we can color the cells in UMAP space with that gene’s expression.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> sigGene)</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+</div>
+<div id="discovering-genes-with-different-expression-patterns" class="section level2">
+<h2 class="hasAnchor">
+<a href="#discovering-genes-with-different-expression-patterns" class="anchor"></a>Discovering genes with different expression patterns</h2>
+<p>Asides from testing at the level of the differentiated cell type, researchers may be interested in assessing the expression pattern of a gene over pseudotime. The function <code>patternTest</code> implements a statistical method that checks whether the smoothed gene expression is equal along pseudotime between two or multiple lineages. In practice, we use <span class="math inline">\(100\)</span> points, equally distributed along pseudotime, that are compared between two (or multiple) lineages, and this number can be changed using the <code>nPoints</code> argument.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">patternRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/patternTest.html">patternTest</a></span>(sce)</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">oPat &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/order">order</a></span>(patternRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(patternRes)[oPat])</a></code></pre></div>
+<pre><code>## [1] "Mpo"   "Prtn3" "Car2"  "Ctsg"  "Elane" "H2afy"</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(patternRes)[oPat][<span class="dv">1</span>])</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-16-1.png" width="672"></p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(patternRes)[oPat][<span class="dv">1</span>])</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<p>We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the <em>patternTest</em> and their rank in decreasing Wald statistics for the <em>diffEndTest</em>.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">compare &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">inner_join</a></span>(patternRes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">Gene =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(patternRes),</a>
+<a class="sourceLine" id="cb32-2" data-line-number="2">                                            <span class="dt">pattern =</span> waldStat) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="st">                                     </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene, pattern),</a>
+<a class="sourceLine" id="cb32-4" data-line-number="4">                      endRes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">Gene =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(endRes),</a>
+<a class="sourceLine" id="cb32-5" data-line-number="5">                                        <span class="dt">end =</span> waldStat) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb32-6" data-line-number="6"><span class="st">                                 </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene, end),</a>
+<a class="sourceLine" id="cb32-7" data-line-number="7">                      <span class="dt">by =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Gene"</span> =<span class="st"> "Gene"</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb32-8" data-line-number="8"><span class="st">           </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">transientScore =</span> (<span class="kw"><a href="https://dplyr.tidyverse.org/reference/ranking.html">min_rank</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(end)))<span class="op">^</span><span class="dv">2</span> <span class="op">+</span></a>
+<a class="sourceLine" id="cb32-9" data-line-number="9"><span class="st">                                   </span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/ranking.html">dense_rank</a></span>(pattern))<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb32-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb32-11" data-line-number="11"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(compare, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(pattern), <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(end))) <span class="op">+</span></a>
+<a class="sourceLine" id="cb32-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> transientScore)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb32-13" data-line-number="13"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"patternTest Wald Statistic (log scale)"</span>,</a>
+<a class="sourceLine" id="cb32-14" data-line-number="14">       <span class="dt">y =</span> <span class="st">"diffEndTest Wald Statistic (log scale)"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb32-15" data-line-number="15"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_color_continuous</a></span>(<span class="dt">low =</span> <span class="st">"yellow"</span>, <span class="dt">high =</span> <span class="st">"red"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb32-16" data-line-number="16"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-18-1.png" width="672"></p>
+<p>Or, we can visualize the expression in UMAP space of the top gene.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1">topTransient &lt;-<span class="st"> </span>(compare <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(transientScore)))[<span class="dv">1</span>, <span class="st">"Gene"</span>]</a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene=</span>topTransient)</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-19-1.png" width="672"></p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> topTransient)</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
+<p>Interestingly, we recover the Irf8 gene in the top 5 genes according to that ranking.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(compare <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(transientScore)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene), <span class="dt">n =</span> <span class="dv">5</span>)</a></code></pre></div>
+<pre><code>##       Gene
+## 1    Nedd4
+## 2     Irf8
+## 3      Mt1
+## 4    Hint1
+## 5 Hsp90ab1</code></pre>
+<p>We can also plot the Irf8 gene.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene=</span><span class="st">"Irf8"</span>)</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-22-1.png" width="672"></p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="st">"Irf8"</span>)</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
+</div>
+<div id="early-drivers-of-differentiation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#early-drivers-of-differentiation" class="anchor"></a>Early drivers of differentiation</h2>
+<p>Another question of interest is to find a list of genes that are differentially expressed around the separation of two or multiple lineages. The function <code>earlyDETest</code> implements a statistical method to tests the null hypothesis of whether the smoothers are equal between two user-specified knots by building on the <code>patternTest</code>, but restricting itself to a particular location of the smoothers. Again, the knots can be visualized with the <code>plotGeneCount</code> function. By selecting the region covering the first two knot points to test for differential patterns between the lineages, we check which genes are behaving differently around the bifurcation point.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl,</a>
+<a class="sourceLine" id="cb41-2" data-line-number="2">              <span class="dt">models =</span> sce)</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1">earlyDERes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/earlyDETest.html">earlyDETest</a></span>(sce, <span class="dt">knots =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>))</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1">oEarly &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/order">order</a></span>(earlyDERes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb44-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(earlyDERes)[oEarly])</a></code></pre></div>
+<pre><code>## [1] "Car1"  "Mpo"   "H2afy" "Car2"  "Alas1" "Prtn3"</code></pre>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(earlyDERes)[oEarly][<span class="dv">2</span>])</a></code></pre></div>
+<pre><code>## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values
+
+## Warning in regularize.values(x, y, ties, missing(ties)): collapsing to
+## unique 'x' values</code></pre>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-25-1.png" width="672"></p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(earlyDERes)[oEarly][<span class="dv">2</span>])</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-26-1.png" width="700"></p>
+</div>
+</div>
+<div id="clustering-of-genes-according-to-their-expression-pattern" class="section level1">
+<h1 class="hasAnchor">
+<a href="#clustering-of-genes-according-to-their-expression-pattern" class="anchor"></a>Clustering of genes according to their expression pattern</h1>
+<p>tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the <code>clusterExpressionPatterns</code> function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the <code>nPoints</code> argument. The <code>genes</code> argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset. The clustering itself occurs by the <code>clusterExperiment</code> package <span class="citation">(Risso et al. 2018)</span>, hence the user may select any clustering algorithm that’s built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within <code>clusterExperiment</code>, run <code><a href="https://www.rdocumentation.org/packages/clusterExperiment/topics/builtInClusteringFunctions">clusterExperiment::listBuiltInFunctions()</a></code> on the command line.</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(clusterExperiment)</a>
+<a class="sourceLine" id="cb49-2" data-line-number="2">nPointsClus &lt;-<span class="st"> </span><span class="dv">20</span></a>
+<a class="sourceLine" id="cb49-3" data-line-number="3">clusPat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/clusterExpressionPatterns.html">clusterExpressionPatterns</a></span>(sce, <span class="dt">nPoints =</span> nPointsClus,</a>
+<a class="sourceLine" id="cb49-4" data-line-number="4">                                     <span class="dt">genes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(counts)[<span class="dv">1</span><span class="op">:</span><span class="dv">40</span>])</a></code></pre></div>
+<pre><code>## 36 parameter combinations, 36 use sequential method, 36 use subsampling method
+## Running Clustering on Parameter Combinations...
+## done.</code></pre>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" data-line-number="1">clusterLabels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/clusterExperiment/topics/ClusterExperiment-methods">primaryCluster</a></span>(clusPat<span class="op">$</span>rsec)</a></code></pre></div>
+<p>The clusters can be visualized using the normalized expression upon which the clustering is based.</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1">cUniq &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unique">unique</a></span>(clusterLabels)</a>
+<a class="sourceLine" id="cb52-2" data-line-number="2">cUniq &lt;-<span class="st"> </span>cUniq[<span class="op">!</span>cUniq <span class="op">==</span><span class="st"> </span><span class="dv">-1</span>] <span class="co"># remove unclustered genes</span></a>
+<a class="sourceLine" id="cb52-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb52-4" data-line-number="4">plots &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>()</a>
+<a class="sourceLine" id="cb52-5" data-line-number="5"><span class="cf">for</span> (xx <span class="cf">in</span> cUniq) {</a>
+<a class="sourceLine" id="cb52-6" data-line-number="6">  cId &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(clusterLabels <span class="op">==</span><span class="st"> </span>xx)</a>
+<a class="sourceLine" id="cb52-7" data-line-number="7">  p &lt;-<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="dt">data =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span>nPointsClus,</a>
+<a class="sourceLine" id="cb52-8" data-line-number="8">                                <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/range">range</a></span>(clusPat<span class="op">$</span>yhatScaled[cId, ]),</a>
+<a class="sourceLine" id="cb52-9" data-line-number="9">                                        nPointsClus <span class="op">/</span><span class="st"> </span><span class="dv">2</span>)),</a>
+<a class="sourceLine" id="cb52-10" data-line-number="10">              <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb52-11" data-line-number="11"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="dt">alpha =</span> <span class="dv">0</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb52-12" data-line-number="12"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">title =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Cluster "</span>, xx),  <span class="dt">x =</span> <span class="st">"Pseudotime"</span>, <span class="dt">y =</span> <span class="st">"Normalized expression"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb52-13" data-line-number="13"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</a>
+<a class="sourceLine" id="cb52-14" data-line-number="14">  <span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(cId)) {</a>
+<a class="sourceLine" id="cb52-15" data-line-number="15">    geneId &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(clusPat<span class="op">$</span>yhatScaled)[cId[ii]]</a>
+<a class="sourceLine" id="cb52-16" data-line-number="16">    p &lt;-<span class="st"> </span>p <span class="op">+</span></a>
+<a class="sourceLine" id="cb52-17" data-line-number="17"><span class="st">      </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(<span class="dt">data =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb52-18" data-line-number="18">                                  <span class="dt">y =</span> clusPat<span class="op">$</span>yhatScaled[geneId, ],</a>
+<a class="sourceLine" id="cb52-19" data-line-number="19">                                  <span class="dt">lineage =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dt">each =</span> nPointsClus)),</a>
+<a class="sourceLine" id="cb52-20" data-line-number="20">                <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(lineage), <span class="dt">group =</span> lineage), <span class="dt">lwd =</span> <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb52-21" data-line-number="21">  }</a>
+<a class="sourceLine" id="cb52-22" data-line-number="22">  p &lt;-<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span>(<span class="dt">color =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb52-23" data-line-number="23"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span>(<span class="dt">values =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"orange"</span>, <span class="st">"darkseagreen3"</span>),</a>
+<a class="sourceLine" id="cb52-24" data-line-number="24">                       <span class="dt">breaks =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"0"</span>, <span class="st">"1"</span>))  </a>
+<a class="sourceLine" id="cb52-25" data-line-number="25">  plots[[xx]] &lt;-<span class="st"> </span>p</a>
+<a class="sourceLine" id="cb52-26" data-line-number="26">}</a>
+<a class="sourceLine" id="cb52-27" data-line-number="27">plots<span class="op">$</span>ncol &lt;-<span class="st"> </span><span class="dv">2</span></a>
+<a class="sourceLine" id="cb52-28" data-line-number="28"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/do.call">do.call</a></span>(plot_grid, plots)</a></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-28-1.png" width="672"></p>
+</div>
+<div id="tradeseq-list-output" class="section level1">
+<h1 class="hasAnchor">
+<a href="#tradeseq-list-output" class="anchor"></a>tradeSeq list output</h1>
+<p>If another method than Slingshot is used for trajectory inference, one can input custom pseudotimes and cell-level weights in <code>fitGAM</code>, as we also discussed above. The output from <code>fitGAM</code> will be different in that case, and less memory efficient. All functions we have discussed above work exactly the same with the list output. However, the list output functionality is a little bit bigger, and here we discuss some capabilities that are only available with the list output.</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" data-line-number="1">gamList &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts, <span class="dt">pseudotime=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime">slingPseudotime</a></span>(crv, <span class="dt">na=</span><span class="ot">FALSE</span>),</a>
+<a class="sourceLine" id="cb53-2" data-line-number="2">                  <span class="dt">cellWeights=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/slingshot/topics/slingPseudotime">slingCurveWeights</a></span>(crv),</a>
+<a class="sourceLine" id="cb53-3" data-line-number="3">                  <span class="dt">nknots=</span><span class="dv">6</span>)</a></code></pre></div>
+<p>First, one may explore the results of a model by requesting its summary.</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(gamList[[<span class="st">"Irf8"</span>]])</a></code></pre></div>
 <pre><code>## 
 ## Family: Negative Binomial(2.201) 
 ## Link function: log 
@@ -165,190 +1283,33 @@
 ## Rank: 12/13
 ## R-sq.(adj) =  0.532   Deviance explained = 63.9%
 ## -REML = 2029.9  Scale est. = 1         n = 2660</code></pre>
-<p>You can also plot the cells in reduced dimension to see where the knots are located.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl,</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">              <span class="dt">models =</span> gamList)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-</div>
-<div id="within-lineage-comparisons" class="section level1">
-<h1 class="hasAnchor">
-<a href="#within-lineage-comparisons" class="anchor"></a>Within-lineage comparisons</h1>
-<div id="association-of-gene-expression-with-pseudotime" class="section level2">
-<h2 class="hasAnchor">
-<a href="#association-of-gene-expression-with-pseudotime" class="anchor"></a>Association of gene expression with pseudotime</h2>
-<p>A first exploration of the data analysis may consist in checking whether gene expression is associated with a particular lineage. The statistical test performed here, implemented in the <code>associationTest</code> function, is testing the null hypothesis that all smoother coefficients are equal to each other. This can be interpreted as testing whether the smoothed gene expression is significantly changing along pseudotime.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">assoRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/associationTest.html">associationTest</a></span>(gamList)</a></code></pre></div>
-<p>Related, one can extract the p-values generated by the <code>mgcv</code> package using the <code>getSmootherPvalues</code> function. These p-values are derived from a test that assesses the null hypothesis that all smoother coefficients are equal to zero. Note, however, that their interpretation is thus more complex. A significant lineage for a particular gene might thus be the result of (a) a different mean expression in that lineage as compared to the overall expression of that gene, or (b) significantly varying expression along that lineage, even if the means are equal, or (c) a combination of both. This function extracts the p-values calculated by <code>mgcv</code> from the GAM, and will return <code>NA</code> for genes that we were unable to fit properly. Similarly, the test statistics may be extracted with <code>getSmootherTestStats</code>. Since this dataset was pre-filtered to only contain relevant genes, all p-values (test statistics) will be very low (high).</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">pvalLineage &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getSmootherPvalues.html">getSmootherPvalues</a></span>(gamList)</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">statLineage &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getSmootherTestStats.html">getSmootherTestStats</a></span>(gamList)</a></code></pre></div>
-</div>
-<div id="discovering-progenitor-marker-genes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#discovering-progenitor-marker-genes" class="anchor"></a>Discovering progenitor marker genes</h2>
-<p>In order to discover marker genes of the progenitor cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a lineage) with the differentiated cell type population (i.e., the end point of a lineage). In the function <code>startVsEndTest</code>, we have implemented a Wald test that tests the null hypothesis that the expression at the starting point of the smoother (progenitor population) is identical to the expression at the end point of the smoother (differentiated population). The test basically involves a comparison between two smoother coefficients for every lineage. The function <code>startVsEndTest</code> performs an omnibus test across all lineages by default, but you can also assess all lienages separately by setting <code>lineages=TRUE</code>. Below, we adopt an omnibus test across the two lineages.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">startRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(gamList)</a></code></pre></div>
-<p>We can visualize the estimated smoothers for the most significant gene.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">oStart &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/order">order</a></span>(startRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2">sigGeneStart &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(gamList)[oStart[<span class="dv">1</span>]]</a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(gamList[[sigGeneStart]])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
-<p>Alternatively, we can color the cells in UMAP space with that gene’s expression.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> sigGeneStart)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-</div>
-</div>
-<div id="between-lineage-comparisons" class="section level1">
-<h1 class="hasAnchor">
-<a href="#between-lineage-comparisons" class="anchor"></a>Between-lineage comparisons</h1>
-<div id="discovering-differentiated-cell-type-markers" class="section level2">
-<h2 class="hasAnchor">
-<a href="#discovering-differentiated-cell-type-markers" class="anchor"></a>Discovering differentiated cell type markers</h2>
-<p><code>tradeSeq</code> can discover marker genes for the differentiated cell types by comparing the end points of the lineage-specific smoothers. This is implemented in the <code>diffEndTest</code> function. By default, <code>diffEndTest</code> performs an omnibus test, testing the null hypothesis that the endpoint expression is equal for all lineages using a multivariate Wald test. If more than two trajectories are present, one can assess all pairwise comparisons using the <code>pairwise=TRUE</code> argument.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">endRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/diffEndTest.html">diffEndTest</a></span>(gamList)</a></code></pre></div>
-<p>We can plot the most significant gene using the <code>plotSmoothers</code> function.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/order">order</a></span>(endRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">sigGene &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(gamList)[o[<span class="dv">1</span>]]</a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(gamList[[sigGene]])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-13-1.png" width="672"></p>
-<p>Alternatively, we can color the cells in UMAP space with that gene’s expression.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> sigGene)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
-</div>
-<div id="discovering-genes-with-different-expression-patterns" class="section level2">
-<h2 class="hasAnchor">
-<a href="#discovering-genes-with-different-expression-patterns" class="anchor"></a>Discovering genes with different expression patterns</h2>
-<p>Asides from testing at the level of the differentiated cell type, researchers may be interested in assessing the expression pattern of a gene over pseudotime. The function <code>patternTest</code> implements a statistical method that checks whether the smoothed gene expression is equal along pseudotime between two or multiple lineages. In practice, we use <span class="math inline">\(100\)</span> points, equally distributed along pseudotime, that are compared between two (or multiple) lineages, and this number can be changed using the <code>nPoints</code> argument.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">patternRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/patternTest.html">patternTest</a></span>(gamList)</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">oPat &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/order">order</a></span>(patternRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(patternRes)[oPat])</a></code></pre></div>
-<pre><code>## [1] "Mpo"   "Prtn3" "Car2"  "Ctsg"  "Elane" "H2afy"</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(gamList[[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(patternRes)[oPat][<span class="dv">1</span>]]])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-15-1.png" width="672"></p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(patternRes)[oPat][<span class="dv">1</span>])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
-<p>We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the <em>patternTest</em> and their rank in decreasing Wald statistics for the <em>diffEndTest</em>.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">compare &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">inner_join</a></span>(patternRes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">Gene =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(patternRes),</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2">                                            <span class="dt">pattern =</span> waldStat) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="st">                                     </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene, pattern),</a>
-<a class="sourceLine" id="cb24-4" data-line-number="4">                      endRes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">Gene =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(endRes),</a>
-<a class="sourceLine" id="cb24-5" data-line-number="5">                                        <span class="dt">end =</span> waldStat) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="st">                                 </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene, end),</a>
-<a class="sourceLine" id="cb24-7" data-line-number="7">                      <span class="dt">by =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Gene"</span> =<span class="st"> "Gene"</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-8" data-line-number="8"><span class="st">           </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">transientScore =</span> (<span class="kw"><a href="https://dplyr.tidyverse.org/reference/ranking.html">min_rank</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(end)))<span class="op">^</span><span class="dv">2</span> <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-9" data-line-number="9"><span class="st">                                   </span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/ranking.html">dense_rank</a></span>(pattern))<span class="op">^</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb24-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb24-11" data-line-number="11"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(compare, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(pattern), <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(end))) <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> transientScore)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-13" data-line-number="13"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"patternTest Wald Statistic (log scale)"</span>,</a>
-<a class="sourceLine" id="cb24-14" data-line-number="14">       <span class="dt">y =</span> <span class="st">"diffEndTest Wald Statistic (log scale)"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-15" data-line-number="15"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_color_continuous</a></span>(<span class="dt">low =</span> <span class="st">"yellow"</span>, <span class="dt">high =</span> <span class="st">"red"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-16" data-line-number="16"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-17-1.png" width="672"></p>
-<p>Or, we can visualize the expression in UMAP space of the top gene.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">topTransient &lt;-<span class="st"> </span>(compare <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(transientScore)))[<span class="dv">1</span>, <span class="st">"Gene"</span>]</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(gamList[[topTransient]])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-18-1.png" width="672"></p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> topTransient)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
-<p>Interestingly, we recover the Irf8 gene in the top 5 genes according to that ranking.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(compare <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(transientScore)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene), <span class="dt">n =</span> <span class="dv">5</span>)</a></code></pre></div>
-<pre><code>##       Gene
-## 1    Nedd4
-## 2     Irf8
-## 3      Mt1
-## 4    Hint1
-## 5 Hsp90ab1</code></pre>
-<p>We can also plot the Irf8 gene.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(gamList[[<span class="st">"Irf8"</span>]])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-21-1.png" width="672"></p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="st">"Irf8"</span>)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
-</div>
-<div id="early-drivers-of-differentiation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#early-drivers-of-differentiation" class="anchor"></a>Early drivers of differentiation</h2>
-<p>Another question of interest is to find a list of genes that are differentially expressed around the separation of two or multiple lineages. The function <code>earlyDETest</code> implements a statistical method to tests the null hypothesis of whether the smoothers are equal between two user-specified knots by building on the <code>patternTest</code>, but restricting itself to a particular location of the smoothers. Again, the knots can be visualized with the <code>plotGeneCount</code> function. By selecting the region covering the first two knot points to test for differential patterns between the lineages, we check which genes are behaving differently around the bifurcation point.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl,</a>
-<a class="sourceLine" id="cb31-2" data-line-number="2">              <span class="dt">models =</span> gamList)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">earlyDERes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/earlyDETest.html">earlyDETest</a></span>(gamList, <span class="dt">knots =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb32-2" data-line-number="2">oEarly &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/order">order</a></span>(earlyDERes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(earlyDERes)[oEarly])</a></code></pre></div>
-<pre><code>## [1] "Car1"  "Mpo"   "H2afy" "Car2"  "Alas1" "Prtn3"</code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(gamList[[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(earlyDERes)[oEarly][<span class="dv">2</span>]]])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-24-1.png" width="672"></p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(earlyDERes)[oEarly][<span class="dv">2</span>])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-25-1.png" width="700"></p>
-</div>
-</div>
-<div id="clustering-of-genes-according-to-their-expression-pattern" class="section level1">
-<h1 class="hasAnchor">
-<a href="#clustering-of-genes-according-to-their-expression-pattern" class="anchor"></a>Clustering of genes according to their expression pattern</h1>
-<p>tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the <code>clusterExpressionPatterns</code> function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the <code>nPoints</code> argument. The <code>genes</code> argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset. The clustering itself occurs by the <code>clusterExperiment</code> package <span class="citation">(Risso et al. 2018)</span>, hence the user may select any clustering algorithm that’s built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within <code>clusterExperiment</code>, run <code><a href="https://www.rdocumentation.org/packages/clusterExperiment/topics/builtInClusteringFunctions">clusterExperiment::listBuiltInFunctions()</a></code> on the command line.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(clusterExperiment)</a>
-<a class="sourceLine" id="cb36-2" data-line-number="2">nPointsClus &lt;-<span class="st"> </span><span class="dv">20</span></a>
-<a class="sourceLine" id="cb36-3" data-line-number="3">clusPat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/clusterExpressionPatterns.html">clusterExpressionPatterns</a></span>(gamList, <span class="dt">nPoints =</span> nPointsClus,</a>
-<a class="sourceLine" id="cb36-4" data-line-number="4">                                     <span class="dt">genes =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(counts)[<span class="dv">1</span><span class="op">:</span><span class="dv">40</span>])</a></code></pre></div>
-<pre><code>## 36 parameter combinations, 36 use sequential method, 36 use subsampling method
-## Running Clustering on Parameter Combinations...
-## done.</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1">clusterLabels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/clusterExperiment/topics/ClusterExperiment-methods">primaryCluster</a></span>(clusPat<span class="op">$</span>rsec)</a></code></pre></div>
-<p>The clusters can be visualized using the normalized expression upon which the clustering is based.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1">cUniq &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unique">unique</a></span>(clusterLabels)</a>
-<a class="sourceLine" id="cb39-2" data-line-number="2">cUniq &lt;-<span class="st"> </span>cUniq[<span class="op">!</span>cUniq <span class="op">==</span><span class="st"> </span><span class="dv">-1</span>] <span class="co"># remove unclustered genes</span></a>
-<a class="sourceLine" id="cb39-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb39-4" data-line-number="4">plots &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>()</a>
-<a class="sourceLine" id="cb39-5" data-line-number="5"><span class="cf">for</span> (xx <span class="cf">in</span> cUniq) {</a>
-<a class="sourceLine" id="cb39-6" data-line-number="6">  cId &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(clusterLabels <span class="op">==</span><span class="st"> </span>xx)</a>
-<a class="sourceLine" id="cb39-7" data-line-number="7">  p &lt;-<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="dt">data =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span>nPointsClus,</a>
-<a class="sourceLine" id="cb39-8" data-line-number="8">                                <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/range">range</a></span>(clusPat<span class="op">$</span>yhatScaled[cId, ]),</a>
-<a class="sourceLine" id="cb39-9" data-line-number="9">                                        nPointsClus <span class="op">/</span><span class="st"> </span><span class="dv">2</span>)),</a>
-<a class="sourceLine" id="cb39-10" data-line-number="10">              <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-11" data-line-number="11"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="dt">alpha =</span> <span class="dv">0</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-12" data-line-number="12"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">title =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Cluster "</span>, xx),  <span class="dt">x =</span> <span class="st">"Pseudotime"</span>, <span class="dt">y =</span> <span class="st">"Normalized expression"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-13" data-line-number="13"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</a>
-<a class="sourceLine" id="cb39-14" data-line-number="14">  <span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(cId)) {</a>
-<a class="sourceLine" id="cb39-15" data-line-number="15">    geneId &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(clusPat<span class="op">$</span>yhatScaled)[cId[ii]]</a>
-<a class="sourceLine" id="cb39-16" data-line-number="16">    p &lt;-<span class="st"> </span>p <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-17" data-line-number="17"><span class="st">      </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(<span class="dt">data =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb39-18" data-line-number="18">                                  <span class="dt">y =</span> clusPat<span class="op">$</span>yhatScaled[geneId, ],</a>
-<a class="sourceLine" id="cb39-19" data-line-number="19">                                  <span class="dt">lineage =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dt">each =</span> nPointsClus)),</a>
-<a class="sourceLine" id="cb39-20" data-line-number="20">                <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(lineage), <span class="dt">group =</span> lineage), <span class="dt">lwd =</span> <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb39-21" data-line-number="21">  }</a>
-<a class="sourceLine" id="cb39-22" data-line-number="22">  p &lt;-<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span>(<span class="dt">color =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-23" data-line-number="23"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span>(<span class="dt">values =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"orange"</span>, <span class="st">"darkseagreen3"</span>),</a>
-<a class="sourceLine" id="cb39-24" data-line-number="24">                       <span class="dt">breaks =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"0"</span>, <span class="st">"1"</span>))  </a>
-<a class="sourceLine" id="cb39-25" data-line-number="25">  plots[[xx]] &lt;-<span class="st"> </span>p</a>
-<a class="sourceLine" id="cb39-26" data-line-number="26">}</a>
-<a class="sourceLine" id="cb39-27" data-line-number="27">plots<span class="op">$</span>ncol &lt;-<span class="st"> </span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb39-28" data-line-number="28"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/do.call">do.call</a></span>(plot_grid, plots)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-27-1.png" width="672"></p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.remove</a></span>(<span class="st">"./se_paul.rda"</span>)</a></code></pre></div>
-<pre><code>## [1] TRUE</code></pre>
+<p>Related to the <code>associationTest</code>, one can extract the p-values generated by the <code>mgcv</code> package using the <code>getSmootherPvalues</code> function. These p-values are derived from a test that assesses the null hypothesis that all smoother coefficients are equal to zero. Note, however, that their interpretation is thus more complex. A significant lineage for a particular gene might thus be the result of (a) a different mean expression in that lineage as compared to the overall expression of that gene, or (b) significantly varying expression along that lineage, even if the means are equal, or (c) a combination of both. This function extracts the p-values calculated by <code>mgcv</code> from the GAM, and will return <code>NA</code> for genes that we were unable to fit properly. Similarly, the test statistics may be extracted with <code>getSmootherTestStats</code>. Since this dataset was pre-filtered to only contain relevant genes, all p-values (test statistics) will be very low (high). Note, that these functions are only applicable with the list output of <code>tradeSeq</code>, and not with the <code>SingleCellExperiment</code> output. We will therefore not evaluate these here.</p>
 </div>
 <div id="convergence-issues-on-small-or-zero-inflated-datasets" class="section level1">
 <h1 class="hasAnchor">
 <a href="#convergence-issues-on-small-or-zero-inflated-datasets" class="anchor"></a>Convergence issues on small or zero-inflated datasets</h1>
 <p>If you’re working with a dataset that has a limited number of cells, or if you are incorporating zero inflation weights, the GAMs may be harder to fit, as noted by the warnings when running <code>fitGAM</code>. In that case, the situation might improve if you allow for more iterations in the GAM fitting. This can be done with the <code>control</code> argument of <code>fitGAM</code>.</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1">control &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/mgcv/topics/gam.control">gam.control</a></span>()</a>
-<a class="sourceLine" id="cb42-2" data-line-number="2">control<span class="op">$</span>maxit &lt;-<span class="st"> </span><span class="dv">1000</span> <span class="co">#set maximum number of iterations to 1K</span></a>
-<a class="sourceLine" id="cb42-3" data-line-number="3"><span class="co"># pass to control argument of fitGAM as below:</span></a>
-<a class="sourceLine" id="cb42-4" data-line-number="4"><span class="co"># </span></a>
-<a class="sourceLine" id="cb42-5" data-line-number="5"><span class="co"># gamList &lt;- fitGAM(counts = counts,</span></a>
-<a class="sourceLine" id="cb42-6" data-line-number="6"><span class="co">#                   pseudotime = slingPseudotime(crv, na = FALSE),</span></a>
-<a class="sourceLine" id="cb42-7" data-line-number="7"><span class="co">#                   cellWeights = slingCurveWeights(crv),</span></a>
-<a class="sourceLine" id="cb42-8" data-line-number="8"><span class="co">#                   control = control)</span></a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1">control &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/mgcv/topics/gam.control">gam.control</a></span>()</a>
+<a class="sourceLine" id="cb56-2" data-line-number="2">control<span class="op">$</span>maxit &lt;-<span class="st"> </span><span class="dv">1000</span> <span class="co">#set maximum number of iterations to 1K</span></a>
+<a class="sourceLine" id="cb56-3" data-line-number="3"><span class="co"># pass to control argument of fitGAM as below:</span></a>
+<a class="sourceLine" id="cb56-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb56-5" data-line-number="5"><span class="co"># gamList &lt;- fitGAM(counts = counts,</span></a>
+<a class="sourceLine" id="cb56-6" data-line-number="6"><span class="co">#                   pseudotime = slingPseudotime(crv, na = FALSE),</span></a>
+<a class="sourceLine" id="cb56-7" data-line-number="7"><span class="co">#                   cellWeights = slingCurveWeights(crv),</span></a>
+<a class="sourceLine" id="cb56-8" data-line-number="8"><span class="co">#                   control = control)</span></a></code></pre></div>
 </div>
 <div id="cheatsheet" class="section level1">
 <h1 class="hasAnchor">
 <a href="#cheatsheet" class="anchor"></a>Cheatsheet</h1>
 <p>To recapitulate the workflow, we have created a cheatsheet that users can refer to when deciding which tests to run.</p>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-29-1.png" width="700"></p>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-33-1.png" width="700"></p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.remove</a></span>(<span class="st">"./se_paul.rda"</span>)</a></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
 </div>
 <div id="session" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session" class="anchor"></a>Session</h1>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
 <pre><code>## R version 3.6.0 (2019-04-26)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS Mojave 10.14.6
@@ -374,20 +1335,20 @@
 ##  [3] tidyr_0.8.3                 ggplot2_3.2.1              
 ##  [5] dplyr_0.8.3                 RColorBrewer_1.1-2         
 ##  [7] slingshot_1.3.2             princurve_2.1.4            
-##  [9] tradeSeq_0.99.41            bigmemory_4.5.33           
+##  [9] tradeSeq_0.99.52            bigmemory_4.5.33           
 ## [11] mgcv_1.8-28                 nlme_3.1-141               
 ## [13] SingleCellExperiment_1.6.0  SummarizedExperiment_1.14.1
 ## [15] DelayedArray_0.10.0         BiocParallel_1.18.1        
 ## [17] matrixStats_0.54.0          Biobase_2.44.0             
 ## [19] GenomicRanges_1.36.0        GenomeInfoDb_1.20.0        
-## [21] IRanges_2.18.1              S4Vectors_0.22.0           
+## [21] IRanges_2.18.2              S4Vectors_0.22.0           
 ## [23] BiocGenerics_0.30.0        
 ## 
 ## loaded via a namespace (and not attached):
 ##   [1] bigmemory.sri_0.1.3    colorspace_1.4-1       rprojroot_1.3-2       
 ##   [4] XVector_0.24.0         fs_1.3.1               rstudioapi_0.10       
 ##   [7] roxygen2_6.1.1         bit64_0.9-7            gsl_1.9-10.3          
-##  [10] AnnotationDbi_1.46.0   RSpectra_0.15-0        mvtnorm_1.0-11        
+##  [10] AnnotationDbi_1.46.1   RSpectra_0.15-0        mvtnorm_1.0-11        
 ##  [13] xml2_1.2.2             codetools_0.2-16       splines_3.6.0         
 ##  [16] doParallel_1.0.15      knitr_1.24             zeallot_0.1.0         
 ##  [19] ade4_1.7-13            locfdr_1.1-8           phylobase_0.8.6       
@@ -402,9 +1363,9 @@
 ##  [46] zinbwave_1.6.0         pkgdown_1.3.0          NMF_0.21.0            
 ##  [49] vctrs_0.2.0            ape_5.3                iterators_1.0.12      
 ##  [52] xfun_0.9               stringr_1.4.0          rngtools_1.4          
-##  [55] XML_3.98-1.20          edgeR_3.26.7           zlibbioc_1.30.0       
-##  [58] MASS_7.3-51.4          scales_1.0.0           hms_0.5.0             
-##  [61] rhdf5_2.28.0           yaml_2.2.0             pbapply_1.4-1         
+##  [55] XML_3.98-1.20          edgeR_3.26.8           zlibbioc_1.30.0       
+##  [58] MASS_7.3-51.4          scales_1.0.0           hms_0.5.1             
+##  [61] rhdf5_2.28.0           yaml_2.2.0             pbapply_1.4-2         
 ##  [64] memoise_1.1.0          pkgmaker_0.27          RSQLite_2.1.2         
 ##  [67] stringi_1.4.3          genefilter_1.66.0      desc_1.2.0            
 ##  [70] pcaPP_1.9-73           foreach_1.4.7          bibtex_0.4.2          
@@ -413,7 +1374,7 @@
 ##  [79] lattice_0.20-38        Rhdf5lib_1.6.0         purrr_0.3.2           
 ##  [82] labeling_0.3           bit_1.1-14             tidyselect_0.2.5      
 ##  [85] plyr_1.8.4             magrittr_1.5           R6_2.4.0              
-##  [88] magick_2.1             ADGofTest_0.3          DBI_1.0.0             
+##  [88] magick_2.2             ADGofTest_0.3          DBI_1.0.0             
 ##  [91] pillar_1.4.2           withr_2.1.2            survival_2.44-1.1     
 ##  [94] RCurl_1.95-4.12        tibble_2.1.3           pspline_1.0-18        
 ##  [97] crayon_1.3.4           uuid_0.1-2             howmany_0.3-1         
@@ -442,22 +1403,28 @@
 <div id="ref-VandenBerge2018">
 <p>Van den Berge, Koen, Fanny Perraudeau, Charlotte Soneson, Michael I. Love, Davide Risso, Jean-Philippe Vert, Mark D. Robinson, Sandrine Dudoit, and Lieven Clement. 2018. “Observation weights unlock bulk RNA-seq tools for zero inflation and single-cell applications.” <em>Genome Biology</em> 19 (1). BioMed Central: 24. <a href="https://doi.org/10.1186/s13059-018-1406-4">https://doi.org/10.1186/s13059-018-1406-4</a>.</p>
 </div>
+<div id="ref-VandenBerge2019a">
+<p>Van den Berge, Koen, Hector Roux de Bézieux, Kelly Street, Wouter Saelens, Robrecht Cannoodt, Yvan Saeys, Sandrine Dudoit, and Lieven Clement. 2019. “Trajectory-based differential expression analysis for single-cell sequencing data.” <em>bioRxiv</em>, May. Cold Spring Harbor Laboratory, 623397. <a href="https://doi.org/10.1101/623397">https://doi.org/10.1101/623397</a>.</p>
+</div>
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#load-data">Load data</a></li>
       <li><a href="#fit-trajectories-using-slingshot">Fit trajectories using slingshot</a></li>
+      <li><a href="#determining-the-number-of-knots">Determining the number of knots</a></li>
       <li><a href="#fit-additive-models">Fit additive models</a></li>
       <li>
 <a href="#within-lineage-comparisons">Within-lineage comparisons</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#association-of-gene-expression-with-pseudotime">Association of gene expression with pseudotime</a></li>
       <li><a href="#discovering-progenitor-marker-genes">Discovering progenitor marker genes</a></li>
+      <li><a href="#comparing-specific-pseudotime-values-within-a-lineage">Comparing specific pseudotime values within a lineage</a></li>
       </ul>
 </li>
       <li>
@@ -468,6 +1435,7 @@
       </ul>
 </li>
       <li><a href="#clustering-of-genes-according-to-their-expression-pattern">Clustering of genes according to their expression pattern</a></li>
+      <li><a href="#tradeseq-list-output">tradeSeq list output</a></li>
       <li><a href="#convergence-issues-on-small-or-zero-inflated-datasets">Convergence issues on small or zero-inflated datasets</a></li>
       <li><a href="#cheatsheet">Cheatsheet</a></li>
       <li><a href="#session">Session</a></li>
