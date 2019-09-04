@@ -309,3 +309,10 @@ getRank <- function(m,L){
   r <- sum(eSigma$values / eSigma$values[1] > 1e-8)
   return(r)
 }
+
+.onAttach <- function(libname, pkgname){
+  packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",
+                               "singleCellExperiment objects as output, making ",
+                               "it much more memory efficient. Please ",
+                               "check the updated vignette for details."))
+}
