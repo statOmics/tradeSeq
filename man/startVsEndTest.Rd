@@ -32,7 +32,8 @@ values to be compared against each other, for every lineage of
 A matrix with the wald statistic, the number of df and the p-value
  associated with each gene for all the tests performed. If the testing
  procedure was unsuccessful, the procedure will return NA test statistics and
- p-values.
+ p-values. If both \code{global} and \code{lineages} are TRUE, then a matrix
+ of p-values is returned.
 }
 \description{
 Perform statistical test to check for DE between starting point and the end

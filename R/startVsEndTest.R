@@ -146,9 +146,9 @@
   }
 
   if (global == TRUE & lineages == FALSE) return(waldResults)
-  if (global == FALSE & lineages == TRUE) return(pvalslineages)
+  if (global == FALSE & lineages == TRUE) return(pvalsLineages)
   if (global & lineages) {
-    resAll <- cbind(pvalsOmnibus, pvalslineages)
+    resAll <- cbind(waldResults[,1], pvalsLineages)
     colnames(resAll)[1] <- "global"
     return(resAll)
   }
@@ -175,7 +175,8 @@
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed. If the testing
 #'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
+#'  p-values. If both \code{global} and \code{lineages} are TRUE, then a matrix
+#'  of p-values is returned.
 #' @export
 #' @name startVsEndTest
 #' @import SingleCellExperiment
