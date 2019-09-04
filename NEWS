@@ -1,7 +1,7 @@
 Changes in version 0.99.47 (2019-09-02)
-+ tradeSeq now relies on `singleCellExperiment`
-  o fitGam now accept a `singleCellExperiment` object as input
-  o All tests and plotting functions also do
++ tradeSeq now provides `singleCellExperiment` output
+  o fitGam now accepts a `slingshotDataSet` object as input
+  o All tests and plotting functions accept a `singleCellExperiment` object that contain tradeSeq output
 
 Changes in version 0.99.0 (2019-06-22)
 + Submitted to Bioconductor
