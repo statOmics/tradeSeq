@@ -44,7 +44,7 @@
       stop("Not all gene IDs are present in the models object.")
     }
     id <- which(names(models) %in% genes)
-  }
+  } else id <- genes
 
   if(is(models, "list")){
     sce <- FALSE
