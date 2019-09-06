@@ -136,9 +136,10 @@
       } else if(sce){
         # get df
         dfList <- .patternDfPairwise(dm = dm,
-                             nPoints = nPoints,
-                             knots = knots,
-                             knotPoints = knotPoints)
+                                     curves = curvesNow,
+                                     nPoints = nPoints,
+                                     knots = knots,
+                                     knotPoints = knotPoints)
         # get linear predictor
         for(ii in 1:2){ #pairwise => always 2 curves
           assign(paste0("X", ii), predictGAM(lpmatrix = X,
