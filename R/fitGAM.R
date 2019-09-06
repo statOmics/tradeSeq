@@ -68,6 +68,13 @@
     }
   }
 
+  # check if dimensions of U and counts agree
+  if(!is.null(U)){
+    if(!(nrow(U) == ncol(counts))){
+      stop("The dimensions of U do not match those of counts.")
+    }
+  }
+
   # below errors if sparse matrix is used as input.
   # if (!is.integer(counts)) {
   #   if (any(round(counts) != counts)) {
