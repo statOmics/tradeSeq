@@ -134,6 +134,7 @@
           })
 
       } else if(sce){
+        # TODO: added curvesNow, check.
         # get df
         dfList <- .patternDfPairwise(dm = dm,
                                      curves = curvesNow,
@@ -147,7 +148,7 @@
                                              pseudotime = pseudotime))
         }
         L <- t(X1-X2)
-        waldResPair <- lapply(models, function(m){
+        waldResPair <- lapply(1:nrow(models), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
           getEigenStatGAM(beta, Sigma, L)
