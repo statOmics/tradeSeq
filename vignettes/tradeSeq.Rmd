@@ -316,14 +316,14 @@ clusPat <- clusterExpressionPatterns(sce, nPoints = nPointsClus,
 clusterLabels <- primaryCluster(clusPat$rsec)
 ```
 
-The clusters can be visualized using the normalized expression upon which the clustering is based.
+The first 4 clusters can be visualized using the normalized expression upon which the clustering is based.
 
-```{r, fig.width=7, fig.height=7}
+```{r, fig.width=5, fig.height=5}
 cUniq <- unique(clusterLabels)
 cUniq <- cUniq[!cUniq == -1] # remove unclustered genes
 
 plots <- list()
-for (xx in cUniq) {
+for (xx in cUniq[1:4]) {
   cId <- which(clusterLabels == xx)
   p <- ggplot(data = data.frame(x = 1:nPointsClus,
                                 y = rep(range(clusPat$yhatScaled[cId, ]),
@@ -343,7 +343,7 @@ for (xx in cUniq) {
   p <- p + guides(color = FALSE) +
     scale_color_manual(values = c("orange", "darkseagreen3"),
                        breaks = c("0", "1"))  
-  plots[[xx]] <- p
+  plots[[as.character(xx)]] <- p
 }
 plots$ncol <- 2
 do.call(plot_grid, plots)
@@ -354,9 +354,10 @@ do.call(plot_grid, plots)
 If another method than Slingshot is used for trajectory inference, one can input custom pseudotimes and cell-level weights in `fitGAM`, as we also discussed above. The output from `fitGAM` will be different in that case, and less memory efficient. All functions we have discussed above work exactly the same with the list output. However, the list output functionality is a little bit bigger, and here we discuss some capabilities that are only available with the list output.
 
 ```{r}
-gamList <- fitGAM(counts, pseudotime=slingPseudotime(crv, na=FALSE),
-                  cellWeights=slingCurveWeights(crv),
-                  nknots=6)
+gamList <- fitGAM(counts,
+                  pseudotime = slingPseudotime(crv, na = FALSE),
+                  cellWeights = slingCurveWeights(crv),
+                  nknots = 6)
 ```
 
 

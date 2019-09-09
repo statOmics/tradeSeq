@@ -12,36 +12,37 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   lineages <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
                                 start = 4, stop = 4))
   nCurves <- length(unique(lineages))
-  for(ii in seq_len(nCurves)){
+  for (ii in seq_len(nCurves)) {
     assign(paste0("id",ii), allBs[which(lineages == ii)])
   }
 
   # specify lineage assignment for each cell (i.e., row of lpmatrix)
   lineageID <- apply(lpmatrix, 1, function(x){
-    for(ii in seq_len(nCurves)){
-      if(!all(x[get(paste0("id", ii))] == 0)){
+    for (ii in seq_len(nCurves)) {
+      if (!all(x[get(paste0("id", ii))] == 0)) {
         return(ii)
       }
     }
   })
 
   # fit splinefun for each basis function based on assigned cells
-  for(ii in seq_len(nCurves)){ # loop over curves
-    for(jj in seq_len(length(allBs)/nCurves)){ #within curve, loop over basis functions
+  for (ii in seq_len(nCurves)) { # loop over curves
+    for (jj in seq_len(length(allBs) / nCurves)) { #within curve, loop over basis functions
       assign(paste0("l",ii,".",jj),
              splinefun(x = pseudotime[lineageID == ii, ii],
                        y = lpmatrix[lineageID == ii, #only cells for lineage
-                                    get(paste0("id", ii))[jj]])) #basis function
+                                    get(paste0("id", ii))[jj]],
+                       ties = mean)) #basis function
     }
   }
 
   # use input to estimate X for each basis function
-  Xout <- matrix(0, nrow=nrow(df), ncol=ncol(lpmatrix))
-  for(ii in seq_len(nCurves)){ # loop over curves
-    if(all(df[,paste0("l",ii)] == 1)){ # only predict if weight = 1
-      for(jj in seq_len(length(allBs)/nCurves)){ #within curve, loop over basis functions
-        f <- get(paste0("l",ii,".",jj))
-        Xout[, get(paste0("id",ii))[jj]] <- f(df[,paste0("t",ii)])
+  Xout <- matrix(0, nrow = nrow(df), ncol = ncol(lpmatrix))
+  for (ii in seq_len(nCurves)) { # loop over curves
+    if (all(df[, paste0("l", ii)] == 1)) { # only predict if weight = 1
+      for (jj in seq_len(length(allBs) / nCurves)) { # within curve, loop over basis functions
+        f <- get(paste0("l", ii, ".", jj))
+        Xout[, get(paste0("id", ii))[jj]] <- f(df[, paste0("t", ii)])
       }
     }
   }
@@ -144,12 +145,14 @@ predictGAM <- function(lpmatrix, df, pseudotime){
 waldTest <- function(beta, Sigma, L){
   ### build a contrast matrix for a multivariate Wald test
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent=TRUE)
-  if (is(sigmaInv)[1] == "try-error") return(c(NA,NA,NA))
+  sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
+  if (is(sigmaInv)[1] == "try-error") {
+    return(c(NA, NA, NA))
+  }
   wald <- t(t(LQR) %*% beta) %*%
     sigmaInv %*%
     t(LQR) %*% beta
-  if(wald < 0) wald <- 0
+  if (wald < 0) wald <- 0
   df <- ncol(LQR)
   pval <- 1 - pchisq(wald, df = df)
   return(c(wald, df, pval))
