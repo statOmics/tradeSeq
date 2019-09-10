@@ -1,7 +1,5 @@
 #' @include utils.R
 
-#' @title Assess differential expression pattern between lineages.
-#'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints the number of points to be compared between lineages.
@@ -15,7 +13,7 @@
 #'  associated with each gene for all the tests performed. If the testing
 #'  procedure was unsuccessful, the procedure will return NA test statistics and
 #'  p-values.
-#' @name patternTest
+#' @rdname patternTest
 #' @export
 setMethod(f = "patternTest",
           signature = c(models = "list"),

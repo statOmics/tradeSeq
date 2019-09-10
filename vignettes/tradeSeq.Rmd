@@ -30,6 +30,11 @@ suppressPackageStartupMessages({
   library(tidyr)
   library(cowplot)
 })
+library(knitr)
+opts_chunk$set(
+  eval = F
+)
+
 RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
 if (!file.exists("./se_paul.rda")) {

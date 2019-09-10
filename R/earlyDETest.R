@@ -4,24 +4,24 @@
 .earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
                         pairwise = FALSE){
 
-  if(is(models, "list")){
+  if (is(models, "list")) {
     sce <- FALSE
-  } else if(is(models, "SingleCellExperiment")){
+  } else if (is(models, "SingleCellExperiment")) {
     sce <- TRUE
   }
 
   # get predictor matrix for every lineage.
-  if(!sce){ # list output of fitGAM
+  if (!sce) { # list output of fitGAM
 
     modelTemp <- .getModelReference(models)
     nCurves <- length(modelTemp$smooth)
     if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if(nCurves == 2 & pairwise == TRUE){
+    if (nCurves == 2 & pairwise == TRUE) {
       message("Only two lineages; skipping pairwise comparison.")
       pairwise <- FALSE
     }
     data <- modelTemp$model
-  } else if(sce){
+  } else if (sce) {
 
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
@@ -31,34 +31,34 @@
                                          pattern = "pseudotime")]
     nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
     if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if(nCurves == 2 & pairwise == TRUE){
+    if (nCurves == 2 & pairwise == TRUE) {
       message("Only two lineages; skipping pairwise comparison.")
       pairwise <- FALSE
     }
   }
 
   # do statistical test for every model through eigenvalue decomposition
-  if(global){
-    if(!sce){
+  if (global) {
+    if (!sce) {
       # get df
       dfList <- .patternDf(dm = modelTemp$model,
                       nPoints = nPoints,
                       knots = knots,
                       knotPoints = modelTemp$smooth[[1]]$xp)
       # get linear predictor
-      for(jj in seq_len(nCurves)){
+      for (jj in seq_len(nCurves)) {
         assign(paste0("X", jj), predict(modelTemp,
                                         newdata = dfList[[jj]],
                                         type = "lpmatrix"))
       }
-    } else if(sce){
+    } else if (sce) {
       # get df
       dfList <- .patternDf(dm = dm,
                       nPoints = nPoints,
                       knots = knots,
                       knotPoints = knotPoints)
       # get linear predictor
-      for(jj in seq_len(nCurves)){
+      for (jj in seq_len(nCurves)) {
         assign(paste0("X", jj), predictGAM(lpmatrix = X,
                                         df = dfList[[jj]],
                                         pseudotime = pseudotime))
@@ -83,14 +83,14 @@
     L <- t(L)
 
     # perform Wald test and calculate p-value
-    if(!sce){
+    if (!sce) {
       waldResOmnibus <- lapply(models, function(m){
         if (is(m)[1] == "try-error") return(c(NA))
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
         getEigenStatGAM(beta, Sigma, L)
       })
-    } else if(sce){
+    } else if (sce) {
       waldResOmnibus <- lapply(1:nrow(models), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
@@ -112,7 +112,7 @@
     combs <- combn(x = nCurves, m = 2)
     for (jj in seq_len(ncol(combs))) {
       curvesNow <- combs[,jj]
-      if(!sce){
+      if (!sce) {
         # get df
         dfListPair <- .patternDfPairwise(dm = modelTemp$model,
                                      curves = curvesNow,
@@ -120,12 +120,12 @@
                                      knots = knots,
                                      knotPoints = modelTemp$smooth[[1]]$xp)
         # get linear predictor
-        for(ii in 1:2){ #always 2 curves we're comparing
+        for (ii in 1:2) { #always 2 curves we're comparing
           assign(paste0("X", ii), predict(modelTemp,
                                           newdata = dfListPair[[ii]],
                                           type = "lpmatrix"))
         }
-        L <- t(X1-X2)
+        L <- t(X1 - X2)
         waldResPair <- lapply(models, function(m){
           if (is(m)[1] == "try-error") return(c(NA))
           beta <- matrix(coef(m), ncol = 1)
@@ -133,7 +133,7 @@
           getEigenStatGAM(beta, Sigma, L)
           })
 
-      } else if(sce){
+      } else if (sce) {
         # TODO: added curvesNow, check.
         # get df
         dfList <- .patternDfPairwise(dm = dm,
@@ -142,12 +142,12 @@
                                      knots = knots,
                                      knotPoints = knotPoints)
         # get linear predictor
-        for(ii in 1:2){ #pairwise => always 2 curves
+        for (ii in 1:2) { #pairwise => always 2 curves
           assign(paste0("X", ii), predictGAM(lpmatrix = X,
                                              df = dfList[[ii]],
                                              pseudotime = pseudotime))
         }
-        L <- t(X1-X2)
+        L <- t(X1 - X2)
         waldResPair <- lapply(1:nrow(models), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
@@ -197,7 +197,7 @@
 #'  function has a models optional parameter that can be used to visualize
 #'   where the knots are. This helps the user to decide which knots to use when
 #'    defining the branching
-#' @name earlyDETest
+#' @rdname earlyDETest
 #' @export
 #' @import SingleCellExperiment
 setMethod(f = "earlyDETest",

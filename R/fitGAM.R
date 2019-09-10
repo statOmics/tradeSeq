@@ -267,8 +267,6 @@
 #' This fits the NB-GAM model as described in Van den Berge et al.[2019]
 #'
 #' @rdname fitGAM
-#' @name fitGAM
-#' @title fitGAM
 #' @param counts the count matrix.
 #' @param U the design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
@@ -341,24 +339,24 @@ setMethod(f = "fitGAM",
                                 family = "nb"){
 
             ## either pseudotime or slingshot object should be provided
-            if(is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))){
+            if (is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))) {
               stop("Either provide the slingshot object using the sds ",
                    "argument, or provide pseudotime and cell-level weights ",
                    "manually using pseudotime and cellWeights arguments.")
             }
 
-            if(!is.null(sds)){
+            if (!is.null(sds)) {
               # check if input is slingshotdataset
-              if(is(sds, "SlingshotDataSet")){
+              if (is(sds, "SlingshotDataSet")) {
                 sce <- TRUE
               } else stop("sds argument must be a SlingshotDataSet object.")
 
               # extract variables from slingshotdataset
-              pseudotime <- slingPseudotime(sds, na=FALSE)
+              pseudotime <- slingPseudotime(sds, na = FALSE)
               cellWeights <- slingCurveWeights(sds)
             }
 
-            if(is.null(counts)) stop("Provide expression counts using counts",
+            if (is.null(counts)) stop("Provide expression counts using counts",
                                      " argument.")
 
             gamOutput <- .fitGAM(counts = counts,
@@ -377,7 +375,9 @@ setMethod(f = "fitGAM",
                                  family = family)
 
             # old behaviour: return list
-            if(!sce) return(gamOutput)
+            if (!sce) {
+              return(gamOutput)
+            }
 
             # return SingleCellExperiment object
             sc <- SingleCellExperiment(assays = list(counts = counts))
@@ -394,7 +394,7 @@ setMethod(f = "fitGAM",
             colData(sc)$tradeSeq <- tibble::tibble(X = X,
                                                     dm = dm)
             # metadata: tradeSeq knots
-            metadata(sc)$tradeSeq <- list(knots=gamOutput$knotPoints)
+            metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints)
             return(sc)
 
           }

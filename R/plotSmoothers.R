@@ -120,10 +120,6 @@
 #' @import mgcv
 setOldClass("gam")
 
-
-#' @title Plot the log-transformed counts and the fitted values for a particular
-#'  gene along all linesges
-#'
 #' @param m the fitted model of a given gene
 #' @param nPoints The number of points used to extraplolate the fit
 #' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}
@@ -136,7 +132,7 @@ setOldClass("gam")
 #' plotSmoothers(gamList[[4]])
 #' @import ggplot2
 #' @import mgcv
-#' @name plotSmoothers
+#' @rdname plotSmoothers
 #' @export
 setMethod(f = "plotSmoothers",
           signature = c(models = "gam"),

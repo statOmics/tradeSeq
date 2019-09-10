@@ -7,15 +7,15 @@
   # TODO: add fold changes
 
 
-  if(is(models, "list")){
+  if (is(models, "list")) {
     sce <- FALSE
-  } else if(is(models, "SingleCellExperiment")){
+  } else if (is(models, "SingleCellExperiment")) {
     sce <- TRUE
   }
 
 
   # get predictor matrix for every lineage.
-  if(!sce){ # list output of fitGAM
+  if (!sce) { # list output of fitGAM
     modelTemp <- .getModelReference(models)
     nCurves <- length(modelTemp$smooth)
 
@@ -44,7 +44,7 @@
         L[, jj] <- XEnd - XStart
       }
     }
-    } else if(sce){ #singlecellexperiment
+    } else if (sce) { #singlecellexperiment
 
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
@@ -90,7 +90,7 @@
   # statistical test for every model
   # perform global statistical test for every model
   if (global) {
-    if(!sce){ #gam list output
+    if (!sce) { #gam list output
       waldResultsOmnibus <- lapply(models, function(m){
         if (class(m)[1] == "try-error") return(c(NA, NA, NA))
         beta <- matrix(coef(m), ncol = 1)
@@ -98,7 +98,7 @@
         waldTest(beta, Sigma, L)
       })
 
-    } else if(sce){ #singleCellExperiment output
+    } else if (sce) { #singleCellExperiment output
       waldResultsOmnibus <- lapply(1:nrow(models), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
@@ -114,7 +114,7 @@
   }
 
   if (lineages) {
-    if(!sce){ # gam list output
+    if (!sce) { # gam list output
       waldResultsLineages <- lapply(models, function(m){
         if (class(m)[1] == "try-error") {
           return(matrix(NA, nrow = ncol(L), ncol = 3))
@@ -125,7 +125,7 @@
           waldTest(beta, Sigma, L[, ii, drop = FALSE])
         }))
       })
-    } else if(sce){ # sce output
+    } else if (sce) { # sce output
       waldResultsLineages <- lapply(1:nrow(models), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
@@ -154,10 +154,6 @@
   }
 }
 
-
-#' Perform statistical test to check for DE between starting point and the end
-#' stages of every lineage
-#'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
@@ -178,7 +174,7 @@
 #'  p-values. If both \code{global} and \code{lineages} are TRUE, then a matrix
 #'  of p-values is returned.
 #' @export
-#' @name startVsEndTest
+#' @rdname startVsEndTest
 #' @import SingleCellExperiment
 setMethod(f = "startVsEndTest",
           signature = c(models = "SingleCellExperiment"),

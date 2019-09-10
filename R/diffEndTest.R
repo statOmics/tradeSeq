@@ -6,18 +6,18 @@
   # TODO: check if this is different to comparing knot coefficients
   # TODO: adjust null distribution with weights
 
-  if(is(models, "list")){
+  if (is(models, "list")) {
     sce <- FALSE
-  } else if(is(models, "SingleCellExperiment")){
+  } else if (is(models, "SingleCellExperiment")) {
     sce <- TRUE
   }
 
   # get predictor matrix for every lineage.
-  if(!sce){ # list output of fitGAM
+  if (!sce) { # list output of fitGAM
     modelTemp <- .getModelReference(models)
     nCurves <- length(modelTemp$smooth)
     if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if(nCurves == 2 & pairwise == TRUE){
+    if (nCurves == 2 & pairwise == TRUE) {
       message("Only two lineages; skipping pairwise comparison.")
       pairwise <- FALSE
     }
@@ -29,12 +29,12 @@
       assign(paste0("X",jj),
              predict(modelTemp, newdata = df, type = "lpmatrix"))
     }
-  } else if(sce){
+  } else if (sce) {
 
     dm <- colData(models)$tradeSeq$dm # design matrix
     nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
     if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if(nCurves == 2 & pairwise == TRUE){
+    if (nCurves == 2 & pairwise == TRUE) {
       message("Only two lineages; skipping pairwise comparison.")
       pairwise <- FALSE
     }
@@ -53,9 +53,9 @@
 
 
   # construct pairwise contrast matrix
-  if(!sce){
+  if (!sce) {
     p <- length(coef(modelTemp))
-  } else if(sce){
+  } else if (sce) {
     p <- ncol(colData(models)$tradeSeq$X)
   }
 
@@ -66,11 +66,11 @@
     curvesNow <- combs[,jj]
     L[,jj] <- get(paste0("X", curvesNow[1])) - get(paste0("X",curvesNow[2]))
   }
-  if(!sce) rm(modelTemp)
+  if (!sce) rm(modelTemp)
 
   # perform global statistical test for every model
   if (global) {
-    if(!sce){ #gam list output
+    if (!sce) { #gam list output
       waldResultsOmnibus <- lapply(models, function(m){
         if (class(m)[1] == "try-error") return(c(NA, NA, NA))
         beta <- matrix(coef(m), ncol = 1)
@@ -78,7 +78,7 @@
         waldTest(beta, Sigma, L)
       })
 
-    } else if(sce){ #singleCellExperiment output
+    } else if (sce) { #singleCellExperiment output
       waldResultsOmnibus <- lapply(1:nrow(models), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
@@ -95,7 +95,7 @@
 
   # perform pairwise comparisons
   if (pairwise) {
-    if(!sce){ # gam list output
+    if (!sce) { # gam list output
       waldResultsPairwise <- lapply(models, function(m){
         if (class(m)[1] == "try-error") {
           return(matrix(NA, nrow = ncol(L), ncol = 3))
@@ -106,7 +106,7 @@
           waldTest(beta, Sigma, L[, ii, drop = FALSE])
         }))
       })
-    } else if(sce){
+    } else if (sce) {
       waldResultsPairwise <- lapply(1:nrow(models), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
@@ -142,9 +142,6 @@
   }
 }
 
-
-#' Perform statistical test to check for DE between final stages of every
-#'  lineage.
 #' @param models Typically the output from
 #' \code{\link{fitGAM}}, either a list of fitted GAM models, or an object of
 #' \code{SingleCellExperiment} class.
@@ -159,7 +156,7 @@
 #'  procedure was unsuccessful, the procedure will return NA test statistics and
 #'  p-values.
 #' @export
-#' @name diffEndTest
+#' @rdname diffEndTest
 #' @import SingleCellExperiment
 setMethod(f = "diffEndTest",
           signature = c(models = "SingleCellExperiment"),
