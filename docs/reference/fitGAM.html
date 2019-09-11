@@ -36,7 +36,7 @@
 
 
 <meta property="og:title" content="fitGAM — fitGAM" />
-<meta property="og:description" content="Fit GAM model" />
+<meta property="og:description" content="This fits the NB-GAM model as described in Van den Berge et al.[2019]" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.58</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
       </span>
     </div>
 
@@ -109,10 +109,12 @@
     </div>
 
     <div class="ref-description">
-    <p>Fit GAM model</p>
+    <p>This fits the NB-GAM model as described in Van den Berge et al.[2019]</p>
     </div>
 
-    <pre class="usage"><span class='co'># S4 method for matrix</span>
+    <pre class="usage"><span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='no'>...</span>)
+
+<span class='co'># S4 method for matrix</span>
 <span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>,
   <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
@@ -125,6 +127,10 @@
     <tr>
       <th>counts</th>
       <td><p>the count matrix.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>parameters including:</p></td>
     </tr>
     <tr>
       <th>sds</th>
@@ -198,10 +204,6 @@ should not be changed by users.</p></td>
       <td><p>The assumed distribution for the response, set to <code>"nb"</code>
 by default.</p></td>
     </tr>
-    <tr>
-      <th>aic</th>
-      <td><p>Logical; should AIC be returned? Used for <code><a href='evaluateK.html'>evaluateK</a></code>.</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -210,9 +212,6 @@ by default.</p></td>
  (number of rows of <code>counts</code>). Each element of the list is either a
   <code>gamObject</code> if the fiting procedure converged, or an error
    message.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>This fits the NB-GAM model as described in Van den Berge et al.[2019]</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>8</span>)
@@ -232,7 +231,6 @@ by default.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 

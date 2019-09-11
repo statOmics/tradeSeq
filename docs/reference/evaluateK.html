@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.58</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
       </span>
     </div>
 
@@ -112,7 +112,9 @@
     <p>Evaluate the optimal number of knots required for fitGAM.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S4 method for matrix</span>
+    <pre class="usage"><span class='fu'>evaluateK</span>(<span class='no'>counts</span>, <span class='no'>...</span>)
+
+<span class='co'># S4 method for matrix</span>
 <span class='fu'>evaluateK</span>(<span class='no'>counts</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>:<span class='fl'>10</span>, <span class='kw'>nGenes</span> <span class='kw'>=</span> <span class='fl'>500</span>,
   <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>2</span>,
@@ -126,6 +128,10 @@
     <tr>
       <th>counts</th>
       <td><p>the count matrix.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>parameters including:</p></td>
     </tr>
     <tr>
       <th>k</th>

@@ -17,6 +17,8 @@ fitGAM(counts, ...)
 \arguments{
 \item{counts}{the count matrix.}
 
+\item{...}{parameters including:}
+
 \item{sds}{an object of class \code{SlingshotDataSet}, typically obtained
 after running Slingshot. If this is provided, \code{pseudotime} and
 \code{cellWeights} arguments are derived from this object.}
@@ -60,8 +62,6 @@ should not be changed by users.}
 
 \item{family}{The assumed distribution for the response, set to \code{"nb"}
 by default.}
-
-\item{aic}{Logical; should AIC be returned? Used for \code{\link{evaluateK}}.}
 }
 \value{
 A list of length the number of genes

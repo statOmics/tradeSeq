@@ -19,6 +19,8 @@ patternTest(models, ...)
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
+\item{...}{parameters including:}
+
 \item{global}{If TRUE, test for all pairwise comparisons simultaneously.}
 
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}

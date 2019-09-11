@@ -36,7 +36,8 @@
 
 
 <meta property="og:title" content="Perform test of early differences between lineages — earlyDETest" />
-<meta property="og:description" content="Perform test of early differences between lineages" />
+<meta property="og:description" content="Perform test of early differences between lineages
+Perform test of early differences between lineages" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -69,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.58</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
       </span>
     </div>
 
@@ -110,9 +111,12 @@
 
     <div class="ref-description">
     <p>Perform test of early differences between lineages</p>
+<p>Perform test of early differences between lineages</p>
     </div>
 
-    <pre class="usage"><span class='co'># S4 method for SingleCellExperiment</span>
+    <pre class="usage"><span class='fu'>earlyDETest</span>(<span class='no'>models</span>, <span class='no'>...</span>)
+
+<span class='co'># S4 method for SingleCellExperiment</span>
 <span class='fu'>earlyDETest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>knots</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nPoints</span> <span class='kw'>=</span> <span class='fl'>100</span>)
 
@@ -127,6 +131,10 @@
       <th>models</th>
       <td><p>the list of GAMs, typically the output from
 <code><a href='fitGAM.html'>fitGAM</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>parameters including:</p></td>
     </tr>
     <tr>
       <th>global</th>

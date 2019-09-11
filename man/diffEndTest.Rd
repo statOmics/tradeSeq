@@ -20,6 +20,8 @@ diffEndTest(models, ...)
 \code{\link{fitGAM}}, either a list of fitted GAM models, or an object of
 \code{SingleCellExperiment} class.}
 
+\item{...}{parameters including:}
+
 \item{global}{If TRUE, test for all pairwise comparisons simultaneously.}
 
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}

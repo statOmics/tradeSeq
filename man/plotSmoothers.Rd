@@ -18,6 +18,8 @@ plotSmoothers(models, ...)
   ylab = "Log(expression + 1)")
 }
 \arguments{
+\item{...}{parameters including:}
+
 \item{nPoints}{The number of points used to extraplolate the fit}
 
 \item{lwd}{Line width of the smoother. Passed to \code{\link{geom_line}}}

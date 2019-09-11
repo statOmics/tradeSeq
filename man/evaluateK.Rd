@@ -18,6 +18,8 @@ evaluateK(counts, ...)
 \arguments{
 \item{counts}{the count matrix.}
 
+\item{...}{parameters including:}
+
 \item{k}{The range of knots to evaluate. `3:10` by default.}
 
 \item{nGenes}{The number of genes to use in the evaluation. Genes will be

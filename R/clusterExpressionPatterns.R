@@ -46,13 +46,13 @@
     id <- which(names(models) %in% genes)
   } else id <- genes
 
-  if(is(models, "list")){
+  if (is(models, "list")) {
     sce <- FALSE
-  } else if(is(models, "SingleCellExperiment")){
+  } else if (is(models, "SingleCellExperiment")) {
     sce <- TRUE
   }
 
-  if(!sce){
+  if (!sce) {
     modelTemp <- .getModelReference(models)
     nCurves <- length(modelTemp$smooth)
 
@@ -62,7 +62,7 @@
                    lapply(models[id], predict, newdata = df, type = "link"))
       if (ii == 1) yhatPat <- y else yhatPat <- cbind(yhatPat, y)
     }
-  } else if(sce){
+  } else if (sce) {
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
     slingshotColData <- colData(models)$slingshot

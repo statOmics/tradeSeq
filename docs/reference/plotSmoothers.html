@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Plot the log-transformed counts and the fitted values for a particular
- gene along all linesges — plotSmoothers • tradeSeq</title>
+ gene along all lineages — plotSmoothers • tradeSeq</title>
 
 
 <!-- jquery -->
@@ -37,9 +37,9 @@
 
 
 <meta property="og:title" content="Plot the log-transformed counts and the fitted values for a particular
- gene along all linesges — plotSmoothers" />
+ gene along all lineages — plotSmoothers" />
 <meta property="og:description" content="Plot the log-transformed counts and the fitted values for a particular
- gene along all linesges" />
+ gene along all lineages" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.58</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
       </span>
     </div>
 
@@ -107,17 +107,19 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plot the log-transformed counts and the fitted values for a particular
- gene along all linesges</h1>
+ gene along all lineages</h1>
     
     <div class="hidden name"><code>plotSmoothers.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Plot the log-transformed counts and the fitted values for a particular
- gene along all linesges</p>
+ gene along all lineages</p>
     </div>
 
-    <pre class="usage"><span class='co'># S4 method for gam</span>
+    <pre class="usage"><span class='fu'>plotSmoothers</span>(<span class='no'>models</span>, <span class='no'>...</span>)
+
+<span class='co'># S4 method for gam</span>
 <span class='fu'>plotSmoothers</span>(<span class='no'>models</span>, <span class='kw'>nPoints</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>lwd</span> <span class='kw'>=</span> <span class='fl'>2</span>,
   <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Pseudotime"</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Log(expression + 1)"</span>)
 
@@ -129,6 +131,10 @@
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>...</th>
+      <td><p>parameters including:</p></td>
+    </tr>
     <tr>
       <th>nPoints</th>
       <td><p>The number of points used to extraplolate the fit</p></td>
