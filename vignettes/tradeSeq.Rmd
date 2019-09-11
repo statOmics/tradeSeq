@@ -29,8 +29,11 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(tidyr)
   library(cowplot)
+  library(knitr)
 })
-
+# For a smaller vignette
+# This can be deleted when trying to follow along
+opts_chunk$set(dpi = 58)
 # For reproducibility
 RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
@@ -48,7 +51,7 @@ load("./se_paul.rda")
 We will fit developmental trajectories using the `slingshot` package [@Street2018a]. `slingshot` requires cluster labels as input, and fits trajectories in reduced dimension. We will use the reduced space calculated with the UMAP method, which is pre-calculated in the `se` object.
 We cluster the data using k-means with $7$ clusters. Since we know which cells are the progenitor cell type, we define the starting point for the trajectories as input for `slingshot`. Note that this argument is optional, and not required to run `slingshot`.
 
-```{r, warning=FALSE, fig.height=4, fig.width=5}
+```{r, warning=FALSE, out.width="50%", fig.asp=.6}
 set.seed(200)
 rd <- reducedDims(se)$UMAP
 cl <- kmeans(rd, centers = 7)$cluster
@@ -62,7 +65,7 @@ crv <- getCurves(lin)
 
 We find two lineages for this dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
 
-```{r, fig.height=3, fig.width=5}
+```{r, out.width="50%", fig.asp=.6}
 plotGeneCount(curve = crv, counts = counts, clusters = cl)
 
 celltype <- factor(colData(se)$cell_type2)
@@ -134,7 +137,7 @@ sce <- fitGAM(counts = counts,
 
 You can also plot the cells in reduced dimension to see where the knots are located.
 
-```{r, fig.height=3, fig.width=5}
+```{r, out.width="50%", fig.asp=.6}
 plotGeneCount(curve = crv, counts = counts, clusters = cl,
               models = sce)
 ```
@@ -166,7 +169,7 @@ startRes <- startVsEndTest(sce)
 
 We can visualize the estimated smoothers for the most significant gene.
 
-```{r, fig.width=4, fig.height=4}
+```{r, out.width="40%", fig.asp=1}
 oStart <- order(startRes$waldStat, decreasing = TRUE)
 sigGeneStart <- names(sce)[oStart[1]]
 plotSmoothers(sce, counts, gene = sigGeneStart)
@@ -174,7 +177,7 @@ plotSmoothers(sce, counts, gene = sigGeneStart)
 
 Alternatively, we can color the cells in UMAP space with that gene's expression.
 
-```{r, fig.height=3, fig.width=6}
+```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(crv, counts, gene = sigGeneStart)
 ```
 
@@ -204,7 +207,7 @@ endRes <- diffEndTest(sce)
 
 We can plot the most significant gene using the `plotSmoothers` function.
 
-```{r, fig.width=4, fig.height=4}
+```{r, out.width="40%", fig.asp=1}
 o <- order(endRes$waldStat, decreasing = TRUE)
 sigGene <- names(sce)[o[1]]
 plotSmoothers(sce, counts, sigGene)
@@ -212,7 +215,7 @@ plotSmoothers(sce, counts, sigGene)
 
 Alternatively, we can color the cells in UMAP space with that gene's expression.
 
-```{r, fig.height=3, fig.width=6}
+```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(crv, counts, gene = sigGene)
 ```
 
@@ -221,20 +224,20 @@ plotGeneCount(crv, counts, gene = sigGene)
 Asides from testing at the level of the differentiated cell type, researchers may be interested in assessing the expression pattern of a gene over pseudotime.
 The function `patternTest` implements a statistical method that checks whether the smoothed gene expression is equal along pseudotime between two or multiple lineages. In practice, we use $100$ points, equally distributed along pseudotime, that are compared between two (or multiple) lineages, and this number can be changed using the `nPoints` argument.
 
-```{r, fig.width=4, fig.height=4}
+```{r, out.width="40%", fig.asp=1}
 patternRes <- patternTest(sce)
 oPat <- order(patternRes$waldStat, decreasing = TRUE)
 head(rownames(patternRes)[oPat])
 plotSmoothers(sce, counts, gene = rownames(patternRes)[oPat][1])
 ```
 
-```{r, fig.height=3, fig.width=6}
+```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(crv, counts, gene = rownames(patternRes)[oPat][1])
 ```
 
 We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the *patternTest* and their rank in decreasing Wald statistics for the *diffEndTest*.
 
-```{r, fig.width=5, fig.height=4}
+```{r, out.width="50%", fig.asp=.8}
 compare <- inner_join(patternRes %>% mutate(Gene = rownames(patternRes),
                                             pattern = waldStat) %>%
                                      select(Gene, pattern),
@@ -255,12 +258,12 @@ ggplot(compare, aes(x = log(pattern), y = log(end))) +
 
 Or, we can visualize the expression in UMAP space of the top gene.
 
-```{r, fig.width=4, fig.height=4}
+```{r, out.width="40%", fig.asp=1}
 topTransient <- (compare %>% arrange(desc(transientScore)))[1, "Gene"]
 plotSmoothers(sce, counts, gene = topTransient)
 ```
 
-```{r, fig.height=3, fig.width=6}
+```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(crv, counts, gene = topTransient)
 ```
 
@@ -272,11 +275,11 @@ head(compare %>% arrange(desc(transientScore)) %>% select(Gene), n = 5)
 
 We can also plot the Irf8 gene.
 
-```{r, fig.width=4, fig.height=4}
+```{r, out.width="40%", fig.asp=1}
 plotSmoothers(sce, counts, gene = "Irf8")
 ```
 
-```{r, fig.height=3, fig.width=6}
+```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(crv, counts, gene = "Irf8")
 ```
 
@@ -286,7 +289,7 @@ Another question of interest is to find a list of genes that are differentially 
 The function `earlyDETest` implements a statistical method to tests the null hypothesis of whether the smoothers are equal between two user-specified knots by building on the `patternTest`, but restricting itself to a particular location of the smoothers.
 Again, the knots can be visualized with the `plotGeneCount` function. By selecting the region covering the first two knot points to test for differential patterns between the lineages, we check which genes are behaving differently around the bifurcation point.
 
-```{r, fig.height=3, fig.width=6}
+```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(curve = crv, counts = counts, clusters = cl,
               models = sce)
 
@@ -295,11 +298,11 @@ oEarly <- order(earlyDERes$waldStat, decreasing = TRUE)
 head(rownames(earlyDERes)[oEarly])
 ```
 
-```{r, fig.width=4, fig.height=4}
+```{r, out.width="40%", fig.asp=1}
 plotSmoothers(sce, counts, gene = rownames(earlyDERes)[oEarly][2])
 ```
 
-```{r, fig.height=3, fig.width=6}
+```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 ```
 
@@ -318,7 +321,7 @@ clusterLabels <- primaryCluster(clusPat$rsec)
 
 The first 4 clusters can be visualized using the normalized expression upon which the clustering is based.
 
-```{r, fig.width=5, fig.height=5}
+```{r, out.width="50%", fig.asp=1}
 cUniq <- unique(clusterLabels)
 cUniq <- cUniq[!cUniq == -1] # remove unclustered genes
 
