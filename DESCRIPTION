@@ -2,10 +2,10 @@ Package: tradeSeq
 Type: Package
 Title: trajectory-based differential expression analysis for sequencing data
 Date: 2019-03-15
-Version: 0.99.65
+Version: 0.99.66
 Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "koen.vandenberge@ugent.be"),
-              person("Hector", "Roux de Bézieux", role = c("aut", "cre"),
+              person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
                      email = "hector.rouxdebezieux@berkeley.edu",
 		     comment = c(ORCID = "0000-0002-1489-8339")),
 		person("Kelly","Street", role = "ctb"),
