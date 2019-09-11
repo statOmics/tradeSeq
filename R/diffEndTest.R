@@ -120,17 +120,24 @@
     # clean pairwise results
     contrastNames <- unlist(lapply(strsplit(colnames(L), split = "_"),
                                    paste, collapse = "vs"))
-
     colNames <- c(paste0("waldStat_",contrastNames),
                   paste0("df_",contrastNames),
                   paste0("pvalue_",contrastNames))
-    orderByContrast <- unlist(c(mapply(seq, seq_along(colNames),
-                                       length(waldResultsPairwise[[1]]),
-                                       by = 3)))
-    waldResAllPair <- do.call(rbind,
-                              lapply(waldResultsPairwise,function(x){
-                                matrix(x, nrow = 1, dimnames = list(NULL, colNames))[, orderByContrast]
-                              }))
+    resMat <- do.call(rbind, lapply(waldResultsPairwise, c))
+    colnames(resMat) <- colNames
+    # order results by contrast
+    ll <- list()
+    for(jj in 1:ncol(L)) ll[[jj]] <- seq(jj,ncol(L)*3, by=ncol(L))
+    orderByContrast <- unlist(ll)
+    waldResAllPair <- resMat[,orderByContrast]
+
+    # orderByContrast <- unlist(c(mapply(seq, seq_along(colNames),
+    #                                    length(waldResultsPairwise[[1]]),
+    #                                    by = 3)))
+    # waldResAllPair <- do.call(rbind,
+    #                           lapply(waldResultsPairwise,function(x){
+    #                             matrix(x, nrow = 1, dimnames = list(NULL, colNames))[, orderByContrast]
+    #                           }))
   }
 
   # return output
