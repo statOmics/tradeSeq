@@ -18,13 +18,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -50,6 +52,7 @@
 <![endif]-->
 
 
+
   </head>
 
   <body>
@@ -66,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.52</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
       </span>
     </div>
 
@@ -94,6 +97,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -144,35 +148,35 @@ that should be clustered.</p></td>
     <tr>
       <th>reduceMethod</th>
       <td><p>Method used before running the clustering methods.
-Passed to <code><a href='https://www.rdocumentation.org/packages/clusterExperiment/topics/RSEC'>RSEC</a></code></p></td>
+Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
     </tr>
     <tr>
       <th>nReducedDims</th>
       <td><p>Number of dimensions kept after <code>reduceMethod</code>.
-Passed to <code><a href='https://www.rdocumentation.org/packages/clusterExperiment/topics/RSEC'>RSEC</a></code></p></td>
+Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
     </tr>
     <tr>
       <th>minSizes</th>
       <td><p>Number of dimensions kept after <code>reduceMethod</code>.
-Passed to <code><a href='https://www.rdocumentation.org/packages/clusterExperiment/topics/RSEC'>RSEC</a></code></p></td>
+Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
     </tr>
     <tr>
       <th>ncores</th>
       <td><p>Number of cores to use. Passed to
-<code><a href='https://www.rdocumentation.org/packages/clusterExperiment/topics/RSEC'>RSEC</a></code></p></td>
+<code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
     </tr>
     <tr>
       <th>random.seed</th>
-      <td><p>Passed to <code><a href='https://www.rdocumentation.org/packages/clusterExperiment/topics/RSEC'>RSEC</a></code></p></td>
+      <td><p>Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
     </tr>
     <tr>
       <th>verbose</th>
-      <td><p>Passed to <code><a href='https://www.rdocumentation.org/packages/clusterExperiment/topics/RSEC'>RSEC</a></code></p></td>
+      <td><p>Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Additional arguments to be passed to
-<code><a href='https://www.rdocumentation.org/packages/clusterExperiment/topics/RSEC'>RSEC</a></code>.</p></td>
+<code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code>.</p></td>
     </tr>
     </table>
 
@@ -182,12 +186,12 @@ Passed to <code><a href='https://www.rdocumentation.org/packages/clusterExperime
  plotting) and a <code>ClusterExperiment</code> object.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This method adopts the <code><a href='https://www.rdocumentation.org/packages/clusterExperiment/topics/RSEC'>RSEC</a></code>
+    <p>This method adopts the <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code>
 function from the clusterExperiment package to perform consensus clustering.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
-<span class='fu'>clusterExpressionPatterns</span>(<span class='no'>gamList</span>, <span class='fl'>200</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='fl'>11</span>))</div><div class='output co'>#&gt; <span class='message'>Note: Not all of the methods requested in 'reduceMethod' have been calculated. Will calculate all the methods requested (any pre-existing values -- filtering statistics or dimensionality reductions -- with these names will be recalculated and overwritten): PCA.</span></div><div class='output co'>#&gt; 36 parameter combinations, 36 use sequential method, 36 use subsampling method
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
+<span class='fu'>clusterExpressionPatterns</span>(<span class='no'>gamList</span>, <span class='fl'>200</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fl'>11</span>))</div><div class='output co'>#&gt; <span class='message'>Note: Not all of the methods requested in 'reduceMethod' have been calculated. Will calculate all the methods requested (any pre-existing values -- filtering statistics or dimensionality reductions -- with these names will be recalculated and overwritten): PCA.</span></div><div class='output co'>#&gt; 36 parameter combinations, 36 use sequential method, 36 use subsampling method
 #&gt; Running Clustering on Parameter Combinations...</div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; <span class='message'>Note: a clusterFunction was not set for subsampleClustering (and sequential=TRUE means that it must be of type 'K' so cannot be set to that of mainClustering step). The clusterFunction for subsampling was set to the default of kmeans</span></div><div class='output co'>#&gt; done.</div><div class='output co'>#&gt; <span class='message'>Note: makeDendrogram encountered following error and therefore clusters were not merged:</span>
 #&gt; <span class='message'> Error in .local(object, ...) : </span>
 #&gt; <span class='message'>  All samples are unassigned for clusteringmakeConsensus</span></div><div class='output co'>#&gt; $rsec
@@ -1115,19 +1119,23 @@ function from the clusterExperiment package to perform consensus clustering.</p>
   </div>
 </div>
 
+
       <footer>
       <div class="copyright">
   <p>Developed by Koen Van den Berge, Hector Roux de Bézieux.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

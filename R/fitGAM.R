@@ -37,14 +37,14 @@
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
                     seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
                     parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
-                    control=mgcv::gam.control(), sce=FALSE, family ="nb",
+                    control = mgcv::gam.control(), sce = FALSE, family = "nb",
                     aic = FALSE){
 
   # TODO: make sure warning message for knots prints after looping
 
-  if(parallel){
+  if (parallel) {
     BiocParallel::register(BPPARAM)
-    if(verbose){
+    if (verbose) {
       # update progress bar 40 times
       BPPARAM$tasks = as.integer(40)
       # show progress bar
@@ -69,8 +69,8 @@
   }
 
   # check if dimensions of U and counts agree
-  if(!is.null(U)){
-    if(!(nrow(U) == ncol(counts))){
+  if (!is.null(U)) {
+    if (!(nrow(U) == ncol(counts))) {
       stop("The dimensions of U do not match those of counts.")
     }
   }
@@ -196,36 +196,36 @@
     s = mgcv:::s
     m <- try(
       mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
-                control=control),
+                control = control),
       silent = TRUE)
 
-    if(sce){ #don't return full GAM model for sce output.
+    if (sce) { #don't return full GAM model for sce output.
       beta <- matrix(coef(m), ncol = 1)
       rownames(beta) <- names(coef(m))
       Sigma <- m$Vp
       # define lpmatrix in top environment to return once for all genes
-      if(!exists("X", where="package:tradeSeq")){
-        X <<- predict(m, type="lpmatrix")
+      if (!exists("X", where = "package:tradeSeq")) {
+        X <<- predict(m, type = "lpmatrix")
       }
       # define model frame in top environment to return once for all genes
-      if(!exists("dm", where="package:tradeSeq")){
-        dm <<- m$model[,-1] # rm expression counts since different betw. genes
+      if (!exists("dm", where <- "package:tradeSeq")) {
+        dm <<- m$model[, -1] # rm expression counts since different betw. genes
       }
       # define knots in top environment to return once for all genes
-      if(!exists("knotPoints", where="package:tradeSeq")){
+      if (!exists("knotPoints", where = "package:tradeSeq")) {
         knotPoints <<- m$smooth[[1]]$xp
       }
-      return(list(beta=beta, Sigma=Sigma))
+      return(list(beta = beta, Sigma = Sigma))
     } else return(m)
 
   }
 
   ### fit models
-  if(parallel){
+  if (parallel) {
     gamList <- BiocParallel::bplapply(as.data.frame(t(as.matrix(counts))),
                                       counts_to_Gam, BPPARAM = BPPARAM)
   } else {
-    if(verbose){
+    if (verbose) {
       gamList <- pbapply::pblapply(as.data.frame(t(as.matrix(counts))),
                                    counts_to_Gam)
     } else {
@@ -235,14 +235,14 @@
   }
 
   ### output
-  if(aic){ #only return AIC
+  if (aic) { # only return AIC
     return(unlist(lapply(gamList, function(x){
-      if(class(x)[1] == "try-error") return(NA)
+      if (class(x)[1] == "try-error") return(NA)
       x$aic
     })))
   }
 
-  if(sce){ #tidy output: also return X
+  if (sce) { #tidy output: also return X
     # tidy smoother regression coefficients
     betaAll <- lapply(gamList,"[[",1)
     betaAllDf <- data.frame(t(do.call(cbind,betaAll)))
@@ -267,8 +267,6 @@
 #' This fits the NB-GAM model as described in Van den Berge et al.[2019]
 #'
 #' @rdname fitGAM
-#' @name fitGAM
-#' @title fitGAM
 #' @param counts the count matrix.
 #' @param U the design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
@@ -300,7 +298,6 @@
 #' should not be changed by users.
 #' @param family The assumed distribution for the response, set to \code{"nb"}
 #' by default.
-#' @param aic Logical; should AIC be returned? Used for \code{\link{evaluateK}}.
 #' @return A list of length the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
 #'   \code{\link{gamObject}} if the fiting procedure converged, or an error
@@ -341,24 +338,24 @@ setMethod(f = "fitGAM",
                                 family = "nb"){
 
             ## either pseudotime or slingshot object should be provided
-            if(is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))){
+            if (is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))) {
               stop("Either provide the slingshot object using the sds ",
                    "argument, or provide pseudotime and cell-level weights ",
                    "manually using pseudotime and cellWeights arguments.")
             }
 
-            if(!is.null(sds)){
+            if (!is.null(sds)) {
               # check if input is slingshotdataset
-              if(is(sds, "SlingshotDataSet")){
+              if (is(sds, "SlingshotDataSet")) {
                 sce <- TRUE
               } else stop("sds argument must be a SlingshotDataSet object.")
 
               # extract variables from slingshotdataset
-              pseudotime <- slingPseudotime(sds, na=FALSE)
+              pseudotime <- slingPseudotime(sds, na = FALSE)
               cellWeights <- slingCurveWeights(sds)
             }
 
-            if(is.null(counts)) stop("Provide expression counts using counts",
+            if (is.null(counts)) stop("Provide expression counts using counts",
                                      " argument.")
 
             gamOutput <- .fitGAM(counts = counts,
@@ -377,7 +374,9 @@ setMethod(f = "fitGAM",
                                  family = family)
 
             # old behaviour: return list
-            if(!sce) return(gamOutput)
+            if (!sce) {
+              return(gamOutput)
+            }
 
             # return SingleCellExperiment object
             sc <- SingleCellExperiment(assays = list(counts = counts))
@@ -394,7 +393,7 @@ setMethod(f = "fitGAM",
             colData(sc)$tradeSeq <- tibble::tibble(X = X,
                                                     dm = dm)
             # metadata: tradeSeq knots
-            metadata(sc)$tradeSeq <- list(knots=gamOutput$knotPoints)
+            metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints)
             return(sc)
 
           }
