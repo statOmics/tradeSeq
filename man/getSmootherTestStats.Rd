@@ -15,9 +15,6 @@ a matrix with the wald statistics associated with each lineage's
  smoother. The matrix has one row per gene where the fitting procedure
   converged.
 }
-\description{
-Get smoother Chi-squared test statistics
-}
 \examples{
 data(gamList, package = "tradeSeq")
 getSmootherPvalues(gamList)

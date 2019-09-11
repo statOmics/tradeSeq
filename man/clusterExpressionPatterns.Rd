@@ -9,16 +9,16 @@
 \title{Cluster gene expression patterns.}
 \usage{
 .clusterExpressionPatterns(models, nPoints, genes, reduceMethod = "PCA",
-  nReducedDims = 10, minSizes = 6, ncores = 1,
-  random.seed = 176201, verbose = TRUE, ...)
+  nReducedDims = 10, minSizes = 6, ncores = 1, random.seed = 176201,
+  verbose = TRUE, ...)
 
 \S4method{clusterExpressionPatterns}{SingleCellExperiment}(models, nPoints,
   genes, reduceMethod = "PCA", nReducedDims = 10, minSizes = 6,
   ncores = 1, random.seed = 176201, verbose = TRUE, ...)
 
 \S4method{clusterExpressionPatterns}{list}(models, nPoints, genes,
-  reduceMethod = "PCA", nReducedDims = 10, minSizes = 6,
-  ncores = 1, random.seed = 176201, verbose = TRUE, ...)
+  reduceMethod = "PCA", nReducedDims = 10, minSizes = 6, ncores = 1,
+  random.seed = 176201, verbose = TRUE, ...)
 }
 \arguments{
 \item{models}{The list of GAMs, typically the output from
@@ -53,9 +53,6 @@ Passed to \code{\link[clusterExperiment]{RSEC}}}
 \value{
 A list containing the scaled fitted values \code{yhatScaled}(for
  plotting) and a \code{\link{ClusterExperiment}} object.
-}
-\description{
-Cluster gene expression patterns.
 }
 \details{
 This method adopts the \code{\link[clusterExperiment]{RSEC}}

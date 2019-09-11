@@ -10,12 +10,12 @@
 \usage{
 plotSmoothers(models, ...)
 
-\S4method{plotSmoothers}{gam}(models, nPoints = 100, lwd = 2,
-  size = 2/3, xlab = "Pseudotime", ylab = "Log(expression + 1)")
+\S4method{plotSmoothers}{gam}(models, nPoints = 100, lwd = 2, size = 2/3,
+  xlab = "Pseudotime", ylab = "Log(expression + 1)", border = TRUE)
 
 \S4method{plotSmoothers}{SingleCellExperiment}(models, counts, gene,
   nPoints = 100, lwd = 2, size = 2/3, xlab = "Pseudotime",
-  ylab = "Log(expression + 1)")
+  ylab = "Log(expression + 1)", border = TRUE)
 }
 \arguments{
 \item{...}{parameters including:}
@@ -30,14 +30,12 @@ plotSmoothers(models, ...)
 
 \item{ylab}{y-axis label. Passed to \code{\link{labs}}}
 
+\item{border}{logical: should a white border be drawn around the mean smoother.}
+
 \item{m}{the fitted model of a given gene}
 }
 \value{
 A \code{\link{ggplot}} object
-}
-\description{
-Plot the log-transformed counts and the fitted values for a particular
- gene along all lineages
 }
 \examples{
 data(gamList, package = "tradeSeq")

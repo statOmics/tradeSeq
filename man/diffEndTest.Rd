@@ -32,10 +32,6 @@ A matrix with the wald statistic, the number of df and the p-value
  procedure was unsuccessful, the procedure will return NA test statistics and
  p-values.
 }
-\description{
-Perform statistical test to check for DE between final stages of every
- lineage.
-}
 \examples{
 data(gamList, package = "tradeSeq")
 diffEndTest(gamList, global = TRUE, pairwise = TRUE)
