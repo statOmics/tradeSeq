@@ -1,7 +1,8 @@
 
 .plotSmoothers <- function(model, nPoints = 100, lwd = 2, size = 2/3,
                           xlab = "Pseudotime",
-                          ylab = "Log(expression + 1)")
+                          ylab = "Log(expression + 1)",
+                          border=TRUE)
 {
 
   data <- model$model
@@ -36,11 +37,24 @@
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(model$model, jj, nPoints = nPoints)
     yhat <- predict(model, newdata = df, type = "response")
-    p <- p +
-      geom_line(data = data.frame("time" = df[, paste0("t", jj)],
-                                  "gene_count" = yhat,
-                                  "lineage" = as.character(jj)),
-                lwd = lwd)
+    if(border){
+      p <- p +
+        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                    "gene_count" = yhat,
+                                    "lineage" = as.character(jj)),
+                  lwd = lwd+1, colour="white") +
+        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                    "gene_count" = yhat,
+                                    "lineage" = as.character(jj)),
+                  lwd = lwd)
+    } else {
+      p <- p +
+        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                    "gene_count" = yhat,
+                                    "lineage" = as.character(jj)),
+                  lwd = lwd)
+    }
+
   }
   return(p)
 }
@@ -50,7 +64,8 @@
 .plotSmoothers_sce <- function(models, counts, gene, nPoints = 100, lwd = 2,
                                size = 2/3,
                               xlab = "Pseudotime",
-                              ylab = "Log(expression + 1)")
+                              ylab = "Log(expression + 1)",
+                              border=TRUE)
 {
 
   #input is singleCellExperiment object.
@@ -107,11 +122,24 @@
                       df = df,
                       pseudotime = pseudotime)
     yhat <-  c(exp(t(Xdf %*% t(beta)) + df$offset))
-    p <- p +
-      geom_line(data = data.frame("time" = df[, paste0("t", jj)],
-                                  "gene_count" = yhat,
-                                  "lineage" = as.character(jj)),
-                lwd = lwd)
+    if(border){
+      p <- p +
+        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                    "gene_count" = yhat,
+                                    "lineage" = as.character(jj)),
+                  lwd = lwd+1, colour="white") +
+        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                    "gene_count" = yhat,
+                                    "lineage" = as.character(jj)),
+                  lwd = lwd)
+    } else {
+      p <- p +
+        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                    "gene_count" = yhat,
+                                    "lineage" = as.character(jj)),
+                  lwd = lwd)
+    }
+
   }
   return(p)
 }
@@ -126,6 +154,7 @@ setOldClass("gam")
 #' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}
 #' @param xlab x-axis label. Passed to \code{\link{labs}}
 #' @param ylab y-axis label. Passed to \code{\link{labs}}
+#' @param border logical: should a white border be drawn around the mean smoother.
 #' @return A \code{\link{ggplot}} object
 #' @examples
 #' data(gamList, package = "tradeSeq")
@@ -141,14 +170,16 @@ setMethod(f = "plotSmoothers",
                                 lwd = 2,
                                 size = 2/3,
                                 xlab = "Pseudotime",
-                                ylab = "Log(expression + 1)"){
+                                ylab = "Log(expression + 1)",
+                                border=TRUE){
 
             .plotSmoothers(model = models,
                                   nPoints = nPoints,
                                   lwd = lwd,
                                   size = size,
                                   xlab = xlab,
-                                  ylab = ylab)
+                                  ylab = ylab,
+                                  border = border)
           }
 )
 
@@ -164,7 +195,8 @@ setMethod(f = "plotSmoothers",
                                 lwd = 2,
                                 size = 2/3,
                                 xlab = "Pseudotime",
-                                ylab = "Log(expression + 1)"){
+                                ylab = "Log(expression + 1)",
+                                border = TRUE){
 
             .plotSmoothers_sce(models = models,
                            counts = counts,
@@ -173,6 +205,7 @@ setMethod(f = "plotSmoothers",
                            lwd = lwd,
                            size = size,
                            xlab = xlab,
-                           ylab = ylab)
+                           ylab = ylab,
+                           border = border)
           }
 )
