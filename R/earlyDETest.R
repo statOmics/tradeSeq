@@ -107,7 +107,6 @@
   }
 
   #perform pairwise comparisons
-  # TODO: BUG! This doesn't correspond with legacy version.
   if (pairwise) {
     combs <- combn(x = nCurves, m = 2)
     for (jj in seq_len(ncol(combs))) {
@@ -134,7 +133,6 @@
           })
 
       } else if(sce){
-        # TODO: added curvesNow, check.
         # get df
         dfList <- .patternDfPairwise(dm = dm,
                                      curves = curvesNow,
