@@ -88,7 +88,8 @@
                                   isCount = FALSE,
                                   reduceMethod = reduceMethod, nReducedDims = nReducedDims,
                                   minSizes = minSizes, ncores = ncores,
-                                  random.seed = random.seed, verbose = verbose
+                                  random.seed = random.seed, verbose = verbose,
+                                  ...
   )
   return(list(rsec = rsec, yhatScaled = yhatPatScaled))
 }
