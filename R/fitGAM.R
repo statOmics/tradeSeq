@@ -200,6 +200,9 @@
       silent = TRUE)
 
     if (sce) { #don't return full GAM model for sce output.
+      if(class(m) == "try-error"){
+        return(list(beta = NA, Sigma = NA))
+      }
       beta <- matrix(coef(m), ncol = 1)
       rownames(beta) <- names(coef(m))
       Sigma <- m$Vp
