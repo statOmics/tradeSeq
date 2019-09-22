@@ -136,21 +136,26 @@
       names(waldResultsLineages) <- rownames(models)
     }
 
-    pvalsLineages <- do.call(rbind,
-                             lapply(waldResultsLineages, function(x){
-                               if (is.na(x[1])) return(rep(NA,nCurves))
-                               x[,3]
-                             })) %>%
-      as.data.frame()
-    colnames(pvalsLineages) <- colnames(L)
+    ### process output
+    contrastNames <- colnames(L)
+    colNames <- c(paste0("waldStat_",contrastNames),
+                  paste0("df_",contrastNames),
+                  paste0("pvalue_",contrastNames))
+    resMat <- do.call(rbind, lapply(waldResultsLineages, c))
+    colnames(resMat) <- colNames
+    # order results by contrast
+    ll <- list()
+    for(jj in 1:ncol(L)) ll[[jj]] <- seq(jj,ncol(L)*3, by=ncol(L))
+    orderByContrast <- unlist(ll)
+    waldResAllPair <- resMat[,orderByContrast]
+
   }
 
   if (global == TRUE & lineages == FALSE) return(waldResults)
-  if (global == FALSE & lineages == TRUE) return(pvalsLineages)
+  if (global == FALSE & lineages == TRUE) return(waldResAllPair)
   if (global & lineages) {
-    resAll <- cbind(waldResults[,1], pvalsLineages)
-    colnames(resAll)[1] <- "global"
-    return(resAll)
+    waldAll <- cbind(waldResults, waldResAllPair)
+    return(waldAll)
   }
 }
 
