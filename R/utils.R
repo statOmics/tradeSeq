@@ -167,7 +167,7 @@ waldTestFC <- function(beta, Sigma, L){
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
   if (is(sigmaInv)[1] == "try-error") {
-    return(c(NA, NA, NA))
+    return(c(NA, NA, NA, NA))
   }
   est <- t(LQR) %*% beta
   wald <- t(est) %*%

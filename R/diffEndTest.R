@@ -111,7 +111,7 @@
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         t(sapply(seq_len(ncol(L)), function(ii){
-          waldTest(beta, Sigma, L[, ii, drop = FALSE])
+          waldTestFC(beta, Sigma, L[, ii, drop = FALSE])
         }))
       })
       names(waldResultsPairwise) <- rownames(models)
@@ -120,14 +120,15 @@
     # clean pairwise results
     contrastNames <- unlist(lapply(strsplit(colnames(L), split = "_"),
                                    paste, collapse = "vs"))
-    colNames <- c(paste0("waldStat_",contrastNames),
+    colNames <- c(paste0("logFC_",contrastNames),
+                  paste0("waldStat_",contrastNames),
                   paste0("df_",contrastNames),
                   paste0("pvalue_",contrastNames))
     resMat <- do.call(rbind, lapply(waldResultsPairwise, c))
     colnames(resMat) <- colNames
     # order results by contrast
     ll <- list()
-    for(jj in 1:ncol(L)) ll[[jj]] <- seq(jj,ncol(L)*3, by=ncol(L))
+    for(jj in 1:ncol(L)) ll[[jj]] <- seq(jj,ncol(L)*4, by=ncol(L))
     orderByContrast <- unlist(ll)
     waldResAllPair <- resMat[,orderByContrast]
 
