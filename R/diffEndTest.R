@@ -2,9 +2,9 @@
 
 
 .diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
+
   # TODO: add fold changes
   # TODO: check if this is different to comparing knot coefficients
-  # TODO: adjust null distribution with weights
 
   if (is(models, "list")) {
     sce <- FALSE

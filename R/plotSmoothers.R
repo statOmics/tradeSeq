@@ -2,7 +2,8 @@
 .plotSmoothers <- function(model, nPoints = 100, lwd = 2, size = 2/3,
                           xlab = "Pseudotime",
                           ylab = "Log(expression + 1)",
-                          border=TRUE)
+                          border=FALSE,
+                          alpha=2/3)
 {
 
   data <- model$model
@@ -30,7 +31,7 @@
     geom_point(size = size) +
     labs(x = xlab, y = ylab) +
     theme_classic() +
-    scale_color_viridis_d()
+    scale_color_viridis_d(alpha=alpha)
 
 
   # predict and plot smoothers across the range
@@ -65,7 +66,8 @@
                                size = 2/3,
                               xlab = "Pseudotime",
                               ylab = "Log(expression + 1)",
-                              border=TRUE)
+                              border=FALSE,
+                              alpha=2/3)
 {
 
   #input is singleCellExperiment object.
@@ -112,7 +114,7 @@
     geom_point(size = size) +
     labs(x = xlab, y = ylab) +
     theme_classic() +
-    scale_color_viridis_d()
+    scale_color_viridis_d(alpha=alpha)
 
 
   # predict and plot smoothers across the range
@@ -155,6 +157,8 @@ setOldClass("gam")
 #' @param xlab x-axis label. Passed to \code{\link{labs}}
 #' @param ylab y-axis label. Passed to \code{\link{labs}}
 #' @param border logical: should a white border be drawn around the mean smoother.
+#' @param alpha Numeric between 0 and 1, determines the transcparancy of data points,
+#' see \code{scale_color_viridis_d}.
 #' @return A \code{\link{ggplot}} object
 #' @examples
 #' data(gamList, package = "tradeSeq")
