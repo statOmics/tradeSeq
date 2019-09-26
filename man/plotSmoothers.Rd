@@ -33,6 +33,9 @@ plotSmoothers(models, ...)
 \item{border}{logical: should a white border be drawn around the mean smoother.}
 
 \item{m}{the fitted model of a given gene}
+
+\item{alpha}{Numeric between 0 and 1, determines the transcparancy of data points,
+see \code{scale_color_viridis_d}.}
 }
 \value{
 A \code{\link{ggplot}} object

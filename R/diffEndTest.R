@@ -1,10 +1,7 @@
 #' @include utils.R
 
 
-.diffEndTest <- function(models, global = TRUE, pairwise = FALSE){
-
-  # TODO: add fold changes
-  # TODO: check if this is different to comparing knot coefficients
+.diffEndTest <- function(models, global = TRUE, pairwise = FALSE, l2fc=0){
 
   if (is(models, "list")) {
     sce <- FALSE
@@ -103,7 +100,7 @@
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
         t(sapply(seq_len(ncol(L)), function(ii){
-          waldTestFC(beta, Sigma, L[, ii, drop = FALSE])
+          waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
         }))
       })
     } else if (sce) {
@@ -111,7 +108,7 @@
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         t(sapply(seq_len(ncol(L)), function(ii){
-          waldTestFC(beta, Sigma, L[, ii, drop = FALSE])
+          waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
         }))
       })
       names(waldResultsPairwise) <- rownames(models)
@@ -155,10 +152,19 @@
 #' \code{SingleCellExperiment} class.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' @param l2fc Numeric: log2 fold change threshold to test against. Note, that
+#' this only applies to the pairwise comparisons, the global test will be
+#' unaffected.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' diffEndTest(gamList, global = TRUE, pairwise = TRUE)
+#' @details
+#' The \code{l2fc} argument allows to test against a particular fold change
+#' threshold. For example, if the interest lies in discovering genes that are
+#' differentially expressed with an absolute log2 fold change cut off above 1,
+#' i.e. a fold change of at least 2, then one can test for this by setting
+#' \code{l2fc=1} as argument to the function.
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed. If the testing
 #'  procedure was unsuccessful, the procedure will return NA test statistics and
@@ -170,11 +176,13 @@ setMethod(f = "diffEndTest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,
                                 global = TRUE,
-                                pairwise = FALSE){
+                                pairwise = FALSE,
+                                l2fc = 0){
 
             res <- .diffEndTest(models = models,
                                 global = global,
-                                pairwise = pairwise)
+                                pairwise = pairwise,
+                                l2fc = l2fc)
             return(res)
 
           }
@@ -186,11 +194,13 @@ setMethod(f = "diffEndTest",
           signature = c(models = "list"),
           definition = function(models,
                                 global = TRUE,
-                                pairwise = FALSE){
+                                pairwise = FALSE,
+                                l2fc = 0){
 
             res <- .diffEndTest(models = models,
                                 global = global,
-                                pairwise = pairwise)
+                                pairwise = pairwise,
+                                l2fc = l2fc)
             return(res)
 
           }

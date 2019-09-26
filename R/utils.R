@@ -160,23 +160,26 @@ waldTest <- function(beta, Sigma, L){
 }
 
 ## temporary version of Wald test that also outputs FC.
-## Made this such that other tests don't break as we update the tests to also
-## return fold changes. This should become the default one.
-waldTestFC <- function(beta, Sigma, L){
+## Made this such that other tests don't break as we update relevant tests to
+## also return fold changes. This should become the default one over time.
+waldTestFC <- function(beta, Sigma, L, l2fc=0){
+  # lfc is the log2 fold change threhshold to test against.
   ### build a contrast matrix for a multivariate Wald test
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
   if (is(sigmaInv)[1] == "try-error") {
     return(c(NA, NA, NA, NA))
   }
-  est <- t(LQR) %*% beta
+  logFCCutoff <- log(2^l2fc) #log2 to log scale
+  estFC <- (t(LQR) %*% beta) #estimated log fold change
+  est <- abs(estFC) - logFCCutoff #test against threshold
   wald <- t(est) %*%
     sigmaInv %*%
     est
   if (wald < 0) wald <- 0
   df <- ncol(LQR)
   pval <- 1 - pchisq(wald, df = df)
-  return(c(est, wald, df, pval))
+  return(c(estFC, wald, df, pval))
 }
 
 # get predictor matrix for a range of pseudotimes of a smoother.
