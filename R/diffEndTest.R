@@ -98,12 +98,12 @@
     if (!sce) { # gam list output
       waldResultsPairwise <- lapply(models, function(m){
         if (class(m)[1] == "try-error") {
-          return(matrix(NA, nrow = ncol(L), ncol = 3))
+          return(matrix(NA, nrow = ncol(L), ncol = 4))
         }
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
         t(sapply(seq_len(ncol(L)), function(ii){
-          waldTest(beta, Sigma, L[, ii, drop = FALSE])
+          waldTestFC(beta, Sigma, L[, ii, drop = FALSE])
         }))
       })
     } else if (sce) {
