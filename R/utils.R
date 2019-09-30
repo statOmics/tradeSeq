@@ -172,7 +172,11 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   }
   logFCCutoff <- log(2^l2fc) #log2 to log scale
   estFC <- (t(LQR) %*% beta) #estimated log fold change
-  est <- abs(estFC) - logFCCutoff #test against threshold
+  if(abs(estFC) < logFCCutoff){
+    est <- 0
+  } else {
+    est <- abs(estFC) - logFCCutoff #test against threshold
+  }
   wald <- t(est) %*%
     sigmaInv %*%
     est
