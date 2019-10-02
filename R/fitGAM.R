@@ -293,7 +293,7 @@
 #' parallellize the fitting.
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
 #'   back-end to be used for computations. See
-#'   \code{\link[BiocParallel]{bpparam}} for details.
+#'   \code{bpparam} in \code{BiocParallel} package for details.
 #' @param verbose Logical, should progress be printed?
 #' @param control Variables to control fitting of the GAM, see
 #' \code{gam.control}.

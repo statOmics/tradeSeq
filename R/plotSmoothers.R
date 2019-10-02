@@ -2,8 +2,8 @@
 .plotSmoothers <- function(model, nPoints = 100, lwd = 2, size = 2/3,
                           xlab = "Pseudotime",
                           ylab = "Log(expression + 1)",
-                          border=FALSE,
-                          alpha=2/3)
+                          border = FALSE,
+                          alpha = 1)
 {
 
   data <- model$model
@@ -66,8 +66,8 @@
                                size = 2/3,
                               xlab = "Pseudotime",
                               ylab = "Log(expression + 1)",
-                              border=FALSE,
-                              alpha=2/3)
+                              border = FALSE,
+                              alpha = 2/3)
 {
 
   #input is singleCellExperiment object.
@@ -151,19 +151,18 @@
 setOldClass("gam")
 
 #' @description Plot the smoothers estimated by \code{tradeSeq}.
-#' @param m the fitted model of a given gene
-#' @param models The \code{SingleCellExperiment} object obtained after running
-#' \code{fitGAM}.
+#' @param models Either the \code{SingleCellExperiment} object obtained after
+#' running \code{fitGAM}, or the specific GAM model for the corresponding gene,
+#' if working with the list output of \code{tradeSeq}.
 #' @param counts The matrix of gene expression counts.
 #' @param gene Gene name of gene to plot.
-#' @param alpha Transparancy of the expression data points.
 #' @param nPoints The number of points used to extraplolate the fit
 #' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}
 #' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}
 #' @param xlab x-axis label. Passed to \code{\link{labs}}
 #' @param ylab y-axis label. Passed to \code{\link{labs}}
 #' @param border logical: should a white border be drawn around the mean smoother.
-#' @param alpha Numeric between 0 and 1, determines the transcparancy of data points,
+#' @param alpha Numeric between 0 and 1, determines the transparancy of data points,
 #' see \code{scale_color_viridis_d}.
 #' @return A \code{\link{ggplot}} object
 #' @examples
@@ -181,7 +180,8 @@ setMethod(f = "plotSmoothers",
                                 size = 2/3,
                                 xlab = "Pseudotime",
                                 ylab = "Log(expression + 1)",
-                                border=TRUE){
+                                border = TRUE,
+                                alpha = 1){
 
             .plotSmoothers(model = models,
                                   nPoints = nPoints,
@@ -189,7 +189,8 @@ setMethod(f = "plotSmoothers",
                                   size = size,
                                   xlab = xlab,
                                   ylab = ylab,
-                                  border = border)
+                                  border = border,
+                                  alpha = alpha)
           }
 )
 
@@ -206,7 +207,8 @@ setMethod(f = "plotSmoothers",
                                 size = 2/3,
                                 xlab = "Pseudotime",
                                 ylab = "Log(expression + 1)",
-                                border = TRUE){
+                                border = TRUE,
+                                alpha = 1){
 
             .plotSmoothers_sce(models = models,
                            counts = counts,
@@ -216,6 +218,7 @@ setMethod(f = "plotSmoothers",
                            size = size,
                            xlab = xlab,
                            ylab = ylab,
-                           border = border)
+                           border = border,
+                           alpha = alpha)
           }
 )

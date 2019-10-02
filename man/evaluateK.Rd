@@ -11,8 +11,8 @@ evaluateK(counts, ...)
 \S4method{evaluateK}{matrix}(counts, k = 3:10, nGenes = 500,
   sds = NULL, pseudotime = NULL, cellWeights = NULL, U = NULL,
   weights = NULL, seed = 81, offset = NULL, aicDiff = 2,
-  verbose = TRUE, parallel = FALSE, control = mgcv::gam.control(),
-  sce = FALSE, family = "nb", ...)
+  verbose = TRUE, control = mgcv::gam.control(), sce = FALSE,
+  family = "nb", ...)
 }
 \arguments{
 \item{counts}{the count matrix.}

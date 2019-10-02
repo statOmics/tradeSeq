@@ -12,15 +12,16 @@ plotSmoothers(models, ...)
 
 \S4method{plotSmoothers}{gam}(models, nPoints = 100, lwd = 2,
   size = 2/3, xlab = "Pseudotime", ylab = "Log(expression + 1)",
-  border = TRUE)
+  border = TRUE, alpha = 1)
 
 \S4method{plotSmoothers}{SingleCellExperiment}(models, counts, gene,
   nPoints = 100, lwd = 2, size = 2/3, xlab = "Pseudotime",
-  ylab = "Log(expression + 1)", border = TRUE)
+  ylab = "Log(expression + 1)", border = TRUE, alpha = 1)
 }
 \arguments{
-\item{models}{The \code{SingleCellExperiment} object obtained after running
-\code{fitGAM}.}
+\item{models}{Either the \code{SingleCellExperiment} object obtained after
+running \code{fitGAM}, or the specific GAM model for the corresponding gene,
+if working with the list output of \code{tradeSeq}.}
 
 \item{...}{parameters including:}
 
@@ -36,16 +37,12 @@ plotSmoothers(models, ...)
 
 \item{border}{logical: should a white border be drawn around the mean smoother.}
 
+\item{alpha}{Numeric between 0 and 1, determines the transparancy of data points,
+see \code{scale_color_viridis_d}.}
+
 \item{counts}{The matrix of gene expression counts.}
 
 \item{gene}{Gene name of gene to plot.}
-
-\item{m}{the fitted model of a given gene}
-
-\item{alpha}{Transparancy of the expression data points.}
-
-\item{alpha}{Numeric between 0 and 1, determines the transcparancy of data points,
-see \code{scale_color_viridis_d}.}
 }
 \value{
 A \code{\link{ggplot}} object
