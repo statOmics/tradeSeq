@@ -36,6 +36,8 @@ A matrix with the wald statistic, the number of df and the p-value
 }
 \description{
 Perform test of early differences between lineages
+
+Perform test of early differences between lineages
 }
 \details{
 To help in choosing the knots, the \code{\link{plotGeneCount}}

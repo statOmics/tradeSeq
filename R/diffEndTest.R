@@ -147,6 +147,9 @@
   }
 }
 
+#' @description Assess differential expression between the end points of lineages of a
+#' trajectory.
+#'
 #' @param models Typically the output from
 #' \code{\link{fitGAM}}, either a list of fitted GAM models, or an object of
 #' \code{SingleCellExperiment} class.

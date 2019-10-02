@@ -2,7 +2,7 @@
 % Please edit documentation in R/getSmootherTestStats.R
 \name{getSmootherTestStats}
 \alias{getSmootherTestStats}
-\title{Get smoother Chi-squared test statistics}
+\title{Get smoother Chi-squared test statistics.}
 \usage{
 getSmootherTestStats(models)
 }
@@ -14,6 +14,9 @@ Note that this function only works when \code{models} is a list.}
 a matrix with the wald statistics associated with each lineage's
  smoother. The matrix has one row per gene where the fitting procedure
   converged.
+}
+\description{
+Return test statistics from the \code{mgcv} package.
 }
 \examples{
 data(gamList, package = "tradeSeq")

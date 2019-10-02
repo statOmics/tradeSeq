@@ -2,28 +2,28 @@
 
 
 .associationTest <- function(models, global = TRUE, lineages = FALSE){
-  
+
   if (is(models, "list")) {
     sce <- FALSE
   } else if (is(models, "SingleCellExperiment")) {
     sce <- TRUE
   }
-  
+
   if (!sce) {
     modelTemp <- .getModelReference(models)
     nCurves <- length(modelTemp$smooth)
     data <- modelTemp$model
     knotPoints <- modelTemp$smooth[[1]]$xp
-    
+
   } else if (sce) {
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
     knotPoints <- metadata(models)$tradeSeq$knots #knot points
     nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-    
+
   }
-  
-  
+
+
   # construct individual contrast matrix
   if (!sce) {
     npar <- modelTemp$nsdf #nr of parametric terms
@@ -64,8 +64,8 @@
       assign(paste0("L", jj), C)
     }
   }
-  
-  
+
+
   # perform global statistical test for every model
   if (global) {
     L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
@@ -89,7 +89,7 @@
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResults <- as.data.frame(waldResults)
   }
-  
+
   # perform lineages comparisons
   if (lineages) {
     if (!sce) {
@@ -113,7 +113,7 @@
       })
       names(waldResultsLineages) <- rownames(models)
     }
-    
+
     # clean lineages results
     colNames <- c(paste0("waldStat_", seq_len(nCurves)),
                   paste0("df_", seq_len(nCurves)),
@@ -127,7 +127,7 @@
                                              , orderByContrast]
                                   }))
   }
-  
+
   # return output
   if (global == TRUE & lineages == FALSE) return(waldResults)
   if (global == FALSE & lineages == TRUE) return(waldResAllLineages)
@@ -137,6 +137,8 @@
   }
 }
 
+#' @description Assess whether gene expression is associated with pseudotime.
+#'
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
@@ -157,12 +159,12 @@ setMethod(f = "associationTest",
           definition = function(models,
                                 global = TRUE,
                                 lineages = FALSE){
-            
+
             res <- .associationTest(models = models,
                                     global = global,
                                     lineages = lineages)
             return(res)
-            
+
           }
 )
 
@@ -173,11 +175,11 @@ setMethod(f = "associationTest",
           definition = function(models,
                                 global = TRUE,
                                 lineages = FALSE){
-            
+
             res <- .associationTest(models = models,
                                     global = global,
                                     lineages = lineages)
             return(res)
-            
+
           }
 )

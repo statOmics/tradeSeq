@@ -13,8 +13,8 @@ startVsEndTest(models, ...)
 \S4method{startVsEndTest}{SingleCellExperiment}(models, global = TRUE,
   lineages = FALSE, pseudotimeValues = NULL)
 
-\S4method{startVsEndTest}{list}(models, global = TRUE, lineages = FALSE,
-  pseudotimeValues = NULL)
+\S4method{startVsEndTest}{list}(models, global = TRUE,
+  lineages = FALSE, pseudotimeValues = NULL)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
@@ -39,6 +39,10 @@ A matrix with the wald statistic, the number of df and the p-value
  procedure was unsuccessful, the procedure will return NA test statistics and
  p-values. If both \code{global} and \code{lineages} are TRUE, then a matrix
  of p-values is returned.
+}
+\description{
+Assess differential expression between the start and end points
+of a lineage.
 }
 \examples{
 data(gamList, package = "tradeSeq")

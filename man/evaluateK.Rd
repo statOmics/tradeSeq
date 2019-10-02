@@ -8,11 +8,11 @@
 \usage{
 evaluateK(counts, ...)
 
-\S4method{evaluateK}{matrix}(counts, k = 3:10, nGenes = 500, sds = NULL,
-  pseudotime = NULL, cellWeights = NULL, U = NULL, weights = NULL,
-  seed = 81, offset = NULL, ncores = 2, aicDiff = 2, verbose = TRUE,
-  parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
-  control = mgcv::gam.control(), sce = FALSE, family = "nb", ...)
+\S4method{evaluateK}{matrix}(counts, k = 3:10, nGenes = 500,
+  sds = NULL, pseudotime = NULL, cellWeights = NULL, U = NULL,
+  weights = NULL, seed = 81, offset = NULL, aicDiff = 2,
+  verbose = TRUE, parallel = FALSE, control = mgcv::gam.control(),
+  sce = FALSE, family = "nb", ...)
 }
 \arguments{
 \item{counts}{the count matrix.}
@@ -23,6 +23,8 @@ evaluateK(counts, ...)
 
 \item{nGenes}{The number of genes to use in the evaluation. Genes will be
 randomly selected. 500 by default.}
+
+\item{sds}{Slingshot object containing the lineages.}
 
 \item{pseudotime}{a matrix of pseudotime values, each row represents a cell
 and each column represents a lineage.}
@@ -42,20 +44,31 @@ as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
 \item{offset}{Optional: the offset, on log-scale. If NULL, TMM is used to
 account for differences in sequencing depth, see \code{fitGAM}.}
 
-\item{ncores}{Number of cores to use.}
-
 \item{aicDiff}{Used for selecting genes with significantly varying AIC values
 over the range of evaluated knots to make the barplot output. Default is set
 to 2, meaning that only genes whose AIC range is larger than 2 will be used
 to check for the optimal number of knots through the barplot visualization
-that is part of the output of this function.
-\code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
-the same dimensions as the expression matrix.}
+that is part of the output of this function.}
+
+\item{verbose}{logical, should progress be verbose?}
+
+\item{control}{Control object for GAM fitting, see \code{mgcv::gam.control()}.}
+
+\item{sce}{Logical, automatically set by the function and should not be
+altered by the user.}
+
+\item{family}{The distribution assumed, currently only \code{"nb"}
+(negative binomial) is supported.}
 }
 \value{
 A plot of average AIC value over the range of selected knots, and a
 matrix of AIC values for the selected genes (rows) and the range of knots
 (columns).
+}
+\description{
+Evaluate the optimal number of knots required for fitGAM.
+
+Evaluate an appropriate number of knots.
 }
 \examples{
 \dontrun{

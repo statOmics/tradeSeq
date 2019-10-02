@@ -14,6 +14,9 @@ Note that this function only works when \code{models} is a list.}
 a matrix with the p-value associated with each lineage's smoother.
  The matrix has one row per gene where the fitting procedure converged.
 }
+\description{
+Return smoother p-values from the \code{mgcv} package.
+}
 \examples{
 data(gamList, package = "tradeSeq")
 getSmootherPvalues(gamList)

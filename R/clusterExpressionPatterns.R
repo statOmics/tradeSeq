@@ -2,6 +2,9 @@
 
 #' @title Cluster gene expression patterns.
 #'
+#' @description Cluster genes in clusters with similar expression patterns along the
+#' trajectory.
+#'
 #' @param models The list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints The number of points to use for clustering the expression

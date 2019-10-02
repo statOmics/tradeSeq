@@ -1,5 +1,6 @@
 #' @include utils.R
 
+#' @description Assess differences in expression patterns between lineages.
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints the number of points to be compared between lineages.

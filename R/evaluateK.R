@@ -1,6 +1,6 @@
 
 .evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
-                      weights=NULL, seed=81, offset=NULL, ncores=2, aicDiff=2,
+                      weights=NULL, seed=81, offset=NULL, aicDiff=2,
                       ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
@@ -59,7 +59,10 @@
   return(aicMat)
 }
 
+#' Evaluate an appropriate number of knots.
+#'
 #' @param counts the count matrix.
+#' @param sds Slingshot object containing the lineages.
 #' @param U the design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param pseudotime a matrix of pseudotime values, each row represents a cell
@@ -80,9 +83,12 @@
 #' to 2, meaning that only genes whose AIC range is larger than 2 will be used
 #' to check for the optimal number of knots through the barplot visualization
 #' that is part of the output of this function.
-#' \code{edgeR::calcNormFactors}. Alternatively, this may also be a matrix of
-#' the same dimensions as the expression matrix.
-#' @param ncores Number of cores to use.
+#' @param verbose logical, should progress be verbose?
+#' @param control Control object for GAM fitting, see \code{mgcv::gam.control()}.
+#' @param family The distribution assumed, currently only \code{"nb"}
+#' (negative binomial) is supported.
+#' @param sce Logical, automatically set by the function and should not be
+#' altered by the user.
 #' @return A plot of average AIC value over the range of selected knots, and a
 #' matrix of AIC values for the selected genes (rows) and the range of knots
 #' (columns).
@@ -121,11 +127,9 @@ setMethod(f = "evaluateK",
                                 weights = NULL,
                                 seed = 81,
                                 offset = NULL,
-                                ncores = 2,
                                 aicDiff = 2,
                                 verbose = TRUE,
                                 parallel = FALSE,
-                                BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = FALSE,
                                 family = "nb",
@@ -163,7 +167,6 @@ setMethod(f = "evaluateK",
                                  offset = offset,
                                  verbose = verbose,
                                  parallel = parallel,
-                                 BPPARAM = BPPARAM,
                                  control = control,
                                  sce = sce,
                                  ...)

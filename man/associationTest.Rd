@@ -13,7 +13,8 @@ associationTest(models, ...)
 \S4method{associationTest}{SingleCellExperiment}(models, global = TRUE,
   lineages = FALSE)
 
-\S4method{associationTest}{list}(models, global = TRUE, lineages = FALSE)
+\S4method{associationTest}{list}(models, global = TRUE,
+  lineages = FALSE)
 }
 \arguments{
 \item{models}{the list of GAMs, typically the output from
@@ -30,6 +31,9 @@ A matrix with the wald statistic, the number of df and the p-value
  associated with each gene for all the tests performed. If the testing
  procedure was unsuccessful, the procedure will return NA test statistics and
  p-values.
+}
+\description{
+Assess whether gene expression is associated with pseudotime.
 }
 \examples{
 data(gamList, package = "tradeSeq")

@@ -37,6 +37,10 @@ A matrix with the wald statistic, the number of df and the p-value
  procedure was unsuccessful, the procedure will return NA test statistics and
  p-values.
 }
+\description{
+Assess differential expression between the end points of lineages of a
+trajectory.
+}
 \details{
 The \code{l2fc} argument allows to test against a particular fold change
 threshold. For example, if the interest lies in discovering genes that are

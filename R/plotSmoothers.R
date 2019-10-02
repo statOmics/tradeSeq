@@ -150,7 +150,13 @@
 #' @import mgcv
 setOldClass("gam")
 
+#' @description Plot the smoothers estimated by \code{tradeSeq}.
 #' @param m the fitted model of a given gene
+#' @param models The \code{SingleCellExperiment} object obtained after running
+#' \code{fitGAM}.
+#' @param counts The matrix of gene expression counts.
+#' @param gene Gene name of gene to plot.
+#' @param alpha Transparancy of the expression data points.
 #' @param nPoints The number of points used to extraplolate the fit
 #' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}
 #' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}

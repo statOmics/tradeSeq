@@ -159,6 +159,8 @@
   }
 }
 
+#' @description Assess differential expression between the start and end points
+#' of a lineage.
 #' @param models the list of GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.

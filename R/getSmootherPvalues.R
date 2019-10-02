@@ -1,5 +1,7 @@
 #' @title Get smoother p-value as returned by \code{mgcv}.
 #'
+#' @description Return smoother p-values from the \code{mgcv} package.
+#'
 #' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
 #' Note that this function only works when \code{models} is a list.
 #' @return a matrix with the p-value associated with each lineage's smoother.

@@ -1,4 +1,6 @@
-#' @title Get smoother Chi-squared test statistics
+#' @title Get smoother Chi-squared test statistics.
+#'
+#' @description Return test statistics from the \code{mgcv} package.
 #'
 #' @param models the GAM models, typically the output from \code{\link{fitGAM}}.
 #' Note that this function only works when \code{models} is a list.
