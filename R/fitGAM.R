@@ -104,7 +104,7 @@
   # fit model
   ## fixed effect design matrix
   if (is.null(U)) {
-    U <- rep(1,nrow(pseudotime))
+    U <- matrix(rep(1,nrow(pseudotime)), ncol=1)
   }
 
   ## fit NB GAM
@@ -198,6 +198,11 @@
       mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
                 control = control),
       silent = TRUE)
+
+    # QC
+    p <- ncol(U)
+    nCurves <- ncol(pseudotime)
+    nParam <- p + nknots*nCurves
 
     if (sce) { #don't return full GAM model for sce output.
       if(is(m, "try-error")){

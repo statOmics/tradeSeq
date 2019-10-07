@@ -5,6 +5,7 @@
                            pseudotimeValues = NULL){
 
   # TODO: add fold changes
+  # TODO: add testing against fold change threshold
 
 
   if (is(models, "list")) {
@@ -52,7 +53,8 @@
 
     slingshotColData <- colData(models)$slingshot
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
-                                         pattern = "pseudotime")]
+                                         pattern = "pseudotime"),
+                                   drop=FALSE]
     # construct within-lineage contrast matrix
     L <- matrix(0, nrow = ncol(X), ncol = nCurves)
     colnames(L) <- paste0("lineage", seq_len(nCurves))

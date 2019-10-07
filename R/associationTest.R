@@ -14,6 +14,7 @@
     nCurves <- length(modelTemp$smooth)
     data <- modelTemp$model
     knotPoints <- modelTemp$smooth[[1]]$xp
+    X <- predict(modelTemp, type="lpmatrix")
 
   } else if (sce) {
     dm <- colData(models)$tradeSeq$dm # design matrix
@@ -26,42 +27,72 @@
 
   # construct individual contrast matrix
   if (!sce) {
-    npar <- modelTemp$nsdf #nr of parametric terms
-    nknots_max <- modelTemp$smooth[[1]]$last.para -
-      modelTemp$smooth[[1]]$first.para + 1
-    for (jj in seq_len(nCurves)) {
-      # get max pseudotime for lineage of interest
-      tmax <- max(data[data[, paste0("l", jj)] == 1,
-                       paste0("t", jj)])
-      # number of knots for that lineage
-      nknots <- sum(knotPoints <= tmax)
-      C <- matrix(0, nrow = length(coef(modelTemp)), ncol = nknots - 1,
-                  dimnames = list(names(coef(modelTemp)), NULL)
-      )
-      for (i in seq_len(nknots - 1)) {
-        C[npar + nknots_max * (jj - 1) + i, i] <- 1
-        C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
+    if(nCurves == 1){
+      # note that mgcv does not respect the number of input knots if only
+      # a single lineage is fitted.
+      smoothCoefs <-  grep(x=colnames(X), pattern="s\\(t[1-9]")
+      pSmooth <- length(smoothCoefs)
+      pFixed <- min(smoothCoefs)-1
+      L1 <- matrix(0, nrow=ncol(X), ncol=pSmooth-1,
+                   dimnames = list(colnames(X),
+                                   NULL))
+      for(ii in seq_len(pSmooth)-1){
+        L1[pFixed + ii, ii] <- 1
+        L1[pFixed + ii + 1, ii] <- -1
       }
-      assign(paste0("L", jj), C)
+    } else if (nCurves > 1) {
+      npar <- modelTemp$nsdf #nr of parametric terms
+      nknots_max <- modelTemp$smooth[[1]]$last.para -
+        modelTemp$smooth[[1]]$first.para + 1
+      for (jj in seq_len(nCurves)) {
+        # get max pseudotime for lineage of interest
+        tmax <- max(data[data[, paste0("l", jj)] == 1,
+                         paste0("t", jj)])
+        # number of knots for that lineage
+        nknots <- sum(knotPoints <= tmax)
+        C <- matrix(0, nrow = length(coef(modelTemp)), ncol = nknots - 1,
+                    dimnames = list(names(coef(modelTemp)), NULL)
+        )
+        for (i in seq_len(nknots - 1)) {
+          C[npar + nknots_max * (jj - 1) + i, i] <- 1
+          C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
+        }
+        assign(paste0("L", jj), C)
+      }
     }
   } else if (sce) {
-    p <- length(rowData(models)$tradeSeq$beta[[1]][1,])
-    npar <- p - nCurves*length(knotPoints)
-    nknots_max <- length(knotPoints)
-    for (jj in seq_len(nCurves)) {
-      # get max pseudotime for lineage of interest
-      tmax <- max(dm[dm[, paste0("l", jj)] == 1,
-                     paste0("t", jj)])
-      # number of knots for that lineage
-      nknots <- sum(knotPoints <= tmax)
-      C <- matrix(0, nrow = p, ncol = nknots - 1,
+    if(nCurves == 1){
+      # note that mgcv does not respect the number of input knots if only
+      # a single lineage is fitted.
+      smoothCoefs <-  grep(x=colnames(X), pattern="s\\(t[1-9]")
+      pSmooth <- length(smoothCoefs)
+      pFixed <- min(smoothCoefs)-1
+      L1 <- matrix(0, nrow=ncol(X), ncol=pSmooth-1,
                   dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
                                   NULL))
-      for (i in seq_len(nknots - 1)) {
-        C[npar + nknots_max * (jj - 1) + i, i] <- 1
-        C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
+      for(ii in seq_len(pSmooth)-1){
+        L1[pFixed + ii, ii] <- 1
+        L1[pFixed + ii + 1, ii] <- -1
       }
-      assign(paste0("L", jj), C)
+    } else if (nCurves > 1) {
+      p <- length(rowData(models)$tradeSeq$beta[[1]][1,])
+      npar <- p - nCurves*length(knotPoints)
+      nknots_max <- length(knotPoints)
+      for (jj in seq_len(nCurves)) {
+        # get max pseudotime for lineage of interest
+        tmax <- max(dm[dm[, paste0("l", jj)] == 1,
+                       paste0("t", jj)])
+        # number of knots for that lineage
+        nknots <- sum(knotPoints <= tmax)
+        C <- matrix(0, nrow = p, ncol = nknots - 1,
+                    dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
+                                    NULL))
+        for (i in seq_len(nknots - 1)) {
+          C[npar + nknots_max * (jj - 1) + i, i] <- 1
+          C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
+        }
+        assign(paste0("L", jj), C)
+      }
     }
   }
 
