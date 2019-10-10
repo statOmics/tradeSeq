@@ -53,7 +53,8 @@ Suggests:
     rmarkdown,
     cowplot,
     dplyr,
-    tidyr
+    tidyr,
+    testthat
 VignetteBuilder: knitr
 biocViews:
     Clustering,
