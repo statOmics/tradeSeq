@@ -35,6 +35,7 @@
 #' @import slingshot
 #' @importFrom SummarizedExperiment assays
 #' @import ggplot2
+#' @importFrom methods is
 #' @importFrom princurve project_to_curve
 #' @export
 plotGeneCount <- function(curve, counts = NULL, gene = NULL, clusters = NULL,

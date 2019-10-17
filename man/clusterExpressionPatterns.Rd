@@ -3,6 +3,7 @@
 \docType{methods}
 \name{clusterExpressionPatterns}
 \alias{clusterExpressionPatterns}
+\alias{clusterExpressionPatterns,SingleCellExperiment-method}
 \alias{clusterExpressionPatterns,list-method}
 \title{Cluster gene expression patterns.}
 \usage{

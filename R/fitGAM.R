@@ -326,6 +326,7 @@
 #' @importFrom SummarizedExperiment assays
 #' @importFrom BiocParallel bplapply bpparam
 #' @importFrom pbapply pblapply
+#' @importFrom methods is
 #' @export
 setMethod(f = "fitGAM",
           signature = c(counts = "matrix"), #sds must be SlingshotDataSet class

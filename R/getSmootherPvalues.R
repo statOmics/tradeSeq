@@ -10,6 +10,7 @@
 #' data(gamList, package = "tradeSeq")
 #' getSmootherPvalues(gamList)
 #' @name getSmootherPvalues
+#' @importFrom methods is
 #' @export
 getSmootherPvalues <- function(models){
 

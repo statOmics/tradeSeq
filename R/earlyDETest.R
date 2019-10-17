@@ -198,6 +198,7 @@
 #' @rdname earlyDETest
 #' @export
 #' @import SingleCellExperiment
+#' @importFrom methods is
 setMethod(f = "earlyDETest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,

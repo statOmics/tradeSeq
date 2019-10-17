@@ -114,6 +114,7 @@
 #' @rdname evaluateK
 #' @export
 #' @import slingshot
+#' @importFrom methods is
 #' @import SingleCellExperiment
 setMethod(f = "evaluateK",
           signature = c(counts = "matrix"),

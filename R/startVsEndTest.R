@@ -146,7 +146,7 @@
     colnames(resMat) <- colNames
     # order results by contrast
     ll <- list()
-    for (jj in seq_len(ncol(J))) ll[[jj]] <- seq(jj, ncol(L) * 3, by = ncol(L))
+    for (jj in seq_len(ncol(L))) ll[[jj]] <- seq(jj, ncol(L) * 3, by = ncol(L))
     orderByContrast <- unlist(ll)
     waldResAllPair <- resMat[,orderByContrast]
 
@@ -184,6 +184,7 @@
 #' @export
 #' @rdname startVsEndTest
 #' @import SingleCellExperiment
+#' @importFrom methods is
 setMethod(f = "startVsEndTest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,

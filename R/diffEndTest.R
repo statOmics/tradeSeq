@@ -173,6 +173,7 @@
 #'  p-values.
 #' @export
 #' @rdname diffEndTest
+#' @importFrom methods is
 #' @import SingleCellExperiment
 setMethod(f = "diffEndTest",
           signature = c(models = "SingleCellExperiment"),

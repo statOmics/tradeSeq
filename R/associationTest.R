@@ -182,6 +182,7 @@
 #'  procedure was unsuccessful, the procedure will return NA test statistics and
 #'  p-values.
 #' @rdname associationTest
+#' @importFrom methods is
 #' @export
 #' @import SingleCellExperiment
 setMethod(f = "associationTest",
