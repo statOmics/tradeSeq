@@ -1,6 +1,5 @@
 #' @include utils.R
 
-
 .diffEndTest <- function(models, global = TRUE, pairwise = FALSE, l2fc=0){
 
   if (is(models, "list")) {
@@ -76,7 +75,7 @@
       })
 
     } else if (sce) { #singleCellExperiment output
-      waldResultsOmnibus <- lapply(1:nrow(models), function(ii){
+      waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         waldTest(beta, Sigma, L)
@@ -99,17 +98,17 @@
         }
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
-        t(sapply(seq_len(ncol(L)), function(ii){
+        t(vapply(seq_len(ncol(L)), function(ii){
           waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
-        }))
+        }, FUN.VALUE = c(.1, 1, .1)))
       })
     } else if (sce) {
-      waldResultsPairwise <- lapply(1:nrow(models), function(ii){
+      waldResultsPairwise <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        t(sapply(seq_len(ncol(L)), function(ii){
+        t(vapply(seq_len(ncol(L)), function(ii){
           waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
-        }))
+        }, FUN.VALUE = c(.1, 1, .1)))
       })
       names(waldResultsPairwise) <- rownames(models)
     }
@@ -125,7 +124,7 @@
     colnames(resMat) <- colNames
     # order results by contrast
     ll <- list()
-    for(jj in 1:ncol(L)) ll[[jj]] <- seq(jj,ncol(L)*4, by=ncol(L))
+    for (jj in seq_len(ncol(L))) ll[[jj]] <- seq(jj,ncol(L)*4, by = ncol(L))
     orderByContrast <- unlist(ll)
     waldResAllPair <- resMat[,orderByContrast]
 

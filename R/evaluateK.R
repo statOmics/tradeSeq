@@ -4,7 +4,7 @@
                       ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
-
+  if (length(k) == 1) stop("There should be more than one k value")
   ## calculate offset on full matrix
   if (is.null(offset)) {
     nf <- edgeR::calcNormFactors(counts)
@@ -14,11 +14,11 @@
 
   ## AIC over knots
   set.seed(seed)
-  geneSub <- sample(1:nrow(counts), nGenes)
+  geneSub <- sample(seq_len(nrow(counts)), nGenes)
   countSub <- counts[geneSub,]
   weightSub <- weights[geneSub,]
   kList <- list()
-  for (ii in 1:length(k)) kList[[ii]] <- k[ii]
+  for (ii in seq_len(length(k))) kList[[ii]] <- k[ii]
   #gamLists <- BiocParallel::bplapply(kList, function(currK){
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
@@ -35,14 +35,14 @@
   # boxplots of AIC
   # boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
   devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
-  for (ii in 1:length(k)) devs[ii,] <- aicMat[ii,] - mean(aicMat[ii,])
+  for (ii in seq_len(length(k))) devs[ii,] <- aicMat[ii,] - mean(aicMat[ii,])
   boxplot(devs, ylab = "Deviation from genewise average AIC",
           xlab = "Number of knots", xaxt = "n")
-  axis(1, at = 1:length(k), labels = k)
+  axis(1, at = seq_len(length(k)), labels = k)
   # squared deviation
   # boxplot(log(devs^2), ylab="Log squared deviation from genewise average AIC",
   #         xlab="Number of knots", xaxt='n')
-  # axis(1, at=1:length(k), labels=k)
+  # axis(1, at=seq_len(length(k)), labels=k)
   # scatterplot of average AIC
   plot(x = k, y = colMeans(aicMat, na.rm = TRUE), type = "b",
        ylab = "Average AIC", xlab = "Number of knots")

@@ -2,7 +2,7 @@ Package: tradeSeq
 Type: Package
 Title: trajectory-based differential expression analysis for sequencing data
 Date: 2019-03-15
-Version: 0.99.80
+Version: 0.99.81
 Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "koen.vandenberge@ugent.be"),
               person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
@@ -14,7 +14,7 @@ Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
 Description: tradeSeq provides a flexible method for finding genes that are differentially expressed along one or multiple trajectories, using a variety of tests suited to answer many questions of interest.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 URL: https://statomics.github.io/tradeSeq/index.html
 Depends: R (>= 3.6)
 Collate:
@@ -32,7 +32,6 @@ Collate:
     'patternTest.R'
     'plotGeneCount.R'
     'plotSmoothers.R'
-    'sceMethods.R'
     'startVsEndTest.R'
 RoxygenNote: 6.1.1
 Imports: 
@@ -47,7 +46,8 @@ Imports:
     BiocParallel,
     pbapply,
     ggplot2,
-    princurve
+    princurve,
+    methods
 Suggests:
     knitr,
     rmarkdown,

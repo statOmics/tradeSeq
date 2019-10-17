@@ -1,38 +1,5 @@
 #' @include utils.R
 
-#' @title Cluster gene expression patterns.
-#'
-#' @description Cluster genes in clusters with similar expression patterns along the
-#' trajectory.
-#'
-#' @param models The list of GAMs, typically the output from
-#' \code{\link{fitGAM}}.
-#' @param nPoints The number of points to use for clustering the expression
-#'  patterns.
-#' @param genes A numerical or character vector specifying the genes from
-#'  \code{models}
-#'  that should be clustered.
-#' @param reduceMethod Method used before running the clustering methods.
-#'  Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param nReducedDims Number of dimensions kept after \code{reduceMethod}.
-#'  Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param minSizes Number of dimensions kept after \code{reduceMethod}.
-#'  Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param ncores Number of cores to use. Passed to
-#' \code{\link[clusterExperiment]{RSEC}}
-#' @param verbose Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param random.seed Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param ... Additional arguments to be passed to
-#' \code{\link[clusterExperiment]{RSEC}}.
-#' @details This method adopts the \code{\link[clusterExperiment]{RSEC}}
-#' function from the clusterExperiment package to perform consensus clustering.
-#' @return A list containing the scaled fitted values \code{yhatScaled}(for
-#'  plotting) and a \code{\link{ClusterExperiment}} object.
-#' @examples
-#' data(gamList, package = "tradeSeq")
-#' clusterExpressionPatterns(gamList, 200, seq_len(11))
-#' @importFrom clusterExperiment RSEC
-#' @name clusterExpressionPatterns
 .clusterExpressionPatterns <- function(models, nPoints, genes,
                                       reduceMethod = "PCA", nReducedDims = 10,
                                       minSizes = 6, ncores = 1,
@@ -97,6 +64,39 @@
   return(list(rsec = rsec, yhatScaled = yhatPatScaled))
 }
 
+#' @title Cluster gene expression patterns.
+#'
+#' @description Cluster genes in clusters with similar expression patterns along the
+#' trajectory.
+#'
+#' @param models The list of GAMs, typically the output from
+#' \code{\link{fitGAM}}.
+#' @param nPoints The number of points to use for clustering the expression
+#'  patterns.
+#' @param genes A numerical or character vector specifying the genes from
+#'  \code{models}
+#'  that should be clustered.
+#' @param reduceMethod Method used before running the clustering methods.
+#'  Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param nReducedDims Number of dimensions kept after \code{reduceMethod}.
+#'  Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param minSizes Number of dimensions kept after \code{reduceMethod}.
+#'  Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param ncores Number of cores to use. Passed to
+#' \code{\link[clusterExperiment]{RSEC}}
+#' @param verbose Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param random.seed Passed to \code{\link[clusterExperiment]{RSEC}}
+#' @param ... Additional arguments to be passed to
+#' \code{\link[clusterExperiment]{RSEC}}.
+#' @details This method adopts the \code{\link[clusterExperiment]{RSEC}}
+#' function from the clusterExperiment package to perform consensus clustering.
+#' @return A list containing the scaled fitted values \code{yhatScaled}(for
+#'  plotting) and a \code{\link{ClusterExperiment}} object.
+#' @examples
+#' data(gamList, package = "tradeSeq")
+#' clusterExpressionPatterns(gamList, 200, seq_len(11))
+#' @importFrom clusterExperiment RSEC
+#' @name clusterExpressionPatterns
 #' @rdname clusterExpressionPatterns
 #' @export
 #' @import SingleCellExperiment

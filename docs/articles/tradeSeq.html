@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
       </span>
     </div>
 
@@ -76,53 +76,53 @@
     
     
 <p>In this vignette, we analyse a subset of the data from <span class="citation">(Paul et al. 2015)</span>. All details about the <code>tradeSeq</code> model and statistical tests are described in our preprint <span class="citation">(Van den Berge et al. 2019)</span>. A <code>SingleCellExperiment</code> object of the data has been provided with the <a href="https://github.com/statOmics/tradeSeqpaper"><code>tradeSeq</code></a> package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the <a href="http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3">Monocle 3 vignette</a>.</p>
+<div id="installation" class="section level1">
+<h1 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h1>
+<p>To install the package, simply run</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(<span class="st">"BiocManager"</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {</span>
+<span id="cb1-2"><a href="#cb1-2"></a> <span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"BiocManager"</span>) </span>
+<span id="cb1-3"><a href="#cb1-3"></a>}</span>
+<span id="cb1-4"><a href="#cb1-4"></a>BiocManager<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">"tradeSeq"</span>)</span></code></pre></div>
+</div>
 <div id="load-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#load-data" class="anchor"></a>Load data</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>({</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(SingleCellExperiment)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mgcv)</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tradeSeq)</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(slingshot)</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(RColorBrewer)</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tidyr)</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(cowplot)</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">})</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># For reproducibility</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">RNGversion</a></span>(<span class="st">"3.5.0"</span>)</a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="kw"><a href="https://rdrr.io/r/grDevices/palette.html">palette</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span>(<span class="dv">8</span>,<span class="st">"Dark2"</span>))</a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(<span class="st">"./se_paul.rda"</span>)) {</a>
-<a class="sourceLine" id="cb1-17" data-line-number="17">  <span class="kw"><a href="https://rdrr.io/r/utils/download.file.html">download.file</a></span>(</a>
-<a class="sourceLine" id="cb1-18" data-line-number="18">    <span class="st">"https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda"</span>,</a>
-<a class="sourceLine" id="cb1-19" data-line-number="19">    <span class="dt">destfile =</span> <span class="st">"./se_paul.rda"</span>)  </a>
-<a class="sourceLine" id="cb1-20" data-line-number="20">}</a>
-<a class="sourceLine" id="cb1-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="kw"><a href="https://rdrr.io/r/base/load.html">load</a></span>(<span class="st">"./se_paul.rda"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tradeSeq)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(RColorBrewer)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co"># For reproducibility</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">RNGversion</a></span>(<span class="st">"3.5.0"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="kw"><a href="https://rdrr.io/r/grDevices/palette.html">palette</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span>(<span class="dv">8</span>,<span class="st">"Dark2"</span>))</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(<span class="st">"./se_paul.rda"</span>)) {</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="kw"><a href="https://rdrr.io/r/utils/download.file.html">download.file</a></span>(</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    <span class="st">"https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="dt">destfile =</span> <span class="st">"./se_paul.rda"</span>)  </span>
+<span id="cb2-10"><a href="#cb2-10"></a>}</span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(SingleCellExperiment)</span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="kw"><a href="https://rdrr.io/r/base/load.html">load</a></span>(<span class="st">"./se_paul.rda"</span>)</span></code></pre></div>
 </div>
 <div id="fit-trajectories-using-slingshot" class="section level1">
 <h1 class="hasAnchor">
 <a href="#fit-trajectories-using-slingshot" class="anchor"></a>Fit trajectories using slingshot</h1>
 <p>We will fit developmental trajectories using the <code>slingshot</code> package <span class="citation">(Street et al. 2018)</span>. <code>slingshot</code> requires cluster labels as input, and fits trajectories in reduced dimension. We will use the reduced space calculated with the UMAP method, which is pre-calculated in the <code>se</code> object. We cluster the data using k-means with <span class="math inline">\(7\)</span> clusters. Since we know which cells are the progenitor cell type, we define the starting point for the trajectories as input for <code>slingshot</code>. Note that this argument is optional, and not required to run <code>slingshot</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">200</span>)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">rd &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/SCE-reducedDims.html">reducedDims</a></span>(se)<span class="op">$</span>UMAP</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">cl &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/kmeans.html">kmeans</a></span>(rd, <span class="dt">centers =</span> <span class="dv">7</span>)<span class="op">$</span>cluster</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(rd, <span class="dt">col =</span> <span class="kw"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span>(<span class="dv">9</span>, <span class="st">"Set1"</span>)[cl], <span class="dt">pch =</span> <span class="dv">16</span>, <span class="dt">asp =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">     <span class="dt">cex =</span> <span class="dv">2</span><span class="op">/</span><span class="dv">3</span>)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(slingshot)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">lin &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/getLineages.html">getLineages</a></span>(rd, <span class="dt">clusterLabels =</span> cl, <span class="dt">start.clus =</span> <span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">200</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>rd &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/SCE-reducedDims.html">reducedDims</a></span>(se)<span class="op">$</span>UMAP</span>
+<span id="cb3-3"><a href="#cb3-3"></a>cl &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/kmeans.html">kmeans</a></span>(rd, <span class="dt">centers =</span> <span class="dv">7</span>)<span class="op">$</span>cluster</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(rd, <span class="dt">col =</span> <span class="kw"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span>(<span class="dv">9</span>, <span class="st">"Set1"</span>)[cl], <span class="dt">pch =</span> <span class="dv">16</span>, <span class="dt">asp =</span> <span class="dv">1</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>     <span class="dt">cex =</span> <span class="dv">2</span><span class="op">/</span><span class="dv">3</span>)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-4-1.png" width="50%"></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(slingshot)</span></code></pre></div>
+<pre><code>## Loading required package: princurve</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>lin &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/getLineages.html">getLineages</a></span>(rd, <span class="dt">clusterLabels =</span> cl, <span class="dt">start.clus =</span> <span class="dv">1</span>)</span></code></pre></div>
 <pre><code>## Using full covariance matrix</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">crv &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/getCurves.html">getCurves</a></span>(lin)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>crv &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/getCurves.html">getCurves</a></span>(lin)</span></code></pre></div>
 <p>We find two lineages for this dataset. The trajectory can be visualized using the <code>plotGeneCount</code> function, using either the cluster labels or cell type to color the cells.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">celltype &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw">colData</span>(se)<span class="op">$</span>cell_type2)</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> celltype, </a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">              <span class="dt">title =</span> <span class="st">"Colored by cell type"</span>)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">clusters =</span> cl)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-5-1.png" width="50%"></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>celltype &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw">colData</span>(se)<span class="op">$</span>cell_type2)</span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">clusters =</span> celltype, </span>
+<span id="cb10-3"><a href="#cb10-3"></a>              <span class="dt">title =</span> <span class="st">"Colored by cell type"</span>)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-5-2.png" width="50%"></p>
 </div>
 <div id="determining-the-number-of-knots" class="section level1">
 <h1 class="hasAnchor">
@@ -130,13 +130,14 @@
 <p>After estimating the trajectory, we can fit generalized additive models (GAMs) with the <code>tradeSeq</code> package. Internally, this package builds on the <code>mgcv</code> package by fitting additive models using the <code>gam</code> function. The core function from <code>tradeSeq</code>, <code>fitGAM</code>, will use cubic splines as basis functions, and it tries to ensure that every lineage will end at a knot point of a smoother. By default, we allow for <span class="math inline">\(6\)</span> knots for every lineage, but this can be changed with the <code>nknots</code> argument. More knots will allow more flexibility, but also increase the risk of overfitting.</p>
 <p>Ideally, the number of knots should be selected to reach an optimal bias-variance trade-off for the smoother, where one explains as much variability in the expression data as possible with only a few regression coefficients. In order to guide that choice, we developed diagnostic plots using the Akaike Informaction Criterion (AIC). This is implemented in the <code>evaluateK</code> function in <code>tradeSeq</code>. The function takes as input the expression count matrix, a <code>SlingshotDataSet</code> (or alternatively, a matrix of pseudotimes and cell-level weights). The range of knots to evaluate is provided with the <code>knots</code> argument. The minimum allowed number of knots is <span class="math inline">\(3\)</span>. While there is no boundary on the maximum number of knots, typically the interesting range is around <span class="math inline">\(3\)</span> to <span class="math inline">\(10\)</span> knots. The function will fit NB-GAM models for some number of genes, provided by the <code>nGenes</code> argument, over the range of knots that are provided, and return the AIC for each gene fitted with each number of knots. It is generally a good idea to evaluate this multiple times using different seeds (specified with the <code>seed</code> argument), to check whether the results are reproducible across different gene subsets.</p>
 <p>This task can be computationally demanding, since the models must be fit multiple times for each gene. We therefore skip this in the vignette, but show the output one can expect instead.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">sds =</span> crv, <span class="dt">knots=</span><span class="dv">3</span><span class="op">:</span><span class="dv">20</span>, <span class="dt">nGenes =</span> <span class="dv">200</span>, <span class="dt">verbose=</span><span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co"># alternatively:</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">knots=</span><span class="dv">3</span><span class="op">:</span><span class="dv">20</span>, <span class="dt">nGenes =</span> <span class="dv">200</span>,</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5">                   <span class="dt">pseudotime =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>),</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">                   <span class="dt">cellWeights =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(crv))</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-5-1.png" width="700"><img src="tradeSeq_files/figure-html/unnamed-chunk-5-2.png" width="700"></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>counts &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/SCE-assays.html">counts</a></span>(se))</span>
+<span id="cb11-2"><a href="#cb11-2"></a>icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">sds =</span> crv, <span class="dt">k=</span><span class="dv">3</span><span class="op">:</span><span class="dv">20</span>, <span class="dt">nGenes =</span> <span class="dv">200</span>,</span>
+<span id="cb11-3"><a href="#cb11-3"></a>                   <span class="dt">verbose=</span><span class="ot">FALSE</span>)</span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="co"># alternatively:</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">k=</span><span class="dv">3</span><span class="op">:</span><span class="dv">20</span>, <span class="dt">nGenes =</span> <span class="dv">200</span>,</span>
+<span id="cb11-6"><a href="#cb11-6"></a>                   <span class="dt">pseudotime =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>),</span>
+<span id="cb11-7"><a href="#cb11-7"></a>                   <span class="dt">cellWeights =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(crv))</span></code></pre></div>
+<p><img src="evalK_paul1Cropped.png" width="1106"><img src="evalK_paul2Cropped.png" width="1103"></p>
 <p>The output graphics are organized into four panels. The left panel plots a boxplot for each number of knots we wanted to evaluate. The plotted values are the deviation from a gene’s AIC at that specific knot value from the average AIC of that gene across all the knots under evaluation. Typically, AIC values are somewhat higher for low number of knots, and we expect them to decrease as the number of knots gets higher. The two middle panels plot the average drop in AIC across all genes. The middle left panel simply plots the average AIC, while the middle right panel plots the change in AIC relative to the average AIC at the lowest knot number (here, this is 3 knots, as can also be seen from the plot since the relative AIC equals <span class="math inline">\(1\)</span>). Finally, rhe right panel only plots a subset of genes where the AIC value changes significantly across the evaluated number of knots. Here, a significant change is defined as a change in absolute value of at least <span class="math inline">\(2\)</span>, but this can be tuned using the <code>aicDiff</code> argument to <code>evaluateK</code>. For the subset of genes, a barplot is displayed that shows the number of genes that have their lowest AIC at a specific knot value.</p>
 <p>The middle panels show that the drop in AIC levels off if the number of knots is increased beyond <span class="math inline">\(6\)</span>. In the right panel, <span class="math inline">\(6\)</span> knots also corresponds the highest number of genes with lowest AIC value. Based on these plots, we thus believe that fitting the NB-GAM models with <span class="math inline">\(6\)</span> knots is an appropriate choice.</p>
 </div>
@@ -149,20 +150,22 @@
 <p>For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239 genes in total. We also include the <em>Irf8</em> gene, since it is a known transcription factor involved in hematopoiesis.</p>
 <p>The <code>fitGAM</code> function relies on <strong>BiocParallel</strong> to implement parallelization, progress bars and so on. Similar to <code>evaluateK</code>, fitGAM can either take a <code>SlingshotDataSet</code> object as input (<code>sds</code> argument), or a matrix of pseudotimes and cell-level weights (<code>pseudotime</code> and <code>cellWeights</code> argument). If a <code>SlingshotDataSet</code> is provided, the function will return a <code>SingleCellExperiment</code> object that contains the essential output from <code>tradeSeq</code>. This is much more efficient than providing the pseudotime and cell-level weights as matrices, when a list of GAM models will be returned.</p>
 <p>While in this vignette we will proceed with using the <code>sds</code> argument, hence a <code>SingleCellExperiment</code> object as output, <code>tradeSeq</code> allows input from any trajectory inference method with the <code>pseudotime</code> and <code>cellWeights</code> arguments. All functions work with both the <code>SingleCellExperiment</code> (i.e., <code>sds</code> input to <code>fitGAM</code>) output as well as the list output (i.e., <code>pseudotime</code> and <code>cellWeights</code> input to <code>fitGAM</code>).</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># Register BiocParallel Serial Execution (no parallelization in that case)</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">BiocParallel<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html">register</a></span>(BiocParallel<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html">SerialParam</a></span>())</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">counts &lt;-<span class="st"> </span><span class="kw">assays</span>(se)<span class="op">$</span>counts <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>()</a>
-<a class="sourceLine" id="cb9-5" data-line-number="5">filt &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(counts <span class="op">&gt;</span><span class="st"> </span><span class="dv">8</span>) <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(counts)<span class="op">/</span><span class="dv">100</span></a>
-<a class="sourceLine" id="cb9-6" data-line-number="6">filt[<span class="st">"Irf8"</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb9-7" data-line-number="7">counts &lt;-<span class="st"> </span>counts[filt, ]</a>
-<a class="sourceLine" id="cb9-8" data-line-number="8">sce &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts,</a>
-<a class="sourceLine" id="cb9-9" data-line-number="9">                  <span class="dt">sds =</span> crv)</a>
-<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co"># This takes about 1mn to run</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(BiocParallel)</span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(magrittr)</span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="co"># Register BiocParallel Serial Execution (no parallelization in that case)</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>BiocParallel<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html">register</a></span>(BiocParallel<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html">SerialParam</a></span>())</span>
+<span id="cb12-5"><a href="#cb12-5"></a></span>
+<span id="cb12-6"><a href="#cb12-6"></a>counts &lt;-<span class="st"> </span><span class="kw">assays</span>(se)<span class="op">$</span>counts <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>()</span>
+<span id="cb12-7"><a href="#cb12-7"></a>filt &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(counts <span class="op">&gt;</span><span class="st"> </span><span class="dv">8</span>) <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(counts)<span class="op">/</span><span class="dv">100</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a>filt[<span class="st">"Irf8"</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>counts &lt;-<span class="st"> </span>counts[filt, ]</span>
+<span id="cb12-10"><a href="#cb12-10"></a>sce &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts,</span>
+<span id="cb12-11"><a href="#cb12-11"></a>                  <span class="dt">sds =</span> crv)</span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="co"># This takes about 1mn to run</span></span></code></pre></div>
 <p>You can also plot the cells in reduced dimension to see where the knots are located.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl,</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">              <span class="dt">models =</span> sce)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl,</span>
+<span id="cb13-2"><a href="#cb13-2"></a>              <span class="dt">models =</span> sce)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-9-1.png" width="50%"></p>
 </div>
 <div id="within-lineage-comparisons" class="section level1">
 <h1 class="hasAnchor">
@@ -171,8 +174,8 @@
 <h2 class="hasAnchor">
 <a href="#association-of-gene-expression-with-pseudotime" class="anchor"></a>Association of gene expression with pseudotime</h2>
 <p>A first exploration of the data analysis may consist in checking whether gene expression is associated with a particular lineage. The statistical test performed here, implemented in the <code>associationTest</code> function, is testing the null hypothesis that all smoother coefficients are equal to each other. This can be interpreted as testing whether the smoothed gene expression is significantly changing along pseudotime.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">assoRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/associationTest.html">associationTest</a></span>(sce)</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(assoRes)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>assoRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/associationTest.html">associationTest</a></span>(sce)</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(assoRes)</span></code></pre></div>
 <pre><code>##        waldStat df       pvalue
 ## Acin1 132.68744  9 0.000000e+00
 ## Actb  463.67322  9 0.000000e+00
@@ -185,21 +188,21 @@
 <h2 class="hasAnchor">
 <a href="#discovering-progenitor-marker-genes" class="anchor"></a>Discovering progenitor marker genes</h2>
 <p>In order to discover marker genes of the progenitor cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a lineage) with the differentiated cell type population (i.e., the end point of a lineage). In the function <code>startVsEndTest</code>, we have implemented a Wald test that tests the null hypothesis that the expression at the starting point of the smoother (progenitor population) is identical to the expression at the end point of the smoother (differentiated population). The test basically involves a comparison between two smoother coefficients for every lineage. The function <code>startVsEndTest</code> performs an omnibus test across all lineages by default, but you can also assess all lineages separately by setting <code>lineages=TRUE</code>. Below, we adopt an omnibus test across the two lineages.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">startRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(sce)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>startRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(sce)</span></code></pre></div>
 <p>We can visualize the estimated smoothers for the most significant gene.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">oStart &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/order.html">order</a></span>(startRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">sigGeneStart &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(sce)[oStart[<span class="dv">1</span>]]</a>
-<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> sigGeneStart)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-10-1.png" width="480"></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>oStart &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/order.html">order</a></span>(startRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb17-2"><a href="#cb17-2"></a>sigGeneStart &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(sce)[oStart[<span class="dv">1</span>]]</span>
+<span id="cb17-3"><a href="#cb17-3"></a><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> sigGeneStart)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-12-1.png" width="40%"></p>
 <p>Alternatively, we can color the cells in UMAP space with that gene’s expression.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> sigGeneStart)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> sigGeneStart)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-13-1.png" width="50%"></p>
 </div>
 <div id="comparing-specific-pseudotime-values-within-a-lineage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#comparing-specific-pseudotime-values-within-a-lineage" class="anchor"></a>Comparing specific pseudotime values within a lineage</h2>
 <p>The <code>startVsEndTest</code> compares two points on a lineage, and by default it is comparing the inception point with the end point. However, this is a specific form of a more general capability of the <code>startVsEndTest</code> to compare any two points on any lineage. If the interest lies in comparing any two custom pseudotime values, one can specify this using the <code>pseudotimeValues</code> arguments in <code>startVsEndTest</code>. For example, below we’d like to compare the expression for each gene at pseudotime values of <span class="math inline">\(0.8\)</span> and <span class="math inline">\(0.1\)</span>.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">customRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(sce, <span class="dt">pseudotimeValues =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">0.8</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>customRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(sce, <span class="dt">pseudotimeValues =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">0.8</span>))</span></code></pre></div>
 </div>
 </div>
 <div id="between-lineage-comparisons" class="section level1">
@@ -209,54 +212,94 @@
 <h2 class="hasAnchor">
 <a href="#discovering-differentiated-cell-type-markers" class="anchor"></a>Discovering differentiated cell type markers</h2>
 <p><code>tradeSeq</code> can discover marker genes for the differentiated cell types by comparing the end points of the lineage-specific smoothers. This is implemented in the <code>diffEndTest</code> function. By default, <code>diffEndTest</code> performs an omnibus test, testing the null hypothesis that the endpoint expression is equal for all lineages using a multivariate Wald test. If more than two trajectories are present, one can assess all pairwise comparisons using the <code>pairwise=TRUE</code> argument.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">endRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/diffEndTest.html">diffEndTest</a></span>(sce)</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>endRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/diffEndTest.html">diffEndTest</a></span>(sce)</span></code></pre></div>
 <p>We can plot the most significant gene using the <code>plotSmoothers</code> function.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">o &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/order.html">order</a></span>(endRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">sigGene &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(sce)[o[<span class="dv">1</span>]]</a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, sigGene)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-14-1.png" width="480"></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>o &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/order.html">order</a></span>(endRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb21-2"><a href="#cb21-2"></a>sigGene &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(sce)[o[<span class="dv">1</span>]]</span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, sigGene)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-16-1.png" width="40%"></p>
 <p>Alternatively, we can color the cells in UMAP space with that gene’s expression.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> sigGene)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> sigGene)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-17-1.png" width="50%"></p>
 </div>
 <div id="discovering-genes-with-different-expression-patterns" class="section level2">
 <h2 class="hasAnchor">
 <a href="#discovering-genes-with-different-expression-patterns" class="anchor"></a>Discovering genes with different expression patterns</h2>
 <p>Asides from testing at the level of the differentiated cell type, researchers may be interested in assessing the expression pattern of a gene over pseudotime. The function <code>patternTest</code> implements a statistical method that checks whether the smoothed gene expression is equal along pseudotime between two or multiple lineages. In practice, we use <span class="math inline">\(100\)</span> points, equally distributed along pseudotime, that are compared between two (or multiple) lineages, and this number can be changed using the <code>nPoints</code> argument.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">patternRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/patternTest.html">patternTest</a></span>(sce)</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">oPat &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/order.html">order</a></span>(patternRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(patternRes)[oPat])</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>patternRes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/patternTest.html">patternTest</a></span>(sce)</span>
+<span id="cb23-2"><a href="#cb23-2"></a>oPat &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/order.html">order</a></span>(patternRes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(patternRes)[oPat])</span></code></pre></div>
 <pre><code>## [1] "Mpo"   "Prtn3" "Car2"  "Ctsg"  "Elane" "H2afy"</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(patternRes)[oPat][<span class="dv">1</span>])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-16-1.png" width="480"></p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(patternRes)[oPat][<span class="dv">1</span>])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(patternRes)[oPat][<span class="dv">1</span>])</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-18-1.png" width="40%"></p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(patternRes)[oPat][<span class="dv">1</span>])</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-19-1.png" width="50%"></p>
 <p>We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the <em>patternTest</em> and their rank in decreasing Wald statistics for the <em>diffEndTest</em>.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">compare &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">inner_join</a></span>(patternRes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">Gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(patternRes),</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2">                                            <span class="dt">pattern =</span> waldStat) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="st">                                     </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene, pattern),</a>
-<a class="sourceLine" id="cb24-4" data-line-number="4">                      endRes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">Gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(endRes),</a>
-<a class="sourceLine" id="cb24-5" data-line-number="5">                                        <span class="dt">end =</span> waldStat) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="st">                                 </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene, end),</a>
-<a class="sourceLine" id="cb24-7" data-line-number="7">                      <span class="dt">by =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Gene"</span> =<span class="st"> "Gene"</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb24-8" data-line-number="8"><span class="st">           </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">transientScore =</span> (<span class="kw"><a href="https://dplyr.tidyverse.org/reference/ranking.html">min_rank</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(end)))<span class="op">^</span><span class="dv">2</span> <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-9" data-line-number="9"><span class="st">                                   </span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/ranking.html">dense_rank</a></span>(pattern))<span class="op">^</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb24-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb24-11" data-line-number="11"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(compare, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(pattern), <span class="dt">y =</span> <span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(end))) <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> transientScore)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-13" data-line-number="13"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"patternTest Wald Statistic (log scale)"</span>,</a>
-<a class="sourceLine" id="cb24-14" data-line-number="14">       <span class="dt">y =</span> <span class="st">"diffEndTest Wald Statistic (log scale)"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-15" data-line-number="15"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_color_continuous</a></span>(<span class="dt">low =</span> <span class="st">"yellow"</span>, <span class="dt">high =</span> <span class="st">"red"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb24-16" data-line-number="16"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-18-1.png" width="480"></p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following object is masked from 'package:matrixStats':
+## 
+##     count</code></pre>
+<pre><code>## The following objects are masked from 'package:GenomicRanges':
+## 
+##     intersect, setdiff, union</code></pre>
+<pre><code>## The following object is masked from 'package:GenomeInfoDb':
+## 
+##     intersect</code></pre>
+<pre><code>## The following objects are masked from 'package:IRanges':
+## 
+##     collapse, desc, intersect, setdiff, slice, union</code></pre>
+<pre><code>## The following objects are masked from 'package:S4Vectors':
+## 
+##     first, intersect, rename, setdiff, setequal, union</code></pre>
+<pre><code>## The following object is masked from 'package:Biobase':
+## 
+##     combine</code></pre>
+<pre><code>## The following objects are masked from 'package:BiocGenerics':
+## 
+##     combine, intersect, setdiff, union</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tidyr)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: 'tidyr'</code></pre>
+<pre><code>## The following object is masked from 'package:magrittr':
+## 
+##     extract</code></pre>
+<pre><code>## The following object is masked from 'package:S4Vectors':
+## 
+##     expand</code></pre>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>compare &lt;-<span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/join.html">inner_join</a></span>(patternRes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">Gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(patternRes),</span>
+<span id="cb42-2"><a href="#cb42-2"></a>                                            <span class="dt">pattern =</span> waldStat) <span class="op">%&gt;%</span></span>
+<span id="cb42-3"><a href="#cb42-3"></a><span class="st">                                     </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene, pattern),</span>
+<span id="cb42-4"><a href="#cb42-4"></a>                      endRes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">Gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(endRes),</span>
+<span id="cb42-5"><a href="#cb42-5"></a>                                        <span class="dt">end =</span> waldStat) <span class="op">%&gt;%</span></span>
+<span id="cb42-6"><a href="#cb42-6"></a><span class="st">                                 </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene, end),</span>
+<span id="cb42-7"><a href="#cb42-7"></a>                      <span class="dt">by =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Gene"</span> =<span class="st"> "Gene"</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb42-8"><a href="#cb42-8"></a><span class="st">           </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">transientScore =</span> (<span class="kw"><a href="https://dplyr.tidyverse.org/reference/ranking.html">min_rank</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(end)))<span class="op">^</span><span class="dv">2</span> <span class="op">+</span></span>
+<span id="cb42-9"><a href="#cb42-9"></a><span class="st">                                   </span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/ranking.html">dense_rank</a></span>(pattern))<span class="op">^</span><span class="dv">2</span>)</span>
+<span id="cb42-10"><a href="#cb42-10"></a></span>
+<span id="cb42-11"><a href="#cb42-11"></a><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(compare, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(pattern), <span class="dt">y =</span> <span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(end))) <span class="op">+</span></span>
+<span id="cb42-12"><a href="#cb42-12"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> transientScore)) <span class="op">+</span></span>
+<span id="cb42-13"><a href="#cb42-13"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"patternTest Wald Statistic (log scale)"</span>,</span>
+<span id="cb42-14"><a href="#cb42-14"></a>       <span class="dt">y =</span> <span class="st">"diffEndTest Wald Statistic (log scale)"</span>) <span class="op">+</span></span>
+<span id="cb42-15"><a href="#cb42-15"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_color_continuous</a></span>(<span class="dt">low =</span> <span class="st">"yellow"</span>, <span class="dt">high =</span> <span class="st">"red"</span>) <span class="op">+</span></span>
+<span id="cb42-16"><a href="#cb42-16"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-20-1.png" width="50%"></p>
 <p>Or, we can visualize the expression in UMAP space of the top gene.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">topTransient &lt;-<span class="st"> </span>(compare <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(transientScore)))[<span class="dv">1</span>, <span class="st">"Gene"</span>]</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> topTransient)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-19-1.png" width="480"></p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> topTransient)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>topTransient &lt;-<span class="st"> </span>(compare <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(transientScore)))[<span class="dv">1</span>, <span class="st">"Gene"</span>]</span>
+<span id="cb43-2"><a href="#cb43-2"></a><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> topTransient)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-21-1.png" width="40%"></p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> topTransient)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-22-1.png" width="50%"></p>
 <p>Interestingly, we recover the Irf8 gene in the top 5 genes according to that ranking.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(compare <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(transientScore)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene), <span class="dt">n =</span> <span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(compare <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(<span class="kw"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span>(transientScore)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(Gene), <span class="dt">n =</span> <span class="dv">5</span>)</span></code></pre></div>
 <pre><code>##       Gene
 ## 1    Nedd4
 ## 2     Irf8
@@ -264,81 +307,89 @@
 ## 4    Hint1
 ## 5 Hsp90ab1</code></pre>
 <p>We can also plot the Irf8 gene.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> <span class="st">"Irf8"</span>)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-22-1.png" width="480"></p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="st">"Irf8"</span>)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> <span class="st">"Irf8"</span>)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-24-1.png" width="40%"></p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="st">"Irf8"</span>)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-25-1.png" width="50%"></p>
 </div>
 <div id="early-drivers-of-differentiation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#early-drivers-of-differentiation" class="anchor"></a>Early drivers of differentiation</h2>
 <p>Another question of interest is to find a list of genes that are differentially expressed around the separation of two or multiple lineages. The function <code>earlyDETest</code> implements a statistical method to tests the null hypothesis of whether the smoothers are equal between two user-specified knots by building on the <code>patternTest</code>, but restricting itself to a particular location of the smoothers. Again, the knots can be visualized with the <code>plotGeneCount</code> function. By selecting the region covering the first two knot points to test for differential patterns between the lineages, we check which genes are behaving differently around the bifurcation point.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl,</a>
-<a class="sourceLine" id="cb31-2" data-line-number="2">              <span class="dt">models =</span> sce)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">earlyDERes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/earlyDETest.html">earlyDETest</a></span>(sce, <span class="dt">knots =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb32-2" data-line-number="2">oEarly &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/order.html">order</a></span>(earlyDERes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(earlyDERes)[oEarly])</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">counts =</span> counts, <span class="dt">clusters =</span> cl,</span>
+<span id="cb49-2"><a href="#cb49-2"></a>              <span class="dt">models =</span> sce)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-26-1.png" width="50%"></p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>earlyDERes &lt;-<span class="st"> </span><span class="kw"><a href="../reference/earlyDETest.html">earlyDETest</a></span>(sce, <span class="dt">knots =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb50-2"><a href="#cb50-2"></a>oEarly &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/order.html">order</a></span>(earlyDERes<span class="op">$</span>waldStat, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb50-3"><a href="#cb50-3"></a><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(earlyDERes)[oEarly])</span></code></pre></div>
 <pre><code>## [1] "Car1"  "Mpo"   "H2afy" "Car2"  "Alas1" "Prtn3"</code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(earlyDERes)[oEarly][<span class="dv">2</span>])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-25-1.png" width="480"></p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(earlyDERes)[oEarly][<span class="dv">2</span>])</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-26-1.png" width="700"></p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="kw"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(sce, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(earlyDERes)[oEarly][<span class="dv">2</span>])</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-27-1.png" width="40%"></p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(crv, counts, <span class="dt">gene =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(earlyDERes)[oEarly][<span class="dv">2</span>])</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-28-1.png" width="50%"></p>
 </div>
 </div>
 <div id="clustering-of-genes-according-to-their-expression-pattern" class="section level1">
 <h1 class="hasAnchor">
 <a href="#clustering-of-genes-according-to-their-expression-pattern" class="anchor"></a>Clustering of genes according to their expression pattern</h1>
 <p>tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the <code>clusterExpressionPatterns</code> function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the <code>nPoints</code> argument. The <code>genes</code> argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset. The clustering itself occurs by the <code>clusterExperiment</code> package <span class="citation">(Risso et al. 2018)</span>, hence the user may select any clustering algorithm that’s built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within <code>clusterExperiment</code>, run <code><a href="https://rdrr.io/pkg/clusterExperiment/man/builtInClusteringFunctions.html">clusterExperiment::listBuiltInFunctions()</a></code> on the command line.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(clusterExperiment)</a>
-<a class="sourceLine" id="cb36-2" data-line-number="2">nPointsClus &lt;-<span class="st"> </span><span class="dv">20</span></a>
-<a class="sourceLine" id="cb36-3" data-line-number="3">clusPat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/clusterExpressionPatterns.html">clusterExpressionPatterns</a></span>(sce, <span class="dt">nPoints =</span> nPointsClus,</a>
-<a class="sourceLine" id="cb36-4" data-line-number="4">                                     <span class="dt">genes =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(counts)[<span class="dv">1</span><span class="op">:</span><span class="dv">200</span>])</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(clusterExperiment)</span>
+<span id="cb54-2"><a href="#cb54-2"></a>nPointsClus &lt;-<span class="st"> </span><span class="dv">20</span></span>
+<span id="cb54-3"><a href="#cb54-3"></a>clusPat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/clusterExpressionPatterns.html">clusterExpressionPatterns</a></span>(sce, <span class="dt">nPoints =</span> nPointsClus,</span>
+<span id="cb54-4"><a href="#cb54-4"></a>                                     <span class="dt">genes =</span> <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(counts)[<span class="dv">1</span><span class="op">:</span><span class="dv">200</span>])</span></code></pre></div>
 <pre><code>## 36 parameter combinations, 36 use sequential method, 36 use subsampling method
 ## Running Clustering on Parameter Combinations...
 ## done.</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1">clusterLabels &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/clusterExperiment/man/ClusterExperiment-methods.html">primaryCluster</a></span>(clusPat<span class="op">$</span>rsec)</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>clusterLabels &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/clusterExperiment/man/ClusterExperiment-methods.html">primaryCluster</a></span>(clusPat<span class="op">$</span>rsec)</span></code></pre></div>
 <p>The first 4 clusters can be visualized using the normalized expression upon which the clustering is based.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1">cUniq &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(clusterLabels)</a>
-<a class="sourceLine" id="cb39-2" data-line-number="2">cUniq &lt;-<span class="st"> </span>cUniq[<span class="op">!</span>cUniq <span class="op">==</span><span class="st"> </span><span class="dv">-1</span>] <span class="co"># remove unclustered genes</span></a>
-<a class="sourceLine" id="cb39-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb39-4" data-line-number="4">plots &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>()</a>
-<a class="sourceLine" id="cb39-5" data-line-number="5"><span class="cf">for</span> (xx <span class="cf">in</span> cUniq[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>]) {</a>
-<a class="sourceLine" id="cb39-6" data-line-number="6">  cId &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/which.html">which</a></span>(clusterLabels <span class="op">==</span><span class="st"> </span>xx)</a>
-<a class="sourceLine" id="cb39-7" data-line-number="7">  p &lt;-<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span>nPointsClus,</a>
-<a class="sourceLine" id="cb39-8" data-line-number="8">                                <span class="dt">y =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/range.html">range</a></span>(clusPat<span class="op">$</span>yhatScaled[cId, ]),</a>
-<a class="sourceLine" id="cb39-9" data-line-number="9">                                        nPointsClus <span class="op">/</span><span class="st"> </span><span class="dv">2</span>)),</a>
-<a class="sourceLine" id="cb39-10" data-line-number="10">              <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-11" data-line-number="11"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="dt">alpha =</span> <span class="dv">0</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-12" data-line-number="12"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">title =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Cluster "</span>, xx),  <span class="dt">x =</span> <span class="st">"Pseudotime"</span>, <span class="dt">y =</span> <span class="st">"Normalized expression"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-13" data-line-number="13"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</a>
-<a class="sourceLine" id="cb39-14" data-line-number="14">  <span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(cId)) {</a>
-<a class="sourceLine" id="cb39-15" data-line-number="15">    geneId &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(clusPat<span class="op">$</span>yhatScaled)[cId[ii]]</a>
-<a class="sourceLine" id="cb39-16" data-line-number="16">    p &lt;-<span class="st"> </span>p <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-17" data-line-number="17"><span class="st">      </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(<span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb39-18" data-line-number="18">                                  <span class="dt">y =</span> clusPat<span class="op">$</span>yhatScaled[geneId, ],</a>
-<a class="sourceLine" id="cb39-19" data-line-number="19">                                  <span class="dt">lineage =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dt">each =</span> nPointsClus)),</a>
-<a class="sourceLine" id="cb39-20" data-line-number="20">                <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> <span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(lineage), <span class="dt">group =</span> lineage), <span class="dt">lwd =</span> <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb39-21" data-line-number="21">  }</a>
-<a class="sourceLine" id="cb39-22" data-line-number="22">  p &lt;-<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span>(<span class="dt">color =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb39-23" data-line-number="23"><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span>(<span class="dt">values =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"orange"</span>, <span class="st">"darkseagreen3"</span>),</a>
-<a class="sourceLine" id="cb39-24" data-line-number="24">                       <span class="dt">breaks =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"0"</span>, <span class="st">"1"</span>))  </a>
-<a class="sourceLine" id="cb39-25" data-line-number="25">  plots[[<span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(xx)]] &lt;-<span class="st"> </span>p</a>
-<a class="sourceLine" id="cb39-26" data-line-number="26">}</a>
-<a class="sourceLine" id="cb39-27" data-line-number="27">plots<span class="op">$</span>ncol &lt;-<span class="st"> </span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb39-28" data-line-number="28"><span class="kw"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span>(plot_grid, plots)</a></code></pre></div>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-28-1.png" width="480"></p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(cowplot)</span></code></pre></div>
+<pre><code>## 
+## ********************************************************</code></pre>
+<pre><code>## Note: As of version 1.0.0, cowplot does not change the</code></pre>
+<pre><code>##   default ggplot2 theme anymore. To recover the previous</code></pre>
+<pre><code>##   behavior, execute:
+##   theme_set(theme_cowplot())</code></pre>
+<pre><code>## ********************************************************</code></pre>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>cUniq &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(clusterLabels)</span>
+<span id="cb63-2"><a href="#cb63-2"></a>cUniq &lt;-<span class="st"> </span>cUniq[<span class="op">!</span>cUniq <span class="op">==</span><span class="st"> </span><span class="dv">-1</span>] <span class="co"># remove unclustered genes</span></span>
+<span id="cb63-3"><a href="#cb63-3"></a></span>
+<span id="cb63-4"><a href="#cb63-4"></a>plots &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>()</span>
+<span id="cb63-5"><a href="#cb63-5"></a><span class="cf">for</span> (xx <span class="cf">in</span> cUniq[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>]) {</span>
+<span id="cb63-6"><a href="#cb63-6"></a>  cId &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/which.html">which</a></span>(clusterLabels <span class="op">==</span><span class="st"> </span>xx)</span>
+<span id="cb63-7"><a href="#cb63-7"></a>  p &lt;-<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span>nPointsClus,</span>
+<span id="cb63-8"><a href="#cb63-8"></a>                                <span class="dt">y =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/range.html">range</a></span>(clusPat<span class="op">$</span>yhatScaled[cId, ]),</span>
+<span id="cb63-9"><a href="#cb63-9"></a>                                        nPointsClus <span class="op">/</span><span class="st"> </span><span class="dv">2</span>)),</span>
+<span id="cb63-10"><a href="#cb63-10"></a>              <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span></span>
+<span id="cb63-11"><a href="#cb63-11"></a><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="dt">alpha =</span> <span class="dv">0</span>) <span class="op">+</span></span>
+<span id="cb63-12"><a href="#cb63-12"></a><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">title =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Cluster "</span>, xx),  <span class="dt">x =</span> <span class="st">"Pseudotime"</span>, <span class="dt">y =</span> <span class="st">"Normalized expression"</span>) <span class="op">+</span></span>
+<span id="cb63-13"><a href="#cb63-13"></a><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</span>
+<span id="cb63-14"><a href="#cb63-14"></a>  <span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(cId)) {</span>
+<span id="cb63-15"><a href="#cb63-15"></a>    geneId &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(clusPat<span class="op">$</span>yhatScaled)[cId[ii]]</span>
+<span id="cb63-16"><a href="#cb63-16"></a>    p &lt;-<span class="st"> </span>p <span class="op">+</span></span>
+<span id="cb63-17"><a href="#cb63-17"></a><span class="st">      </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(<span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="dv">1</span><span class="op">:</span>nPointsClus, <span class="dv">2</span>),</span>
+<span id="cb63-18"><a href="#cb63-18"></a>                                  <span class="dt">y =</span> clusPat<span class="op">$</span>yhatScaled[geneId, ],</span>
+<span id="cb63-19"><a href="#cb63-19"></a>                                  <span class="dt">lineage =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dt">each =</span> nPointsClus)),</span>
+<span id="cb63-20"><a href="#cb63-20"></a>                <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> <span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(lineage), <span class="dt">group =</span> lineage), <span class="dt">lwd =</span> <span class="fl">1.5</span>)</span>
+<span id="cb63-21"><a href="#cb63-21"></a>  }</span>
+<span id="cb63-22"><a href="#cb63-22"></a>  p &lt;-<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span>(<span class="dt">color =</span> <span class="ot">FALSE</span>) <span class="op">+</span></span>
+<span id="cb63-23"><a href="#cb63-23"></a><span class="st">    </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span>(<span class="dt">values =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"orange"</span>, <span class="st">"darkseagreen3"</span>),</span>
+<span id="cb63-24"><a href="#cb63-24"></a>                       <span class="dt">breaks =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"0"</span>, <span class="st">"1"</span>))  </span>
+<span id="cb63-25"><a href="#cb63-25"></a>  plots[[<span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(xx)]] &lt;-<span class="st"> </span>p</span>
+<span id="cb63-26"><a href="#cb63-26"></a>}</span>
+<span id="cb63-27"><a href="#cb63-27"></a>plots<span class="op">$</span>ncol &lt;-<span class="st"> </span><span class="dv">2</span></span>
+<span id="cb63-28"><a href="#cb63-28"></a><span class="kw"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span>(plot_grid, plots)</span></code></pre></div>
+<p><img src="tradeSeq_files/figure-html/unnamed-chunk-30-1.png" width="50%"></p>
 </div>
 <div id="tradeseq-list-output" class="section level1">
 <h1 class="hasAnchor">
 <a href="#tradeseq-list-output" class="anchor"></a>tradeSeq list output</h1>
 <p>If another method than Slingshot is used for trajectory inference, one can input custom pseudotimes and cell-level weights in <code>fitGAM</code>, as we also discussed above. The output from <code>fitGAM</code> will be different in that case, and less memory efficient. All functions we have discussed above work exactly the same with the list output. However, the list output functionality is a little bit bigger, and here we discuss some capabilities that are only available with the list output.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1">gamList &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts,</a>
-<a class="sourceLine" id="cb40-2" data-line-number="2">                  <span class="dt">pseudotime =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>),</a>
-<a class="sourceLine" id="cb40-3" data-line-number="3">                  <span class="dt">cellWeights =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(crv),</a>
-<a class="sourceLine" id="cb40-4" data-line-number="4">                  <span class="dt">nknots =</span> <span class="dv">6</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a>gamList &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts,</span>
+<span id="cb64-2"><a href="#cb64-2"></a>                  <span class="dt">pseudotime =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>),</span>
+<span id="cb64-3"><a href="#cb64-3"></a>                  <span class="dt">cellWeights =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(crv),</span>
+<span id="cb64-4"><a href="#cb64-4"></a>                  <span class="dt">nknots =</span> <span class="dv">6</span>)</span></code></pre></div>
 <p>First, one may explore the results of a model by requesting its summary.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(gamList[[<span class="st">"Irf8"</span>]])</a></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(gamList[[<span class="st">"Irf8"</span>]])</span></code></pre></div>
 <pre><code>## 
 ## Family: Negative Binomial(2.201) 
 ## Link function: log 
@@ -364,35 +415,48 @@
 ## R-sq.(adj) =  0.532   Deviance explained = 63.9%
 ## -REML = 2029.9  Scale est. = 1         n = 2660</code></pre>
 <p>Related to the <code>associationTest</code>, one can extract the p-values generated by the <code>mgcv</code> package using the <code>getSmootherPvalues</code> function. These p-values are derived from a test that assesses the null hypothesis that all smoother coefficients are equal to zero. Note, however, that their interpretation is thus more complex. A significant lineage for a particular gene might thus be the result of (a) a different mean expression in that lineage as compared to the overall expression of that gene, or (b) significantly varying expression along that lineage, even if the means are equal, or (c) a combination of both. This function extracts the p-values calculated by <code>mgcv</code> from the GAM, and will return <code>NA</code> for genes that we were unable to fit properly. Similarly, the test statistics may be extracted with <code>getSmootherTestStats</code>. Since this dataset was pre-filtered to only contain relevant genes, all p-values (test statistics) will be very low (high). Note, that these functions are only applicable with the list output of <code>tradeSeq</code>, and not with the <code>SingleCellExperiment</code> output. We will therefore not evaluate these here.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>pvalLineage &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getSmootherPvalues.html">getSmootherPvalues</a></span>(gamList)</span>
+<span id="cb67-2"><a href="#cb67-2"></a>statLineage &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getSmootherTestStats.html">getSmootherTestStats</a></span>(gamList)</span></code></pre></div>
 </div>
 <div id="convergence-issues-on-small-or-zero-inflated-datasets" class="section level1">
 <h1 class="hasAnchor">
 <a href="#convergence-issues-on-small-or-zero-inflated-datasets" class="anchor"></a>Convergence issues on small or zero-inflated datasets</h1>
 <p>If you’re working with a dataset that has a limited number of cells, or if you are incorporating zero inflation weights, the GAMs may be harder to fit, as noted by the warnings when running <code>fitGAM</code>. In that case, the situation might improve if you allow for more iterations in the GAM fitting. This can be done with the <code>control</code> argument of <code>fitGAM</code>.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1">control &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/mgcv/man/gam.control.html">gam.control</a></span>()</a>
-<a class="sourceLine" id="cb43-2" data-line-number="2">control<span class="op">$</span>maxit &lt;-<span class="st"> </span><span class="dv">1000</span> <span class="co">#set maximum number of iterations to 1K</span></a>
-<a class="sourceLine" id="cb43-3" data-line-number="3"><span class="co"># pass to control argument of fitGAM as below:</span></a>
-<a class="sourceLine" id="cb43-4" data-line-number="4"><span class="co"># </span></a>
-<a class="sourceLine" id="cb43-5" data-line-number="5"><span class="co"># gamList &lt;- fitGAM(counts = counts,</span></a>
-<a class="sourceLine" id="cb43-6" data-line-number="6"><span class="co">#                   pseudotime = slingPseudotime(crv, na = FALSE),</span></a>
-<a class="sourceLine" id="cb43-7" data-line-number="7"><span class="co">#                   cellWeights = slingCurveWeights(crv),</span></a>
-<a class="sourceLine" id="cb43-8" data-line-number="8"><span class="co">#                   control = control)</span></a></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mgcv)</span></code></pre></div>
+<pre><code>## Loading required package: nlme</code></pre>
+<pre><code>## 
+## Attaching package: 'nlme'</code></pre>
+<pre><code>## The following object is masked from 'package:dplyr':
+## 
+##     collapse</code></pre>
+<pre><code>## The following object is masked from 'package:IRanges':
+## 
+##     collapse</code></pre>
+<pre><code>## This is mgcv 1.8-28. For overview type 'help("mgcv-package")'.</code></pre>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1"></a>control &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/mgcv/man/gam.control.html">gam.control</a></span>()</span>
+<span id="cb74-2"><a href="#cb74-2"></a>control<span class="op">$</span>maxit &lt;-<span class="st"> </span><span class="dv">1000</span> <span class="co">#set maximum number of iterations to 1K</span></span>
+<span id="cb74-3"><a href="#cb74-3"></a><span class="co"># pass to control argument of fitGAM as below:</span></span>
+<span id="cb74-4"><a href="#cb74-4"></a><span class="co"># </span></span>
+<span id="cb74-5"><a href="#cb74-5"></a><span class="co"># gamList &lt;- fitGAM(counts = counts,</span></span>
+<span id="cb74-6"><a href="#cb74-6"></a><span class="co">#                   pseudotime = slingPseudotime(crv, na = FALSE),</span></span>
+<span id="cb74-7"><a href="#cb74-7"></a><span class="co">#                   cellWeights = slingCurveWeights(crv),</span></span>
+<span id="cb74-8"><a href="#cb74-8"></a><span class="co">#                   control = control)</span></span></code></pre></div>
 </div>
 <div id="cheatsheet" class="section level1">
 <h1 class="hasAnchor">
 <a href="#cheatsheet" class="anchor"></a>Cheatsheet</h1>
 <p>To recapitulate the workflow, we have created a cheatsheet that users can refer to when deciding which tests to run.</p>
-<p><img src="tradeSeq_files/figure-html/unnamed-chunk-33-1.png" width="700"></p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.remove</a></span>(<span class="st">"./se_paul.rda"</span>)</a></code></pre></div>
+<p><img src="cheatsheet_highRes.jpeg" width="910"></p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.remove</a></span>(<span class="st">"./se_paul.rda"</span>)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 </div>
 <div id="session" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session" class="anchor"></a>Session</h1>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</span></code></pre></div>
 <pre><code>## R version 3.6.0 (2019-04-26)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS Mojave 10.14.6
+## Running under: macOS  10.15
 ## 
 ## Matrix products: default
 ## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
@@ -407,83 +471,84 @@
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 ## 
 ## attached base packages:
-## [1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+## [1] stats4    parallel  stats     graphics  grDevices utils     datasets 
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] clusterExperiment_2.4.4     cowplot_1.0.0              
-##  [3] tidyr_0.8.3                 ggplot2_3.2.1              
-##  [5] dplyr_0.8.3                 RColorBrewer_1.1-2         
-##  [7] slingshot_1.3.2             princurve_2.1.4            
-##  [9] tradeSeq_0.99.60            bigmemory_4.5.33           
-## [11] mgcv_1.8-28                 nlme_3.1-141               
-## [13] SingleCellExperiment_1.6.0  SummarizedExperiment_1.14.1
-## [15] DelayedArray_0.10.0         BiocParallel_1.18.1        
-## [17] matrixStats_0.55.0          Biobase_2.44.0             
-## [19] GenomicRanges_1.36.1        GenomeInfoDb_1.20.0        
-## [21] IRanges_2.18.2              S4Vectors_0.22.0           
-## [23] BiocGenerics_0.30.0        
+##  [1] mgcv_1.8-28                 nlme_3.1-141               
+##  [3] cowplot_1.0.0               clusterExperiment_2.4.4    
+##  [5] tidyr_1.0.0                 ggplot2_3.2.1              
+##  [7] dplyr_0.8.3                 magrittr_1.5               
+##  [9] slingshot_1.3.2             princurve_2.1.4            
+## [11] SingleCellExperiment_1.6.0  SummarizedExperiment_1.14.1
+## [13] DelayedArray_0.10.0         BiocParallel_1.18.1        
+## [15] matrixStats_0.55.0          GenomicRanges_1.36.1       
+## [17] GenomeInfoDb_1.20.0         IRanges_2.18.2             
+## [19] S4Vectors_0.22.0            RColorBrewer_1.1-2         
+## [21] tradeSeq_0.99.80            bigmemory_4.5.33           
+## [23] Biobase_2.44.0              BiocGenerics_0.30.0        
+## [25] knitr_1.24                 
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] bigmemory.sri_0.1.3    colorspace_1.4-1       rprojroot_1.3-2       
-##   [4] XVector_0.24.0         fs_1.3.1               rstudioapi_0.10       
-##   [7] bit64_0.9-7            gsl_1.9-10.3           AnnotationDbi_1.46.1  
-##  [10] RSpectra_0.15-0        mvtnorm_1.0-11         xml2_1.2.2            
-##  [13] codetools_0.2-16       splines_3.6.0          doParallel_1.0.15     
-##  [16] knitr_1.24             zeallot_0.1.0          ade4_1.7-13           
-##  [19] locfdr_1.1-8           phylobase_0.8.6        gridBase_0.4-7        
-##  [22] annotate_1.62.0        cluster_2.1.0          kernlab_0.9-27        
-##  [25] stabledist_0.7-1       HDF5Array_1.12.2       copula_0.999-19.1     
-##  [28] compiler_3.6.0         httr_1.4.1             backports_1.1.4       
-##  [31] assertthat_0.2.1       Matrix_1.2-17          lazyeval_0.2.2        
-##  [34] limma_3.40.6           htmltools_0.3.6        prettyunits_1.0.2     
-##  [37] tools_3.6.0            igraph_1.2.4.1         gtable_0.3.0          
-##  [40] glue_1.3.1             GenomeInfoDbData_1.2.1 reshape2_1.4.3        
-##  [43] Rcpp_1.0.2             softImpute_1.4         zinbwave_1.6.0        
-##  [46] pkgdown_1.4.0          NMF_0.21.0             vctrs_0.2.0           
-##  [49] ape_5.3                iterators_1.0.12       xfun_0.9              
-##  [52] stringr_1.4.0          rngtools_1.4           XML_3.98-1.20         
-##  [55] edgeR_3.26.8           zlibbioc_1.30.0        MASS_7.3-51.4         
-##  [58] scales_1.0.0           hms_0.5.1              rhdf5_2.28.0          
-##  [61] yaml_2.2.0             pbapply_1.4-2          memoise_1.1.0         
-##  [64] pkgmaker_0.27          RSQLite_2.1.2          stringi_1.4.3         
-##  [67] genefilter_1.66.0      desc_1.2.0             pcaPP_1.9-73          
-##  [70] foreach_1.4.7          bibtex_0.4.2           rlang_0.4.0           
-##  [73] pkgconfig_2.0.2        bitops_1.0-6           rncl_0.8.3            
-##  [76] evaluate_0.14          lattice_0.20-38        Rhdf5lib_1.6.0        
-##  [79] purrr_0.3.2            labeling_0.3           bit_1.1-14            
-##  [82] tidyselect_0.2.5       plyr_1.8.4             magrittr_1.5          
-##  [85] R6_2.4.0               magick_2.2             ADGofTest_0.3         
-##  [88] DBI_1.0.0              pillar_1.4.2           withr_2.1.2           
-##  [91] survival_2.44-1.1      RCurl_1.95-4.12        tibble_2.1.3          
-##  [94] pspline_1.0-18         crayon_1.3.4           uuid_0.1-2            
-##  [97] howmany_0.3-1          rmarkdown_1.15         progress_1.2.2        
-## [100] RNeXML_2.3.0           locfit_1.5-9.1         grid_3.6.0            
-## [103] blob_1.2.0             digest_0.6.20          xtable_1.8-4          
-## [106] numDeriv_2016.8-1.1    glmnet_2.0-18          munsell_0.5.0         
-## [109] viridisLite_0.3.0      registry_0.5-1</code></pre>
+##   [1] uuid_0.1-2             backports_1.1.4        copula_0.999-19.1     
+##   [4] NMF_0.21.0             plyr_1.8.4             igraph_1.2.4.1        
+##   [7] lazyeval_0.2.2         splines_3.6.0          pspline_1.0-18        
+##  [10] rncl_0.8.3             gridBase_0.4-7         digest_0.6.20         
+##  [13] foreach_1.4.7          htmltools_0.3.6        memoise_1.1.0         
+##  [16] cluster_2.1.0          doParallel_1.0.15      limma_3.40.6          
+##  [19] annotate_1.62.0        stabledist_0.7-1       pkgdown_1.4.0         
+##  [22] prettyunits_1.0.2      jpeg_0.1-8             colorspace_1.4-1      
+##  [25] blob_1.2.0             xfun_0.9               crayon_1.3.4          
+##  [28] RCurl_1.95-4.12        bigmemory.sri_0.1.3    genefilter_1.66.0     
+##  [31] phylobase_0.8.6        zeallot_0.1.0          survival_2.44-1.1     
+##  [34] iterators_1.0.12       ape_5.3                glue_1.3.1            
+##  [37] registry_0.5-1         gtable_0.3.0           zlibbioc_1.30.0       
+##  [40] XVector_0.24.0         kernlab_0.9-27         Rhdf5lib_1.6.0        
+##  [43] HDF5Array_1.12.2       scales_1.0.0           mvtnorm_1.0-11        
+##  [46] DBI_1.0.0              edgeR_3.26.8           rngtools_1.4          
+##  [49] bibtex_0.4.2           Rcpp_1.0.2             viridisLite_0.3.0     
+##  [52] xtable_1.8-4           progress_1.2.2         bit_1.1-14            
+##  [55] glmnet_2.0-18          httr_1.4.1             pkgconfig_2.0.2       
+##  [58] XML_3.98-1.20          locfit_1.5-9.1         howmany_0.3-1         
+##  [61] tidyselect_0.2.5       labeling_0.3           rlang_0.4.0           
+##  [64] softImpute_1.4         reshape2_1.4.3         AnnotationDbi_1.46.1  
+##  [67] munsell_0.5.0          tools_3.6.0            RSQLite_2.1.2         
+##  [70] ade4_1.7-13            evaluate_0.14          stringr_1.4.0         
+##  [73] yaml_2.2.0             bit64_0.9-7            fs_1.3.1              
+##  [76] purrr_0.3.2            pbapply_1.4-2          xml2_1.2.2            
+##  [79] compiler_3.6.0         rstudioapi_0.10        png_0.1-7             
+##  [82] tibble_2.1.3           RNeXML_2.3.0           pcaPP_1.9-73          
+##  [85] stringi_1.4.3          gsl_1.9-10.3           desc_1.2.0            
+##  [88] RSpectra_0.15-0        lattice_0.20-38        Matrix_1.2-17         
+##  [91] vctrs_0.2.0            pillar_1.4.2           lifecycle_0.1.0       
+##  [94] ADGofTest_0.3          zinbwave_1.6.0         bitops_1.0-6          
+##  [97] R6_2.4.0               codetools_0.2-16       MASS_7.3-51.4         
+## [100] assertthat_0.2.1       rhdf5_2.28.0           pkgmaker_0.27         
+## [103] rprojroot_1.3-2        withr_2.1.2            GenomeInfoDbData_1.2.1
+## [106] locfdr_1.1-8           hms_0.5.1              grid_3.6.0            
+## [109] rmarkdown_1.15         numDeriv_2016.8-1.1</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
 <div id="refs" class="references">
 <div id="ref-Paul2015">
-<p>Paul, Franziska, Ya’ara Arkin, Amir Giladi, DiegoÂ Adhemar Jaitin, Ephraim Kenigsberg, Hadas Keren-Shaul, Deborah Winter, et al. 2015. “Transcriptional Heterogeneity and Lineage Commitment in Myeloid Progenitors.” <em>Cell</em> 163 (7). Cell Press: 1663–77. <a href="https://doi.org/10.1016/J.CELL.2015.11.013">https://doi.org/10.1016/J.CELL.2015.11.013</a>.</p>
+<p>Paul, Franziska, Ya’ara Arkin, Amir Giladi, DiegoÂ Adhemar Jaitin, Ephraim Kenigsberg, Hadas Keren-Shaul, Deborah Winter, et al. 2015. “Transcriptional Heterogeneity and Lineage Commitment in Myeloid Progenitors.” <em>Cell</em> 163 (7): 1663–77. <a href="https://doi.org/10.1016/J.CELL.2015.11.013">https://doi.org/10.1016/J.CELL.2015.11.013</a>.</p>
 </div>
 <div id="ref-Risso2018">
-<p>Risso, Davide, Liam Purvis, Russell B. Fletcher, Diya Das, John Ngai, Sandrine Dudoit, and Elizabeth Purdom. 2018. “clusterExperiment and RSEC: A Bioconductor package and framework for clustering of single-cell and other large gene expression datasets.” Edited by Aaron E. Darling. <em>PLOS Computational Biology</em> 14 (9). Public Library of Science: e1006378. <a href="https://doi.org/10.1371/journal.pcbi.1006378">https://doi.org/10.1371/journal.pcbi.1006378</a>.</p>
+<p>Risso, Davide, Liam Purvis, Russell B. Fletcher, Diya Das, John Ngai, Sandrine Dudoit, and Elizabeth Purdom. 2018. “clusterExperiment and RSEC: A Bioconductor package and framework for clustering of single-cell and other large gene expression datasets.” Edited by Aaron E. Darling. <em>PLOS Computational Biology</em> 14 (9): e1006378. <a href="https://doi.org/10.1371/journal.pcbi.1006378">https://doi.org/10.1371/journal.pcbi.1006378</a>.</p>
 </div>
 <div id="ref-Robinson2010">
-<p>Robinson, Mark D, and Alicia Oshlack. 2010. “A scaling normalization method for differential expression analysis of RNA-seq data.” <em>Genome Biology</em> 11 (3). BioMed Central: R25. <a href="https://doi.org/10.1186/gb-2010-11-3-r25">https://doi.org/10.1186/gb-2010-11-3-r25</a>.</p>
+<p>Robinson, Mark D, and Alicia Oshlack. 2010. “A scaling normalization method for differential expression analysis of RNA-seq data.” <em>Genome Biology</em> 11 (3): R25. <a href="https://doi.org/10.1186/gb-2010-11-3-r25">https://doi.org/10.1186/gb-2010-11-3-r25</a>.</p>
 </div>
 <div id="ref-Street2018a">
-<p>Street, Kelly, Davide Risso, Russell B. Fletcher, Diya Das, John Ngai, Nir Yosef, Elizabeth Purdom, and Sandrine Dudoit. 2018. “Slingshot: cell lineage and pseudotime inference for single-cell transcriptomics.” <em>BMC Genomics</em> 19 (1). BioMed Central: 477. <a href="https://doi.org/10.1186/s12864-018-4772-0">https://doi.org/10.1186/s12864-018-4772-0</a>.</p>
+<p>Street, Kelly, Davide Risso, Russell B. Fletcher, Diya Das, John Ngai, Nir Yosef, Elizabeth Purdom, and Sandrine Dudoit. 2018. “Slingshot: cell lineage and pseudotime inference for single-cell transcriptomics.” <em>BMC Genomics</em> 19 (1): 477. <a href="https://doi.org/10.1186/s12864-018-4772-0">https://doi.org/10.1186/s12864-018-4772-0</a>.</p>
 </div>
 <div id="ref-VandenBerge2018">
-<p>Van den Berge, Koen, Fanny Perraudeau, Charlotte Soneson, Michael I. Love, Davide Risso, Jean-Philippe Vert, Mark D. Robinson, Sandrine Dudoit, and Lieven Clement. 2018. “Observation weights unlock bulk RNA-seq tools for zero inflation and single-cell applications.” <em>Genome Biology</em> 19 (1). BioMed Central: 24. <a href="https://doi.org/10.1186/s13059-018-1406-4">https://doi.org/10.1186/s13059-018-1406-4</a>.</p>
+<p>Van den Berge, Koen, Fanny Perraudeau, Charlotte Soneson, Michael I. Love, Davide Risso, Jean-Philippe Vert, Mark D. Robinson, Sandrine Dudoit, and Lieven Clement. 2018. “Observation weights unlock bulk RNA-seq tools for zero inflation and single-cell applications.” <em>Genome Biology</em> 19 (1): 24. <a href="https://doi.org/10.1186/s13059-018-1406-4">https://doi.org/10.1186/s13059-018-1406-4</a>.</p>
 </div>
 <div id="ref-VandenBerge2019a">
-<p>Van den Berge, Koen, Hector Roux de Bézieux, Kelly Street, Wouter Saelens, Robrecht Cannoodt, Yvan Saeys, Sandrine Dudoit, and Lieven Clement. 2019. “Trajectory-based differential expression analysis for single-cell sequencing data.” <em>bioRxiv</em>, May. Cold Spring Harbor Laboratory, 623397. <a href="https://doi.org/10.1101/623397">https://doi.org/10.1101/623397</a>.</p>
+<p>Van den Berge, Koen, Hector Roux de Bézieux, Kelly Street, Wouter Saelens, Robrecht Cannoodt, Yvan Saeys, Sandrine Dudoit, and Lieven Clement. 2019. “Trajectory-based differential expression analysis for single-cell sequencing data.” <em>bioRxiv</em>, May, 623397. <a href="https://doi.org/10.1101/623397">https://doi.org/10.1101/623397</a>.</p>
 </div>
 </div>
 </div>
@@ -495,7 +560,8 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#load-data">Load data</a></li>
+<li><a href="#installation">Installation</a></li>
+      <li><a href="#load-data">Load data</a></li>
       <li><a href="#fit-trajectories-using-slingshot">Fit trajectories using slingshot</a></li>
       <li><a href="#determining-the-number-of-knots">Determining the number of knots</a></li>
       <li><a href="#fit-additive-models">Fit additive models</a></li>
@@ -528,7 +594,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bézieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
 </div>
 
 <div class="pkgdown">

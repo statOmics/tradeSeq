@@ -248,7 +248,7 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
 
   # get predictor matrix for every lineage.
   dfList <- list()
-  for (jj in 1:2) {
+  for (jj in seq_len(2)) {
     df <- .getPredictRangeDf(dm, curves[jj], nPoints = nPoints)
     if (Knot) {
       df[, paste0("t", curves[jj])] <- seq(t1, t2, length.out = nPoints)

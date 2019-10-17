@@ -4,7 +4,7 @@
 \alias{plotGeneCount}
 \title{Plot the gene in reduced dimension space}
 \usage{
-plotGeneCount(curve, counts, gene = NULL, clusters = NULL,
+plotGeneCount(curve, counts = NULL, gene = NULL, clusters = NULL,
   models = NULL, title = NULL)
 }
 \arguments{
@@ -17,7 +17,7 @@ number of that gene in the count matrix. Alternatively, one can specify
 the cluster arguments}
 
 \item{clusters}{The assignation of each cell to a cluster. Used to color the
-plot. Either \code{clusters} or \code{gene} must be supplied.}
+plot. Either \code{clusters} or \code{gene} and \code{counts} must be supplied.}
 
 \item{models}{the list of GAMs, typically the output from
 \code{\link{fitGAM}}. Used to display the knots.}

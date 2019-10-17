@@ -3,15 +3,9 @@
 \docType{methods}
 \name{clusterExpressionPatterns}
 \alias{clusterExpressionPatterns}
-\alias{.clusterExpressionPatterns}
-\alias{clusterExpressionPatterns,SingleCellExperiment-method}
 \alias{clusterExpressionPatterns,list-method}
 \title{Cluster gene expression patterns.}
 \usage{
-.clusterExpressionPatterns(models, nPoints, genes, reduceMethod = "PCA",
-  nReducedDims = 10, minSizes = 6, ncores = 1,
-  random.seed = 176201, verbose = TRUE, ...)
-
 \S4method{clusterExpressionPatterns}{SingleCellExperiment}(models, nPoints,
   genes, reduceMethod = "PCA", nReducedDims = 10, minSizes = 6,
   ncores = 1, random.seed = 176201, verbose = TRUE, ...)

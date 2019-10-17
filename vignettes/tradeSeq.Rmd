@@ -12,28 +12,33 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+```{r, echo = FALSE}
+library(knitr)
+# For a smaller vignette
+# This can be deleted when trying to follow along
+opts_chunk$set(dpi = 58)
+```
+
 
 In this vignette, we analyse a subset of the data from [@Paul2015]. All details about the `tradeSeq` model and statistical tests are described in our preprint [@VandenBerge2019a].
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
 
+# Installation
+
+To install the package, simply run
+
+```{r, eval = FALSE}
+if(!requireNamespace("BiocManager", quietly = TRUE)) {
+ install.packages("BiocManager") 
+}
+BiocManager::install("tradeSeq")
+```
+
 # Load data
 
 ```{r, warning=F, message=F}
-suppressPackageStartupMessages({
-  library(SingleCellExperiment)
-  library(mgcv)
-  library(tradeSeq)
-  library(slingshot)
-  library(RColorBrewer)
-  library(dplyr)
-  library(ggplot2)
-  library(tidyr)
-  library(cowplot)
-  library(knitr)
-})
-# For a smaller vignette
-# This can be deleted when trying to follow along
-opts_chunk$set(dpi = 58)
+library(tradeSeq)
+library(RColorBrewer)
 # For reproducibility
 RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
@@ -42,7 +47,7 @@ if (!file.exists("./se_paul.rda")) {
     "https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
     destfile = "./se_paul.rda")  
 }
-
+library(SingleCellExperiment)
 load("./se_paul.rda")
 ```
 
@@ -66,10 +71,10 @@ crv <- getCurves(lin)
 We find two lineages for this dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
 
 ```{r, out.width="50%", fig.asp=.6}
-plotGeneCount(curve = crv, counts = counts, clusters = cl)
+plotGeneCount(curve = crv, clusters = cl)
 
 celltype <- factor(colData(se)$cell_type2)
-plotGeneCount(curve = crv, counts = counts, clusters = celltype, 
+plotGeneCount(curve = crv, clusters = celltype, 
               title = "Colored by cell type")
 ```
 
@@ -86,17 +91,17 @@ It is generally a good idea to evaluate this multiple times using different seed
 This task can be computationally demanding, since the models must be fit multiple times for each gene. We therefore skip this in the vignette, but show the output one can expect instead.
 
 ```{r, eval=FALSE}
-icMat <- evaluateK(counts = counts, sds = crv, knots=3:20, nGenes = 200, verbose=FALSE)
-
+counts <- as.matrix(counts(se))
+icMat <- evaluateK(counts = counts, sds = crv, k=3:20, nGenes = 200,
+                   verbose=FALSE)
 # alternatively:
-icMat <- evaluateK(counts = counts, knots=3:20, nGenes = 200,
+icMat <- evaluateK(counts = counts, k=3:20, nGenes = 200,
                    pseudotime = slingPseudotime(crv, na = FALSE),
                    cellWeights = slingCurveWeights(crv))
 ```
 ```{r, echo=FALSE}
-ggdraw() + draw_image("evalK_paul1Cropped.png")
-ggdraw() + draw_image("evalK_paul2Cropped.png")
-
+knitr::include_graphics("evalK_paul1Cropped.png")
+knitr::include_graphics("evalK_paul2Cropped.png")
 ```
 
 The output graphics are organized into four panels. The left panel plots a boxplot for each number of knots we wanted to evaluate. The plotted values are the deviation from a gene's AIC at that specific knot value from the average AIC of that gene across all the knots under evaluation. Typically, AIC values are somewhat higher for low number of knots, and we expect them to decrease as the number of knots gets higher.
@@ -123,6 +128,8 @@ Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as in
 While in this vignette we will proceed with using the `sds` argument, hence a `SingleCellExperiment` object as output, `tradeSeq` allows input from any trajectory inference method with the `pseudotime` and `cellWeights` arguments. All functions work with both the `SingleCellExperiment` (i.e., `sds` input to `fitGAM`) output as well as the list output (i.e., `pseudotime` and `cellWeights` input to `fitGAM`).
 
 ```{r}
+library(BiocParallel)
+library(magrittr)
 # Register BiocParallel Serial Execution (no parallelization in that case)
 BiocParallel::register(BiocParallel::SerialParam())
 
@@ -238,6 +245,10 @@ plotGeneCount(crv, counts, gene = rownames(patternRes)[oPat][1])
 We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the *patternTest* and their rank in decreasing Wald statistics for the *diffEndTest*.
 
 ```{r, out.width="50%", fig.asp=.8}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
 compare <- inner_join(patternRes %>% mutate(Gene = rownames(patternRes),
                                             pattern = waldStat) %>%
                                      select(Gene, pattern),
@@ -322,6 +333,7 @@ clusterLabels <- primaryCluster(clusPat$rsec)
 The first 4 clusters can be visualized using the normalized expression upon which the clustering is based.
 
 ```{r, out.width="50%", fig.asp=1}
+library(cowplot)
 cUniq <- unique(clusterLabels)
 cUniq <- cUniq[!cUniq == -1] # remove unclustered genes
 
@@ -376,7 +388,7 @@ Similarly, the test statistics may be extracted with `getSmootherTestStats`.
 Since this dataset was pre-filtered to only contain relevant genes, all p-values (test statistics) will be very low (high).
 Note, that these functions are only applicable with the list output of `tradeSeq`, and not with the `SingleCellExperiment` output. We will therefore not evaluate these here.
 
-```{r, echo=FALSE, eval=FALSE}
+```{r, eval=FALSE}
 pvalLineage <- getSmootherPvalues(gamList)
 statLineage <- getSmootherTestStats(gamList)
 ```
@@ -390,6 +402,7 @@ might improve if you allow for more iterations in the GAM fitting. This can be
 done with the `control` argument of `fitGAM`.
 
 ```{r}
+library(mgcv)
 control <- gam.control()
 control$maxit <- 1000 #set maximum number of iterations to 1K
 # pass to control argument of fitGAM as below:
@@ -406,7 +419,8 @@ control$maxit <- 1000 #set maximum number of iterations to 1K
 To recapitulate the workflow, we have created a cheatsheet that users can refer to when deciding which tests to run.
 
 ```{r, echo = F}
-ggdraw() + draw_image("cheatsheet_highRes.jpeg")
+# ggdraw() + draw_image("cheatsheet_highRes.jpeg")
+knitr::include_graphics("cheatsheet_highRes.jpeg")
 ```
 
 ```{r clean the file that was downloaded when knitting the vignette}

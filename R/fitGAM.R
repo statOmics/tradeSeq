@@ -104,7 +104,7 @@
   # fit model
   ## fixed effect design matrix
   if (is.null(U)) {
-    U <- matrix(rep(1,nrow(pseudotime)), ncol=1)
+    U <- matrix(rep(1, nrow(pseudotime)), ncol = 1)
   }
 
   ## fit NB GAM
@@ -155,9 +155,9 @@
     knots <- knotLocs
   } else {
     maxT <- maxT[!maxT %in% knotLocs]
-    replaceId <- sapply(maxT, function(ll){
+    replaceId <- vapply(maxT, function(ll){
       which.min(abs(ll - knotLocs))
-    })
+    }, FUN.VALUE = 1)
     knotLocs[replaceId] <- maxT
     if (!all(maxT %in% knotLocs)) {
       # if not all end points are at knots, return a warning, but keep
@@ -172,9 +172,9 @@
   knots[1] <- min(tAll)
   knots[nknots] <- max(tAll)
 
-  knotList <- sapply(seq_len(ncol(pseudotime)), function(i){
+  knotList <- lapply(seq_len(ncol(pseudotime)), function(i){
     knots
-  }, simplify = FALSE )
+  })
   names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
 
 
@@ -187,9 +187,9 @@
     if (!is.null(dim(offset))) offset <- offset[teller,]
     smoothForm <- as.formula(
       paste0("y ~ -1 + U + ",
-             paste(sapply(seq_len(ncol(pseudotime)), function(ii){
+             paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
-             }),
+             }, FUN.VALUE = "formula"),
              collapse = "+"), " + offset(offset)")
     )
     # fit smoother
@@ -205,7 +205,7 @@
     nParam <- p + nknots*nCurves
 
     if (sce) { #don't return full GAM model for sce output.
-      if(is(m, "try-error")){
+      if (is(m, "try-error")) {
         return(list(beta = NA, Sigma = NA))
       }
       beta <- matrix(coef(m), ncol = 1)
