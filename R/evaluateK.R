@@ -1,6 +1,6 @@
 
 .evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
-                      weights=NULL, seed=81, offset=NULL, aicDiff=2,
+                      weights=NULL, seed=81, offset=NULL, aicDiff=2, verbose=TRUE,
                       ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
@@ -57,9 +57,11 @@
   # barplot of optimal AIC for genes with at least a difference of 2.
   aicRange <- apply(apply(aicMat,1,range),2,diff)
   varID <- which(aicRange > aicDiff)
-  aicMatSub <- aicMat[varID,]
-  tab <- table(k[apply(aicMatSub,1,which.min)])
-  barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
+  if(length(varID)>0){
+    aicMatSub <- aicMat[varID,]
+    tab <- table(k[apply(aicMatSub,1,which.min)])
+    barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
+  }
 
   return(aicMat)
 }
@@ -98,12 +100,13 @@
 #' matrix of AIC values for the selected genes (rows) and the range of knots
 #' (columns).
 #' @examples
+#' ## This is an artifical example, please check the vignette for a realistic one.
 #' set.seed(8)
 #' data(sds, package="tradeSeq")
-#' loadings <- matrix(runif(1000*2,-2,2), nrow=2, ncol=1000)
-#' counts <- round(abs(t(reducedDim(sds) %*% loadings)))
+#' loadings <- matrix(runif(2000*2,-2,2), nrow=2, ncol=2000)
+#' counts <- round(abs(t(reducedDim(sds) %*% loadings)))+100
 #' aicK <- evaluateK(counts = counts, sds=sds,
-#'                   nGenes=250, k=3:5, verbose=FALSE)
+#'                   nGenes=100, k=3:5, verbose=FALSE)
 #' @importFrom BiocParallel bplapply bpparam MulticoreParam
 #' @rdname evaluateK
 #' @export
