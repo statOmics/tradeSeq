@@ -19,8 +19,11 @@ library(knitr)
 opts_chunk$set(dpi = 58)
 ```
 
+# Introduction
 
-In this vignette, we analyse a subset of the data from [@Paul2015]. All details about the `tradeSeq` model and statistical tests are described in our preprint [@VandenBerge2019a].
+`tradeSeq` is an `R` package that allows analysis of gene expression along trajectories. While it has been developed and applied to single-cell RNA-sequencing (scRNA-seq) data, its applicability extends beyond that, and also allows the analysis of, e.g., single-cell ATAC-seq data along trajectories or bulk RNA-seq time series datasets. For every gene in the dataset, `tradeSeq` fits a generalized additive model (GAM) by building on the `mgcv` R package. It then allows statistical inference on the GAM by assessing contrasts of the parameters of the fitted GAM model, ading in interpreting complex datasets. All details about the `tradeSeq` model and statistical tests are described in our preprint [@VandenBerge2019a].
+
+In this vignette, we analyse a subset of the data from [@Paul2015]. 
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
 
 # Installation
@@ -44,7 +47,7 @@ RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
 if (!file.exists("./se_paul.rda")) {
   download.file(
-    "https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+    "https://zenodo.org/record/3497394/files/se_paul.rda?download=1",
     destfile = "./se_paul.rda")  
 }
 library(SingleCellExperiment)

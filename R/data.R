@@ -6,3 +6,11 @@
 #' @format Can be re-obtained by runing the code in the example section
 #'  of \code{\link{fitGAM}}.
 "gamList"
+
+
+#' A SlingshotDataset object, used in the package unit tests.
+#'
+#' This dataset contains the toy example from the Slingshot R package vignette.
+#'
+#' @source \url{https://bioconductor.org/packages/release/bioc/html/slingshot.html}
+"sds"
