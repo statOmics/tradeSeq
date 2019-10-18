@@ -1,6 +1,5 @@
 #' @include utils.R
 
-
 .associationTest <- function(models, global = TRUE, lineages = FALSE){
 
   if (is(models, "list")) {
@@ -14,7 +13,7 @@
     nCurves <- length(modelTemp$smooth)
     data <- modelTemp$model
     knotPoints <- modelTemp$smooth[[1]]$xp
-    X <- predict(modelTemp, type="lpmatrix")
+    X <- predict(modelTemp, type = "lpmatrix")
 
   } else if (sce) {
     dm <- colData(models)$tradeSeq$dm # design matrix
@@ -27,16 +26,16 @@
 
   # construct individual contrast matrix
   if (!sce) {
-    if(nCurves == 1){
+    if (nCurves == 1) {
       # note that mgcv does not respect the number of input knots if only
       # a single lineage is fitted.
-      smoothCoefs <-  grep(x=colnames(X), pattern="s\\(t[1-9]")
+      smoothCoefs <-  grep(x = colnames(X), pattern = "s\\(t[1-9]")
       pSmooth <- length(smoothCoefs)
-      pFixed <- min(smoothCoefs)-1
-      L1 <- matrix(0, nrow=ncol(X), ncol=pSmooth-1,
+      pFixed <- min(smoothCoefs) - 1
+      L1 <- matrix(0, nrow = ncol(X), ncol = pSmooth - 1,
                    dimnames = list(colnames(X),
                                    NULL))
-      for(ii in seq_len(pSmooth)-1){
+      for (ii in seq_len(pSmooth) - 1) {
         L1[pFixed + ii, ii] <- 1
         L1[pFixed + ii + 1, ii] <- -1
       }
@@ -61,16 +60,16 @@
       }
     }
   } else if (sce) {
-    if(nCurves == 1){
+    if (nCurves == 1) {
       # note that mgcv does not respect the number of input knots if only
       # a single lineage is fitted.
-      smoothCoefs <-  grep(x=colnames(X), pattern="s\\(t[1-9]")
+      smoothCoefs <-  grep(x = colnames(X), pattern = "s\\(t[1-9]")
       pSmooth <- length(smoothCoefs)
-      pFixed <- min(smoothCoefs)-1
-      L1 <- matrix(0, nrow=ncol(X), ncol=pSmooth-1,
+      pFixed <- min(smoothCoefs) - 1
+      L1 <- matrix(0, nrow = ncol(X), ncol = pSmooth - 1,
                   dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
                                   NULL))
-      for(ii in seq_len(pSmooth)-1){
+      for (ii in seq_len(pSmooth) - 1) {
         L1[pFixed + ii, ii] <- 1
         L1[pFixed + ii + 1, ii] <- -1
       }
@@ -108,7 +107,7 @@
         waldTest(beta, Sigma, L)
       })
     } else if (sce) {
-      waldResultsOmnibus <- lapply(1:nrow(models), function(ii){
+      waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         waldTest(beta, Sigma, L)
@@ -128,19 +127,19 @@
         if (is(m)[1] == "try-error") {
           return(matrix(NA, nrow = nCurves, ncol = 3))
         }
-        t(sapply(seq_len(nCurves), function(ii){
+        t(vapply(seq_len(nCurves), function(ii){
           beta <- matrix(coef(m), ncol = 1)
           Sigma <- m$Vp
           waldTest(beta, Sigma, get(paste0("L", ii)))
-        }))
+        }, FUN.VALUE = c(.1, 1, .1)))
       })
     } else if (sce) {
-      waldResultsLineages <- lapply(1:nrow(models), function(ii){
+      waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        t(sapply(seq_len(nCurves), function(ii){
+        t(vapply(seq_len(nCurves), function(ii){
           waldTest(beta, Sigma, get(paste0("L", ii)))
-        }))
+        }, FUN.VALUE = c(.1, 1, .1)))
       })
       names(waldResultsLineages) <- rownames(models)
     }
@@ -183,6 +182,7 @@
 #'  procedure was unsuccessful, the procedure will return NA test statistics and
 #'  p-values.
 #' @rdname associationTest
+#' @importFrom methods is
 #' @export
 #' @import SingleCellExperiment
 setMethod(f = "associationTest",

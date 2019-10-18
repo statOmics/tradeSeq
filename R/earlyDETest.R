@@ -91,7 +91,7 @@
         getEigenStatGAM(beta, Sigma, L)
       })
     } else if (sce) {
-      waldResOmnibus <- lapply(1:nrow(models), function(ii){
+      waldResOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         getEigenStatGAM(beta, Sigma, L)
@@ -119,7 +119,7 @@
                                      knots = knots,
                                      knotPoints = modelTemp$smooth[[1]]$xp)
         # get linear predictor
-        for (ii in 1:2) { #always 2 curves we're comparing
+        for (ii in seq_len(2)) { #always 2 curves we're comparing
           assign(paste0("X", ii), predict(modelTemp,
                                           newdata = dfListPair[[ii]],
                                           type = "lpmatrix"))
@@ -141,13 +141,13 @@
                                      knots = knots,
                                      knotPoints = knotPoints)
         # get linear predictor
-        for (ii in 1:2) { #pairwise => always 2 curves
+        for (ii in seq_len(2)) { #pairwise => always 2 curves
           assign(paste0("X", ii), predictGAM(lpmatrix = X,
                                              df = dfList[[ii]],
                                              pseudotime = pseudotime))
         }
         L <- t(X1 - X2)
-        waldResPair <- lapply(1:nrow(models), function(ii){
+        waldResPair <- lapply(seq_len(nrow(models)), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
           getEigenStatGAM(beta, Sigma, L)
@@ -192,13 +192,13 @@
 #' earlyDETest(gamList, knots = c(1, 2), global = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
-#' @details To help in choosing the knots, the \code{\link{plotGeneCount}}
-#'  function has a models optional parameter that can be used to visualize
-#'   where the knots are. This helps the user to decide which knots to use when
-#'    defining the branching
+#' @details To help the user in choosing which knots to use when defining the 
+#' branching, the \code{\link{plotGeneCount}} function has a models optional
+#' parameter that can be used to visualize where the knots are.
 #' @rdname earlyDETest
 #' @export
 #' @import SingleCellExperiment
+#' @importFrom methods is
 setMethod(f = "earlyDETest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,

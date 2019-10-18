@@ -2,7 +2,7 @@ Package: tradeSeq
 Type: Package
 Title: trajectory-based differential expression analysis for sequencing data
 Date: 2019-03-15
-Version: 0.99.80
+Version: 0.99.82
 Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "koen.vandenberge@ugent.be"),
               person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
@@ -18,7 +18,7 @@ whose expression is associated with pseudotime, or who are differentially
 expressed (in a specific region) along the trajectory.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 URL: https://statomics.github.io/tradeSeq/index.html
 Depends: R (>= 3.6)
 Collate:
@@ -36,7 +36,6 @@ Collate:
     'patternTest.R'
     'plotGeneCount.R'
     'plotSmoothers.R'
-    'sceMethods.R'
     'startVsEndTest.R'
 RoxygenNote: 6.1.1
 Imports: 
@@ -51,7 +50,8 @@ Imports:
     BiocParallel,
     pbapply,
     ggplot2,
-    princurve
+    princurve,
+    methods
 Suggests:
     knitr,
     rmarkdown,

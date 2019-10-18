@@ -38,8 +38,7 @@
 
 <meta property="og:title" content="Plot the log-transformed counts and the fitted values for a particular
  gene along all lineages — plotSmoothers" />
-<meta property="og:description" content="Plot the log-transformed counts and the fitted values for a particular
- gene along all lineages" />
+<meta property="og:description" content="Plot the smoothers estimated by tradeSeq." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
       </span>
     </div>
 
@@ -113,24 +112,30 @@
     </div>
 
     <div class="ref-description">
-    <p>Plot the log-transformed counts and the fitted values for a particular
- gene along all lineages</p>
+    <p>Plot the smoothers estimated by <code>tradeSeq</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>plotSmoothers</span>(<span class='no'>models</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for gam</span>
 <span class='fu'>plotSmoothers</span>(<span class='no'>models</span>, <span class='kw'>nPoints</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>lwd</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Pseudotime"</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Log(expression + 1)"</span>)
+  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Pseudotime"</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Log(expression + 1)"</span>,
+  <span class='kw'>border</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
 <span class='co'># S4 method for SingleCellExperiment</span>
 <span class='fu'>plotSmoothers</span>(<span class='no'>models</span>, <span class='no'>counts</span>, <span class='no'>gene</span>,
   <span class='kw'>nPoints</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>lwd</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Pseudotime"</span>,
-  <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Log(expression + 1)"</span>)</pre>
+  <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Log(expression + 1)"</span>, <span class='kw'>border</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>models</th>
+      <td><p>Either the <code>SingleCellExperiment</code> object obtained after
+running <code>fitGAM</code>, or the specific GAM model for the corresponding gene,
+if working with the list output of <code>tradeSeq</code>.</p></td>
+    </tr>
     <tr>
       <th>...</th>
       <td><p>parameters including:</p></td>
@@ -156,8 +161,21 @@
       <td><p>y-axis label. Passed to <code>labs</code></p></td>
     </tr>
     <tr>
-      <th>m</th>
-      <td><p>the fitted model of a given gene</p></td>
+      <th>border</th>
+      <td><p>logical: should a white border be drawn around the mean smoother.</p></td>
+    </tr>
+    <tr>
+      <th>alpha</th>
+      <td><p>Numeric between 0 and 1, determines the transparancy of data points,
+see <code>scale_color_viridis_d</code>.</p></td>
+    </tr>
+    <tr>
+      <th>counts</th>
+      <td><p>The matrix of gene expression counts.</p></td>
+    </tr>
+    <tr>
+      <th>gene</th>
+      <td><p>Gene name of gene to plot.</p></td>
     </tr>
     </table>
 
@@ -183,7 +201,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bézieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
 </div>
 
 <div class="pkgdown">

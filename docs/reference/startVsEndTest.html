@@ -38,8 +38,8 @@ stages of every lineage — startVsEndTest • tradeSeq</title>
 
 <meta property="og:title" content="Perform statistical test to check for DE between starting point and the end
 stages of every lineage — startVsEndTest" />
-<meta property="og:description" content="Perform statistical test to check for DE between starting point and the end
-stages of every lineage" />
+<meta property="og:description" content="Assess differential expression between the start and end points
+of a lineage." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +72,7 @@ stages of every lineage" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
       </span>
     </div>
 
@@ -113,8 +113,8 @@ stages of every lineage</h1>
     </div>
 
     <div class="ref-description">
-    <p>Perform statistical test to check for DE between starting point and the end
-stages of every lineage</p>
+    <p>Assess differential expression between the start and end points
+of a lineage.</p>
     </div>
 
     <pre class="usage"><span class='fu'>startVsEndTest</span>(<span class='no'>models</span>, <span class='no'>...</span>)
@@ -168,18 +168,30 @@ values to be compared against each other, for every lineage of
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
-<span class='fu'>startVsEndTest</span>(<span class='no'>gamList</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                     global  lineage1  lineage2
-#&gt; 1700012B09Rik 1.489419e-16 1.0000000 1.0000000
-#&gt; 1700017B05Rik 4.316466e-01 0.5222756 0.8814257
-#&gt; 1700020L24Rik 1.489419e-16 1.0000000 1.0000000
-#&gt; 1810009A15Rik 1.384770e+00 0.9041920 0.2417635
-#&gt; 1810011H11Rik 1.489419e-16 1.0000000 1.0000000
-#&gt; 1810027O10Rik 2.589421e+00 0.4675587 0.1510435
-#&gt; 1810031K17Rik 1.805065e+00 0.2046942 0.6575575
-#&gt; 1810033B17Rik 1.489419e-16 1.0000000 1.0000000
-#&gt; 1810037I17Rik 7.002206e-01 0.4508052 0.7167850
-#&gt; 2010002N04Rik 1.489419e-16 1.0000000 1.0000000
-#&gt; 2010011I20Rik 4.511815e-01 0.5078248 0.9105017</div></pre>
+<span class='fu'>startVsEndTest</span>(<span class='no'>gamList</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                   waldStat df    pvalue waldStat_lineage1 df_lineage1
+#&gt; 1700012B09Rik 1.489419e-16  2 1.0000000      1.453929e-16           1
+#&gt; 1700017B05Rik 4.316466e-01  2 0.8058777      4.093973e-01           1
+#&gt; 1700020L24Rik 1.489419e-16  2 1.0000000      1.453929e-16           1
+#&gt; 1810009A15Rik 1.384770e+00  2 0.5003812      1.448834e-02           1
+#&gt; 1810011H11Rik 1.489419e-16  2 1.0000000      1.453929e-16           1
+#&gt; 1810027O10Rik 2.589421e+00  2 0.2739772      5.277397e-01           1
+#&gt; 1810031K17Rik 1.805065e+00  2 0.4055413      1.608561e+00           1
+#&gt; 1810033B17Rik 1.489419e-16  2 1.0000000      1.453929e-16           1
+#&gt; 1810037I17Rik 7.002206e-01  2 0.7046104      5.686266e-01           1
+#&gt; 2010002N04Rik 1.489419e-16  2 1.0000000      1.453929e-16           1
+#&gt; 2010011I20Rik 4.511815e-01  2 0.7980446      4.385465e-01           1
+#&gt;               pvalue_lineage1 waldStat_lineage2 df_lineage2 pvalue_lineage2
+#&gt; 1700012B09Rik       1.0000000      3.548941e-18           1       1.0000000
+#&gt; 1700017B05Rik       0.5222756      2.224933e-02           1       0.8814257
+#&gt; 1700020L24Rik       1.0000000      3.548941e-18           1       1.0000000
+#&gt; 1810009A15Rik       0.9041920      1.370282e+00           1       0.2417635
+#&gt; 1810011H11Rik       1.0000000      3.548941e-18           1       1.0000000
+#&gt; 1810027O10Rik       0.4675587      2.061681e+00           1       0.1510435
+#&gt; 1810031K17Rik       0.2046942      1.965042e-01           1       0.6575575
+#&gt; 1810033B17Rik       1.0000000      3.548941e-18           1       1.0000000
+#&gt; 1810037I17Rik       0.4508052      1.315940e-01           1       0.7167850
+#&gt; 2010002N04Rik       1.0000000      3.548941e-18           1       1.0000000
+#&gt; 2010011I20Rik       0.5078248      1.263505e-02           1       0.9105017</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -195,7 +207,7 @@ values to be compared against each other, for every lineage of
 
       <footer>
       <div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bézieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
 </div>
 
 <div class="pkgdown">

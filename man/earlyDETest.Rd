@@ -40,10 +40,9 @@ Perform test of early differences between lineages
 Perform test of early differences between lineages
 }
 \details{
-To help in choosing the knots, the \code{\link{plotGeneCount}}
- function has a models optional parameter that can be used to visualize
-  where the knots are. This helps the user to decide which knots to use when
-   defining the branching
+To help the user in choosing which knots to use when defining the 
+branching, the \code{\link{plotGeneCount}} function has a models optional
+parameter that can be used to visualize where the knots are.
 }
 \examples{
 data(gamList, package = "tradeSeq")

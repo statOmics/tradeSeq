@@ -38,8 +38,8 @@
 
 <meta property="og:title" content="Perform statistical test to check for DE between final stages of every
  lineage. — diffEndTest" />
-<meta property="og:description" content="Perform statistical test to check for DE between final stages of every
- lineage." />
+<meta property="og:description" content="Assess differential expression between the end points of lineages of a
+trajectory." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
       </span>
     </div>
 
@@ -113,18 +113,19 @@
     </div>
 
     <div class="ref-description">
-    <p>Perform statistical test to check for DE between final stages of every
- lineage.</p>
+    <p>Assess differential expression between the end points of lineages of a
+trajectory.</p>
     </div>
 
     <pre class="usage"><span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for SingleCellExperiment</span>
 <span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>)
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -147,6 +148,12 @@
       <th>pairwise</th>
       <td><p>If TRUE, test for all pairwise comparisons independently.</p></td>
     </tr>
+    <tr>
+      <th>l2fc</th>
+      <td><p>Numeric: log2 fold change threshold to test against. Note, that
+this only applies to the pairwise comparisons, the global test will be
+unaffected.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -155,6 +162,13 @@
  associated with each gene for all the tests performed. If the testing
  procedure was unsuccessful, the procedure will return NA test statistics and
  p-values.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The <code>l2fc</code> argument allows to test against a particular fold change
+threshold. For example, if the interest lies in discovering genes that are
+differentially expressed with an absolute log2 fold change cut off above 1,
+i.e. a fold change of at least 2, then one can test for this by setting
+<code>l2fc=1</code> as argument to the function.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
@@ -176,6 +190,7 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -185,7 +200,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bézieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
 </div>
 
 <div class="pkgdown">

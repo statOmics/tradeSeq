@@ -1,6 +1,5 @@
 #' @include utils.R
 
-
 .startVsEndTest <- function(models, global = TRUE, lineages = FALSE,
                            pseudotimeValues = NULL){
 
@@ -101,7 +100,7 @@
       })
 
     } else if (sce) { #singleCellExperiment output
-      waldResultsOmnibus <- lapply(1:nrow(models), function(ii){
+      waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         waldTest(beta, Sigma, L)
@@ -123,17 +122,17 @@
         }
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
-        t(sapply(seq_len(ncol(L)), function(ii){
+        t(vapply(seq_len(ncol(L)), function(ii){
           waldTest(beta, Sigma, L[, ii, drop = FALSE])
-        }))
+        }, FUN.VALUE = c(.1, 1, .1)))
       })
     } else if (sce) { # sce output
-      waldResultsLineages <- lapply(1:nrow(models), function(ii){
+      waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        t(sapply(seq_len(ncol(L)), function(ii){
+        t(vapply(seq_len(ncol(L)), function(ii){
           waldTest(beta, Sigma, L[, ii, drop = FALSE])
-        }))
+        }, FUN.VALUE = c(.1, 1, .1)))
       })
       names(waldResultsLineages) <- rownames(models)
     }
@@ -147,7 +146,7 @@
     colnames(resMat) <- colNames
     # order results by contrast
     ll <- list()
-    for(jj in 1:ncol(L)) ll[[jj]] <- seq(jj,ncol(L)*3, by=ncol(L))
+    for (jj in seq_len(ncol(L))) ll[[jj]] <- seq(jj, ncol(L) * 3, by = ncol(L))
     orderByContrast <- unlist(ll)
     waldResAllPair <- resMat[,orderByContrast]
 
@@ -185,6 +184,7 @@
 #' @export
 #' @rdname startVsEndTest
 #' @import SingleCellExperiment
+#' @importFrom methods is
 setMethod(f = "startVsEndTest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,

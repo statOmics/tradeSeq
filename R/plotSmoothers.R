@@ -170,6 +170,7 @@ setOldClass("gam")
 #' plotSmoothers(gamList[[4]])
 #' @import ggplot2
 #' @import mgcv
+#' @importFrom methods is
 #' @rdname plotSmoothers
 #' @export
 setMethod(f = "plotSmoothers",

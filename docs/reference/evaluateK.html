@@ -36,7 +36,8 @@
 
 
 <meta property="og:title" content="Evaluate the optimal number of knots required for fitGAM. — evaluateK" />
-<meta property="og:description" content="Evaluate the optimal number of knots required for fitGAM." />
+<meta property="og:description" content="Evaluate the optimal number of knots required for fitGAM.
+Evaluate an appropriate number of knots." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -69,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.60</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
       </span>
     </div>
 
@@ -110,6 +111,7 @@
 
     <div class="ref-description">
     <p>Evaluate the optimal number of knots required for fitGAM.</p>
+<p>Evaluate an appropriate number of knots.</p>
     </div>
 
     <pre class="usage"><span class='fu'>evaluateK</span>(<span class='no'>counts</span>, <span class='no'>...</span>)
@@ -117,10 +119,9 @@
 <span class='co'># S4 method for matrix</span>
 <span class='fu'>evaluateK</span>(<span class='no'>counts</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>3</span>:<span class='fl'>10</span>, <span class='kw'>nGenes</span> <span class='kw'>=</span> <span class='fl'>500</span>,
   <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>aicDiff</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(), <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
-  <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>, <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>aicDiff</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(), <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -141,6 +142,10 @@
       <th>nGenes</th>
       <td><p>The number of genes to use in the evaluation. Genes will be
 randomly selected. 500 by default.</p></td>
+    </tr>
+    <tr>
+      <th>sds</th>
+      <td><p>Slingshot object containing the lineages.</p></td>
     </tr>
     <tr>
       <th>pseudotime</th>
@@ -173,18 +178,30 @@ as the <code>counts</code> matrix. Usually a matrix of zero-inflation weights.</
 account for differences in sequencing depth, see <code>fitGAM</code>.</p></td>
     </tr>
     <tr>
-      <th>ncores</th>
-      <td><p>Number of cores to use.</p></td>
-    </tr>
-    <tr>
       <th>aicDiff</th>
       <td><p>Used for selecting genes with significantly varying AIC values
 over the range of evaluated knots to make the barplot output. Default is set
 to 2, meaning that only genes whose AIC range is larger than 2 will be used
 to check for the optimal number of knots through the barplot visualization
-that is part of the output of this function.
-<code><a href='https://rdrr.io/pkg/edgeR/man/calcNormFactors.html'>edgeR::calcNormFactors</a></code>. Alternatively, this may also be a matrix of
-the same dimensions as the expression matrix.</p></td>
+that is part of the output of this function.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>logical, should progress be verbose?</p></td>
+    </tr>
+    <tr>
+      <th>control</th>
+      <td><p>Control object for GAM fitting, see <code><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>mgcv::gam.control()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>sce</th>
+      <td><p>Logical, automatically set by the function and should not be
+altered by the user.</p></td>
+    </tr>
+    <tr>
+      <th>family</th>
+      <td><p>The distribution assumed, currently only <code>"nb"</code>
+(negative binomial) is supported.</p></td>
     </tr>
     </table>
 
@@ -227,7 +244,7 @@ matrix of AIC values for the selected genes (rows) and the range of knots
 
       <footer>
       <div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bézieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
 </div>
 
 <div class="pkgdown">

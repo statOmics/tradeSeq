@@ -6,7 +6,7 @@
 #'  number of that gene in the count matrix. Alternatively, one can specify
 #'  the cluster arguments
 #' @param clusters The assignation of each cell to a cluster. Used to color the
-#'  plot. Either \code{clusters} or \code{gene} must be supplied.
+#'  plot. Either \code{clusters} or \code{gene} and \code{counts} must be supplied.
 #' @param models the list of GAMs, typically the output from
 #'  \code{\link{fitGAM}}. Used to display the knots.
 #' @param title Title for the plot.
@@ -32,16 +32,20 @@
 #'  cellWeights = slingCurveWeights(crv))
 #' plotGeneCount(crv, counts, gene = "Mpo")
 #' @import RColorBrewer
-#' @importFrom slingshot slingPseudotime slingCurves reducedDim
+#' @import slingshot
 #' @importFrom SummarizedExperiment assays
 #' @import ggplot2
+#' @importFrom methods is
 #' @importFrom princurve project_to_curve
 #' @export
-plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
+plotGeneCount <- function(curve, counts = NULL, gene = NULL, clusters = NULL,
                           models = NULL, title = NULL){
   rd <- reducedDim(curve)
   if (is.null(gene) & is.null(clusters)) {
-    stop("Either gene or clusters argument must be supplied")
+    stop("Either gene and counts, or clusters argument must be supplied")
+  }
+  if (is.null(counts) & is.null(clusters)) {
+    stop("Either gene and counts, or clusters argument must be supplied")
   }
   if (!is.null(gene)) {
     logcounts <- log1p(counts[gene, ])
@@ -64,7 +68,7 @@ plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
   # Adding the curves
   for (i in seq_along(slingCurves(curve))) {
     curve_i <- slingCurves(curve)[[i]]
-    curve_i <- curve_i$s[curve_i$ord, 1:2]
+    curve_i <- curve_i$s[curve_i$ord, seq_len(2)]
     colnames(curve_i) <- c("dim1", "dim2")
     p <- p + geom_path(data = as.data.frame(curve_i), col = "black", size = 1)
   }
@@ -72,7 +76,7 @@ plotGeneCount <- function(curve, counts, gene = NULL, clusters = NULL,
   # Adding the knots
   nCurves <- length(slingCurves(curve))
   if (!is.null(models)) {
-    if(is(models, "list")){
+    if (is(models, "list")) {
       sce <- FALSE
     } else if(is(models, "SingleCellExperiment")){
       sce <- TRUE
