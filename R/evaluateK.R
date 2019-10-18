@@ -7,7 +7,12 @@
   if (length(k) == 1) stop("There should be more than one k value")
   ## calculate offset on full matrix
   if (is.null(offset)) {
-    nf <- edgeR::calcNormFactors(counts)
+    nf <- try(edgeR::calcNormFactors(counts))
+    if(is(nf, "try-error")){
+      message("TMM normalization failed. Will use unnormalized library sizes",
+              "as offset.")
+      nf <- rep(1,ncol(counts))
+    }
     libSize <- colSums(as.matrix(counts)) * nf
     offset <- log(libSize)
   }
@@ -93,23 +98,12 @@
 #' matrix of AIC values for the selected genes (rows) and the range of knots
 #' (columns).
 #' @examples
-#' \dontrun{
 #' set.seed(8)
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
-#' destfile="./se_paul.rda")
-#' load("./se_paul.rda")
-#' se <- se[( 20:31)[-7], 25:40]
-#' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
-#' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
-#' gamList <- fitGAM(counts = as.matrix(
-#'                       SummarizedExperiment::assays(se)$counts),
-#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
-#'                   nknots = 5)
-#' aicK <- evaluateK(counts = as.matrix(
-#'                       SummarizedExperiment::assays(se)$counts),
-#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
-#'                   nGenes=100, k=3:5, ncores=2)
-#' }
+#' data(sds, package="tradeSeq")
+#' loadings <- matrix(runif(1000*2,-2,2), nrow=2, ncol=1000)
+#' counts <- round(abs(t(reducedDim(sds) %*% loadings)))
+#' aicK <- evaluateK(counts = counts, sds=sds,
+#'                   nGenes=250, k=3:5, verbose=FALSE)
 #' @importFrom BiocParallel bplapply bpparam MulticoreParam
 #' @rdname evaluateK
 #' @export

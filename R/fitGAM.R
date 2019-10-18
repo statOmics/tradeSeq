@@ -96,7 +96,12 @@
   }
   # offset
   if (is.null(offset)) {
-    nf <- edgeR::calcNormFactors(counts)
+    nf <- try(edgeR::calcNormFactors(counts))
+    if(is(nf, "try-error")){
+      message("TMM normalization failed. Will use unnormalized library sizes",
+              "as offset.")
+      nf <- rep(1,ncol(counts))
+    }
     libSize <- colSums(as.matrix(counts)) * nf
     offset <- log(libSize)
   }
