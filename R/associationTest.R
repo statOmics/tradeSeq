@@ -18,7 +18,7 @@
   } else if (sce) {
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
-    knotPoints <- metadata(models)$tradeSeq$knots #knot points
+    knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
     nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
 
   }
@@ -183,6 +183,7 @@
 #'  p-values.
 #' @rdname associationTest
 #' @importFrom methods is
+#' @import SummarizedExperiment
 #' @export
 #' @import SingleCellExperiment
 setMethod(f = "associationTest",

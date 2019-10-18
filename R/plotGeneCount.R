@@ -14,7 +14,7 @@
 #'  plot will be colored according to gene count level.
 #' @return A \code{\link{ggplot}} object
 #' @examples
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+#' download.file("https://zenodo.org/record/3497394/files/se_paul.rda?download=1",
 #' destfile="./se_paul.rda")
 #' load("./se_paul.rda")
 #' set.seed(97)
@@ -31,6 +31,7 @@
 #'  pseudotime = slingPseudotime(crv, na = FALSE),
 #'  cellWeights = slingCurveWeights(crv))
 #' plotGeneCount(crv, counts, gene = "Mpo")
+#' file.remove("./se_paul.rda")
 #' @import RColorBrewer
 #' @import slingshot
 #' @importFrom SummarizedExperiment assays
@@ -85,7 +86,7 @@ plotGeneCount <- function(curve, counts = NULL, gene = NULL, clusters = NULL,
       m <- .getModelReference(models)
       knots <- m$smooth[[1]]$xp
     } else if(sce){
-      knots <- metadata(models)$tradeSeq$knots
+      knots <- S4Vectors::metadata(models)$tradeSeq$knots
     }
     # times <- slingPseudotime(curve, na = FALSE)
     knots_dim <- matrix(ncol = 2, nrow = nCurves * length(knots))

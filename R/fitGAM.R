@@ -218,15 +218,18 @@
       Sigma <- m$Vp
       # define lpmatrix in top environment to return once for all genes
       if (!exists("X", where = "package:tradeSeq")) {
-        X <<- predict(m, type = "lpmatrix")
+        # X <<- predict(m, type = "lpmatrix")
+        assign("X", predict(m, type = "lpmatrix"), envir = .GlobalEnv)
       }
       # define model frame in top environment to return once for all genes
       if (!exists("dm", where <- "package:tradeSeq")) {
-        dm <<- m$model[, -1] # rm expression counts since different betw. genes
+        #dm <<- m$model[, -1] # rm expression counts since different betw. genes
+        assign("dm",  m$model[, -1], envir = .GlobalEnv)
       }
       # define knots in top environment to return once for all genes
       if (!exists("knotPoints", where = "package:tradeSeq")) {
-        knotPoints <<- m$smooth[[1]]$xp
+        #knotPoints <<- m$smooth[[1]]$xp
+        assign("knotPoints", m$smooth[[1]]$xp, envir = .GlobalEnv)
       }
       return(list(beta = beta, Sigma = Sigma))
     } else return(m)
@@ -317,7 +320,7 @@
 #'    message.
 #' @examples
 #' set.seed(8)
-#' download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+#' download.file("https://zenodo.org/record/3497394/files/se_paul.rda?download=1",
 #' destfile="./se_paul.rda")
 #' load("./se_paul.rda")
 #' se <- se[( 20:31)[-7], 25:40]
@@ -327,6 +330,7 @@
 #'                       SummarizedExperiment::assays(se)$counts),
 #'                   pseudotime = pseudotimes, cellWeights = cellWeights,
 #'                   nknots = 5)
+#' file.remove("./se_paul.rda")
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays
 #' @importFrom BiocParallel bplapply bpparam
@@ -395,19 +399,19 @@ setMethod(f = "fitGAM",
             # return SingleCellExperiment object
             sc <- SingleCellExperiment(assays = list(counts = counts))
             # slingshot info
-            colData(sc)$slingshot <- DataFrame(
+            SummarizedExperiment::colData(sc)$slingshot <- S4Vectors::DataFrame(
               pseudotime = pseudotime,
               cellWeights = cellWeights)
             # tradeSeq gene-level info
             df <- tibble::enframe(gamOutput$Sigma)
             colnames(df)[2] <- "Sigma"
             df$beta <- tibble::tibble(gamOutput$beta)
-            rowData(sc)$tradeSeq <- df
+            SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
-            colData(sc)$tradeSeq <- tibble::tibble(X = X,
+            SummarizedExperiment::colData(sc)$tradeSeq <- tibble::tibble(X = X,
                                                     dm = dm)
             # metadata: tradeSeq knots
-            metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints)
+            S4Vectors::metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints)
             return(sc)
 
           }

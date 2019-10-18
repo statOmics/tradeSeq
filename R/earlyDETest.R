@@ -25,7 +25,7 @@
 
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
-    knotPoints <- metadata(models)$tradeSeq$knots #knot points
+    knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
     slingshotColData <- colData(models)$slingshot
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime")]
@@ -192,7 +192,7 @@
 #' earlyDETest(gamList, knots = c(1, 2), global = TRUE, pairwise = TRUE)
 #' @return A matrix with the wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
-#' @details To help the user in choosing which knots to use when defining the 
+#' @details To help the user in choosing which knots to use when defining the
 #' branching, the \code{\link{plotGeneCount}} function has a models optional
 #' parameter that can be used to visualize where the knots are.
 #' @rdname earlyDETest
