@@ -22,7 +22,7 @@
 #' cl <- kmeans(rd, centers = 7)$cluster
 #' lin <- slingshot::getLineages(rd, clusterLabels = cl, start.clus = 4)
 #' crv <- slingshot::getCurves(lin)
-#' counts <- as.matrix(counts)
+#' counts <- as.matrix(countMatrix)
 #' gamList <- fitGAM(counts = counts,
 #'  pseudotime = slingPseudotime(crv, na = FALSE),
 #'  cellWeights = slingCurveWeights(crv))
