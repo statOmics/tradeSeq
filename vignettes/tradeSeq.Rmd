@@ -47,11 +47,11 @@ RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
 if (!file.exists("./se_paul.rda")) {
   download.file(
-    "https://zenodo.org/record/3514716/files/se_paul.rds?download=1",
-    destfile = "./se_paul.rds")  
+    "https://zenodo.org/record/3514927/files/paulData3.rda?download=1",
+    destfile = "./paulData.rda")  
 }
 library(SingleCellExperiment)
-se <- readRDS("./se_paul.rds")
+load("./paulData.rda")
 ```
 
 # Fit trajectories using slingshot
@@ -61,7 +61,7 @@ We cluster the data using k-means with $7$ clusters. Since we know which cells a
 
 ```{r, warning=FALSE, out.width="50%", fig.asp=.6}
 set.seed(200)
-rd <- reducedDims(se)$UMAP
+rd <- reducedDims(crv)
 cl <- kmeans(rd, centers = 7)$cluster
 plot(rd, col = brewer.pal(9, "Set1")[cl], pch = 16, asp = 1,
      cex = 2/3)
@@ -76,7 +76,6 @@ We find two lineages for this dataset. The trajectory can be visualized using th
 ```{r, out.width="50%", fig.asp=.6}
 plotGeneCount(curve = crv, clusters = cl)
 
-celltype <- factor(colData(se)$cell_type2)
 plotGeneCount(curve = crv, clusters = celltype, 
               title = "Colored by cell type")
 ```
@@ -94,7 +93,6 @@ It is generally a good idea to evaluate this multiple times using different seed
 This task can be computationally demanding, since the models must be fit multiple times for each gene. We therefore skip this in the vignette, but show the output one can expect instead.
 
 ```{r, eval=FALSE}
-counts <- as.matrix(counts(se))
 icMat <- evaluateK(counts = counts, sds = crv, k=3:20, nGenes = 200,
                    verbose=FALSE)
 # alternatively:
@@ -136,10 +134,9 @@ library(magrittr)
 # Register BiocParallel Serial Execution (no parallelization in that case)
 BiocParallel::register(BiocParallel::SerialParam())
 
-counts <- assays(se)$counts %>% as.matrix()
 filt <- rowSums(counts > 8) > ncol(counts)/100
 filt["Irf8"] <- TRUE
-counts <- counts[filt, ]
+counts <- as.matrix(counts[filt, ])
 sce <- fitGAM(counts = counts,
                   sds = crv)
 # This takes about 1mn to run
@@ -427,7 +424,7 @@ knitr::include_graphics("cheatsheet_highRes.jpeg")
 ```
 
 ```{r clean the file that was downloaded when knitting the vignette}
-file.remove("./se_paul.rda")
+file.remove("./paulData.rda")
 ```
 
 
