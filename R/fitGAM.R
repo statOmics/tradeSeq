@@ -320,17 +320,11 @@
 #'    message.
 #' @examples
 #' set.seed(8)
-#' download.file("https://zenodo.org/record/3497394/files/se_paul.rda?download=1",
-#' destfile="./se_paul.rda")
-#' load("./se_paul.rda")
-#' se <- se[( 20:31)[-7], 25:40]
-#' pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
-#' cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
-#' gamList <- fitGAM(counts = as.matrix(
-#'                       SummarizedExperiment::assays(se)$counts),
-#'                   pseudotime = pseudotimes, cellWeights = cellWeights,
+#' data(crv, package="tradeSeq")
+#' data(countMatrix, package="tradeSeq")
+#' gamList <- fitGAM(counts = as.matrix(countMatrix),
+#'                   sds = crv,
 #'                   nknots = 5)
-#' file.remove("./se_paul.rda")
 #' @importFrom magrittr %>%
 #' @importFrom SummarizedExperiment assays
 #' @importFrom BiocParallel bplapply bpparam

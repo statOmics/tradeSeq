@@ -48,13 +48,6 @@ library(slingshot)
 # For reproducibility
 RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
-# if (!file.exists("./se_paul.rda")) {
-#   download.file(
-#     "https://zenodo.org/record/3514927/files/paulData3.rda?download=1",
-#     destfile = "./paulData.rda")  
-# }
-# library(SingleCellExperiment)
-# load("./paulData.rda")
 data(countMatrix, package="tradeSeq")
 counts <- countMatrix ; rm(countMatrix)
 data(crv, package="tradeSeq")

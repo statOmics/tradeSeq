@@ -14,24 +14,19 @@
 #'  plot will be colored according to gene count level.
 #' @return A \code{\link{ggplot}} object
 #' @examples
-#' download.file("https://zenodo.org/record/3497394/files/se_paul.rda?download=1",
-#' destfile="./se_paul.rda")
-#' load("./se_paul.rda")
 #' set.seed(97)
-#' data(se, package = "tradeSeq")
-#' rd <- SingleCellExperiment::reducedDims(se)$UMAP
-#' cl <- kmeans(rd, centers = 7)$cluster
 #' library(slingshot)
-#' lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
-#' crv <- getCurves(lin)
-#' counts <- as.matrix(SummarizedExperiment::assays(se)$counts)
-#' filt <- rowSums(counts > 8) > ncol(counts)/100
-#' counts <- counts[filt, ]
+#' data(crv, package="tradeSeq")
+#' data(countMatrix, package="tradeSeq")
+#' rd <- slingshot::reducedDim(crv)
+#' cl <- kmeans(rd, centers = 7)$cluster
+#' lin <- slingshot::getLineages(rd, clusterLabels = cl, start.clus = 4)
+#' crv <- slingshot::getCurves(lin)
+#' counts <- as.matrix(counts)
 #' gamList <- fitGAM(counts = counts,
 #'  pseudotime = slingPseudotime(crv, na = FALSE),
 #'  cellWeights = slingCurveWeights(crv))
 #' plotGeneCount(crv, counts, gene = "Mpo")
-#' file.remove("./se_paul.rda")
 #' @import RColorBrewer
 #' @import slingshot
 #' @importFrom SummarizedExperiment assays
