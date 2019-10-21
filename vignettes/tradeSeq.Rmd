@@ -48,10 +48,10 @@ palette(brewer.pal(8,"Dark2"))
 if (!file.exists("./se_paul.rda")) {
   download.file(
     "https://zenodo.org/record/3514716/files/se_paul.rds?download=1",
-    destfile = "./se_paul.rda")  
+    destfile = "./se_paul.rds")  
 }
 library(SingleCellExperiment)
-load("./se_paul.rda")
+se <- readRDS("./se_paul.rds")
 ```
 
 # Fit trajectories using slingshot
