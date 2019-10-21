@@ -71,21 +71,11 @@ Evaluate the optimal number of knots required for fitGAM.
 Evaluate an appropriate number of knots.
 }
 \examples{
-\dontrun{
+## This is an artifical example, please check the vignette for a realistic one.
 set.seed(8)
-download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
-destfile="./se_paul.rda")
-load("./se_paul.rda")
-se <- se[( 20:31)[-7], 25:40]
-pseudotimes <- matrix(runif(ncol(se) * 2, 0, 5), ncol = 2)
-cellWeights <- matrix(runif(ncol(se) * 2, 0, 1), ncol = 2)
-gamList <- fitGAM(counts = as.matrix(
-                      SummarizedExperiment::assays(se)$counts),
-                  pseudotime = pseudotimes, cellWeights = cellWeights,
-                  nknots = 5)
-aicK <- evaluateK(counts = as.matrix(
-                      SummarizedExperiment::assays(se)$counts),
-                  pseudotime = pseudotimes, cellWeights = cellWeights,
-                  nGenes=100, k=3:5, ncores=2)
-}
+data(sds, package="tradeSeq")
+loadings <- matrix(runif(2000*2,-2,2), nrow=2, ncol=2000)
+counts <- round(abs(t(reducedDim(sds) \%*\% loadings)))+100
+aicK <- evaluateK(counts = counts, sds=sds,
+                  nGenes=100, k=3:5, verbose=FALSE)
 }

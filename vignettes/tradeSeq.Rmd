@@ -139,9 +139,10 @@ library(magrittr)
 # Register BiocParallel Serial Execution (no parallelization in that case)
 BiocParallel::register(BiocParallel::SerialParam())
 
-filt <- rowSums(counts > 8) > ncol(counts)/100
-filt["Irf8"] <- TRUE
-counts <- as.matrix(counts[filt, ])
+# filt <- rowSums(counts > 8) > ncol(counts)/100
+# filt["Irf8"] <- TRUE
+# counts <- as.matrix(counts[filt, ])
+counts <- as.matrix(counts)
 sce <- fitGAM(counts = counts,
                   sds = crv)
 # This takes about 1mn to run
@@ -426,10 +427,6 @@ To recapitulate the workflow, we have created a cheatsheet that users can refer 
 ```{r, echo = F}
 # ggdraw() + draw_image("cheatsheet_highRes.jpeg")
 knitr::include_graphics("cheatsheet_highRes.jpeg")
-```
-
-```{r clean the file that was downloaded when knitting the vignette}
-file.remove("./paulData.rda")
 ```
 
 

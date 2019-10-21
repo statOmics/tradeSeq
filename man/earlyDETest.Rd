@@ -40,7 +40,7 @@ Perform test of early differences between lineages
 Perform test of early differences between lineages
 }
 \details{
-To help the user in choosing which knots to use when defining the 
+To help the user in choosing which knots to use when defining the
 branching, the \code{\link{plotGeneCount}} function has a models optional
 parameter that can be used to visualize where the knots are.
 }

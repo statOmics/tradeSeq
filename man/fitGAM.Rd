@@ -74,7 +74,7 @@ This fits the NB-GAM model as described in Van den Berge et al.[2019]
 }
 \examples{
 set.seed(8)
-download.file("https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda",
+download.file("https://zenodo.org/record/3497394/files/se_paul.rda?download=1",
 destfile="./se_paul.rda")
 load("./se_paul.rda")
 se <- se[( 20:31)[-7], 25:40]
@@ -84,4 +84,5 @@ gamList <- fitGAM(counts = as.matrix(
                       SummarizedExperiment::assays(se)$counts),
                   pseudotime = pseudotimes, cellWeights = cellWeights,
                   nknots = 5)
+file.remove("./se_paul.rda")
 }
