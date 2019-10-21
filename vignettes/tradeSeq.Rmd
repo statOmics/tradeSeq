@@ -47,7 +47,7 @@ RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
 if (!file.exists("./se_paul.rda")) {
   download.file(
-    "https://zenodo.org/record/3497394/files/se_paul.rda?download=1",
+    "https://zenodo.org/record/3514716/files/se_paul.rds?download=1",
     destfile = "./se_paul.rda")  
 }
 library(SingleCellExperiment)
