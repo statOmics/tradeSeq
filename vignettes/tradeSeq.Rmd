@@ -42,6 +42,9 @@ BiocManager::install("tradeSeq")
 ```{r, warning=F, message=F}
 library(tradeSeq)
 library(RColorBrewer)
+library(SingleCellExperiment)
+library(slingshot)
+
 # For reproducibility
 RNGversion("3.5.0")
 palette(brewer.pal(8,"Dark2"))
@@ -68,7 +71,6 @@ rd <- reducedDims(crv)
 cl <- kmeans(rd, centers = 7)$cluster
 plot(rd, col = brewer.pal(9, "Set1")[cl], pch = 16, asp = 1,
      cex = 2/3)
-library(slingshot)
 lin <- getLineages(rd, clusterLabels = cl, start.clus = 1)
 crv <- getCurves(lin)
 ```
