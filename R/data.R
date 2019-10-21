@@ -39,7 +39,7 @@
 #' Steen Jung, Andreas Trumpp, BoTorben Porse, Amos Tanay, and Ido Amit. Transcriptional Heterogeneity and Lineage Commitment in Myeloid Progenitors. Cell, 163(7):1663–1677, 12 2015. ISSN 0092-
 #' 8674. doi: 10.1016/J.CELL.2015.11.013. URL https://www.sciencedirect.com/science/article/
 #' ii/S0092867415014932?via%3Dihub#app3.
-"counts"
+"countMatrix"
 
 
 #' A vector defining cell types, used in the package vignette.
@@ -53,4 +53,4 @@
 #' Steen Jung, Andreas Trumpp, BoTorben Porse, Amos Tanay, and Ido Amit. Transcriptional Heterogeneity and Lineage Commitment in Myeloid Progenitors. Cell, 163(7):1663–1677, 12 2015. ISSN 0092-
 #' 8674. doi: 10.1016/J.CELL.2015.11.013. URL https://www.sciencedirect.com/science/article/
 #' ii/S0092867415014932?via%3Dihub#app3.
-"counts"
+"celltype"

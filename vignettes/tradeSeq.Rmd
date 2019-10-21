@@ -55,7 +55,8 @@ palette(brewer.pal(8,"Dark2"))
 # }
 # library(SingleCellExperiment)
 # load("./paulData.rda")
-data(counts, package="tradeSeq")
+data(countMatrix, package="tradeSeq")
+counts <- countMatrix ; rm(countMatrix)
 data(crv, package="tradeSeq")
 data(celltype, package="tradeSeq")
 ```
