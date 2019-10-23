@@ -4,6 +4,7 @@ library(SingleCellExperiment)
 library(slingshot)
 data("sds", package="tradeSeq")
 
+set.seed(3)
 n <- nrow(reducedDim(sds))
 G <- 100
 pseudotime <- slingPseudotime(sds, na=FALSE)
@@ -20,7 +21,9 @@ counts <- matrix(rnbinom(n=G*n, mu=means, size=1/dispersions), nrow=G, ncol=n)
 
 
 # fitGAM tests
+set.seed(3)
 sdsFit <- tradeSeq::fitGAM(counts, sds, nknots=3, verbose=FALSE, parallel=FALSE)
+set.seed(3)
 listFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
                             cellWeights = cellWeights, nknots = 3,
                             verbose = FALSE, parallel = FALSE)
