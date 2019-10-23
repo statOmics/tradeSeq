@@ -47,11 +47,12 @@ library(slingshot)
 
 # For reproducibility
 RNGversion("3.5.0")
-palette(brewer.pal(8,"Dark2"))
-data(countMatrix, package="tradeSeq")
-counts <- countMatrix ; rm(countMatrix)
-data(crv, package="tradeSeq")
-data(celltype, package="tradeSeq")
+palette(brewer.pal(8, "Dark2"))
+data(countMatrix, package = "tradeSeq")
+counts <- countMatrix
+rm(countMatrix)
+data(crv, package = "tradeSeq")
+data(celltype, package = "tradeSeq")
 ```
 
 # Fit trajectories using slingshot
@@ -87,7 +88,7 @@ Ideally, the number of knots should be selected to reach an optimal bias-varianc
 The function takes as input the expression count matrix, a `SlingshotDataSet` (or alternatively, a matrix of pseudotimes and cell-level weights).
 The range of knots to evaluate is provided with the `knots` argument. The minimum allowed number of knots is $3$. While there is no boundary on the maximum number of knots, typically the interesting range is around $3$ to $10$ knots.
 The function will fit NB-GAM models for some number of genes, provided by the `nGenes` argument, over the range of knots that are provided, and return the AIC for each gene fitted with each number of knots.
-It is generally a good idea to evaluate this multiple times using different seeds (specified with the `seed` argument), to check whether the results are reproducible across different gene subsets.
+It is generally a good idea to evaluate this multiple times using different seeds (using the `set.seed` function), to check whether the results are reproducible across different gene subsets.
 
 This task can be computationally demanding, since the models must be fit multiple times for each gene. We therefore skip this in the vignette, but show the output one can expect instead.
 
@@ -126,6 +127,8 @@ The `fitGAM` function relies on __BiocParallel__ to implement parallelization, p
 Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as input (`sds` argument), or a matrix of pseudotimes and cell-level weights (`pseudotime` and `cellWeights` argument). If a `SlingshotDataSet` is provided, the function will return a `SingleCellExperiment` object that contains the essential output from `tradeSeq`. This is much more efficient than providing the pseudotime and cell-level weights as matrices, when a list of GAM models will be returned.
 
 While in this vignette we will proceed with using the `sds` argument, hence a `SingleCellExperiment` object as output, `tradeSeq` allows input from any trajectory inference method with the `pseudotime` and `cellWeights` arguments. All functions work with both the `SingleCellExperiment` (i.e., `sds` input to `fitGAM`) output as well as the list output (i.e., `pseudotime` and `cellWeights` input to `fitGAM`).
+
+Because cells are assigned to a lineage based on their weigths, the result of `fitGam` is stochastic. While this should have little impact on the overall results in practice, users are therefore encouraged to use the `set.seed` function before running `fitGam` to ensure reproducibility of their analyses.
 
 ```{r}
 library(BiocParallel)

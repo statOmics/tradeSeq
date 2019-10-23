@@ -1,6 +1,6 @@
 
 .evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
-                      weights=NULL, seed=81, offset=NULL, aicDiff=2, verbose=TRUE,
+                      weights=NULL, offset=NULL, aicDiff=2, verbose=TRUE,
                       ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
@@ -8,7 +8,7 @@
   ## calculate offset on full matrix
   if (is.null(offset)) {
     nf <- try(edgeR::calcNormFactors(counts))
-    if(is(nf, "try-error")){
+    if (is(nf, "try-error")) {
       message("TMM normalization failed. Will use unnormalized library sizes",
               "as offset.")
       nf <- rep(1,ncol(counts))
@@ -18,7 +18,6 @@
   }
 
   ## AIC over knots
-  set.seed(seed)
   geneSub <- sample(seq_len(nrow(counts)), nGenes)
   countSub <- counts[geneSub,]
   weightSub <- weights[geneSub,]
@@ -28,8 +27,7 @@
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
                       cellWeights = cellWeights, nknots = currK,
-                      weights = weightSub, seed = seed, offset = offset,
-                      aic = TRUE)#, ...)
+                      weights = weightSub, offset = offset, aic = TRUE)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
@@ -82,7 +80,6 @@
 #' @param k The range of knots to evaluate. `3:10` by default.
 #' @param weights Optional: a matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
-#' @param seed Optional: the seed used for assigning cells to lineages.
 #' @param offset Optional: the offset, on log-scale. If NULL, TMM is used to
 #' account for differences in sequencing depth, see \code{fitGAM}.
 #' @param aicDiff Used for selecting genes with significantly varying AIC values
@@ -123,7 +120,6 @@ setMethod(f = "evaluateK",
                                 cellWeights = NULL,
                                 U = NULL,
                                 weights = NULL,
-                                seed = 81,
                                 offset = NULL,
                                 aicDiff = 2,
                                 verbose = TRUE,
@@ -160,7 +156,6 @@ setMethod(f = "evaluateK",
                                  cellWeights = cellWeights,
                                  nGenes = nGenes,
                                  weights = weights,
-                                 seed = seed,
                                  offset = offset,
                                  verbose = verbose,
                                  control = control,

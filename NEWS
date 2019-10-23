@@ -1,3 +1,6 @@
+Changes in version 0.99.9902 (2019-10-23)
++ tradeSeq's fitGam and evaluateK functions do not have a seed argument anymore, as per Bioconductor's guidelines. Users are encouraged to set the seed manually with the set.seed function before running those functions for reproducibility purposes.
+
 Changes in version 0.99.47 (2019-09-02)
 + tradeSeq now provides `singleCellExperiment` output
   o fitGam now accepts a `slingshotDataSet` object as input

@@ -345,5 +345,6 @@ getRank <- function(m,L){
   packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",
                                "singleCellExperiment objects as output, making ",
                                "it much more memory efficient. Please ",
-                               "check the updated vignette for details."))
+                               "check the news file and the updated vignette ",
+                               "for details."))
 }

@@ -10,9 +10,8 @@ evaluateK(counts, ...)
 
 \S4method{evaluateK}{matrix}(counts, k = 3:10, nGenes = 500,
   sds = NULL, pseudotime = NULL, cellWeights = NULL, U = NULL,
-  weights = NULL, seed = 81, offset = NULL, aicDiff = 2,
-  verbose = TRUE, control = mgcv::gam.control(), sce = FALSE,
-  family = "nb", ...)
+  weights = NULL, offset = NULL, aicDiff = 2, verbose = TRUE,
+  control = mgcv::gam.control(), sce = FALSE, family = "nb", ...)
 }
 \arguments{
 \item{counts}{the count matrix.}
@@ -38,8 +37,6 @@ contain an intercept to ensure identifiability.}
 
 \item{weights}{Optional: a matrix of weights with identical dimensions
 as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
-
-\item{seed}{Optional: the seed used for assigning cells to lineages.}
 
 \item{offset}{Optional: the offset, on log-scale. If NULL, TMM is used to
 account for differences in sequencing depth, see \code{fitGAM}.}

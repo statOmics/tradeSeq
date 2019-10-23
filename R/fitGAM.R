@@ -35,10 +35,9 @@
 
 
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-                    seed = 81, offset = NULL, nknots = 6, verbose=TRUE,
-                    parallel=FALSE, BPPARAM = BiocParallel::bpparam(),
-                    control = mgcv::gam.control(), sce = FALSE, family = "nb",
-                    aic = FALSE){
+                    offset = NULL, nknots = 6, verbose = TRUE, parallel = FALSE,
+                    BPPARAM = BiocParallel::bpparam(), aic = FALSE,
+                    control = mgcv::gam.control(), sce = FALSE, family = "nb"){
 
   # TODO: make sure warning message for knots prints after looping
 
@@ -84,7 +83,6 @@
   #   mode(counts) <- "integer"
   # }
 
-  set.seed(seed)
   wSamp <- .assignCells(cellWeights)
   # define pseudotime for each lineage
   for (ii in seq_len(ncol(pseudotime))) {
@@ -97,7 +95,7 @@
   # offset
   if (is.null(offset)) {
     nf <- try(edgeR::calcNormFactors(counts))
-    if(is(nf, "try-error")){
+    if (is(nf, "try-error")) {
       message("TMM normalization failed. Will use unnormalized library sizes",
               "as offset.")
       nf <- rep(1,ncol(counts))
@@ -296,7 +294,6 @@
 #' \code{cellWeights} arguments are derived from this object.
 #' @param weights a matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
-#' @param seed the seed used for assigning cells to lineages.
 #' @param offset the offset, on log-scale. If NULL, TMM is used to account for
 #' differences in sequencing depth., see \code{edgeR::calcNormFactors}.
 #' Alternatively, this may also be a matrix of the same dimensions as the
@@ -339,7 +336,6 @@ setMethod(f = "fitGAM",
                                 cellWeights = NULL,
                                 U = NULL,
                                 weights = NULL,
-                                seed = 81,
                                 offset = NULL,
                                 nknots = 6,
                                 verbose = TRUE,
@@ -375,7 +371,6 @@ setMethod(f = "fitGAM",
                                  pseudotime = pseudotime,
                                  cellWeights = cellWeights,
                                  weights = weights,
-                                 seed = seed,
                                  offset = offset,
                                  nknots = nknots,
                                  verbose = verbose,
