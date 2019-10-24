@@ -128,7 +128,7 @@ Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as in
 
 While in this vignette we will proceed with using the `sds` argument, hence a `SingleCellExperiment` object as output, `tradeSeq` allows input from any trajectory inference method with the `pseudotime` and `cellWeights` arguments. All functions work with both the `SingleCellExperiment` (i.e., `sds` input to `fitGAM`) output as well as the list output (i.e., `pseudotime` and `cellWeights` input to `fitGAM`).
 
-Because cells are assigned to a lineage based on their weigths, the result of `fitGam` is stochastic. While this should have little impact on the overall results in practice, users are therefore encouraged to use the `set.seed` function before running `fitGam` to ensure reproducibility of their analyses.
+Because cells are assigned to a lineage based on their weigths, the result of `fitGAM` is stochastic. While this should have little impact on the overall results in practice, users are therefore encouraged to use the `set.seed` function before running `fitGAM` to ensure reproducibility of their analyses.
 
 ```{r}
 library(BiocParallel)
@@ -136,9 +136,6 @@ library(magrittr)
 # Register BiocParallel Serial Execution (no parallelization in that case)
 BiocParallel::register(BiocParallel::SerialParam())
 
-# filt <- rowSums(counts > 8) > ncol(counts)/100
-# filt["Irf8"] <- TRUE
-# counts <- as.matrix(counts[filt, ])
 counts <- as.matrix(counts)
 sce <- fitGAM(counts = counts,
                   sds = crv)
