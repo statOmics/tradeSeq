@@ -330,7 +330,7 @@ clusPat <- clusterExpressionPatterns(sce, nPoints = nPointsClus,
 clusterLabels <- primaryCluster(clusPat$rsec)
 ```
 
-The first 4 clusters can be visualized using the normalized expression upon which the clustering is based.
+The first 4 clusters can be visualized using the normalized expression upon which the clustering is based. Please note that the code below would only works for a trajectory with two lineages. Modify the code appropriately if using with a dataset with 3 lineages or more. 
 
 ```{r, out.width="50%", fig.asp=1}
 library(cowplot)
