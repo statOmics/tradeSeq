@@ -226,17 +226,17 @@
       # define lpmatrix in top environment to return once for all genes
       if (!exists("X", where = "package:tradeSeq")) {
         # X <<- predict(m, type = "lpmatrix")
-        assign("X", predict(m, type = "lpmatrix"), envir = .GlobalEnv)
+        assign("X", predict(m, type = "lpmatrix"), pos = 1)
       }
       # define model frame in top environment to return once for all genes
       if (!exists("dm", where <- "package:tradeSeq")) {
         #dm <<- m$model[, -1] # rm expression counts since different betw. genes
-        assign("dm",  m$model[, -1], envir = .GlobalEnv)
+        assign("dm",  m$model[, -1], pos = 1)
       }
       # define knots in top environment to return once for all genes
       if (!exists("knotPoints", where = "package:tradeSeq")) {
         #knotPoints <<- m$smooth[[1]]$xp
-        assign("knotPoints", m$smooth[[1]]$xp, envir = .GlobalEnv)
+        assign("knotPoints", m$smooth[[1]]$xp, pos = 1)
       }
       return(list(beta = beta, Sigma = Sigma))
     } else return(m)
