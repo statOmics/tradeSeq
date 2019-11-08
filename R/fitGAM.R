@@ -74,6 +74,15 @@
     }
   }
 
+  # check if dimensions for counts and pseudotime / cellweights agree
+  if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
+    if (!identical(nrow(pseudotime), ncol(counts))) {
+      stop("pseudotime and count matrix must have equal number of cells.")
+    }
+    if (!identical(nrow(cellWeights), ncol(counts))) {
+      stop("cellWeights and count matrix must have equal number of cells.")
+    }
+  }
   # below errors if sparse matrix is used as input.
   # if (!is.integer(counts)) {
   #   if (any(round(counts) != counts)) {
