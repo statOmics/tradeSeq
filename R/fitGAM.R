@@ -35,6 +35,7 @@
 
 
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
+                    conditions = NULL,
                     offset = NULL, nknots = 6, verbose = TRUE, parallel = FALSE,
                     BPPARAM = BiocParallel::bpparam(), aic = FALSE,
                     control = mgcv::gam.control(), sce = FALSE, family = "nb"){
@@ -83,14 +84,6 @@
       stop("cellWeights and count matrix must have equal number of cells.")
     }
   }
-  # below errors if sparse matrix is used as input.
-  # if (!is.integer(counts)) {
-  #   if (any(round(counts) != counts)) {
-  #     stop("some values in counts are not integers")
-  #   }
-  #   message("converting counts to integer mode")
-  #   mode(counts) <- "integer"
-  # }
 
   wSamp <- .assignCells(cellWeights)
   # define pseudotime for each lineage
@@ -197,13 +190,39 @@
     nknots <- nknots
     if (!is.null(weights)) weights <- weights[teller,]
     if (!is.null(dim(offset))) offset <- offset[teller,]
-    smoothForm <- as.formula(
-      paste0("y ~ -1 + U + ",
-             paste(vapply(seq_len(ncol(pseudotime)), function(ii){
-               paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
-             }, FUN.VALUE = "formula"),
-             collapse = "+"), " + offset(offset)")
-    )
+    if(is.null(conditions)){
+      smoothForm <- as.formula(
+        paste0("y ~ -1 + U + ",
+               paste(vapply(seq_len(ncol(pseudotime)), function(ii){
+                 paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
+               }, FUN.VALUE = "formula"),
+               collapse = "+"), " + offset(offset)")
+      )
+    } else {
+      for(jj in seq_len(ncol(pseudotime))){
+        for(kk in 1:nlevels(conditions)){
+          # three levels doesnt work. split it up and loop over both conditions and pseudotime
+          # to get a condition-and-lineage-specific smoother. Also in formula.
+          lCurrent <- get(paste0("l",jj))
+          id1 <- which(lCurrent == 1)
+          lCurrent[id1] <- ifelse(conditions[id1] == levels(conditions)[kk], 1, 0)
+          assign(paste0("l",jj,kk), lCurrent)
+        }
+      }
+      smoothForm <- as.formula(
+        paste0("y ~ -1 + U + ",
+               paste(vapply(seq_len(ncol(pseudotime)), function(ii){
+                 paste(vapply(seq_len(nlevels(conditions)), function(kk){
+                   paste0("s(t", ii, ", by=l", ii, kk,
+                          ", bs='cr', id=1, k=nknots)")
+                 }, FUN.VALUE = "formula"),
+                 collapse = "+")
+               }, FUN.VALUE = "formula"),
+               collapse="+")
+               , " + offset(offset)")
+      )
+    }
+
     # fit smoother
     s = mgcv:::s
     m <- try(
@@ -293,6 +312,10 @@
 #' @param counts the count matrix.
 #' @param U the design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
+#' @param conditions This argument is in beta phase and should be used carefully.
+#' If each lineage consists of mutliple conditions, this argument can be used to
+#' specify the conditions. tradeSeq will then fit a condition-specific smoother for
+#' every lineage.
 #' @param pseudotime a matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
 #' @param cellWeights a matrix of cell weights defining the probability that a
@@ -343,6 +366,7 @@ setMethod(f = "fitGAM",
                                 sds = NULL,
                                 pseudotime = NULL,
                                 cellWeights = NULL,
+                                conditions = NULL,
                                 U = NULL,
                                 weights = NULL,
                                 offset = NULL,
@@ -379,6 +403,7 @@ setMethod(f = "fitGAM",
                                  U = U,
                                  pseudotime = pseudotime,
                                  cellWeights = cellWeights,
+                                 conditions = conditions,
                                  weights = weights,
                                  offset = offset,
                                  nknots = nknots,
