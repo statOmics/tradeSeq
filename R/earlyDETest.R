@@ -6,8 +6,15 @@
 
   if (is(models, "list")) {
     sce <- FALSE
+    conditions <- FALSE
   } else if (is(models, "SingleCellExperiment")) {
     sce <- TRUE
+    condPresent <- !is.null(SummarizedExperiment::colData(models)$tradeSeq$conditions)
+    if(condPresent){
+      conditions <- SummarizedExperiment::colData(models)$tradeSeq$conditions
+    } else {
+      conditions <- NULL
+    }
   }
 
   # get predictor matrix for every lineage.
@@ -22,18 +29,29 @@
     }
     data <- modelTemp$model
   } else if (sce) {
-
+    #singlecellexperiment models
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
     knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
     slingshotColData <- colData(models)$slingshot
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime")]
-    nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-    if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if (nCurves == 2 & pairwise == TRUE) {
-      message("Only two lineages; skipping pairwise comparison.")
-      pairwise <- FALSE
+    if(!condPresent){
+      # no conditions present
+      nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+      if (nCurves == 1) stop("You cannot run this test with only one lineage.")
+      if (nCurves == 2 & pairwise == TRUE) {
+        message("Only two lineages; skipping pairwise comparison.")
+        pairwise <- FALSE
+      }
+    } else if(condPresent){
+      # conditions are present
+      nCurves <- length(grep(x = colnames(dm), pattern = "l[(1-9)+]"))
+      if (nCurves == 1) stop("You cannot run this test with only one lineage.")
+      if (nCurves == 2 & pairwise == TRUE) {
+        message("Only two lineages; skipping pairwise comparison.")
+        pairwise <- FALSE
+      }
     }
   }
 
@@ -54,14 +72,17 @@
     } else if (sce) {
       # get df
       dfList <- .patternDf(dm = dm,
-                      nPoints = nPoints,
-                      knots = knots,
-                      knotPoints = knotPoints)
+                           nPoints = nPoints,
+                           knots = knots,
+                           knotPoints = knotPoints,
+                           conditions = conditions)
+
+      #### until here adapted for conditions
       # get linear predictor
       for (jj in seq_len(nCurves)) {
         assign(paste0("X", jj), predictGAM(lpmatrix = X,
-                                        df = dfList[[jj]],
-                                        pseudotime = pseudotime))
+                                           df = dfList[[jj]],
+                                           pseudotime = pseudotime))
       }
     }
 

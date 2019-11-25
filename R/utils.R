@@ -187,7 +187,7 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
 }
 
 # get predictor matrix for a range of pseudotimes of a smoother.
-.getPredictRangeDf <- function(dm, lineageId, nPoints=100){
+.getPredictRangeDf <- function(dm, lineageId, nPoints=100, condPresent=FALSE){
   vars <- dm[1, ]
   vars <- vars[!colnames(vars) %in% "y"]
   offsetId <- grep(x = colnames(vars), pattern = "offset")
@@ -201,11 +201,27 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   # duplicate to nPoints
   vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
   # set range of pseudotime for lineage of interest
-  lineageData <- dm[dm[, paste0("l", lineageId)] == 1,
+  if(!condPresent){
+    lineageData <- dm[dm[, paste0("l", lineageId)] == 1,
                       paste0("t", lineageId)]
-  vars[, paste0("t", lineageId)] <- seq(min(lineageData),
-                                        max(lineageData),
-                                        length = nPoints)
+    # make sure lineage starts at zero
+    if(min(lineageData)/max(lineageData) < .01){
+      lineageData[which.min(lineageData)] <- 0
+    }
+    vars[, paste0("t", lineageId)] <- seq(min(lineageData),
+                                          max(lineageData),
+                                          length = nPoints)
+  } else if(condPresent){
+    lineageData <- dm[dm[, paste0("l", lineageId)] == 1,
+                      paste0("t", substr(lineageId,1,1))]
+    # make sure lineage starts at zero
+    if(min(lineageData)/max(lineageData) < .01){
+      lineageData[which.min(lineageData)] <- 0
+    }
+    vars[, paste0("t", substr(lineageId,1,1))] <- seq(min(lineageData),
+                                                      max(lineageData),
+                                                      length = nPoints)
+  }
   # set lineage
   vars[, paste0("l", lineageId)] <- 1
   # set offset
@@ -214,10 +230,15 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   return(vars)
 }
 
+.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints = 100,
+                       conditions=NULL){
 
-.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints=100){
-
-  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  condPresent <- !is.null(conditions)
+  if(!condPresent){
+    nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  } else if(condPresent){
+    nCurves <- length(grep(x = colnames(dm), pattern = "l[(1-9)+]"))
+  }
   Knot <- !is.null(knots)
   if (Knot) {
     t1 <- knotPoints[knots[1]]
@@ -225,16 +246,40 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   }
 
   # get predictor matrix for every lineage.
-  dfList <- list()
-  for (jj in seq_len(nCurves)) {
-    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
-    if (Knot) {
-      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+  if(!condPresent){
+    # no conditions
+    dfList <- list()
+    for (jj in seq_len(nCurves)) {
+      df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
+      if (Knot) {
+        df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+      }
+      dfList[[jj]] <- df
     }
-    dfList[[jj]] <- df
+  } else if(condPresent){
+    # conditions
+    dfList <- list()
+    dfCondList <- list()
+    for (jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2){
+      for(kk in seq_len(nlevels(conditions))){
+          # loop over condition levels
+          dfCond <- .getPredictRangeDf(dm, as.numeric(paste0(jj,kk)), nPoints = nPoints,
+                                       condPresent = condPresent)
+          dfCondList[[kk]] <- dfCond
+        }
+      # df <- do.call(cbind,dfCondList)
+      df <- dfCondList
+        if (Knot) {
+          lapply(df, function(x){
+            x[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+          })
+        }
+        dfList[[jj]] <- df
+    }
   }
   return(dfList)
 }
+
 
 .patternDfPairwise <- function(dm, curves, knots = NULL, knotPoints = NULL,
                                nPoints=100){

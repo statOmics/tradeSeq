@@ -399,6 +399,10 @@ setMethod(f = "fitGAM",
             if (is.null(counts)) stop("Provide expression counts using counts",
                                      " argument.")
 
+            if(!is.null(conditions)){
+              if(class(conditions) != "factor") stop("conditions must be a factor vector.")
+            }
+
             gamOutput <- .fitGAM(counts = counts,
                                  U = U,
                                  pseudotime = pseudotime,
@@ -432,10 +436,10 @@ setMethod(f = "fitGAM",
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
             SummarizedExperiment::colData(sc)$tradeSeq <- tibble::tibble(X = X,
-                                                    dm = dm)
+                                                    dm = dm,
+                                                    conditions = conditions)
             # metadata: tradeSeq knots
-            S4Vectors::metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints,
-                                                     conditions = !is.null(conditions))
+            S4Vectors::metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints)
             return(sc)
 
           }
