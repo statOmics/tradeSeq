@@ -223,3 +223,97 @@ setMethod(f = "plotSmoothers",
                            alpha = alpha)
           }
 )
+
+
+.plotSmoothers_conditions <- function(models, counts, gene, nPoints = 100, lwd = 2,
+                               size = 2/3,
+                               xlab = "Pseudotime",
+                               ylab = "Log(expression + 1)",
+                               border = FALSE,
+                               alpha = 2/3)
+{
+
+  #input is singleCellExperiment object.
+
+  if(length(gene) > 1) stop("Only provide a single gene's ID with the ",
+                            "gene argument.")
+  # check if all gene IDs provided are present in the models object.
+  if (is(gene, "character")) {
+    if (!all(gene %in% names(models))) {
+      stop("The gene ID is not present in the models object.")
+    }
+    id <- which(names(models) %in% gene)
+  } else id <- gene
+
+  dm <- colData(models)$tradeSeq$dm # design matrix
+  y <- unname(counts[id,])
+  X <- colData(models)$tradeSeq$X # linear predictor
+  slingshotColData <- colData(models)$slingshot
+  pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
+                                       pattern = "pseudotime")]
+  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  betaMat <- rowData(models)$tradeSeq$beta[[1]]
+  beta <- betaMat[id,]
+  conditions <- colData(models)$tradeSeq$conditions
+  nConditions <- nlevels(conditions)
+
+
+  #construct time variable based on cell assignments.
+  col <- timeAll <- rep(0, nrow(dm))
+  for (jj in seq_len(nCurves)) {
+    for(kk in seq_len(nConditions)){
+      for (ii in seq_len(nrow(dm))) {
+        if (dm[ii, paste0("l", jj, kk)] == 1) {
+          timeAll[ii] <- dm[ii, paste0("t", jj)]
+          col[ii] <- as.numeric(paste0(jj, kk))
+        } else {
+          next
+        }
+      }
+    }
+  }
+
+  # plot raw data
+  df <- data.frame("time" = timeAll,
+                   "gene_count" = y,
+                   "lineage" = as.character(col))
+  p <- ggplot(df, aes(x = time, y = log1p(gene_count), col = lineage)) +
+    geom_point(size = size) +
+    labs(x = xlab, y = ylab) +
+    theme_classic() +
+    scale_color_viridis_d(alpha=alpha)
+
+
+  # predict and plot smoothers across the range
+  for (jj in seq_len(nCurves)) {
+    for(kk in seq_len(nConditions)){
+      df <- .getPredictRangeDf(dm, as.numeric(paste0(jj, kk)), nPoints = nPoints,
+                               condPresent = TRUE)
+      Xdf <- predictGAM(lpmatrix = X,
+                        df = df,
+                        pseudotime = pseudotime,
+                        conditions = conditions)
+      yhat <-  c(exp(t(Xdf %*% t(beta)) + df$offset))
+      if(border){
+        p <- p +
+          geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                      "gene_count" = yhat,
+                                      "lineage" = as.character(paste0(jj, kk))),
+                    lwd = lwd+1, colour="white") +
+          geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                      "gene_count" = yhat,
+                                      "lineage" = as.character(paste0(jj, kk))),
+                    lwd = lwd)
+      } else {
+        p <- p +
+          geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                      "gene_count" = yhat,
+                                      "lineage" = as.character(paste0(jj, kk))),
+                    lwd = lwd)
+      }
+    }
+  }
+  return(p)
+}
+
+
