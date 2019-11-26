@@ -85,6 +85,12 @@
     }
   }
 
+  if(!is.null(conditions)){
+    if(!is(conditions, "factor")){
+      stop("conditions must be a vector of class factor.")
+    }
+  }
+
   wSamp <- .assignCells(cellWeights)
   # define pseudotime for each lineage
   for (ii in seq_len(ncol(pseudotime))) {
@@ -435,9 +441,14 @@ setMethod(f = "fitGAM",
             df$beta <- tibble::tibble(gamOutput$beta)
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
-            SummarizedExperiment::colData(sc)$tradeSeq <- tibble::tibble(X = X,
-                                                    dm = dm,
-                                                    conditions = conditions)
+            if(is.null(conditions)){
+              SummarizedExperiment::colData(sc)$tradeSeq <- tibble::tibble(X = X,
+                                                                           dm = dm)
+            } else {
+              SummarizedExperiment::colData(sc)$tradeSeq <- tibble::tibble(X = X,
+                                                                           dm = dm,
+                                                                           conditions = conditions)
+            }
             # metadata: tradeSeq knots
             S4Vectors::metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints)
             return(sc)
