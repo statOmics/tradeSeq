@@ -1,4 +1,4 @@
-predictSmooth <- function(models, counts, gene, nPoints = 100){
+.predictSmooth <- function(models, counts, gene, nPoints = 100){
 
   if(length(gene) > 1) stop("Only provide a single gene's ID with the ",
                             "gene argument.")
