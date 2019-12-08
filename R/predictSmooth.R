@@ -1,3 +1,39 @@
+#' @include utils.R
+#' @import mgcv
+setOldClass("gam")
+
+#' @description Get fitted values from the smoothers estimated by \code{tradeSeq}.
+#' @param models Either the \code{SingleCellExperiment} object obtained after
+#' running \code{fitGAM}, or the specific GAM model for the corresponding gene,
+#' if working with the list output of \code{tradeSeq}.
+#' @param counts The matrix of gene expression counts.
+#' @param gene Gene name of gene to plot.
+#' @param nPoints The number of points used to extraplolate the fit
+#' @return A \code{matrix} with fitted values.
+#' @import mgcv
+#' @importFrom methods is
+#' @import SingleCellExperiment
+#' @rdname predictSmooth
+#' @export
+setMethod(f = "plotSmoothers",
+          signature = c(models = "SingleCellExperiment"),
+          definition = function(models,
+                                counts,
+                                gene,
+                                nPoints = 100
+                               ){
+
+            .predictSmooth(models = models,
+                               counts = counts,
+                               gene = gene,
+                               nPoints = nPoints
+                              )
+          }
+)
+
+
+
+
 .predictSmooth <- function(models, counts, gene, nPoints = 100){
 
   if(length(gene) > 1) stop("Only provide a single gene's ID with the ",

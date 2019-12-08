@@ -112,3 +112,16 @@ setGeneric(
     standardGeneric("plotSmoothers")
   }
 )
+
+
+#' @export
+#' @name predictSmooth
+#' @title predictSmooth
+#' @param ... parameters including:
+setGeneric(
+  name = "predictSmooth",
+  signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("predictSmooth")
+  }
+)

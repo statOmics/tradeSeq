@@ -2,7 +2,7 @@ Package: tradeSeq
 Type: Package
 Title: trajectory-based differential expression analysis for sequencing data
 Date: 2019-03-15
-Version: 1.1.01
+Version: 1.1.02
 Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "koen.vandenberge@ugent.be"),
               person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
@@ -34,7 +34,7 @@ Collate:
     'plotSmoothers.R'
     'predictSmooth.R'
     'startVsEndTest.R'
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Imports: 
     mgcv,
     edgeR,
