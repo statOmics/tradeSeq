@@ -15,7 +15,7 @@ setOldClass("gam")
 #' @import SingleCellExperiment
 #' @rdname predictSmooth
 #' @export
-setMethod(f = "plotSmoothers",
+setMethod(f = "predictSmooth",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,
                                 counts,
@@ -36,7 +36,7 @@ setMethod(f = "plotSmoothers",
 
 .predictSmooth <- function(models, counts, gene, nPoints = 100){
 
-  if(length(gene) > 1) stop("Only provide a single gene's ID with the ",
+  if (length(gene) > 1) stop("Only provide a single gene's ID with the ",
                             "gene argument.")
   # check if all gene IDs provided are present in the models object.
   if (is(gene, "character")) {
@@ -56,7 +56,7 @@ setMethod(f = "plotSmoothers",
   betaMat <- rowData(models)$tradeSeq$beta[[1]]
   beta <- betaMat[id,]
 
-  yhatMat <- matrix(NA, nrow=nPoints, ncol=nCurves)
+  yhatMat <- matrix(NA, nrow = nPoints, ncol = nCurves)
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
     Xdf <- predictGAM(lpmatrix = X,
