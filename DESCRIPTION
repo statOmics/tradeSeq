@@ -32,6 +32,7 @@ Collate:
     'patternTest.R'
     'plotGeneCount.R'
     'plotSmoothers.R'
+    'predictCells.R'
     'predictSmooth.R'
     'startVsEndTest.R'
 RoxygenNote: 7.0.2
