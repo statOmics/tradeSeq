@@ -376,8 +376,8 @@ getEigenStatGAM <- function(beta, Sigma, L){
   if (is(r)[1] == "try-error") {
     return(c(NA, NA))
   }
-  if (r == 1) return(c(NA, NA)) # CHECK
-  halfCovInv <- eSigma$vectors[, seq_len(r)] %*% (diag(1 / sqrt(eSigma$values[seq_len(r)])))
+  halfCovInv <- eSigma$vectors[, seq_len(r),drop=FALSE] %*%
+    (diag(x=1 / sqrt(eSigma$values[seq_len(r)]), nrow=r, ncol=r))
   halfStat <- t(est) %*% halfCovInv
   stat <- crossprod(t(halfStat))
   return(c(stat, r))
