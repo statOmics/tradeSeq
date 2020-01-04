@@ -22,6 +22,7 @@ Collate:
     'utils.R'
     'associationTest.R'
     'clusterExpressionPatterns.R'
+    'conditionTest.R'
     'data.R'
     'diffEndTest.R'
     'earlyDETest.R'
@@ -33,7 +34,7 @@ Collate:
     'plotGeneCount.R'
     'plotSmoothers.R'
     'startVsEndTest.R'
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Imports: 
     mgcv,
     edgeR,

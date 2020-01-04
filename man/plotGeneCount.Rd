@@ -4,8 +4,14 @@
 \alias{plotGeneCount}
 \title{Plot the gene in reduced dimension space}
 \usage{
-plotGeneCount(curve, counts = NULL, gene = NULL, clusters = NULL,
-  models = NULL, title = NULL)
+plotGeneCount(
+  curve,
+  counts = NULL,
+  gene = NULL,
+  clusters = NULL,
+  models = NULL,
+  title = NULL
+)
 }
 \arguments{
 \item{curve}{The output from a lineage computation}

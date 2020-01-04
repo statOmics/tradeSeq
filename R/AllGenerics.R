@@ -112,3 +112,17 @@ setGeneric(
     standardGeneric("plotSmoothers")
   }
 )
+
+
+#' @export
+#' @title Assess differential expression patterns between conditions
+#' within a lineage.
+#' @name conditionTest
+#' @param ... parameters including:
+setGeneric(
+  name = "conditionTest",
+  #signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("conditionTest")
+  }
+)
