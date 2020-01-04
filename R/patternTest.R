@@ -5,7 +5,10 @@
 #' \code{\link{fitGAM}}.
 #' @param nPoints the number of points to be compared between lineages.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
-#' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' If \code{models} contains conditions (i.e. \code{fitGAM} was run with the
+#' conditions argument), then we compare the within-lineage average
+#' across conditions, between lineages.
+#' @param pairwise If TRUE, return output for all pairwise comparisons made.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")

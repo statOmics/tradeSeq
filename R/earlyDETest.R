@@ -109,11 +109,11 @@
       L <- t(L)
     } else if(condPresent) {
 
-      # if conditions are present, we assess two hypotheses:
-      # (1) condition-agnostic between-lineage DE
-      # (2) within-lineage between-condition DE
+      # if conditions are present, we assess
+      # condition-agnostic between-lineage DE
+      # by taking average across conditions
+      # within each lineage
 
-      # (1) condition-agnostic between-lineage DE
       # get linear predictor across the lineage
       # you can get the mean of l11 and l12 if l11=1/2 and l12=1/2
       dfIk <- lapply(dfList, function(x){
@@ -137,68 +137,7 @@
       rownames(LBetweenGlobal) <- paste0("p", rep(seq_len(nPoints), ncol(combBetween)), "_", "c",
                             rep(seq_len(ncol(combBetween)), each = nPoints))
 
-      # (2) within-lineage between-condition DE
-      # get linear predictor, condition specific
-      combsPerCurve <- combn(nConditions, 2)
-      nComparisonsPerCurve <- ncol(combsPerCurve)
-      ## construct generic contrast matrix to be filled in for all lineages
-      Lsub <- matrix(0, nrow=length(knotPoints)*nConditions, ncol=nComparisonsPerCurve)
-      for(jj in 1:nComparisonsPerCurve){
-        comp <- combsPerCurve[,jj]
-        Lsub[((comp[1]-1)*length(knotPoints)+1):(comp[1]*length(knotPoints)),jj] <- 1
-        Lsub[((comp[2]-1)*length(knotPoints)+1):(comp[2]*length(knotPoints)),jj] <- -1
-      }
-      colnames(Lsub) <- paste0("cond",apply(combsPerCurve,2,paste0,collapse="vs"))
-      # fill in contrast matrix for each lineage
-      LWithin <- matrix(0, nrow=ncol(X), ncol=(nCurves/2) * nComparisonsPerCurve)
-      rownames(LWithin) <- colnames(X)
-      # fill in contrast matrix
-      # some helpers to identify coefficients for each lineage/condition
-      smoothCoefs <- grep(x=colnames(X), pattern="^s(t[1-9]+)*")
-      smoothCoefNames <- colnames(X)[smoothCoefs]
-      textAfterSplit <- unlist(lapply(strsplit(smoothCoefNames, split=":l"), "[[", 2))
-      # fill in with generic contrast
-      for (jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
-        curvID <- substr(textAfterSplit,1,1) == jj
-        if(nComparisonsPerCurve == 1){
-          LWithin[smoothCoefs[curvID],jj] <- Lsub
-        } else if(nComparisonsPerCurve > 1){
-          LWithin[curvID, (nComparisonsPerCurve*(jj-1)):(nComparisonsPerCurve*jj) ]
-        }
-      }
-      colnames(LWithin) <- paste0("lineage", (seq_len(nCurves)[seq(2, nCurves, by=2)])/2,
-                                  colnames(Lsub))
-      LWithinGlobal <- t(LWithin)
-
-
-      # for (jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
-      #   for(kk in seq_len(nlevels(conditions))) {
-      #     assign(paste0("X", jj, kk), predictGAM(lpmatrix = X,
-      #                                            df = dfList[[jj]][[kk]],
-      #                                            pseudotime = pseudotime,
-      #                                            conditions = conditions))
-      #   }
-      # }
-      #
-      # LWithin <- list()
-      # for(ii in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2){
-      #   # loop over lineages
-      #   # between-condition DE within a lineage
-      #   combWithin <- combn(1:nConditions, m=2)
-      #   Llin <- list()
-      #   for (kk in seq_len(ncol(combWithin))) {
-      #     Llin[[kk]] <- get(paste0("X", ii, combWithin[1,kk])) -
-      #       get(paste0("X", ii, combWithin[2,kk]))
-      #     # give name defining which conditions are compared
-      #     names(Llin) <- apply(combWithin,2,paste,collapse="")
-      #   }
-      #   LWithin[[ii]] <- Llin
-      #   # give name defining the lineage within which conditions are compared
-      #   names(LWithin)[[ii]] <- paste0("l",ii)
-      # }
-      # LWithinGlobal <- do.call(rbind, lapply(LWithin, function(x) do.call(rbind, x)))
-
-      L <- t(rbind(LWithinGlobal, LBetweenGlobal))
+      L <- t(LBetweenGlobal)
       }
 
     # perform Wald test and calculate p-value
@@ -311,51 +250,7 @@
         if (jj > 1) waldResBetween <- cbind(waldResBetween, waldResults)
       }
 
-      # within-lineage DE between conditions
-      # loop over list of within-lineage DE contrasts
-      for(jj in seq_len(ncol(LWithin))){
-        waldResPairWithin <- lapply(seq_len(nrow(models)), function(ii){
-          beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-          Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-          getEigenStatGAM(beta, Sigma, LWithin[,jj,drop=FALSE])
-        })
-        waldResults <- do.call(rbind, waldResPairWithin)
-        pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
-        waldResults <- cbind(waldResults, pval)
-        colnames(waldResults) <- c(
-          paste0("waldStat_", colnames(LWithin)[jj]),
-          paste0("df_", colnames(LWithin)[jj]),
-          paste0("pvalue_", colnames(LWithin)[jj]))
-        waldResults <- as.data.frame(waldResults)
-        if (jj == 1) waldWithin <- waldResults
-        if (jj > 1) waldWithin <- cbind(waldWithin, waldResults)
-      }
-      waldWithinAll <- waldWithin
-
-
-      # for(jj in seq_len(length(LWithin))) {
-      #   for(kk in seq_len(length(LWithin[[jj]]))){
-      #     waldResPairWithin <- lapply(seq_len(nrow(models)), function(ii){
-      #       beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-      #       Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-      #       getEigenStatGAM(beta, Sigma, t(LWithin[[jj]][[kk]]))
-      #     })
-      #     waldResults <- do.call(rbind, waldResPairWithin)
-      #     pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
-      #     waldResults <- cbind(waldResults, pval)
-      #     colnames(waldResults) <- c(
-      #       paste0("waldStat_", paste0("lineage", jj, "_condition", names(LWithin[[jj]])[kk])),
-      #       paste0("df_", paste0("lineage", jj, "_condition", names(LWithin[[jj]])[kk])),
-      #       paste0("pvalue_", paste0("lineage", jj, "_condition", names(LWithin[[jj]])[kk])))
-      #     waldResults <- as.data.frame(waldResults)
-      #     if (kk == 1) waldWithin <- waldResults
-      #     if (kk > 1) waldWithin <- cbind(waldWithin, waldResults)
-      #     }
-      #   if (jj == 1) waldWithinAll <- waldWithin
-      #   if (jj > 1) waldWithinAll <- cbind(waldWithinAll, waldWithin)
-      # }
-
-      waldResAllPair <- cbind(waldResBetween, waldWithinAll)
+      waldResAllPair <- waldResBetween
     }
   } # end of if(pairwise)
 
@@ -378,9 +273,9 @@
 #' @param nPoints the number of points to be compared between lineages.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' If \code{models} contains conditions (i.e. \code{fitGAM} was run with the
-#' conditions argument), then a global test assesses both (i) between-lineage DE as
-#' well as (ii) between-condition DE within a lineage, simultaneously.
-#' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' conditions argument), then we compare the within-lineage average
+#' across conditions, between lineages.
+#' @param pairwise If TRUE, return output for all pairwise comparisons made.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")

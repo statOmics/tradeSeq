@@ -18,9 +18,12 @@ patternTest(models, ...)
 
 \item{...}{parameters including:}
 
-\item{global}{If TRUE, test for all pairwise comparisons simultaneously.}
+\item{global}{If TRUE, test for all pairwise comparisons simultaneously.
+If \code{models} contains conditions (i.e. \code{fitGAM} was run with the
+conditions argument), then we compare the within-lineage average
+across conditions, between lineages.}
 
-\item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
+\item{pairwise}{If TRUE, return output for all pairwise comparisons made.}
 
 \item{nPoints}{the number of points to be compared between lineages.}
 }

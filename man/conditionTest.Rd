@@ -35,3 +35,11 @@ within a lineage.
 Assess differential expression patterns between conditions
 within a lineage.
 }
+\examples{
+## artificial example
+data(crv,package="tradeSeq")
+data("countMatrix", package="tradeSeq")
+conditions <- factor(sample(1:2, size=ncol(countMatrix), replace=TRUE))
+sce <- fitGAM(as.matrix(countMatrix), sds=crv, conditions=conditions)
+res <- conditionTest(sce)
+}

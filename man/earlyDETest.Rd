@@ -32,10 +32,10 @@ earlyDETest(models, ...)
 
 \item{global}{If TRUE, test for all pairwise comparisons simultaneously.
 If \code{models} contains conditions (i.e. \code{fitGAM} was run with the
-conditions argument), then a global test assesses both (i) between-lineage DE as
-well as (ii) between-condition DE within a lineage, simultaneously.}
+conditions argument), then we compare the within-lineage average
+across conditions, between lineages.}
 
-\item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
+\item{pairwise}{If TRUE, return output for all pairwise comparisons made.}
 
 \item{knots}{A vector of length 2 specifying the knots before and after the
 branching of interest.}
