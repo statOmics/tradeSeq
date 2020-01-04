@@ -19,6 +19,7 @@
   dm <- colData(models)$tradeSeq$dm # design matrix
   X <- colData(models)$tradeSeq$X # linear predictor
   knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
+  nKnots <- length(knotPoints)
   slingshotColData <- colData(models)$slingshot
   pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                        pattern = "pseudotime")]
@@ -40,15 +41,20 @@
   combsPerCurve <- combn(nConditions, 2)
   nComparisonsPerCurve <- ncol(combsPerCurve)
   ## construct generic contrast matrix to be filled in for all lineages
-  Lsub <- matrix(0, nrow=length(knotPoints)*nConditions, ncol=nComparisonsPerCurve)
-  for(jj in 1:nComparisonsPerCurve){
+  Lsub <- matrix(0, nrow=nKnots*nConditions,
+                 ncol=nKnots*nComparisonsPerCurve)
+  for(jj in seq_len(nComparisonsPerCurve)){
     comp <- combsPerCurve[,jj]
-    Lsub[((comp[1]-1)*length(knotPoints)+1):(comp[1]*length(knotPoints)),jj] <- 1
-    Lsub[((comp[2]-1)*length(knotPoints)+1):(comp[2]*length(knotPoints)),jj] <- -1
+    comp1ID <- ((comp[1]-1)*nKnots+1):(comp[1]*nKnots)
+    comp2ID <- ((comp[2]-1)*nKnots+1):(comp[2]*nKnots)
+    for(kk in seq_len(length(comp1ID))){
+      Lsub[c(comp1ID[kk], comp2ID[kk]), (jj-1)*nKnots + kk] <- c(1, -1)
+    }
   }
-  colnames(Lsub) <- paste0("cond",apply(combsPerCurve,2,paste0,collapse="vs"))
+  # colnames(Lsub) <- paste0("cond",apply(combsPerCurve,2,paste0,collapse="vs"))
   # fill in contrast matrix for each lineage
-  LWithin <- matrix(0, nrow=ncol(X), ncol=(nCurves/2) * nComparisonsPerCurve)
+  LWithin <- matrix(0, nrow=ncol(X),
+                    ncol=(nCurves/2) * nComparisonsPerCurve * nKnots)
   rownames(LWithin) <- colnames(X)
   # fill in contrast matrix
   # some helpers to identify coefficients for each lineage/condition
@@ -58,14 +64,11 @@
   # fill in with generic contrast
   for (jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
     curvID <- substr(textAfterSplit,1,1) == jj
-    if(nComparisonsPerCurve == 1){
-      LWithin[smoothCoefs[curvID],jj] <- Lsub
-    } else if(nComparisonsPerCurve > 1){
-      LWithin[curvID, (nComparisonsPerCurve*(jj-1)):(nComparisonsPerCurve*jj) ]
-    }
+    LWithin[smoothCoefs[curvID], ((jj-1)*nKnots+1):(jj*nKnots)] <- Lsub
   }
-  colnames(LWithin) <- paste0("lineage", (seq_len(nCurves)[seq(2, nCurves, by=2)])/2,
-                              colnames(Lsub))
+  colnames(LWithin) <- rep(paste0("lineage",
+                                  (seq_len(nCurves)[seq(2, nCurves, by=2)])/2),
+                              each=nKnots)
   L <- LWithin
 
   # perform Wald test and calculate p-value
@@ -87,19 +90,20 @@
   if (pairwise) {
     # within-lineage DE between conditions
     # loop over list of within-lineage DE contrasts
-    for(jj in seq_len(ncol(LWithin))){
+    for(jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2){
+      LLin <- LWithin[,colnames(LWithin) == paste0("lineage",jj), drop=FALSE]
       waldResPairWithin <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        getEigenStatGAM(beta, Sigma, LWithin[,jj,drop=FALSE])
+        getEigenStatGAM(beta, Sigma, LLin)
       })
       waldResults <- do.call(rbind, waldResPairWithin)
       pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
       waldResults <- cbind(waldResults, pval)
       colnames(waldResults) <- c(
-        paste0("waldStat_", colnames(LWithin)[jj]),
-        paste0("df_", colnames(LWithin)[jj]),
-        paste0("pvalue_", colnames(LWithin)[jj]))
+        paste0("waldStat_", paste0("lineage",jj)),
+        paste0("df_", paste0("lineage",jj)),
+        paste0("pvalue_", paste0("lineage",jj)))
       waldResults <- as.data.frame(waldResults)
       if (jj == 1) waldWithin <- waldResults
       if (jj > 1) waldWithin <- cbind(waldWithin, waldResults)
