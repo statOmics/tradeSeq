@@ -20,12 +20,14 @@ fitGAM(counts, ...)
   parallel = FALSE,
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
-  sce = FALSE,
+  sce = TRUE,
   family = "nb"
 )
 }
 \arguments{
-\item{counts}{the count matrix.}
+\item{counts}{Either the count matrix of expression values, with genes
+in rows and cells in columns; or a SingleCellExperiment object, where
+pseudotime and cellWeights are provided as colData. See Details.}
 
 \item{...}{parameters including:}
 
@@ -65,8 +67,8 @@ back-end to be used for computations. See
 \item{control}{Variables to control fitting of the GAM, see
 \code{gam.control}.}
 
-\item{sce}{Should output be of SingleCellExperiment class? This argument
-should not be changed by users.}
+\item{sce}{Logical: should output be of SingleCellExperiment class? This is
+recommended to be TRUE.}
 
 \item{family}{The assumed distribution for the response, set to \code{"nb"}
 by default.}
@@ -78,7 +80,9 @@ A list of length the number of genes
    message.
 }
 \description{
-This fits the NB-GAM model as described in Van den Berge et al.[2019]
+This fits the NB-GAM model as described in Van den Berge et al.[2019].
+There are three ways to provide the required input in \code{fitGAM}.
+See Details.
 }
 \examples{
 set.seed(8)
