@@ -49,7 +49,7 @@ library(slingshot)
 RNGversion("3.5.0")
 palette(brewer.pal(8, "Dark2"))
 data(countMatrix, package = "tradeSeq")
-counts <- countMatrix
+counts <- as.matrix(countMatrix)
 rm(countMatrix)
 data(crv, package = "tradeSeq")
 data(celltype, package = "tradeSeq")
@@ -149,7 +149,7 @@ library(magrittr)
 BiocParallel::register(BiocParallel::SerialParam())
 
 # matrix of pseudotimes (can be of any TI method)
-pt <- slingPseudotime(crv, na=FALSE)
+pt <- slingPseudotime(crv, na = FALSE)
 
 # matrix of cell-level weights (can be of any TI method)
 cw <- slingCurveWeights(crv)

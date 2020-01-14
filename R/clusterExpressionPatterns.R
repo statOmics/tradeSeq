@@ -49,6 +49,7 @@
                         df = df,
                         pseudotime = pseudotime)
       y <-  t(Xdf %*% t(beta)) + df$offset
+      colnames(y) <- paste0(paste0("l", ii, ":t-"), df[, paste0("t", ii)])
       if (ii == 1) yhatPat <- y else yhatPat <- cbind(yhatPat, y)
     }
   }
