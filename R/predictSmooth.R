@@ -7,7 +7,7 @@ setOldClass("gam")
 #' running \code{fitGAM}, or the specific GAM model for the corresponding gene,
 #' if working with the list output of \code{tradeSeq}.
 #' @param counts The matrix of gene expression counts.
-#' @param gene Gene name of gene to plot.
+#' @param gene Gene name of gene from which we want to have the fitted values.
 #' @param nPoints The number of points used to extraplolate the fit
 #' @return A \code{matrix} with fitted values.
 #' @import mgcv
