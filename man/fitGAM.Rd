@@ -80,15 +80,29 @@ recommended to be TRUE.}
 by default.}
 }
 \value{
-A list of length the number of genes
+If \code{sce=FALSE}, returns a list of length equal to the number of genes
  (number of rows of \code{counts}). Each element of the list is either a
   \code{\link{gamObject}} if the fiting procedure converged, or an error
    message.
+If \code{sce=TRUE}, returns a \code{singleCellExperiment} object with
+the \code{tradeSeq} results stored in the \code{rowData},
+\code{colData} and \code{metadata}.
 }
 \description{
 This fits the NB-GAM model as described in Van den Berge et al.[2019].
 There are three ways to provide the required input in \code{fitGAM}.
 See Details.
+}
+\details{
+\code{fitGAM} supports two different ways to input the required objects:
+\itemize{
+\item{"Count matrix and Slingshot input."}{Input count matrix using
+\code{counts} argument and Slingshot object using \code{sds} argument.}
+\item{"Count matrix and matrix of pseudotime and cellWeights input."}{
+Input count matrix using \code{counts} argument and
+pseudotimes and cellWeights as a matrix, with number of rows equal to
+number of cells, and number of columns equal to number of lineages.}
+}
 }
 \examples{
 set.seed(8)
