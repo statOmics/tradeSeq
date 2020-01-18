@@ -8,6 +8,15 @@ tradeSeq provides a flexible method for discovering genes that are differentiall
 
 ## Installation
 
+To install the current version of *tradeSeq* in Bioconductor, run.
+
+```
+if(!requireNamespace("BiocManager", quietly = TRUE)) {
+ install.packages("BiocManager") 
+}
+BiocManager::install("tradeSeq")
+```
+
 To install the development version in `R`, run 
 
 ```r

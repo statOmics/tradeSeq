@@ -38,6 +38,7 @@
     slingshotColData <- colData(models)$slingshot
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime")]
+    if (is.null(dim(pseudotime))) pseudotime <- matrix(pseudotime, ncol = 1)
     nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
     betaMat <- rowData(models)$tradeSeq$beta[[1]]
     beta <- betaMat[id,]
@@ -48,6 +49,7 @@
                         df = df,
                         pseudotime = pseudotime)
       y <-  t(Xdf %*% t(beta)) + df$offset
+      colnames(y) <- paste0(paste0("l", ii, ":t"), df[, paste0("t", ii)])
       if (ii == 1) yhatPat <- y else yhatPat <- cbind(yhatPat, y)
     }
   }

@@ -31,19 +31,19 @@
     geom_point(size = size) +
     labs(x = xlab, y = ylab) +
     theme_classic() +
-    scale_color_viridis_d(alpha=alpha)
+    scale_color_viridis_d(alpha = alpha)
 
 
   # predict and plot smoothers across the range
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(model$model, jj, nPoints = nPoints)
     yhat <- predict(model, newdata = df, type = "response")
-    if(border){
+    if (border) {
       p <- p +
         geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                     "gene_count" = yhat,
                                     "lineage" = as.character(jj)),
-                  lwd = lwd+1, colour="white") +
+                  lwd = lwd + 1, colour = "white") +
         geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                     "gene_count" = yhat,
                                     "lineage" = as.character(jj)),
@@ -72,7 +72,7 @@
 
   #input is singleCellExperiment object.
 
-  if(length(gene) > 1) stop("Only provide a single gene's ID with the ",
+  if (length(gene) > 1) stop("Only provide a single gene's ID with the ",
                             "gene argument.")
   # check if all gene IDs provided are present in the models object.
   if (is(gene, "character")) {
@@ -88,6 +88,7 @@
   slingshotColData <- colData(models)$slingshot
   pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                        pattern = "pseudotime")]
+  if (is.null(dim(pseudotime))) pseudotime <- matrix(pseudotime, ncol = 1)
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   betaMat <- rowData(models)$tradeSeq$beta[[1]]
   beta <- betaMat[id,]
@@ -114,7 +115,7 @@
     geom_point(size = size) +
     labs(x = xlab, y = ylab) +
     theme_classic() +
-    scale_color_viridis_d(alpha=alpha)
+    scale_color_viridis_d(alpha = alpha)
 
 
   # predict and plot smoothers across the range
@@ -124,12 +125,12 @@
                       df = df,
                       pseudotime = pseudotime)
     yhat <-  c(exp(t(Xdf %*% t(beta)) + df$offset))
-    if(border){
+    if (border) {
       p <- p +
         geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                     "gene_count" = yhat,
                                     "lineage" = as.character(jj)),
-                  lwd = lwd+1, colour="white") +
+                  lwd = lwd + 1, colour = "white") +
         geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                     "gene_count" = yhat,
                                     "lineage" = as.character(jj)),

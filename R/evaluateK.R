@@ -26,7 +26,7 @@
   #gamLists <- BiocParallel::bplapply(kList, function(currK){
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
-                      cellWeights = cellWeights, nknots = currK,
+                      cellWeights = cellWeights, nknots = currK, sce = FALSE,
                       weights = weightSub, offset = offset, aic = TRUE)
   })
   #, BPPARAM = MulticoreParam(ncores))

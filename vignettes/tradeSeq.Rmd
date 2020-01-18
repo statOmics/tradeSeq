@@ -49,7 +49,7 @@ library(slingshot)
 RNGversion("3.5.0")
 palette(brewer.pal(8, "Dark2"))
 data(countMatrix, package = "tradeSeq")
-counts <- countMatrix
+counts <- as.matrix(countMatrix)
 rm(countMatrix)
 data(crv, package = "tradeSeq")
 data(celltype, package = "tradeSeq")
@@ -93,6 +93,7 @@ It is generally a good idea to evaluate this multiple times using different seed
 This task can be computationally demanding, since the models must be fit multiple times for each gene. We therefore skip this in the vignette, but show the output one can expect instead.
 
 ```{r, eval=FALSE}
+set.seed(5)
 icMat <- evaluateK(counts = counts, sds = crv, k=3:20, nGenes = 200,
                    verbose=FALSE)
 # alternatively:
@@ -124,11 +125,22 @@ This dataset consists of UMI counts, and we do not expect zero inflation to be a
 For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239 genes in total. We also include the *Irf8* gene, since it is a known transcription factor involved in hematopoiesis.
 
 The `fitGAM` function relies on __BiocParallel__ to implement parallelization, progress bars and so on.
-Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as input (`sds` argument), or a matrix of pseudotimes and cell-level weights (`pseudotime` and `cellWeights` argument). If a `SlingshotDataSet` is provided, the function will return a `SingleCellExperiment` object that contains the essential output from `tradeSeq`. This is much more efficient than providing the pseudotime and cell-level weights as matrices, when a list of GAM models will be returned.
+Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as input (`sds` argument), or a matrix of pseudotimes and cell-level weights (`pseudotime` and `cellWeights` argument). If a `SlingshotDataSet` is provided, the function will return a `SingleCellExperiment` object that contains the essential output from `tradeSeq`. If a matrix of pseudotimes and cell-level weights is provided, you can choose between a `SingleCellExperiment` output of a list output (see below, Section 'tradeSeq list output'). We recommend setting `sce=TRUE` so that `fitGAM` returns a `SingleCellExperiment` object, since this is much more efficient. However, all functions work with both the `SingleCellExperiment` (i.e., `sds` input to `fitGAM`) output as well as the list output (i.e., `pseudotime` and `cellWeights` input to `fitGAM`).
 
-While in this vignette we will proceed with using the `sds` argument, hence a `SingleCellExperiment` object as output, `tradeSeq` allows input from any trajectory inference method with the `pseudotime` and `cellWeights` arguments. All functions work with both the `SingleCellExperiment` (i.e., `sds` input to `fitGAM`) output as well as the list output (i.e., `pseudotime` and `cellWeights` input to `fitGAM`).
+While in this vignette we will proceed with using the `sds` argument, hence a `SingleCellExperiment` object as output, `tradeSeq` allows input from any trajectory inference method with the `pseudotime` and `cellWeights` arguments. 
 
 Because cells are assigned to a lineage based on their weigths, the result of `fitGAM` is stochastic. While this should have little impact on the overall results in practice, users are therefore encouraged to use the `set.seed` function before running `fitGAM` to ensure reproducibility of their analyses.
+
+## Downstream of any trajectory inference method
+
+Here, we show how you can fit NB-GAMs downstream of any trajectory inference method.
+The required input is threefold:
+
+ - `counts`: A count matrix (genes in rows, cells in columns).
+ - `pseudotime`: A matrix of pseudotimes (cells in rows, lineages in columns).
+ - `cellWeights`: A matrix of cell-level weights to belong to a lineage (cells in rows, lineages in columns).
+ 
+Here, we set the `sce` argument to `TRUE`, which means we want a `SingleCellExperiment` object as output. This is the recommended behaviour as it is much more memory efficient. However, if you'd like the full output from `mgcv`, we also support a list output where each list element is the model for a gene, see Section 'tradeSeq list output' below.
 
 ```{r}
 library(BiocParallel)
@@ -136,11 +148,33 @@ library(magrittr)
 # Register BiocParallel Serial Execution (no parallelization in that case)
 BiocParallel::register(BiocParallel::SerialParam())
 
+# matrix of pseudotimes (can be of any TI method)
+pt <- slingPseudotime(crv, na = FALSE)
+
+# matrix of cell-level weights (can be of any TI method)
+cw <- slingCurveWeights(crv)
+
+set.seed(5)
+sce <- fitGAM(counts = counts, 
+       pseudotime = pt,
+       cellWeights = cw, 
+       sce = TRUE)
+```
+
+## Downstream of slingshot
+
+Here, we only provide the count matrix, and the `SlingshotDataSet` object from `slingshot`.
+
+```{r}
+
 counts <- as.matrix(counts)
+set.seed(5)
 sce <- fitGAM(counts = counts,
                   sds = crv)
 # This takes about 1mn to run
 ```
+
+## EDA
 
 You can also plot the cells in reduced dimension to see where the knots are located.
 

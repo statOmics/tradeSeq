@@ -38,7 +38,7 @@
                     conditions = NULL,
                     offset = NULL, nknots = 6, verbose = TRUE, parallel = FALSE,
                     BPPARAM = BiocParallel::bpparam(), aic = FALSE,
-                    control = mgcv::gam.control(), sce = FALSE, family = "nb"){
+                    control = mgcv::gam.control(), sce = TRUE, family = "nb"){
 
   # TODO: make sure warning message for knots prints after looping
 
@@ -312,10 +312,14 @@
 
 #' Fit GAM model
 #'
-#' This fits the NB-GAM model as described in Van den Berge et al.[2019]
+#' This fits the NB-GAM model as described in Van den Berge et al.[2019].
+#' There are three ways to provide the required input in \code{fitGAM}.
+#' See Details.
 #'
 #' @rdname fitGAM
-#' @param counts the count matrix.
+#' @param counts Either the count matrix of expression values, with genes
+#' in rows and cells in columns; or a SingleCellExperiment object, where
+#' pseudotime and cellWeights are provided as colData. See Details.
 #' @param U the design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param conditions This argument is in beta phase and should be used carefully.
@@ -330,6 +334,8 @@
 #' @param sds an object of class \code{SlingshotDataSet}, typically obtained
 #' after running Slingshot. If this is provided, \code{pseudotime} and
 #' \code{cellWeights} arguments are derived from this object.
+#' @param sce Logical: should output be of SingleCellExperiment class? This is
+#' recommended to be TRUE.
 #' @param weights a matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param offset the offset, on log-scale. If NULL, TMM is used to account for
@@ -345,8 +351,6 @@
 #' @param verbose Logical, should progress be printed?
 #' @param control Variables to control fitting of the GAM, see
 #' \code{gam.control}.
-#' @param sce Should output be of SingleCellExperiment class? This argument
-#' should not be changed by users.
 #' @param family The assumed distribution for the response, set to \code{"nb"}
 #' by default.
 #' @return A list of length the number of genes
@@ -367,7 +371,7 @@
 #' @importFrom methods is
 #' @export
 setMethod(f = "fitGAM",
-          signature = c(counts = "matrix"), #sds must be SlingshotDataSet class
+          signature = c(counts = "matrix"),
           definition = function(counts,
                                 sds = NULL,
                                 pseudotime = NULL,
@@ -381,29 +385,36 @@ setMethod(f = "fitGAM",
                                 parallel = FALSE,
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
-                                sce = FALSE,
+                                sce = TRUE,
                                 family = "nb"){
 
-            ## either pseudotime or slingshot object should be provided
-            if (is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))) {
-              stop("Either provide the slingshot object using the sds ",
-                   "argument, or provide pseudotime and cell-level weights ",
-                   "manually using pseudotime and cellWeights arguments.")
-            }
-
-            if (!is.null(sds)) {
-              # check if input is slingshotdataset
-              if (is(sds, "SlingshotDataSet")) {
-                sce <- TRUE
-              } else stop("sds argument must be a SlingshotDataSet object.")
-
-              # extract variables from slingshotdataset
-              pseudotime <- slingPseudotime(sds, na = FALSE)
-              cellWeights <- slingCurveWeights(sds)
-            }
-
             if (is.null(counts)) stop("Provide expression counts using counts",
-                                     " argument.")
+                                      " argument.")
+
+
+            if(is(counts, "SingleCellExperiment")){
+              # check if pseudotime and cellWeights provided
+
+            } else {
+              ## either pseudotime or slingshot object should be provided
+              if (is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))) {
+                stop("Either provide the slingshot object using the sds ",
+                     "argument, or provide pseudotime and cell-level weights ",
+                     "manually using pseudotime and cellWeights arguments.")
+              }
+
+              if (!is.null(sds)) {
+                # check if input is slingshotdataset
+                if (is(sds, "SlingshotDataSet")) {
+                  sce <- TRUE
+                } else stop("sds argument must be a SlingshotDataSet object.")
+
+                # extract variables from slingshotdataset
+                pseudotime <- slingPseudotime(sds, na = FALSE)
+                cellWeights <- slingCurveWeights(sds)
+              }
+            }
+
 
             if(!is.null(conditions)){
               if(class(conditions) != "factor") stop("conditions must be a factor vector.")

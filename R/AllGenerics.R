@@ -124,5 +124,30 @@ setGeneric(
   #signature = 'models',
   def = function(models, ...) {
     standardGeneric("conditionTest")
+  })
+
+
+#' @export
+#' @name predictSmooth
+#' @title predictSmooth
+#' @param ... parameters including:
+setGeneric(
+  name = "predictSmooth",
+  signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("predictSmooth")
+  }
+)
+
+
+#' @export
+#' @name predictCells
+#' @title predictCells
+#' @param ... parameters including:
+setGeneric(
+  name = "predictCells",
+  signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("predictCells")
   }
 )
