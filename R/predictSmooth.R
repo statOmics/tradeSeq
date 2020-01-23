@@ -25,8 +25,7 @@ setMethod(f = "predictSmooth",
                                 counts,
                                 gene,
                                 nPoints = 100
-                               ){
-
+          ){
             # check if all gene IDs provided are present in the models object.
             if (is(gene, "character")) {
               if (!all(gene %in% names(models))) {
@@ -61,7 +60,7 @@ setMethod(f = "predictSmooth",
             # loop over all genes
             yhatMat <- matrix(NA, nrow=length(gene), ncol=nCurves*nPoints)
             rownames(yhatMat) <- gene
-            pointNames <- expand.grid(1:100,1:4)[,2:1]
+            pointNames <- expand.grid(1:nPoints,1:nCurves)[,2:1]
             colnames(yhatMat) <- paste0("lineage",apply(pointNames,1,paste,
                                                         collapse="_"))
             for(jj in 1:length(gene)){
@@ -73,4 +72,3 @@ setMethod(f = "predictSmooth",
             return(yhatMat)
           }
 )
-
