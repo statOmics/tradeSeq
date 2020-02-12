@@ -96,6 +96,7 @@
       waldResPairWithin <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        if(any(is.na(beta)) | any(is.na(Sigma))) return(c(NA, NA))
         getEigenStatGAM(beta, Sigma, LLin)
       })
       waldResults <- do.call(rbind, waldResPairWithin)
