@@ -18,13 +18,17 @@ if working with the list output of \code{tradeSeq}.}
 
 \item{counts}{The matrix of gene expression counts.}
 
-\item{gene}{Gene name of gene from which we want to have the fitted values.}
+\item{gene}{Either a vector of gene names or an integer vector, corresponding
+to the rows of the genes.}
 
-\item{nPoints}{The number of points used to extraplolate the fit}
+\item{nPoints}{The number of points used to create the grid along the
+smoother for each lineage.}
 }
 \value{
-A \code{matrix} with fitted values.
+A \code{matrix} with estimated averages.
 }
 \description{
-Get fitted values from the smoothers estimated by \code{tradeSeq}.
+Get estimated smoothers estimated by \code{tradeSeq} along a
+grid. This function does not return fitted values but rather the predicted
+mean smoother, for a grid of user-defined points.
 }
