@@ -189,7 +189,6 @@
   })
   names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
 
-
   teller <- 0
   counts_to_Gam <- function(y) {
     teller <<- teller + 1
