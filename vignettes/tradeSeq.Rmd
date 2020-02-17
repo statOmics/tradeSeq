@@ -101,6 +101,7 @@ icMat <- evaluateK(counts = counts, k=3:20, nGenes = 200,
                    pseudotime = slingPseudotime(crv, na = FALSE),
                    cellWeights = slingCurveWeights(crv))
 ```
+
 ```{r, echo=FALSE}
 knitr::include_graphics("evalK_paul1Cropped.png")
 knitr::include_graphics("evalK_paul2Cropped.png")
@@ -406,7 +407,7 @@ If another method than Slingshot is used for trajectory inference, one can input
 gamList <- fitGAM(counts,
                   pseudotime = slingPseudotime(crv, na = FALSE),
                   cellWeights = slingCurveWeights(crv),
-                  nknots = 6)
+                  nknots = 6, sce = FALSE)
 ```
 
 
