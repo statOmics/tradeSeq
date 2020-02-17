@@ -350,10 +350,12 @@
 #'                   sds = crv,
 #'                   nknots = 5)
 #' @importFrom magrittr %>%
-#' @importFrom SummarizedExperiment assays
+#' @importFrom SummarizedExperiment assays colData
 #' @importFrom BiocParallel bplapply bpparam
 #' @importFrom pbapply pblapply
+#' @importFrom S4Vectors DataFrame metadata
 #' @importFrom methods is
+#' @importFrom tibble enframe tibble
 #' @export
 setMethod(f = "fitGAM",
           signature = c(counts = "matrix"),

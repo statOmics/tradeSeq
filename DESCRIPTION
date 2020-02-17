@@ -50,7 +50,8 @@ Imports:
     ggplot2,
     princurve,
     methods,
-    S4Vectors
+    S4Vectors,
+    tibble
 Suggests:
     knitr,
     rmarkdown,
