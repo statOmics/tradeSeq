@@ -188,7 +188,6 @@
   })
   names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
 
-
   teller <- 0
   counts_to_Gam <- function(y) {
     teller <<- teller + 1
@@ -313,7 +312,7 @@
 #' Fit GAM model
 #'
 #' This fits the NB-GAM model as described in Van den Berge et al.[2019].
-#' There are three ways to provide the required input in \code{fitGAM}.
+#' There are two ways to provide the required input in \code{fitGAM}.
 #' See Details.
 #'
 #' @rdname fitGAM
@@ -335,7 +334,8 @@
 #' after running Slingshot. If this is provided, \code{pseudotime} and
 #' \code{cellWeights} arguments are derived from this object.
 #' @param sce Logical: should output be of SingleCellExperiment class? This is
-#' recommended to be TRUE.
+#' recommended to be TRUE. If \code{sds} argument is specified, will always be set
+#' to TRUE
 #' @param weights a matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param offset the offset, on log-scale. If NULL, TMM is used to account for
@@ -379,10 +379,12 @@
 #'                   sds = crv,
 #'                   nknots = 5)
 #' @importFrom magrittr %>%
-#' @importFrom SummarizedExperiment assays
+#' @importFrom SummarizedExperiment assays colData
 #' @importFrom BiocParallel bplapply bpparam
 #' @importFrom pbapply pblapply
+#' @importFrom S4Vectors DataFrame metadata
 #' @importFrom methods is
+#' @importFrom tibble enframe tibble
 #' @export
 setMethod(f = "fitGAM",
           signature = c(counts = "matrix"),
@@ -406,7 +408,7 @@ setMethod(f = "fitGAM",
                                       " argument.")
 
 
-            if(is(counts, "SingleCellExperiment")){
+            if (is(counts, "SingleCellExperiment")) {
               # check if pseudotime and cellWeights provided
 
             } else {
@@ -420,7 +422,12 @@ setMethod(f = "fitGAM",
               if (!is.null(sds)) {
                 # check if input is slingshotdataset
                 if (is(sds, "SlingshotDataSet")) {
-                  sce <- TRUE
+                  if (!sce) {
+                    warning(paste0(
+                      "If an sds argument is provided, the sce argument is ",
+                      "forced to TRUE "))
+                    sce <- TRUE
+                  }
                 } else stop("sds argument must be a SlingshotDataSet object.")
 
                 # extract variables from slingshotdataset
@@ -477,6 +484,5 @@ setMethod(f = "fitGAM",
             # metadata: tradeSeq knots
             S4Vectors::metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints)
             return(sc)
-
           }
 )
