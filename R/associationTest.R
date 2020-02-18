@@ -167,9 +167,11 @@
   }
 }
 
-#' @description Assess whether gene expression is associated with pseudotime.
+#' @title Test if average gene expression changes along pseudotime
+#' @description This test assesses whether average gene expression
+#' is associated with pseudotime.
 #'
-#' @param models the list of GAMs, typically the output from
+#' @param models The fitted GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
@@ -177,10 +179,10 @@
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' associationTest(gamList, global = TRUE, lineages = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
+#' @return A matrix with the wald statistic, the number of
+#'  degrees of freedom and the p-value
 #'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
+#'  procedure was unsuccessful, the procedure will return NA.
 #' @rdname associationTest
 #' @importFrom methods is
 #' @import SummarizedExperiment

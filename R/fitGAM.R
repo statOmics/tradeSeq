@@ -284,36 +284,39 @@
   }
 }
 
-#' Fit GAM model
+#' @title Fit GAM model
 #'
-#' This fits the NB-GAM model as described in Van den Berge et al.[2019].
+#' @description This fits the NB-GAM model as described in
+#' Van den Berge et al.[2019].
 #' There are two ways to provide the required input in \code{fitGAM}.
-#' See Details.
+#' See Details and the vignette.
 #'
 #' @rdname fitGAM
-#' @param counts Either the count matrix of expression values, with genes
-#' in rows and cells in columns; or a SingleCellExperiment object, where
-#' pseudotime and cellWeights are provided as colData. See Details.
-#' @param U the design matrix of fixed effects. The design matrix should not
+#' @param counts The count matrix of expression values, with genes
+#' in rows and cells in columns.
+#' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
-#' @param pseudotime a matrix of pseudotime values, each row represents a cell
+#' @param pseudotime A matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
-#' @param cellWeights a matrix of cell weights defining the probability that a
+#' @param cellWeights A matrix of cell weights defining the probability that a
 #' cell belongs to a particular lineage. Each row represents a cell and each
-#' column represents a lineage.
+#' column represents a lineage. If only a single lineage, provide a matrix with
+#' one column containing all values of 1.
 #' @param sds an object of class \code{SlingshotDataSet}, typically obtained
 #' after running Slingshot. If this is provided, \code{pseudotime} and
 #' \code{cellWeights} arguments are derived from this object.
 #' @param sce Logical: should output be of SingleCellExperiment class? This is
-#' recommended to be TRUE. If \code{sds} argument is specified, will always be set
-#' to TRUE
-#' @param weights a matrix of weights with identical dimensions
+#' recommended to be TRUE. If \code{sds} argument is specified, it will always
+#' be set to TRUE
+#' @param weights A matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
-#' @param offset the offset, on log-scale. If NULL, TMM is used to account for
+#' @param offset The offset, on log-scale. If NULL, TMM is used to account for
 #' differences in sequencing depth., see \code{edgeR::calcNormFactors}.
-#' Alternatively, this may also be a matrix of the same dimensions as the
-#' expression matrix.
-#' @param nknots Number of knots used to fit the GAM. Defaults to 6.
+#' Alternatively, this may also be a vector with length equal to the number of
+#' cells.
+#' @param nknots Number of knots used to fit the GAM. Defaults to 6. It is
+#' recommended to use the `evaluateK` function to guide in selecting an
+#' appropriate number of knots.
 #' @param parallel Logical, defaults to FALSE. Set to TRUE if you want to
 #' parallellize the fitting.
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
@@ -322,7 +325,7 @@
 #' @param verbose Logical, should progress be printed?
 #' @param control Variables to control fitting of the GAM, see
 #' \code{gam.control}.
-#' @param family The assumed distribution for the response, set to \code{"nb"}
+#' @param family The assumed distribution for the response. Is set to \code{"nb"}
 #' by default.
 #' @details
 #' \code{fitGAM} supports two different ways to input the required objects:

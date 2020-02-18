@@ -146,12 +146,12 @@
   }
 }
 
-#' @description Assess differential expression between the end points of lineages of a
-#' trajectory.
+#' @title Differential expression between end points of lineages.
+#' @description Assess differential expression between the average expression at the
+#'  end points of lineages of a trajectory.
 #'
-#' @param models Typically the output from
-#' \code{\link{fitGAM}}, either a list of fitted GAM models, or an object of
-#' \code{SingleCellExperiment} class.
+#' @param models The fitted GAMs, typically the output from
+#' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @param l2fc Numeric: log2 fold change threshold to test against. Note, that

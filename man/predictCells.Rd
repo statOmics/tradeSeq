@@ -18,7 +18,7 @@ if working with the list output of \code{tradeSeq}.}
 
 \item{counts}{The matrix of gene expression counts.}
 
-\item{gene}{Gene name of gene to plot.}
+\item{gene}{Gene name of gene for which to extract fitted values.}
 }
 \value{
 A vector of fitted values.

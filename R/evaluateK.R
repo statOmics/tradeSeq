@@ -66,9 +66,9 @@
 
 #' Evaluate an appropriate number of knots.
 #'
-#' @param counts the count matrix.
+#' @param counts The count matrix, genes in rows and cells in columns.
 #' @param sds Slingshot object containing the lineages.
-#' @param U the design matrix of fixed effects. The design matrix should not
+#' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param pseudotime a matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
@@ -91,8 +91,7 @@
 #' @param control Control object for GAM fitting, see \code{mgcv::gam.control()}.
 #' @param family The distribution assumed, currently only \code{"nb"}
 #' (negative binomial) is supported.
-#' @param sce Logical, automatically set by the function and should not be
-#' altered by the user.
+#' @param sce Logical, should a \code{SingleCellExperiment} object be returned?
 #' @return A plot of average AIC value over the range of selected knots, and a
 #' matrix of AIC values for the selected genes (rows) and the range of knots
 #' (columns).

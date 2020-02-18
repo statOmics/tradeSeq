@@ -14,9 +14,8 @@ diffEndTest(models, ...)
 \S4method{diffEndTest}{list}(models, global = TRUE, pairwise = FALSE, l2fc = 0)
 }
 \arguments{
-\item{models}{Typically the output from
-\code{\link{fitGAM}}, either a list of fitted GAM models, or an object of
-\code{SingleCellExperiment} class.}
+\item{models}{The fitted GAMs, typically the output from
+\code{\link{fitGAM}}.}
 
 \item{...}{parameters including:}
 
@@ -35,8 +34,8 @@ A matrix with the wald statistic, the number of df and the p-value
  p-values.
 }
 \description{
-Assess differential expression between the end points of lineages of a
-trajectory.
+Assess differential expression between the average expression at the
+ end points of lineages of a trajectory.
 }
 \details{
 The \code{l2fc} argument allows to test against a particular fold change

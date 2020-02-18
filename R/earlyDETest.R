@@ -177,20 +177,22 @@
 }
 
 
-#' Perform test of early differences between lineages
+#' @title Differential expression patterns in a specific region.
+#' @description Perform test of differential expression patterns between lineages
+#' in a user-defined region based on the knots of the smoothers.
 #'
-#' @param models the list of GAMs, typically the output from
+#' @param models The fitted GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param knots A vector of length 2 specifying the knots before and after the
-#'  branching of interest.
-#' @param nPoints the number of points to be compared between lineages.
+#'  region of interest.
+#' @param nPoints The number of points to be compared between lineages.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' earlyDETest(gamList, knots = c(1, 2), global = TRUE, pairwise = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
+#' @return A matrix with the Wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed.
 #' @details To help the user in choosing which knots to use when defining the
 #' branching, the \code{\link{plotGeneCount}} function has a models optional

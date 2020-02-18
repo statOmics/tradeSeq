@@ -160,13 +160,14 @@
   }
 }
 
-#' @description Assess differential expression between the start and end points
-#' of a lineage.
-#' @param models the list of GAMs, typically the output from
+#' @title Test for differential average expression in start vs end points of a lineage.
+#' @description This function assesses differential expression between the
+#' average expression of the start and end points of a lineage.
+#' @param models The fitted GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
-#' @param pseudotimeValues a vector of length 2, specifying two pseudotime
+#' @param pseudotimeValues A vector of length 2, specifying two pseudotime
 #' values to be compared against each other, for every lineage of
 #'  the trajectory.
 #'  @details Note that this test assumes that all lineages start at a
@@ -176,7 +177,7 @@
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' startVsEndTest(gamList, global = TRUE, lineages = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
+#' @return A matrix with the Wald statistic, the number of df and the p-value
 #'  associated with each gene for all the tests performed. If the testing
 #'  procedure was unsuccessful, the procedure will return NA test statistics and
 #'  p-values. If both \code{global} and \code{lineages} are TRUE, then a matrix

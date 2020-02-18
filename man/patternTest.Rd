@@ -13,7 +13,7 @@ patternTest(models, ...)
 \S4method{patternTest}{SingleCellExperiment}(models, global = TRUE, pairwise = FALSE, nPoints = 100)
 }
 \arguments{
-\item{models}{the list of GAMs, typically the output from
+\item{models}{The fitted GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
 \item{...}{parameters including:}
@@ -22,10 +22,11 @@ patternTest(models, ...)
 
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 
-\item{nPoints}{the number of points to be compared between lineages.}
+\item{nPoints}{The number of points to be compared between lineages.
+Defaults to 100.}
 }
 \value{
-A matrix with the wald statistic, the number of df and the p-value
+A matrix with the Wald statistic, the number of df and the p-value
  associated with each gene for all the tests performed. If the testing
  procedure was unsuccessful, the procedure will return NA test statistics and
  p-values.

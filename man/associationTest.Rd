@@ -14,7 +14,7 @@ associationTest(models, ...)
 \S4method{associationTest}{list}(models, global = TRUE, lineages = FALSE)
 }
 \arguments{
-\item{models}{the list of GAMs, typically the output from
+\item{models}{The fitted GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
 \item{...}{parameters including:}
@@ -24,13 +24,14 @@ associationTest(models, ...)
 \item{lineages}{If TRUE, test for all lineages independently.}
 }
 \value{
-A matrix with the wald statistic, the number of df and the p-value
+A matrix with the wald statistic, the number of
+ degrees of freedom and the p-value
  associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA test statistics and
- p-values.
+ procedure was unsuccessful, the procedure will return NA.
 }
 \description{
-Assess whether gene expression is associated with pseudotime.
+This test assesses whether average gene expression
+is associated with pseudotime.
 }
 \examples{
 data(gamList, package = "tradeSeq")

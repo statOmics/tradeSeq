@@ -156,13 +156,14 @@ setOldClass("gam")
 #' running \code{fitGAM}, or the specific GAM model for the corresponding gene,
 #' if working with the list output of \code{tradeSeq}.
 #' @param counts The matrix of gene expression counts.
-#' @param gene Gene name of gene to plot.
-#' @param nPoints The number of points used to extraplolate the fit
-#' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}
-#' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}
-#' @param xlab x-axis label. Passed to \code{\link{labs}}
-#' @param ylab y-axis label. Passed to \code{\link{labs}}
-#' @param border logical: should a white border be drawn around the mean smoother.
+#' @param gene Gene name or row in count matrix of gene to plot.
+#' @param nPoints The number of points used to extraplolate the fit.
+#' Defaults to 100.
+#' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}.
+#' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}.
+#' @param xlab x-axis label. Passed to \code{\link{labs}}.
+#' @param ylab y-axis label. Passed to \code{\link{labs}}.
+#' @param border Logical: should a white border be drawn around the mean smoother.
 #' @param alpha Numeric between 0 and 1, determines the transparancy of data points,
 #' see \code{scale_color_viridis_d}.
 #' @return A \code{\link{ggplot}} object
