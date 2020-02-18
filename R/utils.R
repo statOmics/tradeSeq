@@ -8,6 +8,9 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   # pseudotime is the n x l matrix of pseudotimes
   # conditions is the vector of conditions, if present.
 
+  # if pseudotime is vector, make it a matrix.
+  if(is.null(dim(pseudotime))) pseudotime <- matrix(pseudotime,ncol=1)
+
   condPresent <- !is.null(conditions)
   if(condPresent) nConditions <- nlevels(conditions)
 
