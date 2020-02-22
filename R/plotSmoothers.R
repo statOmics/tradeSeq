@@ -3,7 +3,8 @@
                           xlab = "Pseudotime",
                           ylab = "Log(expression + 1)",
                           border = FALSE,
-                          alpha = 1)
+                          alpha = 1,
+                          sample = 1)
 {
 
   data <- model$model
@@ -27,6 +28,8 @@
   df <- data.frame("time" = timeAll,
                    "gene_count" = y,
                    "lineage" = as.character(col))
+  rows <- sample(seq_len(nrow(df)), nrow(df) * sample, replace = FALSE)
+  df <- df[rows, ]
   p <- ggplot(df, aes(x = time, y = log1p(gene_count), col = lineage)) +
     geom_point(size = size) +
     labs(x = xlab, y = ylab) +
@@ -63,11 +66,9 @@
 
 
 .plotSmoothers_sce <- function(models, counts, gene, nPoints = 100, lwd = 2,
-                               size = 2/3,
-                              xlab = "Pseudotime",
-                              ylab = "Log(expression + 1)",
-                              border = FALSE,
-                              alpha = 2/3)
+                               size = 2/3, xlab = "Pseudotime",
+                               ylab = "Log(expression + 1)", border = FALSE,
+                               alpha = 2/3, sample = sample)
 {
 
   #input is singleCellExperiment object.
@@ -111,6 +112,8 @@
   df <- data.frame("time" = timeAll,
                    "gene_count" = y,
                    "lineage" = as.character(col))
+  rows <- sample(seq_len(nrow(df)), nrow(df) * sample, replace = FALSE)
+  df <- df[rows, ]
   p <- ggplot(df, aes(x = time, y = log1p(gene_count), col = lineage)) +
     geom_point(size = size) +
     labs(x = xlab, y = ylab) +
@@ -166,6 +169,8 @@ setOldClass("gam")
 #' @param border Logical: should a white border be drawn around the mean smoother.
 #' @param alpha Numeric between 0 and 1, determines the transparancy of data points,
 #' see \code{scale_color_viridis_d}.
+#' @param sample Numeric between 0 and 1, use to subsample the cells when there
+#' are too many so that it can plot faster.
 #' @return A \code{\link{ggplot}} object
 #' @examples
 #' data(gamList, package = "tradeSeq")
@@ -184,16 +189,18 @@ setMethod(f = "plotSmoothers",
                                 xlab = "Pseudotime",
                                 ylab = "Log(expression + 1)",
                                 border = TRUE,
-                                alpha = 1){
+                                alpha = 1,
+                                sample = 1){
 
             .plotSmoothers(model = models,
-                                  nPoints = nPoints,
-                                  lwd = lwd,
-                                  size = size,
-                                  xlab = xlab,
-                                  ylab = ylab,
-                                  border = border,
-                                  alpha = alpha)
+                           nPoints = nPoints,
+                           lwd = lwd,
+                           size = size,
+                           xlab = xlab,
+                           ylab = ylab,
+                           border = border,
+                           alpha = alpha,
+                           sample = sample)
           }
 )
 
@@ -211,17 +218,19 @@ setMethod(f = "plotSmoothers",
                                 xlab = "Pseudotime",
                                 ylab = "Log(expression + 1)",
                                 border = TRUE,
-                                alpha = 1){
+                                alpha = 1,
+                                sample = 1){
 
             .plotSmoothers_sce(models = models,
-                           counts = counts,
-                           gene = gene,
-                           nPoints = nPoints,
-                           lwd = lwd,
-                           size = size,
-                           xlab = xlab,
-                           ylab = ylab,
-                           border = border,
-                           alpha = alpha)
+                               counts = counts,
+                               gene = gene,
+                               nPoints = nPoints,
+                               lwd = lwd,
+                               size = size,
+                               xlab = xlab,
+                               ylab = ylab,
+                               border = border,
+                               alpha = alpha,
+                               sample = sample)
           }
 )
