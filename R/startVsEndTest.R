@@ -53,7 +53,7 @@
     slingshotColData <- colData(models)$slingshot
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime"),
-                                   drop=FALSE]
+                                   drop = FALSE]
     # construct within-lineage contrast matrix
     L <- matrix(0, nrow = ncol(X), ncol = nCurves)
     colnames(L) <- paste0("lineage", seq_len(nCurves))

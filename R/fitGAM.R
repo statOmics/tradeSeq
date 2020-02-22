@@ -1,4 +1,3 @@
-
 .assignCells <- function(cellWeights) {
   if (is.null(dim(cellWeights))) {
     if (any(cellWeights == 0)) {
@@ -28,6 +27,46 @@
       return(wSamp)
     }
   }
+}
+
+.checks <- function(pseudotime, cellWeights, U, counts) {
+  # check if pseudotime and weights have same dimensions.
+  if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
+    if (!identical(dim(pseudotime), dim(cellWeights))) {
+      stop("pseudotime and cellWeights must have identical dimensions.")
+    }
+  }
+  
+  # check if dimensions of U and counts agree
+  if (!is.null(U)) {
+    if (!(nrow(U) == ncol(counts))) {
+      stop("The dimensions of U do not match those of counts.")
+    }
+  }
+  
+  # check if dimensions for counts and pseudotime / cellweights agree
+  if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
+    if (!identical(nrow(pseudotime), ncol(counts))) {
+      stop("pseudotime and count matrix must have equal number of cells.")
+    }
+    if (!identical(nrow(cellWeights), ncol(counts))) {
+      stop("cellWeights and count matrix must have equal number of cells.")
+    }
+  }
+}
+
+.get_offset <- function(offset, counts) {
+  if (is.null(offset)) {
+    nf <- try(edgeR::calcNormFactors(counts))
+    if (is(nf, "try-error")) {
+      message("TMM normalization failed. Will use unnormalized library sizes",
+              "as offset.")
+      nf <- rep(1,ncol(counts))
+    }
+    libSize <- colSums(as.matrix(counts)) * nf
+    offset <- log(libSize)
+  }
+  return(offset)
 }
 
 # TODO: make sure error messages in fitting are silent,
@@ -60,39 +99,10 @@
     cellWeights <- matrix(cellWeights, nrow = length(cellWeights))
   }
 
-  # check if pseudotime and weights have same dimensions.
-  if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
-    if (!identical(dim(pseudotime), dim(cellWeights))) {
-      stop("pseudotime and cellWeights must have identical dimensions.")
-    }
-  }
-
-  # check if dimensions of U and counts agree
-  if (!is.null(U)) {
-    if (!(nrow(U) == ncol(counts))) {
-      stop("The dimensions of U do not match those of counts.")
-    }
-  }
-
-  # check if dimensions for counts and pseudotime / cellweights agree
-  if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
-    if (!identical(nrow(pseudotime), ncol(counts))) {
-      stop("pseudotime and count matrix must have equal number of cells.")
-    }
-    if (!identical(nrow(cellWeights), ncol(counts))) {
-      stop("cellWeights and count matrix must have equal number of cells.")
-    }
-  }
-  # below errors if sparse matrix is used as input.
-  # if (!is.integer(counts)) {
-  #   if (any(round(counts) != counts)) {
-  #     stop("some values in counts are not integers")
-  #   }
-  #   message("converting counts to integer mode")
-  #   mode(counts) <- "integer"
-  # }
+  .checks(pseudotime, cellWeights, U, counts)
 
   wSamp <- .assignCells(cellWeights)
+  
   # define pseudotime for each lineage
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("t",ii), pseudotime[,ii])
@@ -101,18 +111,10 @@
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("l",ii),1*(wSamp[,ii] == 1))
   }
+  
   # offset
-  if (is.null(offset)) {
-    nf <- try(edgeR::calcNormFactors(counts))
-    if (is(nf, "try-error")) {
-      message("TMM normalization failed. Will use unnormalized library sizes",
-              "as offset.")
-      nf <- rep(1,ncol(counts))
-    }
-    libSize <- colSums(as.matrix(counts)) * nf
-    offset <- log(libSize)
-  }
-
+  offset <- .get_offset(offset, counts)
+  
   # fit model
   ## fixed effect design matrix
   if (is.null(U)) {
@@ -120,7 +122,7 @@
   }
 
   ## fit NB GAM
-  ### get knots to end at last points of lineages.
+  ### get knots to end at last points of lineages ---- 
   tAll <- c()
   for (ii in seq_len(nrow(pseudotime))) {
     tAll[ii] <- pseudotime[ii, which(as.logical(wSamp[ii,]))]
@@ -153,6 +155,7 @@
       knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
   }
+  
   maxT <- max(pseudotime[,1])
   if (ncol(pseudotime) > 1) {
     maxT <- c()
@@ -188,7 +191,8 @@
     knots
   })
   names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
-
+  
+  ### Actually fit the model ---- 
   teller <- 0
   counts_to_Gam <- function(y) {
     teller <<- teller + 1
@@ -229,12 +233,12 @@
       }
       # define model frame in top environment to return once for all genes
       if (!exists("dm", where <- "package:tradeSeq")) {
-        #dm <<- m$model[, -1] # rm expression counts since different betw. genes
+        # dm <<- m$model[, -1]
         assign("dm",  m$model[, -1], pos = 1)
       }
       # define knots in top environment to return once for all genes
       if (!exists("knotPoints", where = "package:tradeSeq")) {
-        #knotPoints <<- m$smooth[[1]]$xp
+        # knotPoints <<- m$smooth[[1]]$xp
         assign("knotPoints", m$smooth[[1]]$xp, pos = 1)
       }
       return(list(beta = beta, Sigma = Sigma))
@@ -242,7 +246,7 @@
 
   }
 
-  ### fit models
+  #### fit models
   if (parallel) {
     gamList <- BiocParallel::bplapply(as.data.frame(t(as.matrix(counts))),
                                       counts_to_Gam, BPPARAM = BPPARAM)

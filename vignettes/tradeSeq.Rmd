@@ -161,8 +161,7 @@ cw <- slingCurveWeights(crv)
 set.seed(5)
 sce <- fitGAM(counts = counts, 
        pseudotime = pt,
-       cellWeights = cw, 
-       sce = TRUE)
+       cellWeights = cw)
 ```
 
 ## Downstream of slingshot
@@ -171,7 +170,6 @@ When running `fitGAM` downstream of `slingshot`, the only required arguments are
 See `?fitGAM` for other arguments.
 
 ```{r}
-
 counts <- as.matrix(counts)
 set.seed(5)
 sce <- fitGAM(counts = counts,
