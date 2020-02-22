@@ -221,27 +221,40 @@
 
     if (sce) { #don't return full GAM model for sce output.
       if (is(m, "try-error")) {
-        return(list(beta = NA, Sigma = NA))
+        beta <- NA
+        Sigma <- NA
+      } else {
+        beta <- matrix(coef(m), ncol = 1)
+        rownames(beta) <- names(coef(m))
+        Sigma <- m$Vp
       }
-      beta <- matrix(coef(m), ncol = 1)
-      rownames(beta) <- names(coef(m))
-      Sigma <- m$Vp
-      # define lpmatrix in top environment to return once for all genes
-      if (!exists("X", where = "package:tradeSeq")) {
-        # X <<- predict(m, type = "lpmatrix")
-        assign("X", predict(m, type = "lpmatrix"), pos = 1)
+      
+      if (teller == 1) {
+        X <- predict(m, type = "lpmatrix")
+        dm <- m$model[, -1]
+        knotPoints <- m$smooth[[1]]$xp
+        return(list(beta = beta, Sigma = Sigma, X = X, dm = dm,
+                    knotPoints = knotPoints))
+      } else {
+        return(list(beta = beta, Sigma = Sigma))
       }
-      # define model frame in top environment to return once for all genes
-      if (!exists("dm", where <- "package:tradeSeq")) {
-        # dm <<- m$model[, -1]
-        assign("dm",  m$model[, -1], pos = 1)
-      }
-      # define knots in top environment to return once for all genes
-      if (!exists("knotPoints", where = "package:tradeSeq")) {
-        # knotPoints <<- m$smooth[[1]]$xp
-        assign("knotPoints", m$smooth[[1]]$xp, pos = 1)
-      }
-      return(list(beta = beta, Sigma = Sigma))
+      
+      # # define lpmatrix in top environment to return once for all genes
+      # if (!exists("X", where = "package:tradeSeq")) {
+      #   # X <<- predict(m, type = "lpmatrix")
+      #   assign("X", predict(m, type = "lpmatrix"), pos = 1)
+      # }
+      # # define model frame in top environment to return once for all genes
+      # if (!exists("dm", where <- "package:tradeSeq")) {
+      #   # dm <<- m$model[, -1]
+      #   assign("dm",  m$model[, -1], pos = 1)
+      # }
+      # # define knots in top environment to return once for all genes
+      # if (!exists("knotPoints", where = "package:tradeSeq")) {
+      #   # knotPoints <<- m$smooth[[1]]$xp
+      #   assign("knotPoints", m$smooth[[1]]$xp, pos = 1)
+      # }
+      # return(list(beta = beta, Sigma = Sigma))
     } else return(m)
 
   }
@@ -280,9 +293,10 @@
     # return output
     return(list(beta = betaAllDf,
                 Sigma = SigmaAll,
-                X = X,
-                dm = dm,
-                knotPoints = knotPoints))
+                X = gamList[[1]]$X,
+                dm = gamList[[1]]$dm,
+                knotPoints = gamList[[1]]$knotPoints)
+           )
   } else {
     return(gamList)
   }
@@ -445,10 +459,11 @@ setMethod(f = "fitGAM",
             df$beta <- tibble::tibble(gamOutput$beta)
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
-            SummarizedExperiment::colData(sc)$tradeSeq <- tibble::tibble(X = X,
-                                                    dm = dm)
+            SummarizedExperiment::colData(sc)$tradeSeq <- 
+              tibble::tibble(X = gamOutput$X, dm = gamOutput$dm)
             # metadata: tradeSeq knots
-            S4Vectors::metadata(sc)$tradeSeq <- list(knots = gamOutput$knotPoints)
+            S4Vectors::metadata(sc)$tradeSeq <- 
+              list(knots = gamOutput$knotPoints)
             return(sc)
           }
 )
