@@ -170,20 +170,20 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   if (is(sigmaInv)[1] == "try-error") {
     return(c(NA, NA, NA, NA))
   }
-  logFCCutoff <- log(2^l2fc) #log2 to log scale
-  estFC <- (t(LQR) %*% beta) #estimated log fold change
-  if(abs(estFC) < logFCCutoff){
-    est <- 0
-  } else {
-    est <- abs(estFC) - logFCCutoff #test against threshold
-  }
+  logFCCutoff <- log(2^l2fc) # log2 to log scale
+  estFC <- (t(LQR) %*% beta) # estimated log fold change
+  est <- pmax(0, abs(estFC) - logFCCutoff) # zero or remainder
   wald <- t(est) %*%
     sigmaInv %*%
     est
   if (wald < 0) wald <- 0
   df <- ncol(LQR)
   pval <- 1 - pchisq(wald, df = df)
-  return(c(estFC, wald, df, pval))
+
+  ## get ALL observed fold changes for output
+  # obsFC <- t(L) %*% beta
+  # return(c(wald, df, pval, obsFC))
+  return(c(wald, df, pval))
 }
 
 # get predictor matrix for a range of pseudotimes of a smoother.
@@ -340,6 +340,13 @@ getRank <- function(m,L){
   r <- sum(eSigma$values / eSigma$values[1] > 1e-8)
   return(r)
 }
+
+.getFoldChanges <- function(beta, L){
+  apply(L,2,function(contrast) contrast %*% beta)
+}
+
+
+
 
 .onAttach <- function(libname, pkgname){
   packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",

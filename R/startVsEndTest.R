@@ -167,6 +167,7 @@
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
+#' @param l2fc Numeric: log2 fold change threshold to test against.
 #' @param pseudotimeValues A vector of length 2, specifying two pseudotime
 #' values to be compared against each other, for every lineage of
 #'  the trajectory.
@@ -191,7 +192,8 @@ setMethod(f = "startVsEndTest",
           definition = function(models,
                                 global = TRUE,
                                 lineages = FALSE,
-                                pseudotimeValues = NULL){
+                                pseudotimeValues = NULL,
+                                l2fc = 0){
 
             res <- .startVsEndTest(models = models,
                                 global = global,
@@ -209,7 +211,8 @@ setMethod(f = "startVsEndTest",
           definition = function(models,
                                 global = TRUE,
                                 lineages = FALSE,
-                                pseudotimeValues = NULL){
+                                pseudotimeValues = NULL,
+                                l2fc = 0){
 
             res <- .startVsEndTest(models = models,
                                 global = global,
