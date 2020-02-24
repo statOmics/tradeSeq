@@ -371,6 +371,7 @@
 #' @importFrom S4Vectors DataFrame metadata
 #' @importFrom methods is
 #' @importFrom tibble enframe tibble
+#' @rdname fitGAM
 #' @export
 setMethod(f = "fitGAM",
           signature = c(counts = "matrix"),
@@ -392,33 +393,25 @@ setMethod(f = "fitGAM",
             if (is.null(counts)) stop("Provide expression counts using counts",
                                       " argument.")
 
-
-            if (is(counts, "SingleCellExperiment")) {
-              # check if pseudotime and cellWeights provided
-
-            } else {
-              ## either pseudotime or slingshot object should be provided
-              if (is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))) {
-                stop("Either provide the slingshot object using the sds ",
-                     "argument, or provide pseudotime and cell-level weights ",
-                     "manually using pseudotime and cellWeights arguments.")
-              }
-
-              if (!is.null(sds)) {
-                # check if input is slingshotdataset
-                if (is(sds, "SlingshotDataSet")) {
-                  if (!sce) {
-                    warning(paste0(
-                      "If an sds argument is provided, the sce argument is ",
-                      "forced to TRUE "))
-                    sce <- TRUE
-                  }
-                } else stop("sds argument must be a SlingshotDataSet object.")
-
-                # extract variables from slingshotdataset
-                pseudotime <- slingPseudotime(sds, na = FALSE)
-                cellWeights <- slingCurveWeights(sds)
-              }
+            ## either pseudotime or slingshot object should be provided
+            if (is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))) {
+              stop("Either provide the slingshot object using the sds ",
+                   "argument, or provide pseudotime and cell-level weights ",
+                   "manually using pseudotime and cellWeights arguments.")
+            }
+            if (!is.null(sds)) {
+              # check if input is slingshotdataset
+              if (is(sds, "SlingshotDataSet")) {
+                if (!sce) {
+                  warning(paste0(
+                    "If an sds argument is provided, the sce argument is ",
+                    "forced to TRUE "))
+                  sce <- TRUE
+                }
+              } else stop("sds argument must be a SlingshotDataSet object.")
+              # extract variables from slingshotdataset
+              pseudotime <- slingPseudotime(sds, na = FALSE)
+              cellWeights <- slingCurveWeights(sds)
             }
 
 
@@ -460,4 +453,53 @@ setMethod(f = "fitGAM",
               list(knots = gamOutput$knotPoints)
             return(sc)
           }
+)
+
+#' @rdname fitGAM
+#' @importFrom SummarizedExperiment assays colData
+#' @importFrom S4Vectors DataFrame metadata
+#' @importFrom slingshot SlingshotDataSet
+#' @importFrom SingleCellExperiment counts
+setMethod(f = "fitGAM",
+          signature = c(counts = "SingleCellExperiment"),
+          definition = function(counts,
+                                U = NULL,
+                                weights = NULL,
+                                offset = NULL,
+                                nknots = 6,
+                                verbose = TRUE,
+                                parallel = FALSE,
+                                BPPARAM = BiocParallel::bpparam(),
+                                control = mgcv::gam.control(),
+                                sce = TRUE,
+                                family = "nb"){
+          gamOutput <- fitGAM(counts = SingleCellExperiment::counts(counts),
+                              U = U,
+                              sds = slingshot::SlingshotDataSet(counts),
+                              weights = weights,
+                              offset = offset,
+                              nknots = nknots,
+                              verbose = verbose,
+                              parallel = parallel,
+                              BPPARAM = BPPARAM,
+                              control = control,
+                              sce = sce,
+                              family = family)
+          
+          SummarizedExperiment::colData(counts)$slingshot <- 
+            SummarizedExperiment::colData(gamOutput)$slingshot
+          # tradeSeq gene-level info
+          SummarizedExperiment::rowData(counts)$tradeSeq <- 
+            SummarizedExperiment::rowData(gamOutput)$tradeSeq
+          # tradeSeq cell-level info
+          SummarizedExperiment::colData(counts)$tradeSeq <- 
+            SummarizedExperiment::colData(gamOutput)$tradeSeq
+          # metadata: tradeSeq knots
+          S4Vectors::metadata(counts)$tradeSeq <- 
+            S4Vectors::metadata(gamOutput)$tradeSeq
+          
+          return(counts)
+          }
+      
+          
 )
