@@ -371,7 +371,6 @@
 #' @importFrom S4Vectors DataFrame metadata
 #' @importFrom methods is
 #' @importFrom tibble enframe tibble
-#' @rdname fitGAM
 #' @export
 setMethod(f = "fitGAM",
           signature = c(counts = "matrix"),
