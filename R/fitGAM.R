@@ -472,6 +472,11 @@ setMethod(f = "fitGAM",
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
                                 family = "nb"){
+          if (is.null(sce@int_metadata$slingshot)) {
+            stop(paste0("For now tradeSeq only works downstream of slingshot",
+                        "in this format.\n Consider using the method with a ",
+                        "matrix as input instead."))
+          }
           gamOutput <- fitGAM(counts = SingleCellExperiment::counts(counts),
                               U = U,
                               sds = slingshot::SlingshotDataSet(counts),
