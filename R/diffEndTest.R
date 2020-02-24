@@ -130,7 +130,6 @@
 
 
 
-  # return output
   ## get fold changes for output
   if(!sce){
     fcAll <- lapply(models, function(m){
@@ -151,7 +150,7 @@
     if(ncol(L)>1) fcAll <- t(fcAll)
     colnames(fcAll) <- paste0("logFC",colnames(L))
   }
-
+  # return output
   if (global == TRUE & pairwise == FALSE) return(cbind(waldResults, fcAll))
   if (global == FALSE & pairwise == TRUE) return(cbind(waldResAllPair, fcAll))
   if (global == TRUE & pairwise == TRUE) {
