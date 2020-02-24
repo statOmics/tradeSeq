@@ -37,6 +37,7 @@ listFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
 rm(cellWeights, counts, dispersions, means, pseudotime, G, id, n)
 
 # Do the tests ----
+## Estimates
 test_that("NB-GAM estimates are equal all input.",{
   # extract coefficients
   betaSds <- as.matrix(rowData(sdsFit)$tradeSeq$beta)
@@ -53,6 +54,12 @@ test_that("NB-GAM estimates are equal all input.",{
   names(SigmaSce) <- names(SigmaSds) <- names(SigmaList)
   expect_equal(SigmaSds, SigmaList)
   expect_equal(SigmaSce, SigmaList)
+})
+
+## nknots 
+test_that("NB-GAM estimates are equal all input.",{
+  expect_equal(nknots(sceFit), nknots(sdsFit))
+  expect_equal(nknots(sceFit), nknots(listFit))
 })
 
 # DE tests

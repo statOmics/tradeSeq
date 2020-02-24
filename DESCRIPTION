@@ -29,6 +29,7 @@ Collate:
     'fitGAM.R'
     'getSmootherPvalues.R'
     'getSmootherTestStats.R'
+    'nknots.R'
     'patternTest.R'
     'plotGeneCount.R'
     'plotSmoothers.R'
