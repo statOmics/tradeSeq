@@ -72,61 +72,21 @@
 # TODO: make sure error messages in fitting are silent,
 # but print summary at end.
 
-
-.fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-                    offset = NULL, nknots = 6, verbose = TRUE, parallel = FALSE,
-                    BPPARAM = BiocParallel::bpparam(), aic = FALSE,
-                    control = mgcv::gam.control(), sce = TRUE, family = "nb"){
-
-  # TODO: make sure warning message for knots prints after looping
-
-  if (parallel) {
-    BiocParallel::register(BPPARAM)
-    if (verbose) {
-      # update progress bar 40 times
-      BPPARAM$tasks = as.integer(40)
-      # show progress bar
-      BPPARAM$progressbar = TRUE
-    }
-  }
-
-
-  # Convert pseudotime and weights to matrices if need be
-  if (is.null(dim(pseudotime))) {
-    pseudotime <- matrix(pseudotime, nrow = length(pseudotime))
-  }
-  if (is.null(dim(cellWeights))) {
-    cellWeights <- matrix(cellWeights, nrow = length(cellWeights))
-  }
-
-  .checks(pseudotime, cellWeights, U, counts)
-
-  wSamp <- .assignCells(cellWeights)
-  
-  # define pseudotime for each lineage
+.findKnots <- function(nknots, pseudotime, wSamp) {
+  # Easier to recreate them all here than to pass them on
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("t",ii), pseudotime[,ii])
   }
-  # get lineage indicators for cells to use in smoothers
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("l",ii),1*(wSamp[,ii] == 1))
   }
   
-  # offset
-  offset <- .get_offset(offset, counts)
-  
-  # fit model
-  ## fixed effect design matrix
-  if (is.null(U)) {
-    U <- matrix(rep(1, nrow(pseudotime)), ncol = 1)
-  }
-
-  ## fit NB GAM
-  ### get knots to end at last points of lineages ---- 
+  # Get the times for the knots
   tAll <- c()
   for (ii in seq_len(nrow(pseudotime))) {
     tAll[ii] <- pseudotime[ii, which(as.logical(wSamp[ii,]))]
   }
+  
   knotLocs <- quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
   if (any(duplicated(knotLocs))) {
     # fix pathological case where cells can be squeezed on one pseudotime value.
@@ -182,16 +142,71 @@
     }
     knots <- knotLocs
   }
-
+  
   # guarantees that first knot is 0 and last knot is maximum pseudotime.
   knots[1] <- min(tAll)
   knots[nknots] <- max(tAll)
-
+  
   knotList <- lapply(seq_len(ncol(pseudotime)), function(i){
     knots
   })
   names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
   
+  return(knotList)
+}
+
+.fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
+                    offset = NULL, nknots = 6, verbose = TRUE, parallel = FALSE,
+                    BPPARAM = BiocParallel::bpparam(), aic = FALSE,
+                    control = mgcv::gam.control(), sce = TRUE, family = "nb"){
+
+  # TODO: make sure warning message for knots prints after looping
+
+  if (parallel) {
+    BiocParallel::register(BPPARAM)
+    if (verbose) {
+      # update progress bar 40 times
+      BPPARAM$tasks = as.integer(40)
+      # show progress bar
+      BPPARAM$progressbar = TRUE
+    }
+  }
+
+
+  # Convert pseudotime and weights to matrices if need be
+  if (is.null(dim(pseudotime))) {
+    pseudotime <- matrix(pseudotime, nrow = length(pseudotime))
+  }
+  if (is.null(dim(cellWeights))) {
+    cellWeights <- matrix(cellWeights, nrow = length(cellWeights))
+  }
+
+  .checks(pseudotime, cellWeights, U, counts)
+
+  wSamp <- .assignCells(cellWeights)
+  
+  # define pseudotime for each lineage
+  for (ii in seq_len(ncol(pseudotime))) {
+    assign(paste0("t",ii), pseudotime[,ii])
+  }
+  # get lineage indicators for cells to use in smoothers
+  for (ii in seq_len(ncol(pseudotime))) {
+    assign(paste0("l",ii),1*(wSamp[,ii] == 1))
+  }
+  
+  # offset
+  offset <- .get_offset(offset, counts)
+  
+  # fit model
+  ## fixed effect design matrix
+  if (is.null(U)) {
+    U <- matrix(rep(1, nrow(pseudotime)), ncol = 1)
+  }
+
+  ## Get the knots
+  knotList <- .findKnots(nknots, pseudotime, wSamp)
+  
+  ## fit NB GAM
   ### Actually fit the model ---- 
   teller <- 0
   counts_to_Gam <- function(y) {
@@ -213,50 +228,7 @@
       mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
                 control = control),
       silent = TRUE)
-
-    # QC
-    p <- ncol(U)
-    nCurves <- ncol(pseudotime)
-    nParam <- p + nknots*nCurves
-
-    if (sce) { #don't return full GAM model for sce output.
-      if (is(m, "try-error")) {
-        beta <- NA
-        Sigma <- NA
-      } else {
-        beta <- matrix(coef(m), ncol = 1)
-        rownames(beta) <- names(coef(m))
-        Sigma <- m$Vp
-      }
-      
-      if (teller == 1) {
-        X <- predict(m, type = "lpmatrix")
-        dm <- m$model[, -1]
-        knotPoints <- m$smooth[[1]]$xp
-        return(list(beta = beta, Sigma = Sigma, X = X, dm = dm,
-                    knotPoints = knotPoints))
-      } else {
-        return(list(beta = beta, Sigma = Sigma))
-      }
-      
-      # # define lpmatrix in top environment to return once for all genes
-      # if (!exists("X", where = "package:tradeSeq")) {
-      #   # X <<- predict(m, type = "lpmatrix")
-      #   assign("X", predict(m, type = "lpmatrix"), pos = 1)
-      # }
-      # # define model frame in top environment to return once for all genes
-      # if (!exists("dm", where <- "package:tradeSeq")) {
-      #   # dm <<- m$model[, -1]
-      #   assign("dm",  m$model[, -1], pos = 1)
-      # }
-      # # define knots in top environment to return once for all genes
-      # if (!exists("knotPoints", where = "package:tradeSeq")) {
-      #   # knotPoints <<- m$smooth[[1]]$xp
-      #   assign("knotPoints", m$smooth[[1]]$xp, pos = 1)
-      # }
-      # return(list(beta = beta, Sigma = Sigma))
-    } else return(m)
-
+   return(m)
   }
 
   #### fit models
@@ -283,19 +255,41 @@
 
   if (sce) { #tidy output: also return X
     # tidy smoother regression coefficients
-    betaAll <- lapply(gamList,"[[",1)
+    betaAll <- lapply(gamList, function(m) {
+      if (is(m, "try-error")) {
+        beta <- NA
+      } else {
+        beta <- matrix(coef(m), ncol = 1)
+        rownames(beta) <- names(coef(m))
+      }
+      return(beta)
+    })
     betaAllDf <- data.frame(t(do.call(cbind,betaAll)))
     rownames(betaAllDf) <- rownames(counts)
 
     # list of variance covariance matrices
-    SigmaAll <- lapply(gamList,"[[",2)
-
+    SigmaAll <- lapply(gamList, function(m) {
+      if (is(m, "try-error")) {
+        Sigma <- NA
+      } else {
+        Sigma <- m$Vp
+      }
+      return(Sigma)
+    })
+    
+    # Get X, dm and knotPoints
+    element <- min(which(!is.na(SigmaAll)))
+    m <- gamList[[element]]
+    X <- predict(m, type = "lpmatrix")
+    dm <- m$model[, -1]
+    knotPoints <- m$smooth[[1]]$xp
+    
     # return output
     return(list(beta = betaAllDf,
                 Sigma = SigmaAll,
-                X = gamList[[1]]$X,
-                dm = gamList[[1]]$dm,
-                knotPoints = gamList[[1]]$knotPoints)
+                X = X,
+                dm = dm,
+                knotPoints = knotPoints)
            )
   } else {
     return(gamList)
