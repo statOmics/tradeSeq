@@ -365,14 +365,9 @@ Fitted values from the `tradeSeq` models, which can subsequently be used for clu
 Either of these may be used as input to a clustering method; roughly, `predictSmooth` may be considered as a cleaner version of `predictCells`.
 
 ```{r}
-yhat <- predictCells(models=sce, 
-                     counts=counts, 
-                     gene="Irf8")
+yhat <- predictCells(models = sce, gene = "Irf8")
 
-ysmooth <- predictSmooth(models=sce,
-                         counts=counts,
-                         gene="Irf8",
-                         nPoints=40)
+ysmooth <- predictSmooth(models = sce, gene = "Irf8", nPoints = 40)
 ```
 
 

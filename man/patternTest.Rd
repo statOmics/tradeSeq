@@ -8,9 +8,19 @@
 \usage{
 patternTest(models, ...)
 
-\S4method{patternTest}{list}(models, global = TRUE, pairwise = FALSE, nPoints = 100)
+\S4method{patternTest}{list}(
+  models,
+  global = TRUE,
+  pairwise = FALSE,
+  nPoints = 2 * nknots(models)
+)
 
-\S4method{patternTest}{SingleCellExperiment}(models, global = TRUE, pairwise = FALSE, nPoints = 100)
+\S4method{patternTest}{SingleCellExperiment}(
+  models,
+  global = TRUE,
+  pairwise = FALSE,
+  nPoints = 2 * nknots(models)
+)
 }
 \arguments{
 \item{models}{The fitted GAMs, typically the output from
@@ -23,7 +33,7 @@ patternTest(models, ...)
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 
 \item{nPoints}{The number of points to be compared between lineages.
-Defaults to 100.}
+Defaults to twice the number of knots}
 }
 \value{
 A matrix with the Wald statistic, the number of df and the p-value

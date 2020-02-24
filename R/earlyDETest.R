@@ -186,6 +186,7 @@
 #' @param knots A vector of length 2 specifying the knots before and after the
 #'  region of interest.
 #' @param nPoints The number of points to be compared between lineages.
+#' Defaults to twice the number of knots
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
@@ -207,7 +208,7 @@ setMethod(f = "earlyDETest",
                                 global = TRUE,
                                 pairwise = FALSE,
                                 knots = NULL,
-                                nPoints = 100){
+                                nPoints = 2 * nknots(models)){
 
             res <- .earlyDETest(models = models,
                                 global = global,
@@ -227,7 +228,7 @@ setMethod(f = "earlyDETest",
                                 global = TRUE,
                                 pairwise = FALSE,
                                 knots = NULL,
-                                nPoints = 100){
+                                nPoints = 2 * nknots(models)){
 
             res <- .earlyDETest(models = models,
                                 global = global,

@@ -3,11 +3,14 @@
 \name{predictCells}
 \alias{predictCells}
 \alias{predictCells,SingleCellExperiment-method}
+\alias{predictCells,list-method}
 \title{predictCells}
 \usage{
 predictCells(models, ...)
 
-\S4method{predictCells}{SingleCellExperiment}(models, counts, gene)
+\S4method{predictCells}{SingleCellExperiment}(models, gene)
+
+\S4method{predictCells}{list}(models, gene)
 }
 \arguments{
 \item{models}{Either the \code{SingleCellExperiment} object obtained after
@@ -16,8 +19,6 @@ if working with the list output of \code{tradeSeq}.}
 
 \item{...}{parameters including:}
 
-\item{counts}{The matrix of gene expression counts.}
-
 \item{gene}{Gene name of gene for which to extract fitted values.}
 }
 \value{
@@ -25,4 +26,8 @@ A vector of fitted values.
 }
 \description{
 Get fitted values for each cell.
+}
+\examples{
+data(gamList, package = "tradeSeq")
+predictCells(models = gamList, gene = 1)
 }

@@ -138,3 +138,15 @@ setGeneric(
     standardGeneric("predictCells")
   }
 )
+
+#' @export
+#' @name nknots
+#' @title knots
+#' @param ... parameters including:
+setGeneric(
+  name = "nknots",
+  signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("nknots")
+  }
+)

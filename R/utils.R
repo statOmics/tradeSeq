@@ -57,7 +57,6 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   return(Xout)
 }
 
-
 # get predictor matrix for the end point of a smoother.
 .getPredictEndPointDf <- function(dm, lineageId){
   # note that X or offset variables dont matter as long as they are the same,
@@ -213,7 +212,6 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
                                             pattern = "offset")])
   return(vars)
 }
-
 
 .patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints=100){
 

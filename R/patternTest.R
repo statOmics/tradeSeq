@@ -5,7 +5,7 @@
 #' @param models The fitted GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints The number of points to be compared between lineages.
-#' Defaults to 100.
+#' Defaults to twice the number of knots
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @importFrom magrittr %>%
@@ -23,7 +23,7 @@ setMethod(f = "patternTest",
           definition = function(models,
                                 global = TRUE,
                                 pairwise = FALSE,
-                                nPoints = 100){
+                                nPoints = 2 * nknots(models)){
 
             res <- .earlyDETest(models = models,
                                 global = global,
@@ -42,7 +42,7 @@ setMethod(f = "patternTest",
           definition = function(models,
                                 global = TRUE,
                                 pairwise = FALSE,
-                                nPoints = 100){
+                                nPoints = 2 * nknots(models)){
 
             res <- .earlyDETest(models = models,
                                 global = global,

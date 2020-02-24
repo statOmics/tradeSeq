@@ -25,22 +25,12 @@ counts <- matrix(rnbinom(n = G * n, mu = means, size = 1 / dispersions),
 # fitGAM tests
 set.seed(3)
 sdsFit <- tradeSeq::fitGAM(counts, sds, nknots = 3, verbose = FALSE)
-set.seed(3)
-sceFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime, 
-                           cellWeights = cellWeights, nknots = 3, 
-                           verbose = FALSE)
-set.seed(3)
-listFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
-                            cellWeights = cellWeights, nknots = 3,
-                            verbose = FALSE, sce = FALSE)
 rm(cellWeights, counts, dispersions, means, pseudotime, G, id, n)
 # Compare the tests ----
 # patternTest and earlyDETest
-patSds <- tradeSeq::patternTest(sdsFit, global = TRUE, pairwise = FALSE)
-edtSds <- tradeSeq::earlyDETest(sdsFit, global = TRUE, pairwise = FALSE,
-                                knots = NULL)
-
 test_that("patternTest and earlyDETest are equal if knots=NULL.", {
+  patSds <- tradeSeq::patternTest(sdsFit, global = TRUE, pairwise = FALSE)
+  edtSds <- tradeSeq::earlyDETest(sdsFit, global = TRUE, pairwise = FALSE,
+                                  knots = NULL)
   expect_equal(patSds, edtSds)
 })
-rm(patSds, edtSds)

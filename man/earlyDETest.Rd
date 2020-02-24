@@ -13,7 +13,7 @@ earlyDETest(models, ...)
   global = TRUE,
   pairwise = FALSE,
   knots = NULL,
-  nPoints = 100
+  nPoints = 2 * nknots(models)
 )
 
 \S4method{earlyDETest}{list}(
@@ -21,7 +21,7 @@ earlyDETest(models, ...)
   global = TRUE,
   pairwise = FALSE,
   knots = NULL,
-  nPoints = 100
+  nPoints = 2 * nknots(models)
 )
 }
 \arguments{
@@ -37,7 +37,8 @@ earlyDETest(models, ...)
 \item{knots}{A vector of length 2 specifying the knots before and after the
 region of interest.}
 
-\item{nPoints}{The number of points to be compared between lineages.}
+\item{nPoints}{The number of points to be compared between lineages.
+Defaults to twice the number of knots}
 }
 \value{
 A matrix with the Wald statistic, the number of df and the p-value

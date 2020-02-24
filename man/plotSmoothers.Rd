@@ -17,7 +17,8 @@ plotSmoothers(models, ...)
   xlab = "Pseudotime",
   ylab = "Log(expression + 1)",
   border = TRUE,
-  alpha = 1
+  alpha = 1,
+  sample = 1
 )
 
 \S4method{plotSmoothers}{SingleCellExperiment}(
@@ -30,7 +31,8 @@ plotSmoothers(models, ...)
   xlab = "Pseudotime",
   ylab = "Log(expression + 1)",
   border = TRUE,
-  alpha = 1
+  alpha = 1,
+  sample = 1
 )
 }
 \arguments{
@@ -55,6 +57,9 @@ Defaults to 100.}
 
 \item{alpha}{Numeric between 0 and 1, determines the transparancy of data points,
 see \code{scale_color_viridis_d}.}
+
+\item{sample}{Numeric between 0 and 1, use to subsample the cells when there
+are too many so that it can plot faster.}
 
 \item{counts}{The matrix of gene expression counts.}
 
