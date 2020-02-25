@@ -2,7 +2,7 @@
 
 
 .earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
-                        pairwise = FALSE){
+                        pairwise = FALSE, l2fc=0){
 
   if (is(models, "list")) {
     sce <- FALSE
@@ -88,13 +88,13 @@
         if (is(m)[1] == "try-error") return(c(NA))
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
-        getEigenStatGAM(beta, Sigma, L)
+        getEigenStatGAMFC(beta, Sigma, L, l2fc)
       })
     } else if (sce) {
       waldResOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        getEigenStatGAM(beta, Sigma, L)
+        getEigenStatGAMFC(beta, Sigma, L, l2fc)
       })
       names(waldResOmnibus) <- rownames(models)
     }
@@ -129,7 +129,7 @@
           if (is(m)[1] == "try-error") return(c(NA))
           beta <- matrix(coef(m), ncol = 1)
           Sigma <- m$Vp
-          getEigenStatGAM(beta, Sigma, L)
+          getEigenStatGAMFC(beta, Sigma, L, l2fc)
           })
 
       } else if(sce){
@@ -150,7 +150,7 @@
         waldResPair <- lapply(seq_len(nrow(models)), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-          getEigenStatGAM(beta, Sigma, L)
+          getEigenStatGAMFC(beta, Sigma, L, l2fc)
         })
       }
       # tidy output
@@ -167,11 +167,38 @@
     }
   }
 
+  ## get fold changes
+  ## get fold changes for output
+  if(!sce){
+    fcAll <- lapply(models, function(m){
+      betam <- coef(m)
+      fcAll <- .getFoldChanges(beta, L)
+      return(fcAll)
+    })
+    if(ncol(L) == 1){
+      fcMedian <- matrix(unlist(fcAll), ncol=1)
+    }
+    if(ncol(L) > 1){
+      fcMedian <- rowMedians(do.call(rbind, fcAll))
+    }
+
+  } else if(sce){
+    betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
+    fcAll <- apply(betaAll,1,function(betam){
+      fcAll <- .getFoldChanges(betam, L)
+    })
+    if(ncol(L) == 1){
+      fcMedian <- matrix(fcAll, ncol=1)
+    }
+    if(ncol(L)>1){
+      fcMedian <- matrix(rowMedians(t(fcAll)), ncol=1)
+    }
+  }
   #return output
-  if (global == TRUE & pairwise == FALSE) return(waldResultsOmnibus)
-  if (global == FALSE & pairwise == TRUE) return(waldResAllPair)
+  if (global == TRUE & pairwise == FALSE) return(cbind(waldResultsOmnibus, fcMedian))
+  if (global == FALSE & pairwise == TRUE) return(cbind(waldResAllPair, fcMedian))
   if (global == TRUE & pairwise == TRUE) {
-    waldAll <- cbind(waldResultsOmnibus, waldResAllPair)
+    waldAll <- cbind(waldResultsOmnibus, waldResAllPair, fcMedian)
     return(waldAll)
   }
 }
@@ -188,12 +215,17 @@
 #' @param nPoints The number of points to be compared between lineages.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' @param l2fc The log2 fold change threshold to test against. Note, that
+#' this will affect both the global test and the pairwise comparisons.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' earlyDETest(gamList, knots = c(1, 2), global = TRUE, pairwise = TRUE)
-#' @return A matrix with the Wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed.
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed. Also, for each possible
+#'  pairwise comparision, the observed log fold changes. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics,
+#'  fold changes and p-values.
 #' @details To help the user in choosing which knots to use when defining the
 #' branching, the \code{\link{plotGeneCount}} function has a models optional
 #' parameter that can be used to visualize where the knots are.
@@ -207,13 +239,15 @@ setMethod(f = "earlyDETest",
                                 global = TRUE,
                                 pairwise = FALSE,
                                 knots = NULL,
-                                nPoints = 100){
+                                nPoints = 100,
+                                l2fc = 0){
 
             res <- .earlyDETest(models = models,
                                 global = global,
                                 pairwise = pairwise,
                                 knots = knots,
-                                nPoints = nPoints)
+                                nPoints = nPoints,
+                                l2fc = l2fc)
             return(res)
 
           }
@@ -227,13 +261,15 @@ setMethod(f = "earlyDETest",
                                 global = TRUE,
                                 pairwise = FALSE,
                                 knots = NULL,
-                                nPoints = 100){
+                                nPoints = 100,
+                                l2fc = 0){
 
             res <- .earlyDETest(models = models,
                                 global = global,
                                 pairwise = pairwise,
                                 knots = knots,
-                                nPoints = nPoints)
+                                nPoints = nPoints,
+                                l2fc = l2fc)
             return(res)
           }
 )

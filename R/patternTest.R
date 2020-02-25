@@ -4,6 +4,8 @@
 #' @description Assess differences in expression patterns between lineages.
 #' @param models The fitted GAMs, typically the output from
 #' \code{\link{fitGAM}}.
+#' @param l2fc The log2 fold change threshold to test against. Note, that
+#' this will affect both the global test and the pairwise comparisons.
 #' @param nPoints The number of points to be compared between lineages.
 #' Defaults to 100.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
@@ -12,10 +14,11 @@
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' patternTest(gamList, global = TRUE, pairwise = TRUE)
-#' @return A matrix with the Wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed. Also, for each possible
+#'  pairwise comparision, the observed log fold changes. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics,
+#'  fold changes and p-values.
 #' @rdname patternTest
 #' @export
 setMethod(f = "patternTest",
@@ -23,13 +26,15 @@ setMethod(f = "patternTest",
           definition = function(models,
                                 global = TRUE,
                                 pairwise = FALSE,
-                                nPoints = 100){
+                                nPoints = 100,
+                                l2fc = 0){
 
             res <- .earlyDETest(models = models,
                                 global = global,
                                 pairwise = pairwise,
                                 knots = NULL,
-                                nPoints = nPoints)
+                                nPoints = nPoints,
+                                l2fc = l2fc)
             return(res)
           }
 )
@@ -42,13 +47,15 @@ setMethod(f = "patternTest",
           definition = function(models,
                                 global = TRUE,
                                 pairwise = FALSE,
-                                nPoints = 100){
+                                nPoints = 100,
+                                l2fc = 0){
 
             res <- .earlyDETest(models = models,
                                 global = global,
                                 pairwise = pairwise,
                                 knots = NULL,
-                                nPoints = nPoints)
+                                nPoints = nPoints,
+                                l2fc = l2fc)
             return(res)
 
           }

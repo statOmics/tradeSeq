@@ -273,6 +273,23 @@ getEigenStatGAM <- function(beta, Sigma, L){
   return(c(stat, r))
 }
 
+getEigenStatGAMFC <- function(beta, Sigma, L, l2fc){
+  estFC <- t(L) %*% beta
+  logFCCutoff <- log(2^l2fc) # log2 to log scale
+  est <- pmax(0, abs(estFC) - logFCCutoff) # zero or remainder
+  sigma <- t(L) %*% Sigma %*% L
+  eSigma <- eigen(sigma, symmetric = TRUE)
+  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent = TRUE)
+  if (is(r)[1] == "try-error") {
+    return(c(NA, NA))
+  }
+  if (r == 1) return(c(NA, NA)) # CHECK
+  halfCovInv <- eSigma$vectors[, seq_len(r)] %*% (diag(1 / sqrt(eSigma$values[seq_len(r)])))
+  halfStat <- t(est) %*% halfCovInv
+  stat <- crossprod(t(halfStat))
+  return(c(stat, r))
+}
+
 .patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
                                      knots = NULL){
   Knot <- !is.null(knots)

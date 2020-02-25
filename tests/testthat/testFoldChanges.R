@@ -61,7 +61,3 @@ test_that("startVsEndTest p-values are 1 if FC below threshold.", {
   expect_true(all(start15$pvalue[abs(start15$logFC1_2) < log(1.5)] == 1))
 })
 
-
-
-
-
