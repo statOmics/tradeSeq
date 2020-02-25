@@ -167,7 +167,6 @@
     }
   }
 
-  ## get fold changes
   ## get fold changes for output
   if(!sce){
     fcAll <- lapply(models, function(m){
@@ -175,24 +174,14 @@
       fcAll <- .getFoldChanges(beta, L)
       return(fcAll)
     })
-    if(ncol(L) == 1){
-      fcMedian <- matrix(unlist(fcAll), ncol=1)
-    }
-    if(ncol(L) > 1){
-      fcMedian <- rowMedians(do.call(rbind, fcAll))
-    }
+    fcMedian <- rowMedians(abs(do.call(rbind, fcAll)))
 
   } else if(sce){
     betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
     fcAll <- apply(betaAll,1,function(betam){
       fcAll <- .getFoldChanges(betam, L)
     })
-    if(ncol(L) == 1){
-      fcMedian <- matrix(fcAll, ncol=1)
-    }
-    if(ncol(L)>1){
-      fcMedian <- matrix(rowMedians(t(fcAll)), ncol=1)
-    }
+    fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol=1)
   }
   #return output
   if (global == TRUE & pairwise == FALSE) return(cbind(waldResultsOmnibus, fcMedian))
