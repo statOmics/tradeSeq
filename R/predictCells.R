@@ -35,7 +35,7 @@ setMethod(f = "predictCells",
             yhat <- exp(t(X %*% t(beta)) +
                           matrix(dm$offset, nrow = length(gene), 
                                  ncol = nrow(X), byrow = TRUE))
-            colnames(yhat) <- colnames(sdsFit)
+            colnames(yhat) <- colnames(models)
             rownames(yhat) <- gene
             return(yhat)
           }

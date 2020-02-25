@@ -14,6 +14,7 @@ fitGAM(counts, ...)
   pseudotime = NULL,
   cellWeights = NULL,
   U = NULL,
+  genes = seq_len(nrow(counts)),
   weights = NULL,
   offset = NULL,
   nknots = 6,
@@ -28,6 +29,7 @@ fitGAM(counts, ...)
 \S4method{fitGAM}{SingleCellExperiment}(
   counts,
   U = NULL,
+  genes = seq_len(nrow(counts)),
   weights = NULL,
   offset = NULL,
   nknots = 6,
@@ -59,6 +61,10 @@ one column containing all values of 1.}
 
 \item{U}{The design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}
+
+\item{genes}{The genes on which to run \code{fitGAM}. Default to all the genes.
+If only a subset of the genes is indicated, normalization will be done using
+all the genes but the smoothers will be computed only for the subset.}
 
 \item{weights}{A matrix of weights with identical dimensions
 as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
@@ -107,14 +113,16 @@ There are two ways to provide the required input in \code{fitGAM}.
 See Details and the vignette.
 }
 \details{
-\code{fitGAM} supports two different ways to input the required objects:
+\code{fitGAM} supports three different ways to input the required objects:
 \itemize{
-\item{"Count matrix and Slingshot input."}{Input count matrix using
-\code{counts} argument and Slingshot object using \code{sds} argument.}
 \item{"Count matrix and matrix of pseudotime and cellWeights input."}{
 Input count matrix using \code{counts} argument and
 pseudotimes and cellWeights as a matrix, with number of rows equal to
 number of cells, and number of columns equal to number of lineages.}
+\item{"Count matrix and Slingshot input."}{Input count matrix using
+\code{counts} argument and Slingshot object using \code{sds} argument.}
+\item{"SingleCellExperiment Object with slingshot run."}{
+Input SingleCellExperiment Object using \code{counts} argument.}
 }
 }
 \examples{

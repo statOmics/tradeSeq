@@ -71,6 +71,7 @@
 
 # TODO: make sure error messages in fitting are silent,
 # but print summary at end.
+# TODO: make sure warning message for knots prints after looping
 
 .findKnots <- function(nknots, pseudotime, wSamp) {
   # Easier to recreate them all here than to pass them on
@@ -155,13 +156,22 @@
   return(knotList)
 }
 
-.fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, weights = NULL,
-                    offset = NULL, nknots = 6, verbose = TRUE, parallel = FALSE,
-                    BPPARAM = BiocParallel::bpparam(), aic = FALSE,
-                    control = mgcv::gam.control(), sce = TRUE, family = "nb"){
+.fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, 
+                    genes = seq_len(nrow(counts)),
+                    weights = NULL, offset = NULL, nknots = 6, verbose = TRUE, 
+                    parallel = FALSE, BPPARAM = BiocParallel::bpparam(), 
+                    aic = FALSE, control = mgcv::gam.control(), sce = TRUE, 
+                    family = "nb"){
 
-  # TODO: make sure warning message for knots prints after looping
-
+  if (is(genes, "character")) {
+    if (!all(genes %in% rownames(counts))) {
+      stop("The genes ID is not present in the models object.")
+    }
+    id <- which(rownames(counts) %in% genes)
+  } else {
+    id <- genes
+  }
+  
   if (parallel) {
     BiocParallel::register(BPPARAM)
     if (verbose) {
@@ -233,15 +243,21 @@
 
   #### fit models
   if (parallel) {
-    gamList <- BiocParallel::bplapply(as.data.frame(t(as.matrix(counts))),
-                                      counts_to_Gam, BPPARAM = BPPARAM)
+    gamList <- BiocParallel::bplapply(
+      as.data.frame(t(as.matrix(counts)[id, ])),
+      counts_to_Gam, BPPARAM = BPPARAM
+    )
   } else {
     if (verbose) {
-      gamList <- pbapply::pblapply(as.data.frame(t(as.matrix(counts))),
-                                   counts_to_Gam)
+      gamList <- pbapply::pblapply(
+        as.data.frame(t(as.matrix(counts)[id, ])),
+        counts_to_Gam
+      )
     } else {
-      gamList <- lapply(as.data.frame(t(as.matrix(counts))),
-                        counts_to_Gam)
+      gamList <- lapply(
+        as.data.frame(t(as.matrix(counts)[id, ])),
+        counts_to_Gam
+      )
     }
   }
 
@@ -308,18 +324,18 @@
 #' in rows and cells in columns.
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
+#' @param sds an object of class \code{SlingshotDataSet}, typically obtained
+#' after running Slingshot. If this is provided, \code{pseudotime} and
+#' \code{cellWeights} arguments are derived from this object.
 #' @param pseudotime A matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
 #' @param cellWeights A matrix of cell weights defining the probability that a
 #' cell belongs to a particular lineage. Each row represents a cell and each
 #' column represents a lineage. If only a single lineage, provide a matrix with
 #' one column containing all values of 1.
-#' @param sds an object of class \code{SlingshotDataSet}, typically obtained
-#' after running Slingshot. If this is provided, \code{pseudotime} and
-#' \code{cellWeights} arguments are derived from this object.
-#' @param sce Logical: should output be of SingleCellExperiment class? This is
-#' recommended to be TRUE. If \code{sds} argument is specified, it will always
-#' be set to TRUE
+#' @param genes The genes on which to run \code{fitGAM}. Default to all the genes.
+#' If only a subset of the genes is indicated, normalization will be done using
+#' all the genes but the smoothers will be computed only for the subset.
 #' @param weights A matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param offset The offset, on log-scale. If NULL, TMM is used to account for
@@ -337,17 +353,22 @@
 #' @param verbose Logical, should progress be printed?
 #' @param control Variables to control fitting of the GAM, see
 #' \code{gam.control}.
+#' @param sce Logical: should output be of SingleCellExperiment class? This is
+#' recommended to be TRUE. If \code{sds} argument is specified, it will always
+#' be set to TRUE
 #' @param family The assumed distribution for the response. Is set to \code{"nb"}
 #' by default.
 #' @details
-#' \code{fitGAM} supports two different ways to input the required objects:
+#' \code{fitGAM} supports three different ways to input the required objects:
 #' \itemize{
-#' \item{"Count matrix and Slingshot input."}{Input count matrix using
-#' \code{counts} argument and Slingshot object using \code{sds} argument.}
 #' \item{"Count matrix and matrix of pseudotime and cellWeights input."}{
 #' Input count matrix using \code{counts} argument and
 #' pseudotimes and cellWeights as a matrix, with number of rows equal to
 #' number of cells, and number of columns equal to number of lineages.}
+#' \item{"Count matrix and Slingshot input."}{Input count matrix using
+#' \code{counts} argument and Slingshot object using \code{sds} argument.}
+#' \item{"SingleCellExperiment Object with slingshot run."}{
+#' Input SingleCellExperiment Object using \code{counts} argument.}
 #' }
 #' @return
 #' If \code{sce=FALSE}, returns a list of length equal to the number of genes
@@ -379,6 +400,7 @@ setMethod(f = "fitGAM",
                                 pseudotime = NULL,
                                 cellWeights = NULL,
                                 U = NULL,
+                                genes = seq_len(nrow(counts)),
                                 weights = NULL,
                                 offset = NULL,
                                 nknots = 6,
@@ -418,6 +440,7 @@ setMethod(f = "fitGAM",
                                  U = U,
                                  pseudotime = pseudotime,
                                  cellWeights = cellWeights,
+                                 genes = genes,
                                  weights = weights,
                                  offset = offset,
                                  nknots = nknots,
@@ -459,10 +482,13 @@ setMethod(f = "fitGAM",
 #' @importFrom S4Vectors DataFrame metadata
 #' @importFrom slingshot SlingshotDataSet
 #' @importFrom SingleCellExperiment counts
+#' @importFrom tibble tibble
+#' @importFrom dplyr full_join 
 setMethod(f = "fitGAM",
           signature = c(counts = "SingleCellExperiment"),
           definition = function(counts,
                                 U = NULL,
+                                genes = seq_len(nrow(counts)),
                                 weights = NULL,
                                 offset = NULL,
                                 nknots = 6,
@@ -472,7 +498,7 @@ setMethod(f = "fitGAM",
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
                                 family = "nb"){
-          if (is.null(sce@int_metadata$slingshot)) {
+          if (is.null(counts@int_metadata$slingshot)) {
             stop(paste0("For now tradeSeq only works downstream of slingshot",
                         "in this format.\n Consider using the method with a ",
                         "matrix as input instead."))
@@ -480,6 +506,7 @@ setMethod(f = "fitGAM",
           gamOutput <- fitGAM(counts = SingleCellExperiment::counts(counts),
                               U = U,
                               sds = slingshot::SlingshotDataSet(counts),
+                              genes = genes,
                               weights = weights,
                               offset = offset,
                               nknots = nknots,
@@ -490,14 +517,29 @@ setMethod(f = "fitGAM",
                               sce = sce,
                               family = family)
           
-          SummarizedExperiment::colData(counts)$slingshot <- 
-            SummarizedExperiment::colData(gamOutput)$slingshot
           # tradeSeq gene-level info
-          SummarizedExperiment::rowData(counts)$tradeSeq <- 
-            SummarizedExperiment::rowData(gamOutput)$tradeSeq
+          geneInfo <- SummarizedExperiment::rowData(gamOutput)$tradeSeq
+          if (is(genes, "character")) {
+            if (!all(genes %in% rownames(counts))) {
+              stop("The genes ID is not present in the models object.")
+            }
+            id <- which(rownames(counts) %in% genes)
+          } else {
+            id <- genes
+          }
+          if (is.null(rownames(counts))) {
+            newGeneInfo <- tibble::tibble(
+              name = paste0("V", seq_len(nrow(counts))))
+          } else {
+            newGeneInfo <- tibble::tibble(name = rownames(counts))
+          }
+          newGeneInfo <- dplyr::full_join(newGeneInfo, geneInfo, by = "name")
+          SummarizedExperiment::rowData(counts)$tradeSeq <- newGeneInfo
           # tradeSeq cell-level info
           SummarizedExperiment::colData(counts)$tradeSeq <- 
             SummarizedExperiment::colData(gamOutput)$tradeSeq
+          SummarizedExperiment::colData(counts)$slingshot <- 
+            SummarizedExperiment::colData(gamOutput)$slingshot
           # metadata: tradeSeq knots
           S4Vectors::metadata(counts)$tradeSeq <- 
             S4Vectors::metadata(gamOutput)$tradeSeq
