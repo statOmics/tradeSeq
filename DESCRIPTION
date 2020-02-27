@@ -59,6 +59,7 @@ Suggests:
     cowplot,
     dplyr,
     tidyr,
+    monocle,
     testthat
 VignetteBuilder: knitr
 biocViews:

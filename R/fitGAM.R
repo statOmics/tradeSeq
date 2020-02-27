@@ -546,6 +546,4 @@ setMethod(f = "fitGAM",
           
           return(counts)
           }
-      
-          
 )
