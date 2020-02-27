@@ -2,7 +2,7 @@
 
 
 .earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
-                        pairwise = FALSE, l2fc=0){
+                        pairwise = FALSE, l2fc = 0, eigenThresh = 1e-2){
 
   if (is(models, "list")) {
     sce <- FALSE
@@ -88,13 +88,13 @@
         if (is(m)[1] == "try-error") return(c(NA))
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
-        getEigenStatGAMFC(beta, Sigma, L, l2fc)
+        getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
       })
     } else if (sce) {
       waldResOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        getEigenStatGAMFC(beta, Sigma, L, l2fc)
+        getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
       })
       names(waldResOmnibus) <- rownames(models)
     }
@@ -129,7 +129,7 @@
           if (is(m)[1] == "try-error") return(c(NA))
           beta <- matrix(coef(m), ncol = 1)
           Sigma <- m$Vp
-          getEigenStatGAMFC(beta, Sigma, L, l2fc)
+          getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
           })
 
       } else if(sce){
@@ -150,7 +150,7 @@
         waldResPair <- lapply(seq_len(nrow(models)), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-          getEigenStatGAMFC(beta, Sigma, L, l2fc)
+          getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
         })
       }
       # tidy output
@@ -206,6 +206,9 @@
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
 #' @param l2fc The log2 fold change threshold to test against. Note, that
 #' this will affect both the global test and the pairwise comparisons.
+#' @param eigenThresh Eigenvalue threshold for inverting the variance-covariance matrix
+#' of the coefficients to use for calculating the Wald test statistics. Lower values
+#' are more lenient to adding more information but also decrease computational stability.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
@@ -229,14 +232,16 @@ setMethod(f = "earlyDETest",
                                 pairwise = FALSE,
                                 knots = NULL,
                                 nPoints = 100,
-                                l2fc = 0){
+                                l2fc = 0,
+                                eigenThresh = 1e-2){
 
             res <- .earlyDETest(models = models,
                                 global = global,
                                 pairwise = pairwise,
                                 knots = knots,
                                 nPoints = nPoints,
-                                l2fc = l2fc)
+                                l2fc = l2fc,
+                                eigenThresh = eigenThresh)
             return(res)
 
           }
@@ -251,14 +256,16 @@ setMethod(f = "earlyDETest",
                                 pairwise = FALSE,
                                 knots = NULL,
                                 nPoints = 100,
-                                l2fc = 0){
+                                l2fc = 0,
+                                eigenThresh = 1e-2){
 
             res <- .earlyDETest(models = models,
                                 global = global,
                                 pairwise = pairwise,
                                 knots = knots,
                                 nPoints = nPoints,
-                                l2fc = l2fc)
+                                l2fc = l2fc,
+                                eigenThresh = eigenThresh)
             return(res)
           }
 )

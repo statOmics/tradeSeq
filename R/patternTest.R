@@ -10,6 +10,9 @@
 #' Defaults to 100.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' @param eigenThresh Eigenvalue threshold for inverting the variance-covariance matrix
+#' of the coefficients to use for calculating the Wald test statistics. Lower values
+#' are more lenient to adding more information but also decrease computational stability.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
@@ -27,14 +30,16 @@ setMethod(f = "patternTest",
                                 global = TRUE,
                                 pairwise = FALSE,
                                 nPoints = 100,
-                                l2fc = 0){
+                                l2fc = 0,
+                                eigenThresh = 1e-2){
 
             res <- .earlyDETest(models = models,
                                 global = global,
                                 pairwise = pairwise,
                                 knots = NULL,
                                 nPoints = nPoints,
-                                l2fc = l2fc)
+                                l2fc = l2fc,
+                                eigenThresh = eigenThresh)
             return(res)
           }
 )
@@ -48,14 +53,16 @@ setMethod(f = "patternTest",
                                 global = TRUE,
                                 pairwise = FALSE,
                                 nPoints = 100,
-                                l2fc = 0){
+                                l2fc = 0,
+                                eigenThresh = 1e-2){
 
             res <- .earlyDETest(models = models,
                                 global = global,
                                 pairwise = pairwise,
                                 knots = NULL,
                                 nPoints = nPoints,
-                                l2fc = l2fc)
+                                l2fc = l2fc,
+                                eigenThresh = eigenThresh)
             return(res)
 
           }

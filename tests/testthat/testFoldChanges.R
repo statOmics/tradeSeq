@@ -42,8 +42,6 @@ test_that("diffEndTest p-values are 1 if FC below threshold.", {
   expect_true(all(diff15$pvalue[abs(diff15$logFC1_2) < log(1.5)] == 1))
 })
 
-
-
 # startVsEndTest
 start1 <- startVsEndTest(sdsFit, global=TRUE, lineages=TRUE, l2fc=log2(1))
 start11 <- startVsEndTest(sdsFit, global=TRUE, lineages=TRUE, l2fc=log2(1.1))
@@ -61,3 +59,16 @@ test_that("startVsEndTest p-values are 1 if FC below threshold.", {
   expect_true(all(start15$pvalue[abs(start15$logFC1_2) < log(1.5)] == 1))
 })
 
+# patternTest
+pat1 <- patternTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1), nPoints=20)
+pat11 <- patternTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1.1), nPoints=20)
+pat15 <- patternTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1.5), nPoints=20)
+
+
+# p-values should not be smaller if setting a threshold
+test_that("patternTest p-values are higher when setting a FC threshold.", {
+  expect_true(all(pat1$waldStat >= pat11$waldStat))
+  expect_true(all(pat1$waldStat >= pat15$waldStat))
+  expect_true(all(pat1$pvalue <= pat11$pvalue))
+  expect_true(all(pat1$pvalue <= pat15$pvalue))
+})

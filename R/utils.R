@@ -273,13 +273,13 @@ getEigenStatGAM <- function(beta, Sigma, L){
   return(c(stat, r))
 }
 
-getEigenStatGAMFC <- function(beta, Sigma, L, l2fc){
+getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
   estFC <- t(L) %*% beta
   logFCCutoff <- log(2^l2fc) # log2 to log scale
-  est <- pmax(0, abs(estFC) - logFCCutoff) # zero or remainder
+  est <- sign(estFC)*pmax(0, abs(estFC) - logFCCutoff) # zero or remainder
   sigma <- t(L) %*% Sigma %*% L
   eSigma <- eigen(sigma, symmetric = TRUE)
-  r <- try(sum(eSigma$values / eSigma$values[1] > 1e-8), silent = TRUE)
+  r <- try(sum(eSigma$values / eSigma$values[1] > eigenThresh), silent = TRUE)
   if (is(r)[1] == "try-error") {
     return(c(NA, NA))
   }
