@@ -47,8 +47,10 @@ Imports:
     RColorBrewer,
     clusterExperiment,
     BiocParallel,
+    Biobase,
     pbapply,
     ggplot2,
+    monocle,
     princurve,
     methods,
     S4Vectors,
@@ -59,7 +61,6 @@ Suggests:
     cowplot,
     dplyr,
     tidyr,
-    monocle,
     testthat
 VignetteBuilder: knitr
 biocViews:

@@ -41,7 +41,6 @@ palette(brewer.pal(8, "Dark2"))
 data(countMatrix, package = "tradeSeq")
 counts <- as.matrix(countMatrix)
 rm(countMatrix)
-data(crv, package = "tradeSeq")
 data(celltype, package = "tradeSeq")
 ```
 
@@ -51,41 +50,21 @@ We will fit developmental trajectories using the `monocle` package [@Street2018a
 
 ```{r, warning=FALSE, out.width="50%", fig.asp=.6}
 set.seed(200)
-counts <- counts[, 1:1000]
-df <- data.frame(cells = colnames(counts), cellType = celltype[1:1000])
+df <- data.frame(cells = colnames(counts), cellType = celltype)
 rownames(df) <- df$cells
 cds <- newCellDataSet(counts, phenoData = new("AnnotatedDataFrame", data = df))
 cds <- estimateSizeFactors(cds)
-cds <- reduceDimension(cds, max_components = 2, reduction_method = "ICA")
+cds <- reduceDimension(cds, max_components = 2)
 cds <- orderCells(cds)
 cds <- orderCells(cds, root_state = 5)
+rm(df, counts)
 ```
 
 
 We find 3 lineages in this case, instead of the two that are supposed to be in the dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
 
 ```{r}
-y_to_cells <- cds@auxOrderingData[[cds@dim_reduce_type]]
-y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%
-  as.data.frame() %>%
-  mutate(cells = rownames(.)) %>%
-  rename("Y" = V1)
-root <- cds@auxOrderingData[[cds@dim_reduce_type]]$root_cell
-root <- y_to_cells$Y[y_to_cells$cells == root]
-endpoints <- names(which(igraph::degree(cds@minSpanningTree) == 1))
-endpoints <- endpoints[endpoints != paste0("Y_", root)]
-mst <- cds@minSpanningTree
-cellWeights <- lapply(endpoints, function(endpoint) {
-  path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
-  path <- as.character(path)
-  df <- y_to_cells %>%
-    filter(Y %in% path)
-  df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
-  colnames(df) <- endpoint
-  return(df)
-}) %>% bind_cols() 
-pseudotime <- purrr::map_df(cellWeights, function(w) cds$Pseudotime)
-rownames(cellWeights) <- rownames(pseudotime) <- colnames(cds)
+gamModels <- fitGAM(cds, verbose = TRUE)
 ```
 
 # Session
