@@ -41,6 +41,7 @@ palette(brewer.pal(8, "Dark2"))
 data(countMatrix, package = "tradeSeq")
 counts <- as.matrix(countMatrix)
 rm(countMatrix)
+data(crv, package = "tradeSeq")
 data(celltype, package = "tradeSeq")
 ```
 
@@ -50,17 +51,18 @@ We will fit developmental trajectories using the `monocle` package [@Street2018a
 
 ```{r, warning=FALSE, out.width="50%", fig.asp=.6}
 set.seed(200)
-df <- data.frame(cells = colnames(counts), cellType = celltype)
+counts <- counts[, 1:1000]
+df <- data.frame(cells = colnames(counts), cellType = celltype[1:1000])
 rownames(df) <- df$cells
 cds <- newCellDataSet(counts, phenoData = new("AnnotatedDataFrame", data = df))
 cds <- estimateSizeFactors(cds)
-cds <- reduceDimension(cds, max_components = 2)
+cds <- reduceDimension(cds, max_components = 2, reduction_method = "ICA")
 cds <- orderCells(cds)
 cds <- orderCells(cds, root_state = 5)
 ```
 
 
-We find 3 lineages in this case, instead of the two that are supposed to be in the dataset but it for this dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
+We find 3 lineages in this case, instead of the two that are supposed to be in the dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
 
 ```{r}
 y_to_cells <- cds@auxOrderingData[[cds@dim_reduce_type]]
