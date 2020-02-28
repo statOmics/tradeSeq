@@ -1,3 +1,7 @@
+Changes in version 1.1.07 (2020-02-27):
++ added testing against fold change cut-off for all DE tests
++ default cut-off for deciding the rank of the variance-covariance matrix changed in patternTest and earlyDETest. This can impact the results of these tests. To return to original behaviour, set `eigenThresh=1e-8` argument.
+
 Changes in version 0.99.9902 (2019-10-23)
 + tradeSeq's fitGam and evaluateK functions do not have a seed argument anymore, as per Bioconductor's guidelines. Users are encouraged to set the seed manually with the set.seed function before running those functions for reproducibility purposes.
 
