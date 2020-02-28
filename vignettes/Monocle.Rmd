@@ -2,7 +2,7 @@
 title: 'Using Monocle as input to **tradeSeq**'
 author: "Koen Van den Berge and Hector Roux de Bézieux"
 bibliography: tradeSeq.bib
-date: "9/10/2018"
+date: "02/20/2020"
 output: 
   rmarkdown::html_document:
     toc: true
@@ -14,9 +14,6 @@ vignette: >
 ---
 ```{r, echo = FALSE}
 library(knitr)
-# For a smaller vignette
-# This can be deleted when trying to follow along
-opts_chunk$set(dpi = 58)
 ```
 
 # Introduction
@@ -25,6 +22,8 @@ opts_chunk$set(dpi = 58)
 
 In this vignette, we analyze a subset of the data from [@Paul2015]. 
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
+
+The main [vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html) focuses on using `tradeSeq` downsteam of `slingshot`. Here, we present how to use `tradeSeq` downstream of `monocle`[@Qiu2017].
 
 # Load data
 
@@ -56,24 +55,28 @@ cds <- newCellDataSet(counts, phenoData = new("AnnotatedDataFrame", data = df))
 cds <- estimateSizeFactors(cds)
 cds <- reduceDimension(cds, max_components = 2)
 cds <- orderCells(cds)
-cds <- ordeCells(cds, root_state = 5)
+cds <- orderCells(cds, root_state = 5)
 ```
 
 # Fit Smoothers
 
 Only possible for DDRTree
 ```{r}
-gamModels <- fitGAM(cds, verbose = TRUE)
+sce <- fitGAM(cds, verbose = TRUE)
 ```
 
-Then, you can follow along the other vignette
+You can then analyse the `sce` object following the main [vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html#within-lineage-comparisons).
 
 # Monocle3
 
-We have no plan yet to include a S4 method for monocle3 while it is not on CRAN or Bioconductor and the format is still moving. However, here is how to do it as of version '0.2', for a fully connected graph. You can install Monocle3 from [here](https://cole-trapnell-lab.github.io/monocle3/docs/installation/)
+As of now (02/2020), monocle3[@Cao], is still in its beta version. Therefore, we have no plan yet to include a S4 method for monocle3 while it is not on CRAN or Bioconductor and the format is still moving. However, we present below a way to use `tradeSeq` downstream of `monocle3` as of version '0.2', for a fully connected graph. We follow the tutorial from the [monocle3 website](https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/). 
 
-```{r}
-suppressPackageStartupMessages(library(monocle3))
+## Constructing the trajectory
+
+You will need to install monocle3 from [here](https://cole-trapnell-lab.github.io/monocle3/docs/installation/) before running the code below.
+
+```{r, eval = FALSE}
+library(monocle3)
 cds <- new_cell_data_set(counts, cell_metadata = df,
                 gene_metadata = data.frame(gene_short_name = rownames(counts),
                                            row.names = rownames(counts)))
@@ -98,7 +101,9 @@ cds <- order_cells(cds, root_pr_nodes = root)
 plot_cells(cds, color_cells_by = "pseudotime")
 ```
 
-```{r}
+## Extracting the pseudotimes and cell weights for tradeSeq
+
+```{r, eval = FALSE}
 y_to_cells <-  principal_graph_aux(cds)$UMAP$pr_graph_cell_proj_closest_vertex %>%
   as.data.frame() %>%
   dplyr::mutate(cells = rownames(.)) %>%
@@ -120,6 +125,8 @@ sce <- fitGAM(counts = counts,
        pseudotime = pseudotime,
        cellWeights = cellWeights)
 ```
+
+Then, the `sce` object can be analyzed following the [main vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html#within-lineage-comparisons).
 
 # Session
 
