@@ -214,11 +214,13 @@ setMethod(f = "associationTest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,
                                 global = TRUE,
-                                lineages = FALSE){
+                                lineages = FALSE,
+                                l2fc = 0){
 
             res <- .associationTest(models = models,
                                     global = global,
-                                    lineages = lineages)
+                                    lineages = lineages,
+                                    l2fc = l2fc)
             return(res)
 
           }
@@ -230,11 +232,13 @@ setMethod(f = "associationTest",
           signature = c(models = "list"),
           definition = function(models,
                                 global = TRUE,
-                                lineages = FALSE){
+                                lineages = FALSE,
+                                l2fc = 0){
 
             res <- .associationTest(models = models,
                                     global = global,
-                                    lineages = lineages)
+                                    lineages = lineages,
+                                    l2fc = l2fc)
             return(res)
 
           }
