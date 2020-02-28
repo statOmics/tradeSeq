@@ -52,7 +52,8 @@ Imports:
     princurve,
     methods,
     S4Vectors,
-    tibble
+    tibble,
+    dplyr
 Suggests:
     knitr,
     rmarkdown,
