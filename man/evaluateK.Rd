@@ -14,6 +14,7 @@ evaluateK(counts, ...)
   sds = NULL,
   pseudotime = NULL,
   cellWeights = NULL,
+  plot = TRUE,
   U = NULL,
   weights = NULL,
   offset = NULL,
@@ -43,6 +44,8 @@ and each column represents a lineage.}
 \item{cellWeights}{a matrix of cell weights defining the probability that a
 cell belongs to a particular lineage. Each row represents a cell and each
 column represents a lineage.}
+
+\item{plot}{Whether to display diagnostic plots. Default to \code{TRUE}.}
 
 \item{U}{The design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}

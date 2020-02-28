@@ -34,6 +34,11 @@ This test assesses whether average gene expression
 is associated with pseudotime.
 }
 \examples{
-data(gamList, package = "tradeSeq")
-associationTest(gamList, global = TRUE, lineages = TRUE)
+set.seed(8)
+data(crv, package="tradeSeq")
+data(countMatrix, package="tradeSeq")
+sce <- fitGAM(counts = as.matrix(countMatrix),
+                  sds = crv,
+                  nknots = 5)
+assocRes <- associationTest(sce)
 }

@@ -23,15 +23,15 @@ diffEndTest(models, ...)
 
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 
-\item{l2fc}{Numeric: log2 fold change threshold to test against. Note, that
-this only applies to the pairwise comparisons, the global test will be
-unaffected.}
+\item{l2fc}{The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA test statistics and
- p-values.
+ associated with each gene for all the tests performed. Also, for each possible
+ pairwise comparision, the observed log fold changes. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics,
+ fold changes and p-values.
 }
 \description{
 Assess differential expression between the average expression at the
