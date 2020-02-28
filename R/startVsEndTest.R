@@ -1,11 +1,7 @@
 #' @include utils.R
 
 .startVsEndTest <- function(models, global = TRUE, lineages = FALSE,
-                           pseudotimeValues = NULL){
-
-  # TODO: add fold changes
-  # TODO: add testing against fold change threshold
-
+                           pseudotimeValues = NULL, l2fc=0){
 
   if (is(models, "list")) {
     sce <- FALSE
@@ -96,14 +92,14 @@
         if (class(m)[1] == "try-error") return(c(NA, NA, NA))
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
-        waldTest(beta, Sigma, L)
+        waldTestFC(beta, Sigma, L, l2fc)
       })
 
     } else if (sce) { #singleCellExperiment output
       waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        waldTest(beta, Sigma, L)
+        waldTestFC(beta, Sigma, L, l2fc)
       })
       names(waldResultsOmnibus) <- rownames(models)
     }
@@ -123,7 +119,7 @@
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
         t(vapply(seq_len(ncol(L)), function(ii){
-          waldTest(beta, Sigma, L[, ii, drop = FALSE])
+          waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
     } else if (sce) { # sce output
@@ -131,7 +127,7 @@
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         t(vapply(seq_len(ncol(L)), function(ii){
-          waldTest(beta, Sigma, L[, ii, drop = FALSE])
+          waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
       names(waldResultsLineages) <- rownames(models)
@@ -149,13 +145,34 @@
     for (jj in seq_len(ncol(L))) ll[[jj]] <- seq(jj, ncol(L) * 3, by = ncol(L))
     orderByContrast <- unlist(ll)
     waldResAllPair <- resMat[,orderByContrast]
-
   }
 
-  if (global == TRUE & lineages == FALSE) return(waldResults)
-  if (global == FALSE & lineages == TRUE) return(waldResAllPair)
+
+  ## get fold changes for output
+  if(!sce){
+    fcAll <- lapply(models, function(m){
+      betam <- coef(m)
+      fcAll <- .getFoldChanges(beta, L)
+      return(fcAll)
+    })
+    if(ncol(L) == 1) fcAll <- matrix(unlist(fcAll), ncol=1)
+    if(ncol(L) > 1) fcAll <- do.call(rbind, fcAll)
+    colnames(fcAll) <- paste0("logFC",colnames(L))
+
+  } else if(sce){
+    betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
+    fcAll <- apply(betaAll,1,function(betam){
+      fcAll <- .getFoldChanges(betam, L)
+    })
+    if(ncol(L) == 1) fcAll <- matrix(fcAll, ncol=1)
+    if(ncol(L)>1) fcAll <- t(fcAll)
+    colnames(fcAll) <- paste0("logFC",colnames(L))
+  }
+  ## return output
+  if (global == TRUE & lineages == FALSE) return(cbind(waldResults, fcAll))
+  if (global == FALSE & lineages == TRUE) return(cbind(waldResAllPair, fcAll))
   if (global & lineages) {
-    waldAll <- cbind(waldResults, waldResAllPair)
+    waldAll <- cbind(waldResults, waldResAllPair, fcAll)
     return(waldAll)
   }
 }
@@ -167,6 +184,8 @@
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
+#' @param l2fc The log2 fold change threshold to test against. Note, that
+#' this will affect both the global test and the pairwise comparisons.
 #' @param pseudotimeValues A vector of length 2, specifying two pseudotime
 #' values to be compared against each other, for every lineage of
 #'  the trajectory.
@@ -177,11 +196,11 @@
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' startVsEndTest(gamList, global = TRUE, lineages = TRUE)
-#' @return A matrix with the Wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values. If both \code{global} and \code{lineages} are TRUE, then a matrix
-#'  of p-values is returned.
+#' @return A matrix with the wald statistic, the number of df and the p-value
+#'  associated with each gene for all the tests performed. Also, for each possible
+#'  pairwise comparision, the observed log fold changes. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics,
+#'  fold changes and p-values.
 #' @export
 #' @rdname startVsEndTest
 #' @import SingleCellExperiment
@@ -191,7 +210,8 @@ setMethod(f = "startVsEndTest",
           definition = function(models,
                                 global = TRUE,
                                 lineages = FALSE,
-                                pseudotimeValues = NULL){
+                                pseudotimeValues = NULL,
+                                l2fc = 0){
 
             res <- .startVsEndTest(models = models,
                                 global = global,
@@ -209,7 +229,8 @@ setMethod(f = "startVsEndTest",
           definition = function(models,
                                 global = TRUE,
                                 lineages = FALSE,
-                                pseudotimeValues = NULL){
+                                pseudotimeValues = NULL,
+                                l2fc = 0){
 
             res <- .startVsEndTest(models = models,
                                 global = global,

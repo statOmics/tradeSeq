@@ -68,21 +68,20 @@
   if (global) {
     if (!sce) { #gam list output
       waldResultsOmnibus <- lapply(models, function(m){
-        if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+        if (class(m)[1] == "try-error") return(c(NA, NA, NA, NA))
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
-        waldTest(beta, Sigma, L)
+        waldTestFC(beta, Sigma, L, l2fc)
       })
 
     } else if (sce) { #singleCellExperiment output
       waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        waldTest(beta, Sigma, L)
+        waldTestFC(beta, Sigma, L, l2fc)
       })
       names(waldResultsOmnibus) <- rownames(models)
     }
-
     #process output.
     waldResults <- do.call(rbind,waldResultsOmnibus)
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
@@ -116,32 +115,46 @@
     # clean pairwise results
     contrastNames <- unlist(lapply(strsplit(colnames(L), split = "_"),
                                    paste, collapse = "vs"))
-    colNames <- c(paste0("logFC_",contrastNames),
-                  paste0("waldStat_",contrastNames),
+    colNames <- c(paste0("waldStat_",contrastNames),
                   paste0("df_",contrastNames),
                   paste0("pvalue_",contrastNames))
     resMat <- do.call(rbind, lapply(waldResultsPairwise, c))
     colnames(resMat) <- colNames
+
     # order results by contrast
     ll <- list()
-    for (jj in seq_len(ncol(L))) ll[[jj]] <- seq(jj,ncol(L)*4, by = ncol(L))
+    for (jj in seq_len(ncol(L))) ll[[jj]] <- seq(jj,ncol(L)*3, by = ncol(L))
     orderByContrast <- unlist(ll)
     waldResAllPair <- resMat[,orderByContrast]
-
-    # orderByContrast <- unlist(c(mapply(seq, seq_along(colNames),
-    #                                    length(waldResultsPairwise[[1]]),
-    #                                    by = 3)))
-    # waldResAllPair <- do.call(rbind,
-    #                           lapply(waldResultsPairwise,function(x){
-    #                             matrix(x, nrow = 1, dimnames = list(NULL, colNames))[, orderByContrast]
-    #                           }))
   }
 
+
+
+  ## get fold changes for output
+  if(!sce){
+    fcAll <- lapply(models, function(m){
+      betam <- coef(m)
+      fcAll <- .getFoldChanges(beta, L)
+      return(fcAll)
+    })
+    if(ncol(L) == 1) fcAll <- matrix(unlist(fcAll), ncol=1)
+    if(ncol(L) > 1) fcAll <- do.call(rbind, fcAll)
+    colnames(fcAll) <- paste0("logFC",colnames(L))
+
+  } else if(sce){
+    betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
+    fcAll <- apply(betaAll,1,function(betam){
+      fcAll <- .getFoldChanges(betam, L)
+    })
+    if(ncol(L) == 1) fcAll <- matrix(fcAll, ncol=1)
+    if(ncol(L)>1) fcAll <- t(fcAll)
+    colnames(fcAll) <- paste0("logFC",colnames(L))
+  }
   # return output
-  if (global == TRUE & pairwise == FALSE) return(waldResults)
-  if (global == FALSE & pairwise == TRUE) return(waldResAllPair)
+  if (global == TRUE & pairwise == FALSE) return(cbind(waldResults, fcAll))
+  if (global == FALSE & pairwise == TRUE) return(cbind(waldResAllPair, fcAll))
   if (global == TRUE & pairwise == TRUE) {
-    waldAll <- cbind(waldResults, waldResAllPair)
+    waldAll <- cbind(waldResults, waldResAllPair, fcAll)
     return(waldAll)
   }
 }
@@ -154,9 +167,8 @@
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
-#' @param l2fc Numeric: log2 fold change threshold to test against. Note, that
-#' this only applies to the pairwise comparisons, the global test will be
-#' unaffected.
+#' @param l2fc The log2 fold change threshold to test against. Note, that
+#' this will affect both the global test and the pairwise comparisons.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
@@ -168,9 +180,10 @@
 #' i.e. a fold change of at least 2, then one can test for this by setting
 #' \code{l2fc=1} as argument to the function.
 #' @return A matrix with the wald statistic, the number of df and the p-value
-#'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
+#'  associated with each gene for all the tests performed. Also, for each possible
+#'  pairwise comparision, the observed log fold changes. If the testing
+#'  procedure was unsuccessful, the procedure will return NA test statistics,
+#'  fold changes and p-values.
 #' @export
 #' @rdname diffEndTest
 #' @importFrom methods is
