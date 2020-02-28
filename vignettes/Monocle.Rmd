@@ -25,6 +25,7 @@ opts_chunk$set(dpi = 58)
 
 In this vignette, we analyze a subset of the data from [@Paul2015]. 
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
+
 # Load data
 
 ```{r, warning=F, message=F}
@@ -36,7 +37,6 @@ library(dplyr)
 library(tidyr)
 
 # For reproducibility
-RNGversion("3.5.0")
 palette(brewer.pal(8, "Dark2"))
 data(countMatrix, package = "tradeSeq")
 counts <- as.matrix(countMatrix)
@@ -46,7 +46,7 @@ data(celltype, package = "tradeSeq")
 
 # Fit trajectories using Monocle
 
-We will fit developmental trajectories using the `monocle` package [@Street2018a]. 
+We will fit developmental trajectories using the `monocle` package.
 
 ```{r, warning=FALSE, out.width="50%", fig.asp=.6}
 set.seed(200)
@@ -56,15 +56,69 @@ cds <- newCellDataSet(counts, phenoData = new("AnnotatedDataFrame", data = df))
 cds <- estimateSizeFactors(cds)
 cds <- reduceDimension(cds, max_components = 2)
 cds <- orderCells(cds)
-cds <- orderCells(cds, root_state = 5)
-rm(df, counts)
+cds <- ordeCells(cds, root_state = 5)
 ```
 
+# Fit Smoothers
 
-We find 3 lineages in this case, instead of the two that are supposed to be in the dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
-
+Only possible for DDRTree
 ```{r}
 gamModels <- fitGAM(cds, verbose = TRUE)
+```
+
+Then, you can follow along the other vignette
+
+# Monocle3
+
+We have no plan yet to include a S4 method for monocle3 while it is not on CRAN or Bioconductor and the format is still moving. However, here is how to do it as of version '0.2', for a fully connected graph. You can install Monocle3 from [here](https://cole-trapnell-lab.github.io/monocle3/docs/installation/)
+
+```{r}
+suppressPackageStartupMessages(library(monocle3))
+cds <- new_cell_data_set(counts, cell_metadata = df,
+                gene_metadata = data.frame(gene_short_name = rownames(counts),
+                                           row.names = rownames(counts)))
+cds <- preprocess_cds(cds, method = "PCA")
+cds <- reduce_dimension(cds, preprocess_method = "PCA",
+                        reduction_method = "UMAP")
+plot_cells(cds, label_groups_by_cluster = FALSE, cell_size = 1,
+           color_cells_by = "cellType")
+cds <- cluster_cells(cds, reduction_method = "UMAP")
+plot_cells(cds, color_cells_by = "cluster", cell_size = 1)
+cds <- learn_graph(cds, use_partition = FALSE)
+# Find root 
+cell_ids <- which(celltype ==  "Multipotent progenitors")
+closest_vertex <- 
+  cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
+closest_vertex <- closest_vertex[colnames(cds), 1]
+closest_vertex <- closest_vertex[cell_ids]
+closest_vertex <- paste0("Y_", closest_vertex)
+root <- names(which(igraph::degree(principal_graph(cds)[["UMAP"]]) == 1))
+root <- root[root %in% closest_vertex]
+cds <- order_cells(cds, root_pr_nodes = root)
+plot_cells(cds, color_cells_by = "pseudotime")
+```
+
+```{r}
+y_to_cells <-  principal_graph_aux(cds)$UMAP$pr_graph_cell_proj_closest_vertex %>%
+  as.data.frame() %>%
+  dplyr::mutate(cells = rownames(.)) %>%
+  rename("Y" = V1)
+mst <- principal_graph(cds)$UMAP
+endpoints <- names(which(igraph::degree(mst) == 1))
+endpoints <- endpoints[endpoints != root]
+cellWeights <- lapply(endpoints, function(endpoint) {
+  path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
+  path <- as.character(path)
+  df <- y_to_cells %>%
+    dplyr::filter(Y %in% path)
+  df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
+  colnames(df) <- endpoint
+  return(df)
+  }) %>% bind_cols() 
+pseudotime <- sapply(cellWeights, function(w) pseudotime(cds))
+sce <- fitGAM(counts = counts, 
+       pseudotime = pseudotime,
+       cellWeights = cellWeights)
 ```
 
 # Session
