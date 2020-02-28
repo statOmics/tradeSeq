@@ -13,18 +13,20 @@ startVsEndTest(models, ...)
   models,
   global = TRUE,
   lineages = FALSE,
-  pseudotimeValues = NULL
+  pseudotimeValues = NULL,
+  l2fc = 0
 )
 
 \S4method{startVsEndTest}{list}(
   models,
   global = TRUE,
   lineages = FALSE,
-  pseudotimeValues = NULL
+  pseudotimeValues = NULL,
+  l2fc = 0
 )
 }
 \arguments{
-\item{models}{the list of GAMs, typically the output from
+\item{models}{The fitted GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
 \item{...}{parameters including:}
@@ -33,23 +35,26 @@ startVsEndTest(models, ...)
 
 \item{lineages}{If TRUE, test for all lineages independently.}
 
-\item{pseudotimeValues}{a vector of length 2, specifying two pseudotime
+\item{pseudotimeValues}{A vector of length 2, specifying two pseudotime
 values to be compared against each other, for every lineage of
  the trajectory.
  @details Note that this test assumes that all lineages start at a
  pseudotime value of zero, which is the starting point against which the
  end point is compared.}
+
+\item{l2fc}{The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA test statistics and
- p-values. If both \code{global} and \code{lineages} are TRUE, then a matrix
- of p-values is returned.
+ associated with each gene for all the tests performed. Also, for each possible
+ pairwise comparision, the observed log fold changes. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics,
+ fold changes and p-values.
 }
 \description{
-Assess differential expression between the start and end points
-of a lineage.
+This function assesses differential expression between the
+average expression of the start and end points of a lineage.
 }
 \examples{
 data(gamList, package = "tradeSeq")

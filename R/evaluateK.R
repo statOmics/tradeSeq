@@ -1,7 +1,7 @@
 
-.evaluateK <- function(counts, U=NULL, pseudotime, cellWeights, nGenes=500, k=3:10,
-                      weights=NULL, offset=NULL, aicDiff=2, verbose=TRUE,
-                      ...) {
+.evaluateK <- function(counts, U = NULL, pseudotime, cellWeights, plot = TRUE,
+                       nGenes = 500, k = 3:10, weights = NULL, offset = NULL,
+                       aicDiff = 2, verbose = TRUE, ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
   if (length(k) == 1) stop("There should be more than one k value")
@@ -26,39 +26,40 @@
   #gamLists <- BiocParallel::bplapply(kList, function(currK){
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
-                      cellWeights = cellWeights, nknots = currK, sce = FALSE,
-                      weights = weightSub, offset = offset, aic = TRUE)
+                      cellWeights = cellWeights, nknots = currK, 
+                      verbose = verbose,sce = FALSE, weights = weightSub, 
+                      offset = offset, aic = TRUE)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
   # return AIC, return NA if model failed to fit.
   aicMat <- do.call(cbind,aicVals)
+  colnames(aicMat) <- paste("k:", k)
 
-  par(mfrow = c(1, 4))
-  # boxplots of AIC
-  # boxplot(aicMat, names=k, ylab="AIC", xlab="Number of knots")
-  devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
-  for (ii in seq_len(length(k))) devs[ii,] <- aicMat[ii,] - mean(aicMat[ii,])
-  boxplot(devs, ylab = "Deviation from genewise average AIC",
-          xlab = "Number of knots", xaxt = "n")
-  axis(1, at = seq_len(length(k)), labels = k)
-  # squared deviation
-  # boxplot(log(devs^2), ylab="Log squared deviation from genewise average AIC",
-  #         xlab="Number of knots", xaxt='n')
-  # axis(1, at=seq_len(length(k)), labels=k)
-  # scatterplot of average AIC
-  plot(x = k, y = colMeans(aicMat, na.rm = TRUE), type = "b",
-       ylab = "Average AIC", xlab = "Number of knots")
-  # scatterplot of relative AIC
-  plot(x = k, y = colMeans(aicMat / aicMat[, 1], na.rm = TRUE), type = "b",
-       ylab = "Relative AIC", xlab = "Number of knots")
-  # barplot of optimal AIC for genes with at least a difference of 2.
-  aicRange <- apply(apply(aicMat,1,range),2,diff)
-  varID <- which(aicRange > aicDiff)
-  if(length(varID)>0){
-    aicMatSub <- aicMat[varID,]
-    tab <- table(k[apply(aicMatSub,1,which.min)])
-    barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
+  if (plot) {  
+    par(mfrow = c(1, 4))
+    # boxplots of AIC
+    devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
+    for (ii in seq_len(length(k))) {
+      devs[ii, ] <- aicMat[ii, ] - mean(aicMat[ii, ])
+    }
+    boxplot(devs, ylab = "Deviation from genewise average AIC",
+            xlab = "Number of knots", xaxt = "n")
+    axis(1, at = seq_len(length(k)), labels = k)
+    # scatterplot of average AIC
+    plot(x = k, y = colMeans(aicMat, na.rm = TRUE), type = "b",
+         ylab = "Average AIC", xlab = "Number of knots")
+    # scatterplot of relative AIC
+    plot(x = k, y = colMeans(aicMat / aicMat[, 1], na.rm = TRUE), type = "b",
+         ylab = "Relative AIC", xlab = "Number of knots")
+    # barplot of optimal AIC for genes with at least a difference of 2.
+    aicRange <- apply(apply(aicMat, 1, range), 2, diff)
+    varID <- which(aicRange > aicDiff)
+    if (length(varID) > 0) {
+      aicMatSub <- aicMat[varID, ]
+      tab <- table(k[apply(aicMatSub, 1, which.min)])
+      barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
+    }
   }
 
   return(aicMat)
@@ -66,15 +67,16 @@
 
 #' Evaluate an appropriate number of knots.
 #'
-#' @param counts the count matrix.
+#' @param counts The count matrix, genes in rows and cells in columns.
 #' @param sds Slingshot object containing the lineages.
-#' @param U the design matrix of fixed effects. The design matrix should not
+#' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param pseudotime a matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
 #' @param cellWeights a matrix of cell weights defining the probability that a
 #' cell belongs to a particular lineage. Each row represents a cell and each
 #' column represents a lineage.
+#' @param plot Whether to display diagnostic plots. Default to \code{TRUE}.
 #' @param nGenes The number of genes to use in the evaluation. Genes will be
 #' randomly selected. 500 by default.
 #' @param k The range of knots to evaluate. `3:10` by default.
@@ -91,8 +93,7 @@
 #' @param control Control object for GAM fitting, see \code{mgcv::gam.control()}.
 #' @param family The distribution assumed, currently only \code{"nb"}
 #' (negative binomial) is supported.
-#' @param sce Logical, automatically set by the function and should not be
-#' altered by the user.
+#' @param sce Logical, should a \code{SingleCellExperiment} object be returned?
 #' @return A plot of average AIC value over the range of selected knots, and a
 #' matrix of AIC values for the selected genes (rows) and the range of knots
 #' (columns).
@@ -118,6 +119,7 @@ setMethod(f = "evaluateK",
                                 sds = NULL,
                                 pseudotime = NULL,
                                 cellWeights = NULL,
+                                plot = TRUE,
                                 U = NULL,
                                 weights = NULL,
                                 offset = NULL,
@@ -154,6 +156,7 @@ setMethod(f = "evaluateK",
                                  U = U,
                                  pseudotime = pseudotime,
                                  cellWeights = cellWeights,
+                                 plot = plot,
                                  nGenes = nGenes,
                                  weights = weights,
                                  offset = offset,

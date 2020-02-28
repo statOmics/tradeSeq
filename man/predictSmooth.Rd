@@ -3,11 +3,14 @@
 \name{predictSmooth}
 \alias{predictSmooth}
 \alias{predictSmooth,SingleCellExperiment-method}
+\alias{predictSmooth,list-method}
 \title{predictSmooth}
 \usage{
 predictSmooth(models, ...)
 
-\S4method{predictSmooth}{SingleCellExperiment}(models, counts, gene, nPoints = 100)
+\S4method{predictSmooth}{SingleCellExperiment}(models, gene, nPoints = 100)
+
+\S4method{predictSmooth}{list}(models, gene, nPoints = 100)
 }
 \arguments{
 \item{models}{Either the \code{SingleCellExperiment} object obtained after
@@ -16,19 +19,21 @@ if working with the list output of \code{tradeSeq}.}
 
 \item{...}{parameters including:}
 
-\item{counts}{The matrix of gene expression counts.}
-
 \item{gene}{Either a vector of gene names or an integer vector, corresponding
-to the rows of the genes.}
+to the row(s) of the gene(s).}
 
 \item{nPoints}{The number of points used to create the grid along the
-smoother for each lineage.}
+smoother for each lineage. Defaults to 100.}
 }
 \value{
 A \code{matrix} with estimated averages.
 }
 \description{
-Get estimated smoothers estimated by \code{tradeSeq} along a
+Get smoothers estimated by \code{tradeSeq} along a
 grid. This function does not return fitted values but rather the predicted
-mean smoother, for a grid of user-defined points.
+mean smoother, for a user-defined grid of points.
+}
+\examples{
+data(gamList, package = "tradeSeq")
+predictSmooth(models = gamList, gene = 1)
 }

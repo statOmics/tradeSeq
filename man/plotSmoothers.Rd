@@ -17,7 +17,8 @@ plotSmoothers(models, ...)
   xlab = "Pseudotime",
   ylab = "Log(expression + 1)",
   border = TRUE,
-  alpha = 1
+  alpha = 1,
+  sample = 1
 )
 
 \S4method{plotSmoothers}{SingleCellExperiment}(
@@ -30,7 +31,8 @@ plotSmoothers(models, ...)
   xlab = "Pseudotime",
   ylab = "Log(expression + 1)",
   border = TRUE,
-  alpha = 1
+  alpha = 1,
+  sample = 1
 )
 }
 \arguments{
@@ -40,24 +42,28 @@ if working with the list output of \code{tradeSeq}.}
 
 \item{...}{parameters including:}
 
-\item{nPoints}{The number of points used to extraplolate the fit}
+\item{nPoints}{The number of points used to extraplolate the fit.
+Defaults to 100.}
 
-\item{lwd}{Line width of the smoother. Passed to \code{\link{geom_line}}}
+\item{lwd}{Line width of the smoother. Passed to \code{\link{geom_line}}.}
 
-\item{size}{Character expansion of the data points. Passed to \code{\link{geom_point}}}
+\item{size}{Character expansion of the data points. Passed to \code{\link{geom_point}}.}
 
-\item{xlab}{x-axis label. Passed to \code{\link{labs}}}
+\item{xlab}{x-axis label. Passed to \code{\link{labs}}.}
 
-\item{ylab}{y-axis label. Passed to \code{\link{labs}}}
+\item{ylab}{y-axis label. Passed to \code{\link{labs}}.}
 
-\item{border}{logical: should a white border be drawn around the mean smoother.}
+\item{border}{Logical: should a white border be drawn around the mean smoother.}
 
 \item{alpha}{Numeric between 0 and 1, determines the transparancy of data points,
 see \code{scale_color_viridis_d}.}
 
+\item{sample}{Numeric between 0 and 1, use to subsample the cells when there
+are too many so that it can plot faster.}
+
 \item{counts}{The matrix of gene expression counts.}
 
-\item{gene}{Gene name of gene to plot.}
+\item{gene}{Gene name or row in count matrix of gene to plot.}
 }
 \value{
 A \code{\link{ggplot}} object

@@ -1,6 +1,7 @@
 #' @include utils.R
 
-.associationTest <- function(models, global = TRUE, lineages = FALSE){
+.associationTest <- function(models, global = TRUE, lineages = FALSE,
+                             l2fc = 0){
 
   if (is(models, "list")) {
     sce <- FALSE
@@ -104,13 +105,13 @@
         if (class(m)[1] == "try-error") return(c(NA, NA, NA))
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
-        waldTest(beta, Sigma, L)
+        waldTestFC(beta, Sigma, L, l2fc)
       })
     } else if (sce) {
       waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        waldTest(beta, Sigma, L)
+        waldTestFC(beta, Sigma, L, l2fc)
       })
       names(waldResultsOmnibus) <- rownames(models)
     }
@@ -130,7 +131,7 @@
         t(vapply(seq_len(nCurves), function(ii){
           beta <- matrix(coef(m), ncol = 1)
           Sigma <- m$Vp
-          waldTest(beta, Sigma, get(paste0("L", ii)))
+          waldTestFC(beta, Sigma, get(paste0("L", ii)), l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
     } else if (sce) {
@@ -138,7 +139,7 @@
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         t(vapply(seq_len(nCurves), function(ii){
-          waldTest(beta, Sigma, get(paste0("L", ii)))
+          waldTestFC(beta, Sigma, get(paste0("L", ii)), l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
       names(waldResultsLineages) <- rownames(models)
@@ -158,29 +159,52 @@
                                   }))
   }
 
+  ## get fold changes for output
+  if(!sce){
+    fcAll <- lapply(models, function(m){
+      betam <- coef(m)
+      fcAll <- .getFoldChanges(betam, L)
+      return(fcAll)
+    })
+    fcMedian <- rowMedians(abs(do.call(rbind, fcAll)))
+
+  } else if(sce){
+    betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
+    fcAll <- apply(betaAll,1,function(betam){
+      fcAll <- .getFoldChanges(betam, L)
+    })
+    fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol=1)
+  }
   # return output
-  if (global == TRUE & lineages == FALSE) return(waldResults)
-  if (global == FALSE & lineages == TRUE) return(waldResAllLineages)
+  if (global == TRUE & lineages == FALSE) return(cbind(waldResults, fcMedian))
+  if (global == FALSE & lineages == TRUE) return(cbind(waldResAllLineages, fcMedian))
   if (global == TRUE & lineages == TRUE) {
-    waldAll <- cbind(waldResults, waldResAllLineages)
+    waldAll <- cbind(waldResults, waldResAllLineages, fcMedian)
     return(waldAll)
   }
 }
 
-#' @description Assess whether gene expression is associated with pseudotime.
+#' @title Test if average gene expression changes along pseudotime
+#' @description This test assesses whether average gene expression
+#' is associated with pseudotime.
 #'
-#' @param models the list of GAMs, typically the output from
+#' @param models The fitted GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
 #' @importFrom magrittr %>%
 #' @examples
-#' data(gamList, package = "tradeSeq")
-#' associationTest(gamList, global = TRUE, lineages = TRUE)
-#' @return A matrix with the wald statistic, the number of df and the p-value
+#' set.seed(8)
+#' data(crv, package="tradeSeq")
+#' data(countMatrix, package="tradeSeq")
+#' sce <- fitGAM(counts = as.matrix(countMatrix),
+#'                   sds = crv,
+#'                   nknots = 5)
+#' assocRes <- associationTest(sce)
+#' @return A matrix with the wald statistic, the number of
+#'  degrees of freedom and the p-value
 #'  associated with each gene for all the tests performed. If the testing
-#'  procedure was unsuccessful, the procedure will return NA test statistics and
-#'  p-values.
+#'  procedure was unsuccessful, the procedure will return NA.
 #' @rdname associationTest
 #' @importFrom methods is
 #' @import SummarizedExperiment

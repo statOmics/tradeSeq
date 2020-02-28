@@ -6,8 +6,6 @@
                                       random.seed = 176201,
                                       verbose = TRUE, ...) {
 
-  # TODO: extend documentation to contain RSEC functions.
-
   # check if all gene IDs provided are present in the models object.
   if (is(genes, "character")) {
     if (!all(genes %in% names(models))) {
@@ -68,22 +66,25 @@
 
 #' @title Cluster gene expression patterns.
 #'
-#' @description Cluster genes in clusters with similar expression patterns along the
-#' trajectory.
+#' @description Cluster genes in clusters that have similar expression patterns
+#' along all lineages in the trajectory. By default, this function uses the
+#' \code{clusterExperiment} package to do the clustering. If another clustering
+#' method is of interest, one can extract fitted values to use for clustering,
+#' see details in the vignette.
 #'
-#' @param models The list of GAMs, typically the output from
+#' @param models The fitted GAMs, typically the output from
 #' \code{\link{fitGAM}}.
 #' @param nPoints The number of points to use for clustering the expression
 #'  patterns.
 #' @param genes A numerical or character vector specifying the genes from
-#'  \code{models}
-#'  that should be clustered.
-#' @param reduceMethod Method used before running the clustering methods.
-#'  Passed to \code{\link[clusterExperiment]{RSEC}}
+#'  \code{models} that should be clustered.
+#' @param reduceMethod Dimensionality reduction method used before running the
+#' clustering methods. Passed to \code{\link[clusterExperiment]{RSEC}}.
+#' Defaults to PCA.
 #' @param nReducedDims Number of dimensions kept after \code{reduceMethod}.
-#'  Passed to \code{\link[clusterExperiment]{RSEC}}
-#' @param minSizes Number of dimensions kept after \code{reduceMethod}.
-#'  Passed to \code{\link[clusterExperiment]{RSEC}}
+#'  Passed to \code{\link[clusterExperiment]{RSEC}}.
+#' @param minSizes Minimum size of clusters.
+#'  Passed to \code{\link[clusterExperiment]{RSEC}}.
 #' @param ncores Number of cores to use. Passed to
 #' \code{\link[clusterExperiment]{RSEC}}
 #' @param verbose Passed to \code{\link[clusterExperiment]{RSEC}}
@@ -93,7 +94,8 @@
 #' @details This method adopts the \code{\link[clusterExperiment]{RSEC}}
 #' function from the clusterExperiment package to perform consensus clustering.
 #' @return A list containing the scaled fitted values \code{yhatScaled}(for
-#'  plotting) and a \code{\link{ClusterExperiment}} object.
+#'  plotting) and a \code{\link{ClusterExperiment}} object, containing the
+#'  clustering results.
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' clusterExpressionPatterns(gamList, 200, seq_len(11))

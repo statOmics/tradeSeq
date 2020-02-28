@@ -1,13 +1,15 @@
-#' Plot the gene in reduced dimension space
+#' @title Plot gene expression in reduced dimension.
+#' @description Plot the gene in reduced dimensional space.
 #'
-#' @param curve The output from a lineage computation
-#' @param counts the count matrix.
+#' @param curve A \code{SlingshotDataSet} object. The output from trajectory inference
+#' using Slingshot.
+#' @param counts The count matrix, genes in rows and cells in columns.
 #' @param gene The name of gene for which you want to plot the count or the row
 #'  number of that gene in the count matrix. Alternatively, one can specify
-#'  the cluster arguments
+#'  the \code{clusters} argument.
 #' @param clusters The assignation of each cell to a cluster. Used to color the
 #'  plot. Either \code{clusters} or \code{gene} and \code{counts} must be supplied.
-#' @param models the list of GAMs, typically the output from
+#' @param models The fitted GAMs, typically the output from
 #'  \code{\link{fitGAM}}. Used to display the knots.
 #' @param title Title for the plot.
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the

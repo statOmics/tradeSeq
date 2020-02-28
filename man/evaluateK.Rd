@@ -14,6 +14,7 @@ evaluateK(counts, ...)
   sds = NULL,
   pseudotime = NULL,
   cellWeights = NULL,
+  plot = TRUE,
   U = NULL,
   weights = NULL,
   offset = NULL,
@@ -26,7 +27,7 @@ evaluateK(counts, ...)
 )
 }
 \arguments{
-\item{counts}{the count matrix.}
+\item{counts}{The count matrix, genes in rows and cells in columns.}
 
 \item{...}{parameters including:}
 
@@ -44,7 +45,9 @@ and each column represents a lineage.}
 cell belongs to a particular lineage. Each row represents a cell and each
 column represents a lineage.}
 
-\item{U}{the design matrix of fixed effects. The design matrix should not
+\item{plot}{Whether to display diagnostic plots. Default to \code{TRUE}.}
+
+\item{U}{The design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}
 
 \item{weights}{Optional: a matrix of weights with identical dimensions
@@ -63,8 +66,7 @@ that is part of the output of this function.}
 
 \item{control}{Control object for GAM fitting, see \code{mgcv::gam.control()}.}
 
-\item{sce}{Logical, automatically set by the function and should not be
-altered by the user.}
+\item{sce}{Logical, should a \code{SingleCellExperiment} object be returned?}
 
 \item{family}{The distribution assumed, currently only \code{"nb"}
 (negative binomial) is supported.}

@@ -1,6 +1,9 @@
 # R package: tradeSeq
 
-[![Build Status](https://travis-ci.com/statOmics/tradeSeq.svg?branch=master)](https://travis-ci.com/statOmics/tradeSeq)
+  <!-- badges: start -->
+  [![Build Status](https://travis-ci.com/statOmics/tradeSeq.svg?branch=master)](https://travis-ci.com/statOmics/tradeSeq)
+  [![Codecov test coverage](https://codecov.io/gh/statOmics/tradeSeq/branch/master/graph/badge.svg)](https://codecov.io/gh/statOmics/tradeSeq?branch=master)
+  <!-- badges: end -->
 
 ## TRAjectory Differential Expression analysis for SEQuencing data
 

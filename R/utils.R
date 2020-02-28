@@ -125,7 +125,6 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   return(Xout)
 }
 
-
 # get predictor matrix for the end point of a smoother.
 .getPredictEndPointDf <- function(dm, lineageId){
   # note that X or offset variables dont matter as long as they are the same,
@@ -238,20 +237,20 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   if (is(sigmaInv)[1] == "try-error") {
     return(c(NA, NA, NA, NA))
   }
-  logFCCutoff <- log(2^l2fc) #log2 to log scale
-  estFC <- (t(LQR) %*% beta) #estimated log fold change
-  if(abs(estFC) < logFCCutoff){
-    est <- 0
-  } else {
-    est <- abs(estFC) - logFCCutoff #test against threshold
-  }
+  logFCCutoff <- log(2^l2fc) # log2 to log scale
+  estFC <- (t(LQR) %*% beta) # estimated log fold change
+  est <- pmax(0, abs(estFC) - logFCCutoff) # zero or remainder
   wald <- t(est) %*%
     sigmaInv %*%
     est
   if (wald < 0) wald <- 0
   df <- ncol(LQR)
   pval <- 1 - pchisq(wald, df = df)
-  return(c(estFC, wald, df, pval))
+
+  ## get ALL observed fold changes for output
+  # obsFC <- t(L) %*% beta
+  # return(c(wald, df, pval, obsFC))
+  return(c(wald, df, pval))
 }
 
 # get predictor matrix for a range of pseudotimes of a smoother.
@@ -307,6 +306,7 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   } else if(condPresent){
     nCurves <- length(grep(x = colnames(dm), pattern = "l[(1-9)+]"))
   }
+
   Knot <- !is.null(knots)
   if (Knot) {
     t1 <- knotPoints[knots[1]]
@@ -386,6 +386,23 @@ getEigenStatGAM <- function(beta, Sigma, L){
   return(c(stat, r))
 }
 
+getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
+  estFC <- t(L) %*% beta
+  logFCCutoff <- log(2^l2fc) # log2 to log scale
+  est <- sign(estFC)*pmax(0, abs(estFC) - logFCCutoff) # zero or remainder
+  sigma <- t(L) %*% Sigma %*% L
+  eSigma <- eigen(sigma, symmetric = TRUE)
+  r <- try(sum(eSigma$values / eSigma$values[1] > eigenThresh), silent = TRUE)
+  if (is(r)[1] == "try-error") {
+    return(c(NA, NA))
+  }
+  if (r == 1) return(c(NA, NA)) # CHECK
+  halfCovInv <- eSigma$vectors[, seq_len(r)] %*% (diag(1 / sqrt(eSigma$values[seq_len(r)])))
+  halfStat <- t(est) %*% halfCovInv
+  stat <- crossprod(t(halfStat))
+  return(c(stat, r))
+}
+
 .patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
                                      knots = NULL){
   Knot <- !is.null(knots)
@@ -453,6 +470,13 @@ getRank <- function(m,L){
   r <- sum(eSigma$values / eSigma$values[1] > 1e-8)
   return(r)
 }
+
+.getFoldChanges <- function(beta, L){
+  apply(L,2,function(contrast) contrast %*% beta)
+}
+
+
+
 
 .onAttach <- function(libname, pkgname){
   packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",

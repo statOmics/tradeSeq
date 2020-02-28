@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotGeneCount.R
 \name{plotGeneCount}
 \alias{plotGeneCount}
-\title{Plot the gene in reduced dimension space}
+\title{Plot gene expression in reduced dimension.}
 \usage{
 plotGeneCount(
   curve,
@@ -14,18 +14,19 @@ plotGeneCount(
 )
 }
 \arguments{
-\item{curve}{The output from a lineage computation}
+\item{curve}{A \code{SlingshotDataSet} object. The output from trajectory inference
+using Slingshot.}
 
-\item{counts}{the count matrix.}
+\item{counts}{The count matrix, genes in rows and cells in columns.}
 
 \item{gene}{The name of gene for which you want to plot the count or the row
 number of that gene in the count matrix. Alternatively, one can specify
-the cluster arguments}
+the \code{clusters} argument.}
 
 \item{clusters}{The assignation of each cell to a cluster. Used to color the
 plot. Either \code{clusters} or \code{gene} and \code{counts} must be supplied.}
 
-\item{models}{the list of GAMs, typically the output from
+\item{models}{The fitted GAMs, typically the output from
 \code{\link{fitGAM}}. Used to display the knots.}
 
 \item{title}{Title for the plot.}
@@ -34,7 +35,7 @@ plot. Either \code{clusters} or \code{gene} and \code{counts} must be supplied.}
 A \code{\link{ggplot}} object
 }
 \description{
-Plot the gene in reduced dimension space
+Plot the gene in reduced dimensional space.
 }
 \details{
 If both \code{gene} and \code{clusters} arguments are supplied, the

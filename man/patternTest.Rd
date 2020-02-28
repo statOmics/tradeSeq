@@ -8,12 +8,26 @@
 \usage{
 patternTest(models, ...)
 
-\S4method{patternTest}{list}(models, global = TRUE, pairwise = FALSE, nPoints = 100)
+\S4method{patternTest}{list}(
+  models,
+  global = TRUE,
+  pairwise = FALSE,
+  nPoints = 2 * nknots(models),
+  l2fc = 0,
+  eigenThresh = 0.01
+)
 
-\S4method{patternTest}{SingleCellExperiment}(models, global = TRUE, pairwise = FALSE, nPoints = 100)
+\S4method{patternTest}{SingleCellExperiment}(
+  models,
+  global = TRUE,
+  pairwise = FALSE,
+  nPoints = 2 * nknots(models),
+  l2fc = 0,
+  eigenThresh = 0.01
+)
 }
 \arguments{
-\item{models}{the list of GAMs, typically the output from
+\item{models}{The fitted GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
 \item{...}{parameters including:}
@@ -25,13 +39,25 @@ across conditions, between lineages.}
 
 \item{pairwise}{If TRUE, return output for all pairwise comparisons made.}
 
-\item{nPoints}{the number of points to be compared between lineages.}
+\item{nPoints}{The number of points to be compared between lineages.
+Defaults to twice the number of knots}
+
+\item{l2fc}{The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.}
+
+\item{eigenThresh}{Eigenvalue threshold for inverting the variance-covariance matrix
+of the coefficients to use for calculating the Wald test statistics. Lower values
+are more lenient to adding more information but also decrease computational stability.
+This argument should in general not be changed by the user but is provided
+for back-compatability. Set to \code{1e-8} to reproduce results of older
+version of \RPack{tradeSeq}.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA test statistics and
- p-values.
+ associated with each gene for all the tests performed. Also, for each possible
+ pairwise comparision, the observed log fold changes. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics,
+ fold changes and p-values.
 }
 \description{
 Assess differences in expression patterns between lineages.

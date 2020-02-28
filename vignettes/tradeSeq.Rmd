@@ -8,7 +8,7 @@ output:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{'Vignette for **tradeSeq**}
+  %\VignetteIndexEntry{Vignette for tradeSeq}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,9 +21,9 @@ opts_chunk$set(dpi = 58)
 
 # Introduction
 
-`tradeSeq` is an `R` package that allows analysis of gene expression along trajectories. While it has been developed and applied to single-cell RNA-sequencing (scRNA-seq) data, its applicability extends beyond that, and also allows the analysis of, e.g., single-cell ATAC-seq data along trajectories or bulk RNA-seq time series datasets. For every gene in the dataset, `tradeSeq` fits a generalized additive model (GAM) by building on the `mgcv` R package. It then allows statistical inference on the GAM by assessing contrasts of the parameters of the fitted GAM model, ading in interpreting complex datasets. All details about the `tradeSeq` model and statistical tests are described in our preprint [@VandenBerge2019a].
+`tradeSeq` is an `R` package that allows analysis of gene expression along trajectories. While it has been developed and applied to single-cell RNA-sequencing (scRNA-seq) data, its applicability extends beyond that, and also allows the analysis of, e.g., single-cell ATAC-seq data along trajectories or bulk RNA-seq time series datasets. For every gene in the dataset, `tradeSeq` fits a generalized additive model (GAM) by building on the `mgcv` R package. It then allows statistical inference on the GAM by assessing contrasts of the parameters of the fitted GAM model, aiding in interpreting complex datasets. All details about the `tradeSeq` model and statistical tests are described in our preprint [@VandenBerge2019a].
 
-In this vignette, we analyse a subset of the data from [@Paul2015]. 
+In this vignette, we analyze a subset of the data from [@Paul2015]. 
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
 
 # Installation
@@ -87,8 +87,9 @@ After estimating the trajectory, we can fit generalized additive models (GAMs) w
 Ideally, the number of knots should be selected to reach an optimal bias-variance trade-off for the smoother, where one explains as much variability in the expression data as possible with only a few regression coefficients. In order to guide that choice, we developed diagnostic plots using the Akaike Informaction Criterion (AIC). This is implemented in the `evaluateK` function in `tradeSeq`.
 The function takes as input the expression count matrix, a `SlingshotDataSet` (or alternatively, a matrix of pseudotimes and cell-level weights).
 The range of knots to evaluate is provided with the `knots` argument. The minimum allowed number of knots is $3$. While there is no boundary on the maximum number of knots, typically the interesting range is around $3$ to $10$ knots.
-The function will fit NB-GAM models for some number of genes, provided by the `nGenes` argument, over the range of knots that are provided, and return the AIC for each gene fitted with each number of knots.
+The `evaluateK` function will fit NB-GAM models for some number of genes, provided by the `nGenes` argument, over the range of knots that are provided, and return the AIC for each gene fitted with each number of knots.
 It is generally a good idea to evaluate this multiple times using different seeds (using the `set.seed` function), to check whether the results are reproducible across different gene subsets.
+Note that there are multiple ways in which the provided input can be supplied in `evaluateK`, analogous to the `fitGAM` function. See below for an explanation on the different input formats.
 
 This task can be computationally demanding, since the models must be fit multiple times for each gene. We therefore skip this in the vignette, but show the output one can expect instead.
 
@@ -109,7 +110,7 @@ knitr::include_graphics("evalK_paul2Cropped.png")
 
 The output graphics are organized into four panels. The left panel plots a boxplot for each number of knots we wanted to evaluate. The plotted values are the deviation from a gene's AIC at that specific knot value from the average AIC of that gene across all the knots under evaluation. Typically, AIC values are somewhat higher for low number of knots, and we expect them to decrease as the number of knots gets higher.
 The two middle panels plot the average drop in AIC across all genes. The middle left panel simply plots the average AIC, while the middle right panel plots the change in AIC relative to the average AIC at the lowest knot number (here, this is 3 knots, as can also be seen from the plot since the relative AIC equals $1$).
-Finally, rhe right panel only plots a subset of genes where the AIC value changes significantly across the evaluated number of knots. Here, a significant change is defined as a change in absolute value of at least $2$, but this can be tuned using the `aicDiff` argument to `evaluateK`. For the subset of genes, a barplot is displayed that shows the number of genes that have their lowest AIC at a specific knot value. 
+Finally, the right panel only plots a subset of genes where the AIC value changes significantly across the evaluated number of knots. Here, a significant change is defined as a change in absolute value of at least $2$, but this can be tuned using the `aicDiff` argument to `evaluateK`. For the subset of genes, a barplot is displayed that shows the number of genes that have their lowest AIC at a specific knot value. 
 
 
 The middle panels show that the drop in AIC levels off if the number of knots is increased beyond $6$. In the right panel, $6$ knots also corresponds the highest number of genes with lowest AIC value. Based on these plots, we thus believe that fitting the NB-GAM models with $6$ knots is an appropriate choice.
@@ -126,11 +127,13 @@ This dataset consists of UMI counts, and we do not expect zero inflation to be a
 For the vignette, we fit smoothers for a filtered set of genes in the dataset, 239 genes in total. We also include the *Irf8* gene, since it is a known transcription factor involved in hematopoiesis.
 
 The `fitGAM` function relies on __BiocParallel__ to implement parallelization, progress bars and so on.
-Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as input (`sds` argument), or a matrix of pseudotimes and cell-level weights (`pseudotime` and `cellWeights` argument). If a `SlingshotDataSet` is provided, the function will return a `SingleCellExperiment` object that contains the essential output from `tradeSeq`. If a matrix of pseudotimes and cell-level weights is provided, you can choose between a `SingleCellExperiment` output of a list output (see below, Section 'tradeSeq list output'). We recommend setting `sce=TRUE` so that `fitGAM` returns a `SingleCellExperiment` object, since this is much more efficient. However, all functions work with both the `SingleCellExperiment` (i.e., `sds` input to `fitGAM`) output as well as the list output (i.e., `pseudotime` and `cellWeights` input to `fitGAM`).
+Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as input (`sds` argument), or a matrix of pseudotimes and cell-level weights (`pseudotime` and `cellWeights` argument). If a `SlingshotDataSet` is provided, the function will return a `SingleCellExperiment` object that contains the essential output from `tradeSeq`. If a matrix of pseudotimes and cell-level weights is provided, you can choose between a `SingleCellExperiment` output or a list output (see below, Section 'tradeSeq list output'). We recommend setting `sce=TRUE` so that `fitGAM` returns a `SingleCellExperiment` object, since this is much more efficient. However, all functions work with both the `SingleCellExperiment` (i.e., `sds` input to `fitGAM`) output as well as the list output (i.e., `pseudotime` and `cellWeights` input to `fitGAM`).
 
 While in this vignette we will proceed with using the `sds` argument, hence a `SingleCellExperiment` object as output, `tradeSeq` allows input from any trajectory inference method with the `pseudotime` and `cellWeights` arguments. 
 
-Because cells are assigned to a lineage based on their weigths, the result of `fitGAM` is stochastic. While this should have little impact on the overall results in practice, users are therefore encouraged to use the `set.seed` function before running `fitGAM` to ensure reproducibility of their analyses.
+Because cells are assigned to a lineage based on their weigths, the result of `fitGAM` is stochastic. While this should have limited impact on the overall results in practice, users are therefore encouraged to use the `set.seed` function before running `fitGAM` to ensure reproducibility of their analyses.
+
+Below, we show two ways in which you can provide the required input to `fitGAM`: downstream of any trajectory inference method and downstream of `slingshot`.
 
 ## Downstream of any trajectory inference method
 
@@ -158,16 +161,15 @@ cw <- slingCurveWeights(crv)
 set.seed(5)
 sce <- fitGAM(counts = counts, 
        pseudotime = pt,
-       cellWeights = cw, 
-       sce = TRUE)
+       cellWeights = cw)
 ```
 
 ## Downstream of slingshot
 
-Here, we only provide the count matrix, and the `SlingshotDataSet` object from `slingshot`.
+When running `fitGAM` downstream of `slingshot`, the only required arguments are the count matrix, and the `SlingshotDataSet` object from running `slingshot`.
+See `?fitGAM` for other arguments.
 
 ```{r}
-
 counts <- as.matrix(counts)
 set.seed(5)
 sce <- fitGAM(counts = counts,
@@ -175,7 +177,7 @@ sce <- fitGAM(counts = counts,
 # This takes about 1mn to run
 ```
 
-## EDA
+# EDA
 
 You can also plot the cells in reduced dimension to see where the knots are located.
 
@@ -188,8 +190,8 @@ plotGeneCount(curve = crv, counts = counts, clusters = cl,
 
 ## Association of gene expression with pseudotime
 
-A first exploration of the data analysis may consist in checking whether gene expression is associated with a particular lineage.
-The statistical test performed here, implemented in the `associationTest` function, is testing the null hypothesis that all smoother coefficients are equal to each other. This can be interpreted as testing whether the smoothed gene expression is significantly changing along pseudotime.
+A first exploration of the data analysis may consist of checking whether gene expression is associated with a particular lineage.
+The statistical test performed here, implemented in the `associationTest` function, is testing the null hypothesis that all smoother coefficients are equal to each other. This can be interpreted as testing whether the average gene expression is significantly changing along pseudotime.
 
 ```{r}
 assoRes <- associationTest(sce)
@@ -199,10 +201,10 @@ head(assoRes)
 
 ## Discovering progenitor marker genes
 
-In order to discover marker genes of the progenitor cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a lineage) with the differentiated cell type population (i.e., the end point of a lineage).
-In the function `startVsEndTest`, we have implemented a Wald test that tests the null hypothesis that the expression at the starting point of the smoother (progenitor population) is identical to the expression at the end point of the smoother (differentiated population).
+In order to discover marker genes of the progenitor or differentiated cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a lineage) with the differentiated cell type population (i.e., the end point of a lineage).
+The function `startVsEndTest` uses a Wald test to assess the null hypothesis that the average expression at the starting point of the smoother (progenitor population) is equal to the average expression at the end point of the smoother (differentiated population).
 The test basically involves a comparison between two smoother coefficients for every lineage.
-The function `startVsEndTest` performs an omnibus test across all lineages by default, but you can also assess all lineages separately by setting `lineages=TRUE`.
+The function `startVsEndTest` performs a global test across all lineages by default (i.e. it compares the start and end positions for all lineages simultaneously), but you can also assess all lineages separately by setting `lineages=TRUE`.
 Below, we adopt an omnibus test across the two lineages.
 
 ```{r}
@@ -225,7 +227,7 @@ plotGeneCount(crv, counts, gene = sigGeneStart)
 
 ## Comparing specific pseudotime values within a lineage
 
-The `startVsEndTest` compares two points on a lineage, and by default it is comparing the inception point with the end point.
+The `startVsEndTest` compares two points on a lineage, and by default it is comparing the start point with the end point.
 However, this is a specific form of a more general capability of the `startVsEndTest` to compare any two points on any lineage.
 If the interest lies in comparing any two custom pseudotime values, one can specify this using the `pseudotimeValues` arguments in `startVsEndTest`.
 For example, below we'd like to compare the expression for each gene at pseudotime values of $0.8$ and $0.1$.
@@ -239,9 +241,9 @@ customRes <- startVsEndTest(sce, pseudotimeValues = c(0.1, 0.8))
 
 ## Discovering differentiated cell type markers
 
-`tradeSeq` can discover marker genes for the differentiated cell types by comparing the end points of the lineage-specific smoothers. This is implemented in the `diffEndTest` function.
-By default, `diffEndTest` performs an omnibus test, testing the null hypothesis that the endpoint expression is equal for all lineages using a multivariate Wald test.
-If more than two trajectories are present, one can assess all pairwise comparisons using the `pairwise=TRUE` argument.
+`tradeSeq` can discover marker genes for the differentiated cell types by comparing the average expression between end points of the lineage-specific smoothers. This is implemented in the `diffEndTest` function.
+By default, `diffEndTest` performs a global test, testing the null hypothesis that the average expression at the endpoints is equal for all lineages using a multivariate Wald test.
+If more than two lineages are present, one can assess all pairwise comparisons using the `pairwise=TRUE` argument.
 
 ```{r}
 endRes <- diffEndTest(sce)
@@ -277,7 +279,7 @@ plotSmoothers(sce, counts, gene = rownames(patternRes)[oPat][1])
 plotGeneCount(crv, counts, gene = rownames(patternRes)[oPat][1])
 ```
 
-We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the *patternTest* and their rank in decreasing Wald statistics for the *diffEndTest*.
+We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the `patternTest` and their rank in decreasing Wald statistics for the `diffEndTest`.
 
 ```{r, out.width="50%", fig.asp=.8}
 library(dplyr)
@@ -331,8 +333,8 @@ plotGeneCount(crv, counts, gene = "Irf8")
 
 ## Early drivers of differentiation
 
-Another question of interest is to find a list of genes that are differentially expressed around the separation of two or multiple lineages.
-The function `earlyDETest` implements a statistical method to tests the null hypothesis of whether the smoothers are equal between two user-specified knots by building on the `patternTest`, but restricting itself to a particular location of the smoothers.
+Another question of interest is to find a list of genes that are differentially expressed between lineages at a particular region, e.g. around the separation of two or multiple lineages.
+The function `earlyDETest` implements a statistical method to test the null hypothesis of whether the average gene expression smoothers are equal between lineages in a region defined by two user-specified knots.
 Again, the knots can be visualized with the `plotGeneCount` function. By selecting the region covering the first two knot points to test for differential patterns between the lineages, we check which genes are behaving differently around the bifurcation point.
 
 ```{r, out.width="50%", fig.asp=.5}
@@ -353,6 +355,23 @@ plotGeneCount(crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 ```
 
 # Clustering of genes according to their expression pattern
+
+## Extracting fitted values to use with any clustering method
+
+While `tradeSeq` provides readily implemented functionality to cluster genes using the `clusterExperiment` package, users may want to cluster genes using other clustering methods.
+Fitted values from the `tradeSeq` models, which can subsequently be used for clustering, can be extracted using the `predictSmooth` or `predictCells` functions.
+`predictCells` predicts the estimated expression for each cell (i.e. it is a fitted value for that cell) on the count scale.
+`predictSmooth`, instead, returns values of the estimated smoother on a grid of pseudotimes.
+Either of these may be used as input to a clustering method; roughly, `predictSmooth` may be considered as a cleaner version of `predictCells`.
+
+```{r}
+yhat <- predictCells(models = sce, gene = "Irf8")
+
+ysmooth <- predictSmooth(models = sce, gene = "Irf8", nPoints = 10)
+```
+
+
+## Clustering using RSEC, clusterExperiment
 
 tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the `clusterExpressionPatterns` function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the `nPoints` argument. The `genes` argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset.
 The clustering itself occurs by the `clusterExperiment` package [@Risso2018], hence the user may select any clustering algorithm that's built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within `clusterExperiment`, run `clusterExperiment::listBuiltInFunctions()` on the command line.
@@ -401,7 +420,7 @@ do.call(plot_grid, plots)
 
 # tradeSeq list output
 
-If another method than Slingshot is used for trajectory inference, one can input custom pseudotimes and cell-level weights in `fitGAM`, as we also discussed above. The output from `fitGAM` will be different in that case, and less memory efficient. All functions we have discussed above work exactly the same with the list output. However, the list output functionality is a little bit bigger, and here we discuss some capabilities that are only available with the list output.
+The output from `fitGAM` will be different if one sets `sce=FALSE`, and less memory efficient. Instead of a `SingleCellExperiment` object, it will return a list with all fitted `mgcv` models. Most functions we have discussed above work exactly the same with the list output. However, the list output functionality is a little bit bigger, and here we discuss some capabilities that are only available with the list output.
 
 ```{r}
 gamList <- fitGAM(counts,

@@ -3,6 +3,7 @@
 \name{fitGAM}
 \alias{fitGAM}
 \alias{fitGAM,matrix-method}
+\alias{fitGAM,SingleCellExperiment-method}
 \title{fitGAM}
 \usage{
 fitGAM(counts, ...)
@@ -14,6 +15,22 @@ fitGAM(counts, ...)
   cellWeights = NULL,
   conditions = NULL,
   U = NULL,
+  genes = seq_len(nrow(counts)),
+  weights = NULL,
+  offset = NULL,
+  nknots = 6,
+  verbose = TRUE,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  control = mgcv::gam.control(),
+  sce = TRUE,
+  family = "nb"
+)
+
+\S4method{fitGAM}{SingleCellExperiment}(
+  counts,
+  U = NULL,
+  genes = seq_len(nrow(counts)),
   weights = NULL,
   offset = NULL,
   nknots = 6,
@@ -26,9 +43,8 @@ fitGAM(counts, ...)
 )
 }
 \arguments{
-\item{counts}{Either the count matrix of expression values, with genes
-in rows and cells in columns; or a SingleCellExperiment object, where
-pseudotime and cellWeights are provided as colData. See Details.}
+\item{counts}{The count matrix of expression values, with genes
+in rows and cells in columns.}
 
 \item{...}{parameters including:}
 
@@ -36,12 +52,13 @@ pseudotime and cellWeights are provided as colData. See Details.}
 after running Slingshot. If this is provided, \code{pseudotime} and
 \code{cellWeights} arguments are derived from this object.}
 
-\item{pseudotime}{a matrix of pseudotime values, each row represents a cell
+\item{pseudotime}{A matrix of pseudotime values, each row represents a cell
 and each column represents a lineage.}
 
-\item{cellWeights}{a matrix of cell weights defining the probability that a
+\item{cellWeights}{A matrix of cell weights defining the probability that a
 cell belongs to a particular lineage. Each row represents a cell and each
-column represents a lineage.}
+column represents a lineage. If only a single lineage, provide a matrix with
+one column containing all values of 1.}
 
 \item{conditions}{This argument is in beta phase and should be used carefully.
 If each lineage consists of mutliple conditions, this argument can be used to
@@ -51,15 +68,21 @@ every lineage.}
 \item{U}{the design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}
 
-\item{weights}{a matrix of weights with identical dimensions
+\item{genes}{The genes on which to run \code{fitGAM}. Default to all the genes.
+If only a subset of the genes is indicated, normalization will be done using
+all the genes but the smoothers will be computed only for the subset.}
+
+\item{weights}{A matrix of weights with identical dimensions
 as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
 
-\item{offset}{the offset, on log-scale. If NULL, TMM is used to account for
+\item{offset}{The offset, on log-scale. If NULL, TMM is used to account for
 differences in sequencing depth., see \code{edgeR::calcNormFactors}.
-Alternatively, this may also be a matrix of the same dimensions as the
-expression matrix.}
+Alternatively, this may also be a vector with length equal to the number of
+cells.}
 
-\item{nknots}{Number of knots used to fit the GAM. Defaults to 6.}
+\item{nknots}{Number of knots used to fit the GAM. Defaults to 6. It is
+recommended to use the `evaluateK` function to guide in selecting an
+appropriate number of knots.}
 
 \item{verbose}{Logical, should progress be printed?}
 
@@ -74,9 +97,10 @@ back-end to be used for computations. See
 \code{gam.control}.}
 
 \item{sce}{Logical: should output be of SingleCellExperiment class? This is
-recommended to be TRUE.}
+recommended to be TRUE. If \code{sds} argument is specified, it will always
+be set to TRUE}
 
-\item{family}{The assumed distribution for the response, set to \code{"nb"}
+\item{family}{The assumed distribution for the response. Is set to \code{"nb"}
 by default.}
 }
 \value{
@@ -89,19 +113,22 @@ the \code{tradeSeq} results stored in the \code{rowData},
 \code{colData} and \code{metadata}.
 }
 \description{
-This fits the NB-GAM model as described in Van den Berge et al.[2019].
-There are three ways to provide the required input in \code{fitGAM}.
-See Details.
+This fits the NB-GAM model as described in
+Van den Berge et al.[2019].
+There are two ways to provide the required input in \code{fitGAM}.
+See Details and the vignette.
 }
 \details{
-\code{fitGAM} supports two different ways to input the required objects:
+\code{fitGAM} supports three different ways to input the required objects:
 \itemize{
-\item{"Count matrix and Slingshot input."}{Input count matrix using
-\code{counts} argument and Slingshot object using \code{sds} argument.}
 \item{"Count matrix and matrix of pseudotime and cellWeights input."}{
 Input count matrix using \code{counts} argument and
 pseudotimes and cellWeights as a matrix, with number of rows equal to
 number of cells, and number of columns equal to number of lineages.}
+\item{"Count matrix and Slingshot input."}{Input count matrix using
+\code{counts} argument and Slingshot object using \code{sds} argument.}
+\item{"SingleCellExperiment Object with slingshot run."}{
+Input SingleCellExperiment Object using \code{counts} argument.}
 }
 }
 \examples{

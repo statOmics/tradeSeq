@@ -2,7 +2,7 @@ Package: tradeSeq
 Type: Package
 Title: trajectory-based differential expression analysis for sequencing data
 Date: 2019-03-15
-Version: 1.1.05
+Version: 1.1.08
 Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "koen.vandenberge@ugent.be"),
               person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
@@ -30,6 +30,7 @@ Collate:
     'fitGAM.R'
     'getSmootherPvalues.R'
     'getSmootherTestStats.R'
+    'nknots.R'
     'patternTest.R'
     'plotGeneCount.R'
     'plotSmoothers.R'
@@ -52,14 +53,15 @@ Imports:
     princurve,
     methods,
     S4Vectors,
-    tibble
+    tibble,
+    dplyr
 Suggests:
     knitr,
     rmarkdown,
     cowplot,
-    dplyr,
     tidyr,
-    testthat
+    testthat,
+    covr
 VignetteBuilder: knitr
 biocViews:
     Clustering,

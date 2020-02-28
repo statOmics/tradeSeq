@@ -33,24 +33,24 @@
 )
 }
 \arguments{
-\item{models}{The list of GAMs, typically the output from
+\item{models}{The fitted GAMs, typically the output from
 \code{\link{fitGAM}}.}
 
 \item{nPoints}{The number of points to use for clustering the expression
 patterns.}
 
 \item{genes}{A numerical or character vector specifying the genes from
-\code{models}
-that should be clustered.}
+\code{models} that should be clustered.}
 
-\item{reduceMethod}{Method used before running the clustering methods.
-Passed to \code{\link[clusterExperiment]{RSEC}}}
+\item{reduceMethod}{Dimensionality reduction method used before running the
+clustering methods. Passed to \code{\link[clusterExperiment]{RSEC}}.
+Defaults to PCA.}
 
 \item{nReducedDims}{Number of dimensions kept after \code{reduceMethod}.
-Passed to \code{\link[clusterExperiment]{RSEC}}}
+Passed to \code{\link[clusterExperiment]{RSEC}}.}
 
-\item{minSizes}{Number of dimensions kept after \code{reduceMethod}.
-Passed to \code{\link[clusterExperiment]{RSEC}}}
+\item{minSizes}{Minimum size of clusters.
+Passed to \code{\link[clusterExperiment]{RSEC}}.}
 
 \item{ncores}{Number of cores to use. Passed to
 \code{\link[clusterExperiment]{RSEC}}}
@@ -64,11 +64,15 @@ Passed to \code{\link[clusterExperiment]{RSEC}}}
 }
 \value{
 A list containing the scaled fitted values \code{yhatScaled}(for
- plotting) and a \code{\link{ClusterExperiment}} object.
+ plotting) and a \code{\link{ClusterExperiment}} object, containing the
+ clustering results.
 }
 \description{
-Cluster genes in clusters with similar expression patterns along the
-trajectory.
+Cluster genes in clusters that have similar expression patterns
+along all lineages in the trajectory. By default, this function uses the
+\code{clusterExperiment} package to do the clustering. If another clustering
+method is of interest, one can extract fitted values to use for clustering,
+see details in the vignette.
 }
 \details{
 This method adopts the \code{\link[clusterExperiment]{RSEC}}
