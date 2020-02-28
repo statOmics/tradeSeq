@@ -8,7 +8,13 @@ within a lineage.}
 \usage{
 conditionTest(models, ...)
 
-\S4method{conditionTest}{SingleCellExperiment}(models, global = TRUE, pairwise = FALSE)
+\S4method{conditionTest}{SingleCellExperiment}(
+  models,
+  global = TRUE,
+  pairwise = FALSE,
+  l2fc = 0,
+  eigenThresh = 0.01
+)
 }
 \arguments{
 \item{models}{The fitted GAMs, typically the output from
@@ -22,6 +28,16 @@ i.e. test for DE between all conditions in all lineages.}
 
 \item{pairwise}{If TRUE, return output for all pairwise comparisons.
 Both \code{global} and \code{pairwise} can be TRUE.}
+
+\item{l2fc}{The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.}
+
+\item{eigenThresh}{Eigenvalue threshold for inverting the variance-covariance matrix
+of the coefficients to use for calculating the Wald test statistics. Lower values
+are more lenient to adding more information but also decrease computational stability.
+This argument should in general not be changed by the user but is provided
+for back-compatability. Set to \code{1e-8} to reproduce results of older
+version of \RPack{tradeSeq}.}
 }
 \value{
 A matrix with the wald statistic, the number of degrees of

@@ -34,12 +34,9 @@ earlyDETest(models, ...)
 
 \item{...}{parameters including:}
 
-\item{global}{If TRUE, test for all pairwise comparisons simultaneously.
-If \code{models} contains conditions (i.e. \code{fitGAM} was run with the
-conditions argument), then we compare the within-lineage average
-across conditions, between lineages.}
+\item{global}{If TRUE, test for all pairwise comparisons simultaneously.}
 
-\item{pairwise}{If TRUE, return output for all pairwise comparisons made.}
+\item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 
 \item{knots}{A vector of length 2 specifying the knots before and after the
 region of interest.}

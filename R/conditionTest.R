@@ -1,7 +1,8 @@
 #' @include utils.R
 
 
-.conditionTest <- function(models, global = TRUE, pairwise = FALSE){
+.conditionTest <- function(models, global = TRUE, pairwise = FALSE,
+                           l2fc = 0, eigenThresh = 1e-2){
 
   if (is(models, "list")) {
     stop("Argument models must be a SingleCellExperiment object.",
@@ -76,7 +77,7 @@
     beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
     Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
     if(any(is.na(beta)) | any(is.na(Sigma))) return(c(NA, NA))
-    getEigenStatGAM(beta, Sigma, L)
+    getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
   })
   names(waldResOmnibus) <- rownames(models)
   #tidy output
@@ -97,7 +98,7 @@
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         if(any(is.na(beta)) | any(is.na(Sigma))) return(c(NA, NA))
-        getEigenStatGAM(beta, Sigma, LLin)
+        getEigenStatGAMFC(beta, Sigma, LLin, l2fc, eigenThresh)
       })
       waldResults <- do.call(rbind, waldResPairWithin)
       pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
@@ -133,6 +134,14 @@
 #' i.e. test for DE between all conditions in all lineages.
 #' @param pairwise If TRUE, return output for all pairwise comparisons.
 #' Both \code{global} and \code{pairwise} can be TRUE.
+#' @param l2fc The log2 fold change threshold to test against. Note, that
+#' this will affect both the global test and the pairwise comparisons.
+#' @param eigenThresh Eigenvalue threshold for inverting the variance-covariance matrix
+#' of the coefficients to use for calculating the Wald test statistics. Lower values
+#' are more lenient to adding more information but also decrease computational stability.
+#' This argument should in general not be changed by the user but is provided
+#' for back-compatability. Set to \code{1e-8} to reproduce results of older
+#' version of \RPack{tradeSeq}.
 #' @return A matrix with the wald statistic, the number of degrees of
 #' freedom and the p-value associated with each gene for all the
 #' tests performed.
@@ -151,11 +160,15 @@ setMethod(f = "conditionTest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,
                                 global = TRUE,
-                                pairwise = FALSE){
+                                pairwise = FALSE,
+                                l2fc = 0,
+                                eigenThresh = 1e-2){
 
             res <- .conditionTest(models = models,
                                 global = global,
-                                pairwise = pairwise)
+                                pairwise = pairwise,
+                                l2fc = l2fc,
+                                eigenThresh = eigenThresh)
             return(res)
 
           }

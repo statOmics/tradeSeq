@@ -65,7 +65,7 @@ If each lineage consists of mutliple conditions, this argument can be used to
 specify the conditions. tradeSeq will then fit a condition-specific smoother for
 every lineage.}
 
-\item{U}{the design matrix of fixed effects. The design matrix should not
+\item{U}{The design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}
 
 \item{genes}{The genes on which to run \code{fitGAM}. Default to all the genes.
