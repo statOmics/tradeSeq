@@ -134,7 +134,7 @@
   if(!sce){
     fcAll <- lapply(models, function(m){
       betam <- coef(m)
-      fcAll <- .getFoldChanges(beta, L)
+      fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
     })
     if(ncol(L) == 1) fcAll <- matrix(unlist(fcAll), ncol=1)

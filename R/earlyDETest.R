@@ -171,7 +171,7 @@
   if(!sce){
     fcAll <- lapply(models, function(m){
       betam <- coef(m)
-      fcAll <- .getFoldChanges(beta, L)
+      fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
     })
     fcMedian <- rowMedians(abs(do.call(rbind, fcAll)))
