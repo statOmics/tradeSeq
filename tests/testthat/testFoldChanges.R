@@ -55,8 +55,11 @@ test_that("startVsEndTest p-values are higher when setting a FC threshold.", {
 
 # if observed FC is below threshold, p-values should be 1
 test_that("startVsEndTest p-values are 1 if FC below threshold.", {
-  expect_true(all(start11$pvalue_lineage1[abs(start11$logFC1_2) < log(1.1)] == 1))
-  expect_true(all(start15$pvalue[abs(start15$logFC1_2) < log(1.5)] == 1))
+  expect_true(all(start11$pvalue_lineage1[abs(start11$logFClineage1) < log(1.1)] == 1))
+  expect_true(all(start11$pvalue_lineage2[abs(start11$logFClineage2) < log(1.1)] == 1))
+
+  expect_true(all(start15$pvalue_lineage1[abs(start15$logFClineage1) < log(1.5)] == 1))
+  expect_true(all(start15$pvalue_lineage2[abs(start15$logFClineage2) < log(1.5)] == 1))
 })
 
 # patternTest

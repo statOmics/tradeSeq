@@ -216,7 +216,8 @@ setMethod(f = "startVsEndTest",
             res <- .startVsEndTest(models = models,
                                 global = global,
                                 lineages = lineages,
-                                pseudotimeValues = pseudotimeValues)
+                                pseudotimeValues = pseudotimeValues,
+                                l2fc = l2fc)
             return(res)
 
           }
@@ -235,7 +236,8 @@ setMethod(f = "startVsEndTest",
             res <- .startVsEndTest(models = models,
                                 global = global,
                                 lineages = lineages,
-                                pseudotimeValues = pseudotimeValues)
+                                pseudotimeValues = pseudotimeValues,
+                                l2fc = l2fc)
             return(res)
 
           }
