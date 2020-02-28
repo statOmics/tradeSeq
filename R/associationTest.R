@@ -194,8 +194,13 @@
 #' @param lineages If TRUE, test for all lineages independently.
 #' @importFrom magrittr %>%
 #' @examples
-#' data(gamList, package = "tradeSeq")
-#' associationTest(gamList, global = TRUE, lineages = TRUE)
+#' set.seed(8)
+#' data(crv, package="tradeSeq")
+#' data(countMatrix, package="tradeSeq")
+#' sce <- fitGAM(counts = as.matrix(countMatrix),
+#'                   sds = crv,
+#'                   nknots = 5)
+#' assocRes <- associationTest(sce)
 #' @return A matrix with the wald statistic, the number of
 #'  degrees of freedom and the p-value
 #'  associated with each gene for all the tests performed. If the testing
