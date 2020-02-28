@@ -21,7 +21,6 @@
     X <- colData(models)$tradeSeq$X # linear predictor
     knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
     nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-
   }
 
 
@@ -214,11 +213,13 @@ setMethod(f = "associationTest",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,
                                 global = TRUE,
-                                lineages = FALSE){
+                                lineages = FALSE,
+                                l2fc = 0){
 
             res <- .associationTest(models = models,
                                     global = global,
-                                    lineages = lineages)
+                                    lineages = lineages,
+                                    l2fc = l2fc)
             return(res)
 
           }
@@ -230,11 +231,13 @@ setMethod(f = "associationTest",
           signature = c(models = "list"),
           definition = function(models,
                                 global = TRUE,
-                                lineages = FALSE){
+                                lineages = FALSE,
+                                l2fc = 0){
 
             res <- .associationTest(models = models,
                                     global = global,
-                                    lineages = lineages)
+                                    lineages = lineages,
+                                    l2fc = l2fc)
             return(res)
 
           }

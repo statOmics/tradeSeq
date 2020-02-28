@@ -300,7 +300,7 @@
 #' are more lenient to adding more information but also decrease computational stability.
 #' This argument should in general not be changed by the user but is provided
 #' for back-compatability. Set to \code{1e-8} to reproduce results of older
-#' version of \RPack{tradeSeq}.
+#' version of \code{tradeSeq}.
 #' @importFrom magrittr %>%
 #' @examples
 #' data(gamList, package = "tradeSeq")
