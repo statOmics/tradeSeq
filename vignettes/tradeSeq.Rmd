@@ -367,7 +367,7 @@ Either of these may be used as input to a clustering method; roughly, `predictSm
 ```{r}
 yhat <- predictCells(models = sce, gene = "Irf8")
 
-ysmooth <- predictSmooth(models = sce, gene = "Irf8", nPoints = 40)
+ysmooth <- predictSmooth(models = sce, counts = counts, gene = "Irf8", nPoints = 40)
 ```
 
 
