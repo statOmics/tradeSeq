@@ -1,7 +1,7 @@
 #' @include utils.R
 
 
-.earlyDETest <- function(models, knots, nPoints = 100, global = TRUE,
+.earlyDETest <- function(models, knots, nPoints = 2 * nknots(models), global = TRUE,
                         pairwise = FALSE, l2fc = 0, eigenThresh = 1e-2){
 
   if (is(models, "list")) {

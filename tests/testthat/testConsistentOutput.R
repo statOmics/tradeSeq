@@ -28,8 +28,8 @@ sce@int_metadata$slingshot <- sds
 set.seed(3)
 sdsFit <- tradeSeq::fitGAM(counts, sds, nknots = 3, verbose = FALSE)
 set.seed(3)
-sceFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime, 
-                           cellWeights = cellWeights, nknots = 3, 
+sceFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
+                           cellWeights = cellWeights, nknots = 3,
                            verbose = FALSE)
 set.seed(3)
 sceInput <- tradeSeq::fitGAM(sce, nknots = 3, verbose = FALSE)
@@ -47,7 +47,7 @@ test_that("NB-GAM estimates are equal all input.",{
   betaSce <- as.matrix(rowData(sceFit)$tradeSeq$beta)
   betaSceInput <- as.matrix(rowData(sceInput)$tradeSeq$beta)
   betaList <- do.call(rbind, lapply(listFit, function(m) coef(m)))
-  dimnames(betaSceInput) <- dimnames(betaSce) <- 
+  dimnames(betaSceInput) <- dimnames(betaSce) <-
     dimnames(betaSds) <- dimnames(betaList)
   expect_equal(betaSds, betaList)
   expect_equal(betaSds, betaSce)
@@ -63,7 +63,7 @@ test_that("NB-GAM estimates are equal all input.",{
   expect_equal(SigmaSds, SigmaSceInput)
 })
 
-## nknots 
+## nknots
 test_that("NB-GAM estimates are equal all input.",{
   expect_equal(nknots(sceFit), nknots(sdsFit))
   expect_equal(nknots(sceFit), nknots(listFit))
@@ -90,7 +90,7 @@ test_that("startVsEndTest results are equal for sds and manual input.",{
   setSds <- tradeSeq::startVsEndTest(sdsFit, global = TRUE, lineages = TRUE)
   setInput <- tradeSeq::startVsEndTest(sceInput, global = TRUE, lineages = TRUE)
   setList <- tradeSeq::startVsEndTest(listFit, global = TRUE, lineages = TRUE)
-  dimnames(setInput) <-  dimnames(setSce) <- 
+  dimnames(setInput) <-  dimnames(setSce) <-
     dimnames(setSds) <- dimnames(setList)
   expect_equal(setSce, setList)
   expect_equal(setSds, setSce)
@@ -103,7 +103,7 @@ test_that("diffEndTest results are equal for sds and manual input.",{
   detSds <- tradeSeq::diffEndTest(sdsFit, global = TRUE, pairwise = TRUE)
   detInput <- tradeSeq::diffEndTest(sceInput, global = TRUE, pairwise = TRUE)
   detList <- tradeSeq::diffEndTest(listFit, global = TRUE, pairwise = TRUE)
-  dimnames(detInput) <-  dimnames(detSce) <- 
+  dimnames(detInput) <-  dimnames(detSce) <-
     dimnames(detSds) <- dimnames(detList)
   expect_equal(detSce, detList)
   expect_equal(detSds, detSce)
@@ -116,9 +116,9 @@ test_that("patternTest results are equal for sds and manual input.",{
   patSds <- tradeSeq::patternTest(sdsFit, global = TRUE, pairwise = TRUE)
   patInput <- tradeSeq::patternTest(sceInput, global = TRUE, pairwise = TRUE)
   patList <- tradeSeq::patternTest(listFit, global = TRUE, pairwise = TRUE)
-  dimnames(patInput) <-  dimnames(patSce) <- 
+  dimnames(patInput) <-  dimnames(patSce) <-
     dimnames(patSds) <- dimnames(patList)
-  expect_equal(patSce, patList)
+  expect_equal(patSce, patList, tolerance = 1e-5)
   expect_equal(patSds, patSce)
   expect_equal(patSds, patInput)
 })
@@ -133,7 +133,7 @@ test_that("earlyDETest results are equal for sds and manual input.", {
                                   knots = 1:2)
   edtList <- tradeSeq::earlyDETest(listFit, global = TRUE, pairwise = FALSE,
                                    knots = 1:2)
-  dimnames(edtInput) <- dimnames(edtSce) <- 
+  dimnames(edtInput) <- dimnames(edtSce) <-
     dimnames(edtSds) <- dimnames(edtList)
   expect_equal(edtSds, edtList, tolerance = 1e-5)
   expect_equal(edtSds, edtSce, tolerance = 1e-5)
