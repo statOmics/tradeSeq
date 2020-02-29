@@ -63,17 +63,34 @@
     }
   } else if (sce) {
     if (nCurves == 1) {
-      # note that mgcv does not respect the number of input knots if only
-      # a single lineage is fitted.
-      smoothCoefs <-  grep(x = colnames(X), pattern = "s\\(t[1-9]")
-      pSmooth <- length(smoothCoefs)
-      pFixed <- min(smoothCoefs) - 1
-      L1 <- matrix(0, nrow = ncol(X), ncol = pSmooth - 1,
-                  dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
-                                  NULL))
-      for (ii in seq_len(pSmooth) - 1) {
-        L1[pFixed + ii, ii] <- 1
-        L1[pFixed + ii + 1, ii] <- -1
+      if(is.null(conditions)){
+        smoothCoefs <-  grep(x = colnames(X), pattern = "s\\(t[1-9]")
+        pSmooth <- length(smoothCoefs)
+        pFixed <- min(smoothCoefs) - 1
+        L1 <- matrix(0, nrow = ncol(X), ncol = pSmooth - 1,
+                     dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
+                                     NULL))
+        for (ii in seq_len(pSmooth) - 1) {
+          L1[pFixed + ii, ii] <- 1
+          L1[pFixed + ii + 1, ii] <- -1
+        }
+      } else {
+        jj <- 1
+        for(kk in seq_len(nlevels(conditions))){
+          # get max pseudotime for lineage of interest
+          lID <- rowSums(dm[,grep(x=colnames(dm), pattern=paste0("l",jj))])
+          tmax <- max(dm[lID == 1, paste0("t", jj)])
+          # number of knots for that lineage
+          nknots <- sum(knotPoints <= tmax)
+          C <- matrix(0, nrow = p, ncol = nknots - 1,
+                      dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
+                                      NULL))
+          for (i in seq_len(nknots - 1)) {
+            C[npar + nknots_max * nlevels(conditions) * (jj - 1) + nknots_max * (kk - 1) + i, i] <- 1
+            C[npar + nknots_max * nlevels(conditions)  * (jj - 1) + nknots_max * (kk - 1) + i + 1, i] <- -1
+          }
+          assign(paste0("L", jj, kk), C)
+        }
       }
     } else if (nCurves > 1) {
       p <- length(rowData(models)$tradeSeq$beta[[1]][1,])
@@ -115,8 +132,7 @@
             assign(paste0("L", jj, kk), C)
           }
         }
-
-      }
+      } # end curves loop
     }
   }
 
