@@ -47,7 +47,7 @@ of the coefficients to use for calculating the Wald test statistics. Lower value
 are more lenient to adding more information but also decrease computational stability.
 This argument should in general not be changed by the user but is provided
 for back-compatability. Set to \code{1e-8} to reproduce results of older
-version of \RPack{tradeSeq}.}
+version of `tradeSeq`.}
 }
 \value{
 A matrix with the wald statistic, the number of df and the p-value

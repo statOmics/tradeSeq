@@ -1,4 +1,5 @@
-context("Test results and contrast matrices.")
+context("Test that tradeSeq plotting functions work.")
+
 # Create data ----
 data("sds", package = "tradeSeq")
 
@@ -20,21 +21,26 @@ means[id, ] <- sweep(means[id, ], 2, FUN = "*", STATS = (pseudotime[, 1] / 50))
 # simulate NB counts
 counts <- matrix(rnbinom(n = G * n, mu = means, size = 1 / dispersions),
                  nrow = G, ncol = n)
-
+sce <- SingleCellExperiment(assays = list(counts = counts))
+sce@int_metadata$slingshot <- sds
 
 # fitGAM tests
 set.seed(3)
 sdsFit <- tradeSeq::fitGAM(counts, sds, nknots = 3, verbose = FALSE)
-rm(cellWeights, counts, dispersions, means, pseudotime, G, id, n)
-# Compare the tests ----
-# patternTest and earlyDETest
-test_that("patternTest and earlyDETest are equal if knots=NULL.", {
-  patSds <- tradeSeq::patternTest(sdsFit, global = TRUE, pairwise = FALSE)
-  edtSds <- tradeSeq::earlyDETest(sdsFit, global = TRUE, pairwise = FALSE,
-                                  knots = NULL)
-  expect_equal(patSds, edtSds)
-  patSds <- tradeSeq::patternTest(sdsFit, global = TRUE, pairwise = TRUE)
-  edtSds <- tradeSeq::earlyDETest(sdsFit, global = TRUE, pairwise = TRUE,
-                                  knots = NULL)
-  expect_equal(patSds, edtSds)
+set.seed(3)
+listFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
+                            cellWeights = cellWeights, nknots = 3,
+                            verbose = FALSE, sce = FALSE)
+rm(cellWeights, counts, dispersions, means, pseudotime, G, id)
+# Do the tests ----
+test_that("Plots function do produce plots", {
+  p <- plotSmoothers(listFit[[1]])
+  expect_is(p, "gg")
+  p <- plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit))
+  expect_is(p, "gg")
+  p <- plotGeneCount(sds, counts = counts(sce), gene = 1)
+  expect_is(p, "gg")
+  p <- plotGeneCount(sds, counts = counts(sce), clusters = sample(1:10, n, T))
+  expect_is(p, "gg")
 })
+

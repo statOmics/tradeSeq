@@ -125,13 +125,13 @@ test_that("patternTest results are equal for sds and manual input.",{
 
 ## earlyDETest
 test_that("earlyDETest results are equal for sds and manual input.", {
-  edtSce <- tradeSeq::earlyDETest(sceFit, global = TRUE, pairwise = FALSE,
+  edtSce <- tradeSeq::earlyDETest(sceFit, global = TRUE, pairwise = TRUE,
                                   knots = 1:2)
-  edtInput <- tradeSeq::earlyDETest(sceInput, global = TRUE, pairwise = FALSE,
+  edtInput <- tradeSeq::earlyDETest(sceInput, global = TRUE, pairwise = TRUE,
                                     knots = 1:2)
-  edtSds <- tradeSeq::earlyDETest(sdsFit, global = TRUE, pairwise = FALSE,
+  edtSds <- tradeSeq::earlyDETest(sdsFit, global = TRUE, pairwise = TRUE,
                                   knots = 1:2)
-  edtList <- tradeSeq::earlyDETest(listFit, global = TRUE, pairwise = FALSE,
+  edtList <- tradeSeq::earlyDETest(listFit, global = TRUE, pairwise = TRUE,
                                    knots = 1:2)
   dimnames(edtInput) <- dimnames(edtSce) <-
     dimnames(edtSds) <- dimnames(edtList)
