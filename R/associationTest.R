@@ -9,6 +9,7 @@
     sce <- TRUE
   }
 
+
   if (!sce) {
     modelTemp <- .getModelReference(models)
     nCurves <- length(modelTemp$smooth)
@@ -20,6 +21,7 @@
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
     knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
+    conditions <- suppressWarnings(models$tradeSeq$conditions)
     nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   }
 
@@ -75,22 +77,45 @@
       }
     } else if (nCurves > 1) {
       p <- length(rowData(models)$tradeSeq$beta[[1]][1,])
-      npar <- p - nCurves*length(knotPoints)
+      if(!is.null(conditions)){
+        npar <- p - nCurves*nlevels(conditions)*length(knotPoints)
+      } else {
+        npar <- p - nCurves*length(knotPoints)
+      }
       nknots_max <- length(knotPoints)
-      for (jj in seq_len(nCurves)) {
-        # get max pseudotime for lineage of interest
-        tmax <- max(dm[dm[, paste0("l", jj)] == 1,
-                       paste0("t", jj)])
-        # number of knots for that lineage
-        nknots <- sum(knotPoints <= tmax)
-        C <- matrix(0, nrow = p, ncol = nknots - 1,
-                    dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
-                                    NULL))
-        for (i in seq_len(nknots - 1)) {
-          C[npar + nknots_max * (jj - 1) + i, i] <- 1
-          C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
+      for (jj in seq_len(nCurves)) { #curves
+        if(is.null(conditions)){
+          # get max pseudotime for lineage of interest
+          lID <- rowSums(dm[,grep(x=colnames(dm), pattern=paste0("l",jj)), drop=FALSE])
+          tmax <- max(dm[lID == 1, paste0("t", jj)])
+          # number of knots for that lineage
+          nknots <- sum(knotPoints <= tmax)
+          C <- matrix(0, nrow = p, ncol = nknots - 1,
+                      dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
+                                      NULL))
+          for (i in seq_len(nknots - 1)) {
+            C[npar + nknots_max * (jj - 1) + i, i] <- 1
+            C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
+          }
+          assign(paste0("L", jj), C)
+        } else {
+          for(kk in seq_len(nlevels(conditions))){
+            # get max pseudotime for lineage of interest
+            lID <- rowSums(dm[,grep(x=colnames(dm), pattern=paste0("l",jj))])
+            tmax <- max(dm[lID == 1, paste0("t", jj)])
+            # number of knots for that lineage
+            nknots <- sum(knotPoints <= tmax)
+            C <- matrix(0, nrow = p, ncol = nknots - 1,
+                        dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
+                                        NULL))
+            for (i in seq_len(nknots - 1)) {
+              C[npar + nknots_max * nlevels(conditions) * (jj - 1) + nknots_max * (kk - 1) + i, i] <- 1
+              C[npar + nknots_max * nlevels(conditions)  * (jj - 1) + nknots_max * (kk - 1) + i + 1, i] <- -1
+            }
+            assign(paste0("L", jj, kk), C)
+          }
         }
-        assign(paste0("L", jj), C)
+
       }
     }
   }
@@ -98,7 +123,13 @@
 
   # perform global statistical test for every model
   if (global) {
-    L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
+    if(is.null(conditions)){
+      L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
+    } else {
+      combs <- apply(expand.grid(seq_len(nCurves), seq_len(nlevels(conditions))),
+                     1 , paste0, collapse="")
+      L <- do.call(cbind, list(mget(paste0("L", combs)))[[1]])
+    }
     if (!sce) {
       waldResultsOmnibus <- lapply(models, function(m){
         if (class(m)[1] == "try-error") return(c(NA, NA, NA))
@@ -134,28 +165,57 @@
         }, FUN.VALUE = c(.1, 1, .1)))
       })
     } else if (sce) {
-      waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
-        beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-        Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        t(vapply(seq_len(nCurves), function(ii){
-          waldTestFC(beta, Sigma, get(paste0("L", ii)), l2fc)
-        }, FUN.VALUE = c(.1, 1, .1)))
-      })
+      if(is.null(conditions)){
+        waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
+          beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+          Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+          t(vapply(seq_len(nCurves), function(ll){
+              waldTestFC(beta, Sigma, get(paste0("L", ll)), l2fc)
+          }, FUN.VALUE = c(.1, .1, .1)))
+        })
+      } else {
+        waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
+          beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+          Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+          t(vapply(seq_len(nCurves), function(ll){
+            vapply(seq_len(nlevels(conditions)), function(kk){
+              waldTestFC(beta, Sigma, get(paste0("L", ll, kk)), l2fc)
+            }, FUN.VALUE = c(.1, 1, .1))
+          }, FUN.VALUE = rep(.1, 3 * nlevels(conditions))))
+        })
+      }
+
       names(waldResultsLineages) <- rownames(models)
     }
 
-    # clean lineages results
-    colNames <- c(paste0("waldStat_", seq_len(nCurves)),
-                  paste0("df_", seq_len(nCurves)),
-                  paste0("pvalue_", seq_len(nCurves)))
-    orderByContrast <- unlist(c(mapply(seq, seq_len(nCurves), 3 * nCurves,
-                                       by = nCurves)))
-    waldResAllLineages <- do.call(rbind,
-                                  lapply(waldResultsLineages,function(x){
-                                    matrix(x, nrow = 1,
-                                           dimnames = list(NULL, colNames))[
-                                             , orderByContrast]
-                                  }))
+    if(is.null(conditions)){
+      # clean lineages results
+      colNames <- c(paste0("waldStat_", seq_len(nCurves)),
+                    paste0("df_", seq_len(nCurves)),
+                    paste0("pvalue_", seq_len(nCurves)))
+      orderByContrast <- unlist(c(mapply(seq, seq_len(nCurves), 3 * nCurves,
+                                         by = nCurves)))
+      waldResAllLineages <- do.call(rbind,
+                                    lapply(waldResultsLineages,function(x){
+                                      matrix(x, nrow = 1,
+                                             dimnames = list(NULL, colNames))[
+                                               , orderByContrast]
+                                    }))
+    } else {
+      combs <- paste0("lineage", rep(seq_len(nCurves),
+                                     each = nlevels(conditions)),
+                      "_condition", levels(conditions)[seq_len(nlevels(conditions))])
+      colNames <- do.call(c, sapply(seq_len(length(combs)), function(cc){
+        c(paste0("waldStat_", combs[cc]),
+          paste0("df_", combs[cc]),
+          paste0("pvalue_", combs[cc]))
+      }, simplify = FALSE))
+      waldResAllLineages <- do.call(rbind, lapply(waldResultsLineages, function(x){
+        c(t(x))
+      }))
+      colnames(waldResAllLineages) <- colNames
+    }
+
   }
 
   ## get fold changes for output
