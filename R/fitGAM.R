@@ -30,7 +30,7 @@
 }
 
 
-.checks <- function(pseudotime, cellWeights, U, counts) {
+.checks <- function(pseudotime, cellWeights, U, counts, conditions) {
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
     if (!identical(dim(pseudotime), dim(cellWeights))) {
@@ -199,7 +199,7 @@
     cellWeights <- matrix(cellWeights, nrow = length(cellWeights))
   }
 
-  .checks(pseudotime, cellWeights, U, counts)
+  .checks(pseudotime, cellWeights, U, counts, conditions)
 
   wSamp <- .assignCells(cellWeights)
 

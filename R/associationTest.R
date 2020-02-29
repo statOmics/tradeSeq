@@ -251,6 +251,8 @@
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
+#' @param l2fc The log2 fold change threshold to test against. Note, that
+#' this will affect both the global test and the pairwise comparisons.
 #' @importFrom magrittr %>%
 #' @examples
 #' set.seed(8)
