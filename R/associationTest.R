@@ -76,6 +76,9 @@
         }
       } else {
         jj <- 1
+        p <- length(rowData(models)$tradeSeq$beta[[1]][1,])
+        npar <- p - nCurves*nlevels(conditions)*length(knotPoints)
+        nknots_max <- length(knotPoints)
         for(kk in seq_len(nlevels(conditions))){
           # get max pseudotime for lineage of interest
           lID <- rowSums(dm[,grep(x=colnames(dm), pattern=paste0("l",jj))])

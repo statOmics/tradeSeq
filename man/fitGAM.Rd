@@ -31,6 +31,7 @@ fitGAM(counts, ...)
   counts,
   U = NULL,
   genes = seq_len(nrow(counts)),
+  conditions = NULL,
   weights = NULL,
   offset = NULL,
   nknots = 6,

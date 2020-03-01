@@ -9,9 +9,9 @@
 \usage{
 associationTest(models, ...)
 
-\S4method{associationTest}{SingleCellExperiment}(models, global = TRUE, lineages = FALSE)
+\S4method{associationTest}{SingleCellExperiment}(models, global = TRUE, lineages = FALSE, l2fc = 0)
 
-\S4method{associationTest}{list}(models, global = TRUE, lineages = FALSE)
+\S4method{associationTest}{list}(models, global = TRUE, lineages = FALSE, l2fc = 0)
 }
 \arguments{
 \item{models}{The fitted GAMs, typically the output from
@@ -22,6 +22,9 @@ associationTest(models, ...)
 \item{global}{If TRUE, test for all lineages simultaneously.}
 
 \item{lineages}{If TRUE, test for all lineages independently.}
+
+\item{l2fc}{The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.}
 }
 \value{
 A matrix with the wald statistic, the number of
