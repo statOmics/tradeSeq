@@ -102,7 +102,7 @@
     L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
     if (!sce) {
       waldResultsOmnibus <- lapply(models, function(m){
-        if (class(m)[1] == "try-error") return(c(NA, NA, NA))
+        if (is(m, "try-error")) return(c(NA, NA, NA))
         beta <- matrix(coef(m), ncol = 1)
         Sigma <- m$Vp
         waldTestFC(beta, Sigma, L, l2fc)
@@ -113,7 +113,7 @@
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         waldTestFC(beta, Sigma, L, l2fc)
       })
-      names(waldResultsOmnibus) <- rownames(models)
+      names(waldResultsOmnibus) <- names(models)
     }
     # tidy output
     waldResults <- do.call(rbind,waldResultsOmnibus)
@@ -142,7 +142,7 @@
           waldTestFC(beta, Sigma, get(paste0("L", ii)), l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
-      names(waldResultsLineages) <- rownames(models)
+      names(waldResultsLineages) <- names(models)
     }
 
     # clean lineages results
@@ -162,6 +162,7 @@
   ## get fold changes for output
   if(!sce){
     fcAll <- lapply(models, function(m){
+      if(is(m, "try-error")) return(NA)
       betam <- coef(m)
       fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
@@ -171,15 +172,20 @@
   } else if(sce){
     betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
     fcAll <- apply(betaAll,1,function(betam){
-      fcAll <- .getFoldChanges(betam, L)
+      if(any(is.na(betam))) return(NA)
+      .getFoldChanges(betam, L)
     })
-    fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol=1)
+    if(is.null(dim(fcAll))){
+        fcMedian <- abs(fcAll)
+      } else {
+        fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol=1)
+      }
   }
   # return output
-  if (global == TRUE & lineages == FALSE) return(cbind(waldResults, fcMedian))
-  if (global == FALSE & lineages == TRUE) return(cbind(waldResAllLineages, fcMedian))
+  if (global == TRUE & lineages == FALSE) return(cbind(waldResults, medianLogFC = fcMedian))
+  if (global == FALSE & lineages == TRUE) return(cbind(waldResAllLineages, medianLogFC = fcMedian))
   if (global == TRUE & lineages == TRUE) {
-    waldAll <- cbind(waldResults, waldResAllLineages, fcMedian)
+    waldAll <- cbind(waldResults, waldResAllLineages, medianLogFC = fcMedian)
     return(waldAll)
   }
 }

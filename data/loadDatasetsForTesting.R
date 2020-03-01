@@ -14,8 +14,8 @@
 #               destfile="~/tmp/sce4.rds")
 # sce4 <- readRDS("~/tmp/sce4.rds")
 
-### list output, 4 lineages
+### list output, 4 lineages: google drive link needs updating.
 # download.file("https://docs.google.com/uc?export=download&id=1jOc6eTzxwq1GbNbAqXLO6VL9MuVnJWrV",
 #               destfile="~/tmp/list4.rds")
-# list <- readRDS("~/tmp/list4.rds")
+# list4 <- readRDS("~/tmp/list4Lineages.rds")
 

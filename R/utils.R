@@ -167,7 +167,7 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
   if (is(sigmaInv)[1] == "try-error") {
-    return(c(NA, NA, NA, NA))
+    return(c(NA, NA, NA))
   }
   logFCCutoff <- log(2^l2fc) # log2 to log scale
   estFC <- (t(LQR) %*% beta) # estimated log fold change
