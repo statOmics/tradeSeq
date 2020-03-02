@@ -78,16 +78,16 @@ Below, we use the Slingshot object to run the function.
 ```{r, eval=FALSE}
 ### Based on Slingshot object
 set.seed(6)
-icMat <- evaluateK(counts = counts, sds = crv, k = 3:7, nGenes = 100,
-                   verbose = FALSE, plot = TRUE)
+# icMat <- evaluateK(counts = counts, sds = crv, k = 3:7, nGenes = 100,
+#                    verbose = FALSE, plot = TRUE)
 print(icMat[1:2, ])
 
 ### Downstream of any trajectory inference method using pseudotime and cell weights
 set.seed(7)
 pseudotime <- slingPseudotime(crv, na=FALSE)
 cellWeights <- slingCurveWeights(crv)
-icMat2 <- evaluateK(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
-                   k=3:7, nGenes = 100, verbose = FALSE, plot = TRUE)
+# icMat2 <- evaluateK(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
+#                    k=3:7, nGenes = 100, verbose = FALSE, plot = TRUE)
 ```
 
 The output graphics are organized into four panels. The left panel plots a boxplot for each number of knots we wanted to evaluate. The plotted values are the deviation from a gene's AIC at that specific knot value from the average AIC of that gene across all the knots under evaluation. Typically, AIC values are somewhat higher for low number of knots, and we expect them to decrease as the number of knots gets higher.
