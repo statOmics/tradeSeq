@@ -126,21 +126,39 @@ sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeight
                  nknots = 6, verbose = FALSE)
 ```
 
-
-
 ## Parallel computing
 
-```{r}
+If large datasets are being analyzed, `fitGAM` may be running for quite some time.
+We have implemented support for parallelization using `BiocParallel`. Parallelization options can be provided through the `BPPARAM` argument, as shown below.
 
+```{r}
+BPPARAM <- BiocParallel::bpparam()
+BPPARAM # lists current options
+BPPARAM$workers <- 2 # use 2 cores
+
+sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
+                 nknots = 6, verbose = FALSE, BPPARAM=BPPARAM)
 ```
 
 ## Fitting only a subset of genes
+
+It may be of interest to only fit the NB-GAM for a subset of genes, but use the information across all genes to perform the normalization. This can be achieved using the `genes` argument in `fitGAM`, which accepts a numeric vector specifying the rows of the count matrix for which the models should be fitted.
+
+```{r}
+# sce25 <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
+#                  nknots = 6, verbose = FALSE, genes = 1:25)
+```
+
+## Zero inflation
+
+This dataset consists of UMI counts, and we do not expect zero inflation to be a big problem. However, we also allow to fit zero inflated negative binomial (ZINB) GAMs by providing observation-level weights to `fitGAM` using the `weights` argument. The `weights` must correspond to the posterior probability that a count belongs to the count component of the ZINB distribution [@VandenBerge2018].
+In principle, these weights can be calculated using any method of choice. The [ZINB-WavE vignette](https://bioconductor.org/packages/release/bioc/vignettes/zinbwave/inst/doc/intro.html#differential-expression) shows how to calculate these using the `zinbwave` package.
 
 
 ## Convergence issues on small or zero-inflated datasets
 
 If you're working with a dataset that has a limited number of cells, or if you
-are incorporating zero inflation weights, the GAMs may be harder to fit, as
+are incorporating zero inflation weights, the NB-GAMs may be harder to fit, as
 noted by the warnings when running `fitGAM`. In that case, the situation 
 might improve if you allow for more iterations in the GAM fitting. This can be
 done with the `control` argument of `fitGAM`.
@@ -156,11 +174,6 @@ control$maxit <- 1000 #set maximum number of iterations to 1K
 #                   cellWeights = slingCurveWeights(crv),
 #                   control = control)
 ```
-
-## Zero inflation
-
-This dataset consists of UMI counts, and we do not expect zero inflation to be a big problem. However, we also allow to fit zero inflated negative binomial (ZINB) GAMs by providing observation-level weights to `fitGAM` using the `weights` argument. The `weights` must correspond to the posterior probability that a count belongs to the count component of the ZINB distribution [@VandenBerge2018].
-
 
 ## tradeSeq list output
 
