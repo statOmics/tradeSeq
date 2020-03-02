@@ -1,11 +1,11 @@
-script: 
-  - |
-    R CMD build .
-    travis_wait 20 R CMD check packageName*tar.gz
-
 language: r
 cache: packages
 warnings_are_errors: false
+
+script:
+  - |
+    R CMD build .
+    travis_wait 20 R CMD check tradeSeq*tar.gz
 
 after_success:
     - Rscript -e 'covr::codecov()'
