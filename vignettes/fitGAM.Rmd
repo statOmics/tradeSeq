@@ -1,5 +1,5 @@
 ---
-title: 'Fitting the models and additional contro **tradeSeq**'
+title: 'Fitting the models and additional control of fitGAM in **tradeSeq**'
 author: "Koen Van den Berge and Hector Roux de Bézieux"
 date: "25/02/2020"
 output: 
@@ -7,7 +7,7 @@ output:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Finer settings for tradeSeq}
+  %\VignetteIndexEntry{Working with fitGAM}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
