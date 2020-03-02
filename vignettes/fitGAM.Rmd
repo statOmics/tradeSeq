@@ -145,8 +145,8 @@ sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeight
 It may be of interest to only fit the NB-GAM for a subset of genes, but use the information across all genes to perform the normalization. This can be achieved using the `genes` argument in `fitGAM`, which accepts a numeric vector specifying the rows of the count matrix for which the models should be fitted.
 
 ```{r}
-# sce25 <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
-#                  nknots = 6, verbose = FALSE, genes = 1:25)
+sce25 <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
+                 nknots = 6, verbose = FALSE, genes = 1:25)
 ```
 
 ## Zero inflation

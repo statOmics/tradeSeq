@@ -36,14 +36,14 @@
       stop("pseudotime and cellWeights must have identical dimensions.")
     }
   }
-  
+
   # check if dimensions of U and counts agree
   if (!is.null(U)) {
     if (!(nrow(U) == ncol(counts))) {
       stop("The dimensions of U do not match those of counts.")
     }
   }
-  
+
   # check if dimensions for counts and pseudotime / cellweights agree
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
     if (!identical(nrow(pseudotime), ncol(counts))) {
@@ -81,13 +81,13 @@
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("l",ii),1*(wSamp[,ii] == 1))
   }
-  
+
   # Get the times for the knots
   tAll <- c()
   for (ii in seq_len(nrow(pseudotime))) {
     tAll[ii] <- pseudotime[ii, which(as.logical(wSamp[ii,]))]
   }
-  
+
   knotLocs <- quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
   if (any(duplicated(knotLocs))) {
     # fix pathological case where cells can be squeezed on one pseudotime value.
@@ -116,7 +116,7 @@
       knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
   }
-  
+
   maxT <- max(pseudotime[,1])
   if (ncol(pseudotime) > 1) {
     maxT <- c()
@@ -143,24 +143,24 @@
     }
     knots <- knotLocs
   }
-  
+
   # guarantees that first knot is 0 and last knot is maximum pseudotime.
   knots[1] <- min(tAll)
   knots[nknots] <- max(tAll)
-  
+
   knotList <- lapply(seq_len(ncol(pseudotime)), function(i){
     knots
   })
   names(knotList) <- paste0("t", seq_len(ncol(pseudotime)))
-  
+
   return(knotList)
 }
 
-.fitGAM <- function(counts, U = NULL, pseudotime, cellWeights, 
+.fitGAM <- function(counts, U = NULL, pseudotime, cellWeights,
                     genes = seq_len(nrow(counts)),
-                    weights = NULL, offset = NULL, nknots = 6, verbose = TRUE, 
-                    parallel = FALSE, BPPARAM = BiocParallel::bpparam(), 
-                    aic = FALSE, control = mgcv::gam.control(), sce = TRUE, 
+                    weights = NULL, offset = NULL, nknots = 6, verbose = TRUE,
+                    parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
+                    aic = FALSE, control = mgcv::gam.control(), sce = TRUE,
                     family = "nb"){
 
   if (is(genes, "character")) {
@@ -171,7 +171,7 @@
   } else {
     id <- genes
   }
-  
+
   if (parallel) {
     BiocParallel::register(BPPARAM)
     if (verbose) {
@@ -194,7 +194,7 @@
   .checks(pseudotime, cellWeights, U, counts)
 
   wSamp <- .assignCells(cellWeights)
-  
+
   # define pseudotime for each lineage
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("t",ii), pseudotime[,ii])
@@ -203,10 +203,10 @@
   for (ii in seq_len(ncol(pseudotime))) {
     assign(paste0("l",ii),1*(wSamp[,ii] == 1))
   }
-  
+
   # offset
   offset <- .get_offset(offset, counts)
-  
+
   # fit model
   ## fixed effect design matrix
   if (is.null(U)) {
@@ -215,9 +215,9 @@
 
   ## Get the knots
   knotList <- .findKnots(nknots, pseudotime, wSamp)
-  
+
   ## fit NB GAM
-  ### Actually fit the model ---- 
+  ### Actually fit the model ----
   teller <- 0
   counts_to_Gam <- function(y) {
     teller <<- teller + 1
@@ -281,7 +281,7 @@
       return(beta)
     })
     betaAllDf <- data.frame(t(do.call(cbind,betaAll)))
-    rownames(betaAllDf) <- rownames(counts)
+    rownames(betaAllDf) <- rownames(counts)[genes]
 
     # list of variance covariance matrices
     SigmaAll <- lapply(gamList, function(m) {
@@ -292,14 +292,14 @@
       }
       return(Sigma)
     })
-    
+
     # Get X, dm and knotPoints
     element <- min(which(!is.na(SigmaAll)))
     m <- gamList[[element]]
     X <- predict(m, type = "lpmatrix")
     dm <- m$model[, -1]
     knotPoints <- m$smooth[[1]]$xp
-    
+
     # return output
     return(list(beta = betaAllDf,
                 Sigma = SigmaAll,
@@ -457,7 +457,7 @@ setMethod(f = "fitGAM",
             }
 
             # return SingleCellExperiment object
-            sc <- SingleCellExperiment(assays = list(counts = counts))
+            sc <- SingleCellExperiment(assays = list(counts = counts[genes,]))
             # slingshot info
             SummarizedExperiment::colData(sc)$slingshot <- S4Vectors::DataFrame(
               pseudotime = pseudotime,
@@ -468,10 +468,10 @@ setMethod(f = "fitGAM",
             df$beta <- tibble::tibble(gamOutput$beta)
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
-            SummarizedExperiment::colData(sc)$tradeSeq <- 
+            SummarizedExperiment::colData(sc)$tradeSeq <-
               tibble::tibble(X = gamOutput$X, dm = gamOutput$dm)
             # metadata: tradeSeq knots
-            S4Vectors::metadata(sc)$tradeSeq <- 
+            S4Vectors::metadata(sc)$tradeSeq <-
               list(knots = gamOutput$knotPoints)
             return(sc)
           }
@@ -483,7 +483,7 @@ setMethod(f = "fitGAM",
 #' @importFrom slingshot SlingshotDataSet
 #' @importFrom SingleCellExperiment counts
 #' @importFrom tibble tibble
-#' @importFrom dplyr full_join 
+#' @importFrom dplyr full_join
 setMethod(f = "fitGAM",
           signature = c(counts = "SingleCellExperiment"),
           definition = function(counts,
@@ -516,7 +516,7 @@ setMethod(f = "fitGAM",
                               control = control,
                               sce = sce,
                               family = family)
-          
+
           # tradeSeq gene-level info
           geneInfo <- SummarizedExperiment::rowData(gamOutput)$tradeSeq
           if (is(genes, "character")) {
@@ -536,14 +536,14 @@ setMethod(f = "fitGAM",
           newGeneInfo <- dplyr::full_join(newGeneInfo, geneInfo, by = "name")
           SummarizedExperiment::rowData(counts)$tradeSeq <- newGeneInfo
           # tradeSeq cell-level info
-          SummarizedExperiment::colData(counts)$tradeSeq <- 
+          SummarizedExperiment::colData(counts)$tradeSeq <-
             SummarizedExperiment::colData(gamOutput)$tradeSeq
-          SummarizedExperiment::colData(counts)$slingshot <- 
+          SummarizedExperiment::colData(counts)$slingshot <-
             SummarizedExperiment::colData(gamOutput)$slingshot
           # metadata: tradeSeq knots
-          S4Vectors::metadata(counts)$tradeSeq <- 
+          S4Vectors::metadata(counts)$tradeSeq <-
             S4Vectors::metadata(gamOutput)$tradeSeq
-          
+
           return(counts)
           }
 )
@@ -591,11 +591,11 @@ setMethod(f = "fitGAM",
               df <- data.frame(weights = as.numeric(colnames(counts) %in% df$cells))
               colnames(df) <- endpoint
               return(df)
-            }) %>% bind_cols() 
+            }) %>% bind_cols()
             pseudotime <- sapply(cellWeights, function(w) counts$Pseudotime)
             rownames(cellWeights) <- rownames(pseudotime) <- colnames(counts)
-            
-            
+
+
             gamOutput <- fitGAM(counts = Biobase::exprs(cds),
                                 U = U,
                                 cellWeights = cellWeights,
@@ -610,7 +610,7 @@ setMethod(f = "fitGAM",
                                 control = control,
                                 sce = sce,
                                 family = family)
-            
-            return(gamOutput)  
+
+            return(gamOutput)
           }
 )
