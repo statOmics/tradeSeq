@@ -1,5 +1,5 @@
 ---
-title: 'More control on the output of **tradeSeq**'
+title: 'Fitting the models and additional contro **tradeSeq**'
 author: "Koen Van den Berge and Hector Roux de Bézieux"
 date: "25/02/2020"
 output: 
@@ -202,14 +202,6 @@ Note, that these functions are only applicable with the list output of `tradeSeq
 ```{r, eval=FALSE}
 pvalLineage <- getSmootherPvalues(gamList)
 statLineage <- getSmootherTestStats(gamList)
-```
-
-# Clustering
-
-```{r}
-yhat <- predictCells(models = sce, gene = "Irf8")
-
-ysmooth <- predictSmooth(models = sce, gene = "Irf8", nPoints = 40)
 ```
 
 # Session
