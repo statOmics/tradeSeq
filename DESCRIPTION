@@ -2,7 +2,7 @@ Package: tradeSeq
 Type: Package
 Title: trajectory-based differential expression analysis for sequencing data
 Date: 2019-03-15
-Version: 1.1.08
+Version: 1.1.10
 Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "koen.vandenberge@ugent.be"),
               person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
@@ -47,8 +47,10 @@ Imports:
     RColorBrewer,
     clusterExperiment,
     BiocParallel,
+    Biobase,
     pbapply,
     ggplot2,
+    monocle,
     princurve,
     methods,
     S4Vectors,

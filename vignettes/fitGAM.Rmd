@@ -1,0 +1,211 @@
+---
+title: 'Fitting the models and additional contro **tradeSeq**'
+author: "Koen Van den Berge and Hector Roux de Bézieux"
+date: "25/02/2020"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Finer settings for tradeSeq}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, echo = FALSE}
+library(knitr)
+```
+
+# Introduction
+
+`tradeSeq` is an `R` package that allows analysis of gene expression along trajectories. While it has been developed and applied to single-cell RNA-sequencing (scRNA-seq) data, its applicability extends beyond that, and also allows the analysis of, e.g., single-cell ATAC-seq data along trajectories or bulk RNA-seq time series datasets. For every gene in the dataset, `tradeSeq` fits a generalized additive model (GAM) by building on the `mgcv` R package. It then allows statistical inference on the GAM by assessing contrasts of the parameters of the fitted GAM model, aiding in interpreting complex datasets. All details about the `tradeSeq` model and statistical tests are described in our preprint [@VandenBerge2019a].
+
+In this vignette, we analyze a subset of the data from [@Paul2015]. 
+A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
+
+# Installation
+
+To install the package, simply run
+
+```{r, eval = FALSE}
+if(!requireNamespace("BiocManager", quietly = TRUE)) {
+ install.packages("BiocManager") 
+}
+BiocManager::install("tradeSeq")
+```
+
+Alternatively, the development version can be installed from GitHub at https://github.com/statOmics/tradeSeq.
+
+# Load data
+
+```{r, warning=F, message=F}
+library(tradeSeq)
+library(RColorBrewer)
+library(SingleCellExperiment)
+library(slingshot)
+
+# For reproducibility
+RNGversion("3.5.0")
+palette(brewer.pal(8, "Dark2"))
+data(countMatrix, package = "tradeSeq")
+counts <- as.matrix(countMatrix)
+rm(countMatrix)
+data(crv, package = "tradeSeq")
+data(celltype, package = "tradeSeq")
+```
+
+We find two lineages for this dataset. The trajectory can be visualized using the `plotGeneCount` function, using either the cluster labels or cell type to color the cells.
+
+```{r, out.width="50%", fig.asp=.6}
+plotGeneCount(curve = crv, clusters = celltype, 
+              title = "Colored by cell type")
+```
+
+# Choosing K: a deeper dive into the output from __evaluateK__
+
+We use a negative binomial generalized additive model (NB-GAM) framework in `tradeSeq` to smooth each gene's expression in each lineage. Smoothers can be decomposed in a set of basis functions, which are joined together at knot points, often simply called knots.
+
+Ideally, the number of knots should be selected to reach an optimal bias-variance trade-off for the smoother, where one explains as much variability in the expression data as possible with only a few regression coefficients. In order to guide that choice, we developed diagnostic plots using the Akaike Informaction Criterion (AIC). This is implemented in the `evaluateK` function in `tradeSeq`.
+The function takes as input the expression count matrix, and the trajectory information, which can be either a `SlingshotDataSet`, or a matrix of pseudotimes and cell-level weights from any trajectory inference object.
+The range of knots to evaluate is provided with the `knots` argument. The minimum allowed number of knots is $3$. While there is no boundary on the maximum number of knots, typically the interesting range is around $3$ to $10$ knots.
+The `evaluateK` function will fit NB-GAM models for some random subset of genes, provided by the `nGenes` argument, over the range of knots that are provided, and return the AIC for each gene fitted with each number of knots.
+It is generally a good idea to evaluate this multiple times using different seeds (using the `set.seed` function), to check whether the results are reproducible across different gene subsets.
+
+By default, `evaluateK` outputs diagnostic plots that should help in deciding on an appropriate number of knots.
+If you want to use the different diagnostic plots to choose the number of knots when fitting the smoothers, you can disable to plotting option and store the AIC values in an object.
+
+Below, we use the Slingshot object to run the function.
+
+```{r, eval=FALSE}
+### Based on Slingshot object
+set.seed(6)
+icMat <- evaluateK(counts = counts, sds = crv, k = 3:7, nGenes = 100,
+                   verbose = FALSE, plot = TRUE)
+print(icMat[1:2, ])
+
+### Downstream of any trajectory inference method using pseudotime and cell weights
+set.seed(7)
+pseudotime <- slingPseudotime(crv, na=FALSE)
+cellWeights <- slingCurveWeights(crv)
+icMat2 <- evaluateK(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
+                   k=3:7, nGenes = 100, verbose = FALSE, plot = TRUE)
+```
+
+The output graphics are organized into four panels. The left panel plots a boxplot for each number of knots we wanted to evaluate. The plotted values are the deviation from a gene's AIC at that specific knot value from the average AIC of that gene across all the knots under evaluation. Typically, AIC values are somewhat higher for low number of knots, and we expect them to decrease as the number of knots gets higher.
+The two middle panels plot the average drop in AIC across all genes. The middle left panel simply plots the average AIC, while the middle right panel plots the change in AIC relative to the average AIC at the lowest knot number (here, this is 3 knots, as can also be seen from the plot since the relative AIC equals $1$).
+Finally, the right panel only plots a subset of genes where the AIC value changes significantly across the evaluated number of knots. Here, a significant change is defined as a change in absolute value of at least $2$, but this can be tuned using the `aicDiff` argument to `evaluateK`. For the subset of genes, a barplot is displayed that shows the number of genes that have their lowest AIC at a specific knot value. 
+
+The middle panels show that the drop in AIC levels off if the number of knots is increased beyond $6$, and we will choose that number of knots to fit the `tradeSeq` models.
+
+# Fit additive models
+
+After deciding on an appropriate number of knots, we can fit the NB-GAM for each gene. Internally, `tradeSeq` builds on the `mgcv` package by fitting additive models using the `gam` function. The core fitting function, `fitGAM`, will use cubic splines as basis functions, and it tries to ensure that every lineage will end at a knot point of a smoother. By default, we allow for $6$ knots for every lineage, but this can be changed with the `nknots` argument. More knots will allow more flexibility, but also increase the risk of overfitting.
+
+By default, the GAM model estimates one smoother for every lineage using the negative binomial distribution. If you want to allow for other fixed effects (e.g., batch effects), then an additional model matrix, typically created using the `model.matrix` function, can be provided with the `U` argument.
+The precise model definition of the statistical model is described in our preprint [@VandenBerge2019a].
+We use the effective library size, estimated with TMM [@Robinson2010], as offset in the model. We allow for alternatives by allowing a user-defined offset with the `offset` argument.
+
+
+Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as input (`sds` argument), or a matrix of pseudotimes and cell-level weights (`pseudotime` and `cellWeights` argument). By default, the returned object will be a `SingleCellExperiment` object that contains all essential output from the model fitting. Note, that also a more extensive output may be requested by setting `sce=FALSE`, but this is much less memory efficient, see below in Section `tradeSeq list output'.
+
+Because cells are assigned to a lineage based on their weights, the result of `fitGAM` is stochastic. While this should have limited impact on the overall results in practice, users are therefore encouraged to use the `set.seed` function before running `fitGAM` to ensure reproducibility of their analyses.
+
+
+Below, we show two ways in which you can provide the required input to `fitGAM`: downstream of any trajectory inference method and downstream of `slingshot`. 
+To follow progress with a progress bar, set `verbose=TRUE`.
+
+```{r}
+### Based on Slingshot object
+set.seed(6)
+sce <- fitGAM(counts = counts, sds = crv, nknots = 6, verbose = FALSE)
+
+### Downstream of any trajectory inference method using pseudotime and cell weights
+set.seed(7)
+pseudotime <- slingPseudotime(crv, na=FALSE)
+cellWeights <- slingCurveWeights(crv)
+sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
+                 nknots = 6, verbose = FALSE)
+```
+
+## Parallel computing
+
+If large datasets are being analyzed, `fitGAM` may be running for quite some time.
+We have implemented support for parallelization using `BiocParallel`. Parallelization options can be provided through the `BPPARAM` argument, as shown below.
+
+```{r}
+BPPARAM <- BiocParallel::bpparam()
+BPPARAM # lists current options
+BPPARAM$workers <- 2 # use 2 cores
+
+sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
+                 nknots = 6, verbose = FALSE, BPPARAM=BPPARAM)
+```
+
+## Fitting only a subset of genes
+
+It may be of interest to only fit the NB-GAM for a subset of genes, but use the information across all genes to perform the normalization. This can be achieved using the `genes` argument in `fitGAM`, which accepts a numeric vector specifying the rows of the count matrix for which the models should be fitted.
+
+```{r}
+sce25 <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
+                 nknots = 6, verbose = FALSE, genes = 1:25)
+```
+
+## Zero inflation
+
+This dataset consists of UMI counts, and we do not expect zero inflation to be a big problem. However, we also allow to fit zero inflated negative binomial (ZINB) GAMs by providing observation-level weights to `fitGAM` using the `weights` argument. The `weights` must correspond to the posterior probability that a count belongs to the count component of the ZINB distribution [@VandenBerge2018].
+In principle, these weights can be calculated using any method of choice. The [ZINB-WavE vignette](https://bioconductor.org/packages/release/bioc/vignettes/zinbwave/inst/doc/intro.html#differential-expression) shows how to calculate these using the `zinbwave` package.
+
+
+## Convergence issues on small or zero-inflated datasets
+
+If you're working with a dataset that has a limited number of cells, or if you
+are incorporating zero inflation weights, the NB-GAMs may be harder to fit, as
+noted by the warnings when running `fitGAM`. In that case, the situation 
+might improve if you allow for more iterations in the GAM fitting. This can be
+done with the `control` argument of `fitGAM`.
+
+```{r}
+library(mgcv)
+control <- gam.control()
+control$maxit <- 1000 #set maximum number of iterations to 1K
+# pass to control argument of fitGAM as below:
+# 
+# gamList <- fitGAM(counts = counts,
+#                   pseudotime = slingPseudotime(crv, na = FALSE),
+#                   cellWeights = slingCurveWeights(crv),
+#                   control = control)
+```
+
+## tradeSeq list output
+
+The output from `fitGAM` will be different if one sets `sce=FALSE`, and less memory efficient. Instead of a `SingleCellExperiment` object, it will return a list with all fitted `mgcv` models. Most functions we have discussed above work exactly the same with the list output. However, the list output functionality is a little bit bigger, and here we discuss some capabilities that are only available with the list output.
+
+```{r}
+gamList <- fitGAM(counts,
+                  pseudotime = slingPseudotime(crv, na = FALSE),
+                  cellWeights = slingCurveWeights(crv),
+                  nknots = 6, sce = FALSE)
+```
+
+
+First, one may explore the results of a model by requesting its summary.
+
+```{r}
+summary(gamList[["Irf8"]])
+```
+
+Related to the `associationTest`, one can extract the p-values generated by the `mgcv` package using the `getSmootherPvalues` function. These p-values are derived from a test that assesses the null hypothesis that all smoother coefficients are equal to zero. Note, however, that their interpretation is thus more complex. A significant lineage for a particular gene might thus be the result of (a) a different mean expression in that lineage as compared to the overall expression of that gene, or (b) significantly varying expression along that lineage, even if the means are equal, or (c) a combination of both.
+This function extracts the p-values calculated by `mgcv` from the GAM, and will return `NA` for genes that we were unable to fit properly.
+Similarly, the test statistics may be extracted with `getSmootherTestStats`.
+Since this dataset was pre-filtered to only contain relevant genes, all p-values (test statistics) will be very low (high).
+Note, that these functions are only applicable with the list output of `tradeSeq`, and not with the `SingleCellExperiment` output. We will therefore not evaluate these here.
+
+```{r, eval=FALSE}
+pvalLineage <- getSmootherPvalues(gamList)
+statLineage <- getSmootherTestStats(gamList)
+```
+
+# Session
+
+```{r}
+sessionInfo()
+```
