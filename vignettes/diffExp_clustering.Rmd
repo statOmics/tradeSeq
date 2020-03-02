@@ -239,7 +239,7 @@ The clustering itself occurs by the `clusterExperiment` package [@Risso2018], he
 library(clusterExperiment)
 nPointsClus <- 20
 clusPat <- clusterExpressionPatterns(sce, nPoints = nPointsClus,
-                                     genes = rownames(counts)[1:200])
+                                     genes = rownames(counts)[1:100])
 clusterLabels <- primaryCluster(clusPat$rsec)
 ```
 
