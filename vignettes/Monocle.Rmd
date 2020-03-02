@@ -61,6 +61,7 @@ cds <- orderCells(cds, root_state = 5)
 # Fit Smoothers
 
 Only possible for DDRTree
+
 ```{r}
 sce <- fitGAM(cds, verbose = TRUE)
 ```
