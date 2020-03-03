@@ -1,5 +1,5 @@
 ---
-title: 'Differential expression and clustering'
+title: 'The tradeSeq workflow'
 author: "Koen Van den Berge and Hector Roux de Bézieux"
 bibliography: tradeSeq.bib
 date: "03/02/2020"
@@ -8,7 +8,7 @@ output:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Differential expression and clustering}
+  %\VignetteIndexEntry{The tradeSeq workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,6 +20,19 @@ library(knitr)
 
 In this vignette, we analyze a subset of the data from [@Paul2015]. 
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
+
+In this vignette, we use `tradeSeq` downstream of `slinghsot`[@Street2018a] but it can be used downstream of any trajectory. In particular, if you want to use `tradeSeq` downstream of `monocle`[@Qiu2017] and `monocle3`[@Cao2019], please refer to our [Monocle vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/Monocle.html).
+
+# Installation
+
+To install the package, simply run
+
+```{r, eval = FALSE}
+if(!requireNamespace("BiocManager", quietly = TRUE)) {
+ install.packages("BiocManager") 
+}
+BiocManager::install("tradeSeq")
+```
 
 # Load data
 
@@ -41,12 +54,27 @@ data(celltype, package = "tradeSeq")
 
 # Fit negative binomial model
 
-Here we fit the `tradeSeq` negative binomial generalized additive model (NB-GAM).
-Please see the [fitGAM vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html) for an extensive description on how to use this function, decide on the number of knots and its options.
+Here we fit the `tradeSeq` negative binomial generalized additive model (NB-GAM). Please see the [fitGAM vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html) for an extensive description on how to use this function, tune its options and modify its output.
+
+We first need to decide on how to choose the number of knots. This is done with the __evaluateK__ function. This takes a little time to run so it is not run hr
+
+```{r, eval=FALSE}
+set.seed(5)
+icMat <- evaluateK(counts = counts, sds = crv, k = 3:20, 
+                   nGenes = 200, verbose = T)
+```
+
+```{r, echo=FALSE}
+knitr::include_graphics("evalK_paul.png")
+```
+
+For more explanations on the outputs from __evaluateK__, we once again refer users to the [fitGAM vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html). Here, we pick `nknots = 6`.
+
+We then run the __fitGAM__ function.
 
 ```{r}
 set.seed(7)
-pseudotime <- slingPseudotime(crv, na=FALSE)
+pseudotime <- slingPseudotime(crv, na = FALSE)
 cellWeights <- slingCurveWeights(crv)
 sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
                  nknots = 6, verbose = FALSE)
@@ -206,7 +234,7 @@ Again, the knots can be visualized with the `plotGeneCount` function. By selecti
 
 ```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(curve = crv, counts = counts,
-              clusters=apply(slingClusterLabels(crv),1,which.max),
+              clusters = apply(slingClusterLabels(crv), 1, which.max),
               models = sce)
 
 
@@ -232,9 +260,9 @@ For example, setting `l2fc=log2(2)` will test which genes have a fold change tha
 
 ```{r}
 # testing against fold change threshold of 2
-start2 <- startVsEndTest(sce, l2fc=log2(2))
+start2 <- startVsEndTest(sce, l2fc = log2(2))
 # testing against fold change threshold of 1.5
-pat2 <- patternTest(sce, l2fc=log2(1.5))
+pat2 <- patternTest(sce, l2fc = log2(1.5))
 ```
 
 
@@ -302,3 +330,14 @@ plots$ncol <- 2
 do.call(plot_grid, plots)
 ```
 
+# Contributing and requesting
+
+A number of tests have been implemented in tradeSeq, but researchers may be interested in other hypotheses that current implementations may not be able to address. We therefore welcome contributions on GitHub on novel tests based on the tradeSeq model. Similar, you may also request novel tests to be implemented in tradeSeq by the developers, preferably by adding [an issue on the GitHub repository](https://github.com/statOmics/tradeSeq/issues). If we feel that the suggested test is widely applicable, we will implement it in tradeSeq.
+
+# Session
+
+```{r}
+sessionInfo()
+```
+
+# References

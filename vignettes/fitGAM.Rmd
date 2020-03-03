@@ -7,7 +7,7 @@ output:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Working with fitGAM}
+  %\VignetteIndexEntry{More details on working with fitGAM}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -120,7 +120,7 @@ sce <- fitGAM(counts = counts, sds = crv, nknots = 6, verbose = FALSE)
 
 ### Downstream of any trajectory inference method using pseudotime and cell weights
 set.seed(7)
-pseudotime <- slingPseudotime(crv, na=FALSE)
+pseudotime <- slingPseudotime(crv, na = FALSE)
 cellWeights <- slingCurveWeights(crv)
 sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
                  nknots = 6, verbose = FALSE)
@@ -137,7 +137,7 @@ BPPARAM # lists current options
 BPPARAM$workers <- 2 # use 2 cores
 
 sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
-                 nknots = 6, verbose = FALSE, BPPARAM=BPPARAM)
+                 nknots = 6, verbose = FALSE, BPPARAM = BPPARAM)
 ```
 
 ## Fitting only a subset of genes
@@ -204,8 +204,12 @@ pvalLineage <- getSmootherPvalues(gamList)
 statLineage <- getSmootherTestStats(gamList)
 ```
 
+Also, the list output could be a good starting point for users that want to develop their own tests.  A number of tests have been implemented in tradeSeq, but researchers may be interested in other hypotheses that current implementations may not be able to address. We therefore welcome contributions on GitHub on novel tests based on the tradeSeq model. Similar, you may also request novel tests to be implemented in tradeSeq by the developers, preferably by adding [an issue on the GitHub repository](https://github.com/statOmics/tradeSeq/issues). If we feel that the suggested test is widely applicable, we will implement it in tradeSeq.
+
 # Session
 
 ```{r}
 sessionInfo()
 ```
+
+# References

@@ -127,7 +127,7 @@ sce <- fitGAM(counts = counts,
        cellWeights = cellWeights)
 ```
 
-Then, the `sce` object can be analyzed following the [main vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/diffExp_clustering.html).
+Then, the `sce` object can be analyzed following the [main vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html).
 
 # Session
 
