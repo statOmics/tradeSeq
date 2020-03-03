@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot gene expression in reduced dimension. — plotGeneCount • tradeSeq</title>
+<title>knots — nknots • tradeSeq</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="Plot gene expression in reduced dimension. — plotGeneCount" />
-<meta property="og:description" content="Plot the gene in reduced dimensional space." />
+<meta property="og:title" content="knots — nknots" />
+<meta property="og:description" content="Get the number of knots used for the fit" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -118,85 +118,50 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot gene expression in reduced dimension.</h1>
+    <h1>knots</h1>
     
-    <div class="hidden name"><code>plotGeneCount.Rd</code></div>
+    <div class="hidden name"><code>nknots.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Plot the gene in reduced dimensional space.</p>
+    <p>Get the number of knots used for the fit</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotGeneCount</span>(
-  <span class='no'>curve</span>,
-  <span class='kw'>counts</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>gene</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>clusters</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>nknots</span>(<span class='no'>models</span>, <span class='no'>...</span>)
+
+<span class='co'># S4 method for SingleCellExperiment</span>
+<span class='fu'>nknots</span>(<span class='no'>models</span>)
+
+<span class='co'># S4 method for list</span>
+<span class='fu'>nknots</span>(<span class='no'>models</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>curve</th>
-      <td><p>A <code>SlingshotDataSet</code> object. The output from trajectory inference
-using Slingshot.</p></td>
-    </tr>
-    <tr>
-      <th>counts</th>
-      <td><p>The count matrix, genes in rows and cells in columns.</p></td>
-    </tr>
-    <tr>
-      <th>gene</th>
-      <td><p>The name of gene for which you want to plot the count or the row
-number of that gene in the count matrix. Alternatively, one can specify
-the <code>clusters</code> argument.</p></td>
-    </tr>
-    <tr>
-      <th>clusters</th>
-      <td><p>The assignation of each cell to a cluster. Used to color the
-plot. Either <code>clusters</code> or <code>gene</code> and <code>counts</code> must be supplied.</p></td>
-    </tr>
-    <tr>
       <th>models</th>
       <td><p>The fitted GAMs, typically the output from
-<code><a href='fitGAM.html'>fitGAM</a></code>. Used to display the knots.</p></td>
+<code><a href='fitGAM.html'>fitGAM</a></code>.</p></td>
     </tr>
     <tr>
-      <th>title</th>
-      <td><p>Title for the plot.</p></td>
+      <th>...</th>
+      <td><p>parameters including:</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>ggplot</code> object</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>If both <code>gene</code> and <code>clusters</code> arguments are supplied, the
- plot will be colored according to gene count level.</p>
+    <p>A numeric, the number of nknots</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>97</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>slingshot</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: princurve</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>crv</span>, <span class='kw'>package</span><span class='kw'>=</span><span class='st'>"tradeSeq"</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>countMatrix</span>, <span class='kw'>package</span><span class='kw'>=</span><span class='st'>"tradeSeq"</span>)
-<span class='no'>rd</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>slingshot</span><span class='kw ns'>::</span><span class='fu'>reducedDim</span>(<span class='no'>crv</span>)
-<span class='no'>cl</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/kmeans.html'>kmeans</a></span>(<span class='no'>rd</span>, <span class='kw'>centers</span> <span class='kw'>=</span> <span class='fl'>7</span>)$<span class='no'>cluster</span>
-<span class='no'>lin</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>slingshot</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/getLineages.html'>getLineages</a></span>(<span class='no'>rd</span>, <span class='kw'>clusterLabels</span> <span class='kw'>=</span> <span class='no'>cl</span>, <span class='kw'>start.clus</span> <span class='kw'>=</span> <span class='fl'>4</span>)</div><div class='output co'>#&gt; <span class='message'>Using full covariance matrix</span></div><div class='input'><span class='no'>crv</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>slingshot</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/getCurves.html'>getCurves</a></span>(<span class='no'>lin</span>)
-<span class='no'>counts</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='no'>countMatrix</span>)
-<span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>counts</span>,
- <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/slingPseudotime.html'>slingPseudotime</a></span>(<span class='no'>crv</span>, <span class='kw'>na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>),
- <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/slingPseudotime.html'>slingCurveWeights</a></span>(<span class='no'>crv</span>))
-<span class='fu'>plotGeneCount</span>(<span class='no'>crv</span>, <span class='no'>counts</span>, <span class='kw'>gene</span> <span class='kw'>=</span> <span class='st'>"Mpo"</span>)</div><div class='img'><img src='plotGeneCount-1.png' alt='' width='700' height='433' /></div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
+<span class='fu'>nknots</span>(<span class='no'>gamList</span>)</div><div class='output co'>#&gt; [1] 5</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 

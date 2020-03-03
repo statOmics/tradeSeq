@@ -36,8 +36,8 @@
 
 
 <meta property="og:title" content="Perform test of early differences between lineages — earlyDETest" />
-<meta property="og:description" content="Perform test of early differences between lineages
-Perform test of early differences between lineages" />
+<meta property="og:description" content="Perform test of differential expression patterns between lineages
+in a user-defined region based on the knots of the smoothers." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -70,7 +70,7 @@ Perform test of early differences between lineages" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.13</span>
       </span>
     </div>
 
@@ -87,6 +87,21 @@ Perform test of early differences between lineages" />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Monocle.html">Using Monocle as input to **tradeSeq**</a>
+    </li>
+    <li>
+      <a href="../articles/fitGAM.html">Fitting the models and additional control of fitGAM in **tradeSeq**</a>
+    </li>
+  </ul>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -110,26 +125,40 @@ Perform test of early differences between lineages" />
     </div>
 
     <div class="ref-description">
-    <p>Perform test of early differences between lineages</p>
-<p>Perform test of early differences between lineages</p>
+    <p>Perform test of differential expression patterns between lineages
+in a user-defined region based on the knots of the smoothers.</p>
     </div>
 
     <pre class="usage"><span class='fu'>earlyDETest</span>(<span class='no'>models</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>earlyDETest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>knots</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nPoints</span> <span class='kw'>=</span> <span class='fl'>100</span>)
+<span class='fu'>earlyDETest</span>(
+  <span class='no'>models</span>,
+  <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>knots</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>nPoints</span> <span class='kw'>=</span> <span class='fl'>2</span> * <span class='fu'><a href='nknots.html'>nknots</a></span>(<span class='no'>models</span>),
+  <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>eigenThresh</span> <span class='kw'>=</span> <span class='fl'>0.01</span>
+)
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>earlyDETest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>knots</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nPoints</span> <span class='kw'>=</span> <span class='fl'>100</span>)</pre>
+<span class='fu'>earlyDETest</span>(
+  <span class='no'>models</span>,
+  <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>knots</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>nPoints</span> <span class='kw'>=</span> <span class='fl'>2</span> * <span class='fu'><a href='nknots.html'>nknots</a></span>(<span class='no'>models</span>),
+  <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>eigenThresh</span> <span class='kw'>=</span> <span class='fl'>0.01</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>models</th>
-      <td><p>the list of GAMs, typically the output from
+      <td><p>The fitted GAMs, typically the output from
 <code><a href='fitGAM.html'>fitGAM</a></code>.</p></td>
     </tr>
     <tr>
@@ -147,38 +176,56 @@ Perform test of early differences between lineages" />
     <tr>
       <th>knots</th>
       <td><p>A vector of length 2 specifying the knots before and after the
-branching of interest.</p></td>
+region of interest.</p></td>
     </tr>
     <tr>
       <th>nPoints</th>
-      <td><p>the number of points to be compared between lineages.</p></td>
+      <td><p>The number of points to be compared between lineages.
+Defaults to twice the number of knots</p></td>
+    </tr>
+    <tr>
+      <th>l2fc</th>
+      <td><p>The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.</p></td>
+    </tr>
+    <tr>
+      <th>eigenThresh</th>
+      <td><p>Eigenvalue threshold for inverting the variance-covariance matrix
+of the coefficients to use for calculating the Wald test statistics. Lower values
+are more lenient to adding more information but also decrease computational stability.
+This argument should in general not be changed by the user but is provided
+for back-compatability. Set to <code>1e-8</code> to reproduce results of older
+version of `tradeSeq`.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed.</p>
+ associated with each gene for all the tests performed. Also, for each possible
+ pairwise comparision, the observed log fold changes. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics,
+ fold changes and p-values.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>To help the user in choosing which knots to use when defining the 
+    <p>To help the user in choosing which knots to use when defining the
 branching, the <code><a href='plotGeneCount.html'>plotGeneCount</a></code> function has a models optional
 parameter that can be used to visualize where the knots are.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
-<span class='fu'>earlyDETest</span>(<span class='no'>gamList</span>, <span class='kw'>knots</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Only two lineages; skipping pairwise comparison.</span></div><div class='output co'>#&gt;                   waldStat df    pvalue
-#&gt; 1700012B09Rik 1.071612e-16  2 1.0000000
-#&gt; 1700017B05Rik 4.986325e+00  3 0.1728013
-#&gt; 1700020L24Rik 1.071612e-16  2 1.0000000
-#&gt; 1810009A15Rik 1.637742e+00  3 0.6508626
-#&gt; 1810011H11Rik 1.071612e-16  2 1.0000000
-#&gt; 1810027O10Rik 2.718307e-01  3 0.9652363
-#&gt; 1810031K17Rik 1.228114e+00  3 0.7462696
-#&gt; 1810033B17Rik 1.071612e-16  2 1.0000000
-#&gt; 1810037I17Rik 1.484545e+00  3 0.6858418
-#&gt; 2010002N04Rik 1.071612e-16  2 1.0000000
-#&gt; 2010011I20Rik 1.367191e+00  3 0.7132431</div></pre>
+<span class='fu'>earlyDETest</span>(<span class='no'>gamList</span>, <span class='kw'>knots</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Only two lineages; skipping pairwise comparison.</span></div><div class='output co'>#&gt;                   waldStat df    pvalue   fcMedian
+#&gt; 1700012B09Rik 1.071612e-16  2 1.0000000  0.4901689
+#&gt; 1700017B05Rik 3.960814e+00  2 0.1380130  1.4803166
+#&gt; 1700020L24Rik 1.071612e-16  2 1.0000000  0.4901689
+#&gt; 1810009A15Rik 1.611391e+00  2 0.4467770  1.7931856
+#&gt; 1810011H11Rik 1.071612e-16  2 1.0000000  0.4901689
+#&gt; 1810027O10Rik 1.985099e-01  2 0.9055118  0.2846985
+#&gt; 1810031K17Rik 1.027339e+00  2 0.5982960  1.1570870
+#&gt; 1810033B17Rik 1.071612e-16  2 1.0000000  0.4901689
+#&gt; 1810037I17Rik 1.484424e+00  2 0.4760596  0.2644434
+#&gt; 2010002N04Rik 1.071612e-16  2 1.0000000  0.4901689
+#&gt; 2010011I20Rik 1.810283e-01  2 0.9134614 55.4715290</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -199,7 +246,7 @@ parameter that can be used to visualize where the knots are.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

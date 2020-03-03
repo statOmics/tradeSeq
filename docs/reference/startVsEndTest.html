@@ -38,8 +38,8 @@ stages of every lineage — startVsEndTest • tradeSeq</title>
 
 <meta property="og:title" content="Perform statistical test to check for DE between starting point and the end
 stages of every lineage — startVsEndTest" />
-<meta property="og:description" content="Assess differential expression between the start and end points
-of a lineage." />
+<meta property="og:description" content="This function assesses differential expression between the
+average expression of the start and end points of a lineage." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +72,7 @@ of a lineage." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.13</span>
       </span>
     </div>
 
@@ -89,6 +89,21 @@ of a lineage." />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Monocle.html">Using Monocle as input to **tradeSeq**</a>
+    </li>
+    <li>
+      <a href="../articles/fitGAM.html">Fitting the models and additional control of fitGAM in **tradeSeq**</a>
+    </li>
+  </ul>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -113,26 +128,36 @@ stages of every lineage</h1>
     </div>
 
     <div class="ref-description">
-    <p>Assess differential expression between the start and end points
-of a lineage.</p>
+    <p>This function assesses differential expression between the
+average expression of the start and end points of a lineage.</p>
     </div>
 
     <pre class="usage"><span class='fu'>startVsEndTest</span>(<span class='no'>models</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>startVsEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pseudotimeValues</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+<span class='fu'>startVsEndTest</span>(
+  <span class='no'>models</span>,
+  <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>pseudotimeValues</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>
+)
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>startVsEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pseudotimeValues</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+<span class='fu'>startVsEndTest</span>(
+  <span class='no'>models</span>,
+  <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>pseudotimeValues</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>models</th>
-      <td><p>the list of GAMs, typically the output from
+      <td><p>The fitted GAMs, typically the output from
 <code><a href='fitGAM.html'>fitGAM</a></code>.</p></td>
     </tr>
     <tr>
@@ -149,22 +174,27 @@ of a lineage.</p>
     </tr>
     <tr>
       <th>pseudotimeValues</th>
-      <td><p>a vector of length 2, specifying two pseudotime
+      <td><p>A vector of length 2, specifying two pseudotime
 values to be compared against each other, for every lineage of
  the trajectory.
  @details Note that this test assumes that all lineages start at a
  pseudotime value of zero, which is the starting point against which the
  end point is compared.</p></td>
     </tr>
+    <tr>
+      <th>l2fc</th>
+      <td><p>The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA test statistics and
- p-values. If both <code>global</code> and <code>lineages</code> are TRUE, then a matrix
- of p-values is returned.</p>
+ associated with each gene for all the tests performed. Also, for each possible
+ pairwise comparision, the observed log fold changes. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics,
+ fold changes and p-values.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
@@ -191,7 +221,19 @@ values to be compared against each other, for every lineage of
 #&gt; 1810033B17Rik       1.0000000      3.548941e-18           1       1.0000000
 #&gt; 1810037I17Rik       0.4508052      1.315940e-01           1       0.7167850
 #&gt; 2010002N04Rik       1.0000000      3.548941e-18           1       1.0000000
-#&gt; 2010011I20Rik       0.5078248      1.263505e-02           1       0.9105017</div></pre>
+#&gt; 2010011I20Rik       0.5078248      1.263505e-02           1       0.9105017
+#&gt;               logFClineage1 logFClineage2
+#&gt; 1700012B09Rik     0.9861345    -0.1417701
+#&gt; 1700017B05Rik    -0.9678810     0.4140010
+#&gt; 1700020L24Rik     0.9861345    -0.1417701
+#&gt; 1810009A15Rik    -0.1818238     2.4017616
+#&gt; 1810011H11Rik     0.9861345    -0.1417701
+#&gt; 1810027O10Rik     1.0967420     2.0879539
+#&gt; 1810031K17Rik     2.3024202    -0.5601034
+#&gt; 1810033B17Rik     0.9861345    -0.1417701
+#&gt; 1810037I17Rik    -2.4445498     0.7254729
+#&gt; 2010002N04Rik     0.9861345    -0.1417701
+#&gt; 2010011I20Rik   -28.4890302    31.0458737</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -211,7 +253,7 @@ values to be compared against each other, for every lineage of
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

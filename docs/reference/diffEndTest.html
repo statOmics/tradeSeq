@@ -38,8 +38,8 @@
 
 <meta property="og:title" content="Perform statistical test to check for DE between final stages of every
  lineage. — diffEndTest" />
-<meta property="og:description" content="Assess differential expression between the end points of lineages of a
-trajectory." />
+<meta property="og:description" content="Assess differential expression between the average expression at the
+ end points of lineages of a trajectory." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +72,7 @@ trajectory." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.13</span>
       </span>
     </div>
 
@@ -89,6 +89,21 @@ trajectory." />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Monocle.html">Using Monocle as input to **tradeSeq**</a>
+    </li>
+    <li>
+      <a href="../articles/fitGAM.html">Fitting the models and additional control of fitGAM in **tradeSeq**</a>
+    </li>
+  </ul>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -113,28 +128,25 @@ trajectory." />
     </div>
 
     <div class="ref-description">
-    <p>Assess differential expression between the end points of lineages of a
-trajectory.</p>
+    <p>Assess differential expression between the average expression at the
+ end points of lineages of a trajectory.</p>
     </div>
 
     <pre class="usage"><span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>)
+<span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>)
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
+<span class='fu'>diffEndTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>models</th>
-      <td><p>Typically the output from
-<code><a href='fitGAM.html'>fitGAM</a></code>, either a list of fitted GAM models, or an object of
-<code>SingleCellExperiment</code> class.</p></td>
+      <td><p>The fitted GAMs, typically the output from
+<code><a href='fitGAM.html'>fitGAM</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -150,18 +162,18 @@ trajectory.</p>
     </tr>
     <tr>
       <th>l2fc</th>
-      <td><p>Numeric: log2 fold change threshold to test against. Note, that
-this only applies to the pairwise comparisons, the global test will be
-unaffected.</p></td>
+      <td><p>The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A matrix with the wald statistic, the number of df and the p-value
- associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA test statistics and
- p-values.</p>
+ associated with each gene for all the tests performed. Also, for each possible
+ pairwise comparision, the observed log fold changes. If the testing
+ procedure was unsuccessful, the procedure will return NA test statistics,
+ fold changes and p-values.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The <code>l2fc</code> argument allows to test against a particular fold change
@@ -172,18 +184,18 @@ i.e. a fold change of at least 2, then one can test for this by setting
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
-<span class='fu'>diffEndTest</span>(<span class='no'>gamList</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Only two lineages; skipping pairwise comparison.</span></div><div class='output co'>#&gt;                   waldStat df    pvalue
-#&gt; 1700012B09Rik 5.952271e-17  1 1.0000000
-#&gt; 1700017B05Rik 1.195657e+00  1 0.2741914
-#&gt; 1700020L24Rik 5.952271e-17  1 1.0000000
-#&gt; 1810009A15Rik 7.361088e-02  1 0.7861501
-#&gt; 1810011H11Rik 5.952271e-17  1 1.0000000
-#&gt; 1810027O10Rik 6.182099e-01  1 0.4317133
-#&gt; 1810031K17Rik 8.649102e-01  1 0.3523682
-#&gt; 1810033B17Rik 5.952271e-17  1 1.0000000
-#&gt; 1810037I17Rik 1.311039e+00  1 0.2522066
-#&gt; 2010002N04Rik 5.952271e-17  1 1.0000000
-#&gt; 2010011I20Rik 2.664639e-02  1 0.8703317</div></pre>
+<span class='fu'>diffEndTest</span>(<span class='no'>gamList</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Only two lineages; skipping pairwise comparison.</span></div><div class='output co'>#&gt;                   waldStat df    pvalue   logFC1_2
+#&gt; 1700012B09Rik 5.952271e-17  1 1.0000000  0.4659914
+#&gt; 1700017B05Rik 1.195657e+00  1 0.2741914  2.2271283
+#&gt; 1700020L24Rik 5.952271e-17  1 1.0000000  0.4659914
+#&gt; 1810009A15Rik 7.361088e-02  1 0.7861501 -0.3283338
+#&gt; 1810011H11Rik 5.952271e-17  1 1.0000000  0.4659914
+#&gt; 1810027O10Rik 6.182099e-01  1 0.4317133 -0.7828738
+#&gt; 1810031K17Rik 8.649102e-01  1 0.3523682  1.0515476
+#&gt; 1810033B17Rik 5.952271e-17  1 1.0000000  0.4659914
+#&gt; 1810037I17Rik 1.311039e+00  1 0.2522066 -2.6832658
+#&gt; 2010002N04Rik 5.952271e-17  1 1.0000000  0.4659914
+#&gt; 2010011I20Rik 2.664639e-02  1 0.8703317 21.3959504</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -204,7 +216,7 @@ i.e. a fold change of at least 2, then one can test for this by setting
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

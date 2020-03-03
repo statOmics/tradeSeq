@@ -38,7 +38,8 @@
 
 <meta property="og:title" content="Perform statistical test to check whether gene expression is constant across
  pseudotime within a lineage — associationTest" />
-<meta property="og:description" content="Assess whether gene expression is associated with pseudotime." />
+<meta property="og:description" content="This test assesses whether average gene expression
+is associated with pseudotime." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -71,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.13</span>
       </span>
     </div>
 
@@ -88,6 +89,21 @@
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Monocle.html">Using Monocle as input to **tradeSeq**</a>
+    </li>
+    <li>
+      <a href="../articles/fitGAM.html">Fitting the models and additional control of fitGAM in **tradeSeq**</a>
+    </li>
+  </ul>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -112,25 +128,24 @@
     </div>
 
     <div class="ref-description">
-    <p>Assess whether gene expression is associated with pseudotime.</p>
+    <p>This test assesses whether average gene expression
+is associated with pseudotime.</p>
     </div>
 
     <pre class="usage"><span class='fu'>associationTest</span>(<span class='no'>models</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>associationTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>associationTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>)
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>associationTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>associationTest</span>(<span class='no'>models</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>l2fc</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>models</th>
-      <td><p>the list of GAMs, typically the output from
+      <td><p>The fitted GAMs, typically the output from
 <code><a href='fitGAM.html'>fitGAM</a></code>.</p></td>
     </tr>
     <tr>
@@ -149,37 +164,19 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A matrix with the wald statistic, the number of df and the p-value
+    <p>A matrix with the wald statistic, the number of
+ degrees of freedom and the p-value
  associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA test statistics and
- p-values.</p>
+ procedure was unsuccessful, the procedure will return NA.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>gamList</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"tradeSeq"</span>)
-<span class='fu'>associationTest</span>(<span class='no'>gamList</span>, <span class='kw'>global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>lineages</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                   waldStat df    pvalue   waldStat_1 df_1  pvalue_1
-#&gt; 1700012B09Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
-#&gt; 1700017B05Rik 6.093472e+00  7 0.5288785 4.440966e+00    3 0.2176169
-#&gt; 1700020L24Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
-#&gt; 1810009A15Rik 1.609616e+00  7 0.9782704 1.991907e-01    3 0.9777198
-#&gt; 1810011H11Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
-#&gt; 1810027O10Rik 3.603153e+00  7 0.8241819 1.226581e+00    3 0.7466363
-#&gt; 1810031K17Rik 6.217084e+00  7 0.5146428 3.973826e+00    3 0.2643043
-#&gt; 1810033B17Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
-#&gt; 1810037I17Rik 7.002411e-01  7 0.9983339 5.686303e-01    3 0.9035747
-#&gt; 2010002N04Rik 1.490926e-16  7 1.0000000 1.465369e-16    3 1.0000000
-#&gt; 2010011I20Rik 1.496596e+00  7 0.9824273 5.777372e-01    3 0.9015095
-#&gt;                 waldStat_2 df_2  pvalue_2
-#&gt; 1700012B09Rik 3.569196e-18    4 1.0000000
-#&gt; 1700017B05Rik 1.652507e+00    4 0.7993256
-#&gt; 1700020L24Rik 3.569196e-18    4 1.0000000
-#&gt; 1810009A15Rik 1.410425e+00    4 0.8423810
-#&gt; 1810011H11Rik 3.569196e-18    4 1.0000000
-#&gt; 1810027O10Rik 2.376572e+00    4 0.6668652
-#&gt; 1810031K17Rik 2.243258e+00    4 0.6911180
-#&gt; 1810033B17Rik 3.569196e-18    4 1.0000000
-#&gt; 1810037I17Rik 1.316109e-01    4 0.9979275
-#&gt; 2010002N04Rik 3.569196e-18    4 1.0000000
-#&gt; 2010011I20Rik 9.188592e-01    4 0.9218397</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>8</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>crv</span>, <span class='kw'>package</span><span class='kw'>=</span><span class='st'>"tradeSeq"</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>countMatrix</span>, <span class='kw'>package</span><span class='kw'>=</span><span class='st'>"tradeSeq"</span>)
+<span class='no'>sce</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='no'>countMatrix</span>),
+                  <span class='kw'>sds</span> <span class='kw'>=</span> <span class='no'>crv</span>,
+                  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>)
+<span class='no'>assocRes</span> <span class='kw'>&lt;-</span> <span class='fu'>associationTest</span>(<span class='no'>sce</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -199,7 +196,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>
