@@ -9,9 +9,9 @@
 \usage{
 associationTest(models, ...)
 
-\S4method{associationTest}{SingleCellExperiment}(models, global = TRUE, lineages = FALSE)
+\S4method{associationTest}{SingleCellExperiment}(models, global = TRUE, lineages = FALSE, l2fc = 0)
 
-\S4method{associationTest}{list}(models, global = TRUE, lineages = FALSE)
+\S4method{associationTest}{list}(models, global = TRUE, lineages = FALSE, l2fc = 0)
 }
 \arguments{
 \item{models}{The fitted GAMs, typically the output from

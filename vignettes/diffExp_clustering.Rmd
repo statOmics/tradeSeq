@@ -224,6 +224,20 @@ plotGeneCount(crv, counts, gene = rownames(earlyDERes)[oEarly][2])
 ```
 
 
+# Differential expression in large datasets
+
+In large datasets with thousands of single cells, small fold changes can become statistically significant due to the very high sample size. However, these differences may not always be biologically meaningful.
+To tackle this problem, all DE tests in  `tradeSeq` have an `l2fc` argument which specifies the absolute value of the log2 fold-change cut-off to test against.
+For example, setting `l2fc=log2(2)` will test which genes have a fold change that is significantly higher than 2 or significantly lower than 1/2 within or between the lineages of interest.
+
+```{r}
+# testing against fold change threshold of 2
+start2 <- startVsEndTest(sce, l2fc=log2(2))
+# testing against fold change threshold of 1.5
+pat2 <- patternTest(sce, l2fc=log2(1.5))
+```
+
+
 # Clustering of genes according to their expression pattern
 
 ## Extracting fitted values to use with any clustering method

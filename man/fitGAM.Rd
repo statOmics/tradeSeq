@@ -4,6 +4,7 @@
 \alias{fitGAM}
 \alias{fitGAM,matrix-method}
 \alias{fitGAM,SingleCellExperiment-method}
+\alias{fitGAM,CellDataSet-method}
 \title{fitGAM}
 \usage{
 fitGAM(counts, ...)
@@ -27,6 +28,21 @@ fitGAM(counts, ...)
 )
 
 \S4method{fitGAM}{SingleCellExperiment}(
+  counts,
+  U = NULL,
+  genes = seq_len(nrow(counts)),
+  weights = NULL,
+  offset = NULL,
+  nknots = 6,
+  verbose = TRUE,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  control = mgcv::gam.control(),
+  sce = TRUE,
+  family = "nb"
+)
+
+\S4method{fitGAM}{CellDataSet}(
   counts,
   U = NULL,
   genes = seq_len(nrow(counts)),
