@@ -23,7 +23,7 @@ library(knitr)
 In this vignette, we analyze a subset of the data from [@Paul2015]. 
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
 
-The main [vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html) focuses on using `tradeSeq` downsteam of `slingshot`. Here, we present how to use `tradeSeq` downstream of `monocle`[@Qiu2017].
+The [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html) focuses on using `tradeSeq` downsteam of `slingshot`. Here, we present how to use `tradeSeq` downstream of `monocle`[@Qiu2017].
 
 # Load data
 
@@ -66,7 +66,7 @@ Only possible for DDRTree
 sce <- fitGAM(cds, verbose = TRUE)
 ```
 
-You can then analyse the `sce` object following the main [vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html#within-lineage-comparisons).
+You can then analyse the `sce` object following the [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html).
 
 # Monocle3
 
@@ -127,7 +127,7 @@ sce <- fitGAM(counts = counts,
        cellWeights = cellWeights)
 ```
 
-Then, the `sce` object can be analyzed following the [main vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html).
+Then, the `sce` object can be analyzed following the [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html).
 
 # Session
 

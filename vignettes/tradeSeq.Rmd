@@ -21,7 +21,7 @@ library(knitr)
 In this vignette, we analyze a subset of the data from [@Paul2015]. 
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
 
-In this vignette, we use `tradeSeq` downstream of `slinghsot`[@Street2018a] but it can be used downstream of any trajectory. In particular, if you want to use `tradeSeq` downstream of `monocle`[@Qiu2017] and `monocle3`[@Cao2019], please refer to our [Monocle vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/Monocle.html).
+In this vignette, we use `tradeSeq` downstream of `slinghsot`[@Street2018a] but it can be used downstream of any trajectory. In particular, if you want to use `tradeSeq` downstream of `monocle`[@Qiu2017] and `monocle3`[@Cao2019], please refer to our [Monocle vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/Monocle.html).
 
 # Installation
 
@@ -54,7 +54,7 @@ data(celltype, package = "tradeSeq")
 
 # Fit negative binomial model
 
-Here we fit the `tradeSeq` negative binomial generalized additive model (NB-GAM). Please see the [fitGAM vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html) for an extensive description on how to fit the models, tune its options and modify its output.
+Here we fit the `tradeSeq` negative binomial generalized additive model (NB-GAM). Please see the [fitGAM vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html) for an extensive description on how to fit the models, tune its options and modify its output.
 
 We first need to decide on the number of knots. This is done using the __evaluateK__ function. This takes a little time to run so it is not run here.
 
@@ -68,7 +68,7 @@ icMat <- evaluateK(counts = counts, sds = crv, k = 3:10,
 knitr::include_graphics("evalK_paul.png")
 ```
 
-For more explanation on the output from __evaluateK__, we refer users to the [fitGAM vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html). Here, we pick `nknots = 6`.
+For more explanation on the output from __evaluateK__, we refer users to the [fitGAM vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html). Here, we pick `nknots = 6`.
 
 We then fit the models by running the __fitGAM__ function. By default, the gene-wise NB-GAM estimates one smoother for every lineage using the negative binomial distribution. Please refer to the  [fitGAM vignette](https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html) Additional to add additional covariates to the model, speed up computation or allow for custom normalization, amongst others.
 
