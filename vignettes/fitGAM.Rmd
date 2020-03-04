@@ -62,7 +62,7 @@ plotGeneCount(curve = crv, clusters = celltype,
 
 # Choosing K: a deeper dive into the output from __evaluateK__
 
-We use a negative binomial generalized additive model (NB-GAM) framework in `tradeSeq` to smooth each gene's expression in each lineage. Smoothers can be decomposed in a set of basis functions, which are joined together at knot points, often simply called knots.
+We use a negative binomial generalized additive model (NB-GAM) framework in `tradeSeq` to smooth each gene's expression in each lineage. Smoothers can be decomposed into a set of basis functions, which are joined together at knot points, often simply called knots.
 
 Ideally, the number of knots should be selected to reach an optimal bias-variance trade-off for the smoother, where one explains as much variability in the expression data as possible with only a few regression coefficients. In order to guide that choice, we developed diagnostic plots using the Akaike Informaction Criterion (AIC). This is implemented in the `evaluateK` function in `tradeSeq`.
 The function takes as input the expression count matrix, and the trajectory information, which can be either a `SlingshotDataSet`, or a matrix of pseudotimes and cell-level weights from any trajectory inference object.
