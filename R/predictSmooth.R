@@ -2,6 +2,76 @@
 #' @import mgcv
 setOldClass("gam")
 
+
+
+.predictSmooth <- function(dm, X, beta, pseudotime, gene, nPoints){
+  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+
+  # get predictor matrix
+  for (jj in seq_len(nCurves)) {
+    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
+    Xdf <- predictGAM(lpmatrix = X,
+                      df = df,
+                      pseudotime = pseudotime)
+    if (jj == 1) Xall <- Xdf
+    if (jj > 1) Xall <- rbind(Xall, Xdf)
+  }
+
+  # loop over all genes
+  yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nPoints)
+  rownames(yhatMat) <- gene
+  pointNames <- expand.grid(1:nCurves, 1:nPoints)
+  colnames(yhatMat) <- paste0("lineage", apply(pointNames, 1, paste,
+                                               collapse = "_"))
+  for (jj in 1:length(gene)) {
+    yhat <- c(exp(t(Xall %*% t(beta[as.character(gene[jj]), ,
+                                    drop = FALSE])) +
+                    df$offset[1]))
+    yhatMat[jj, ] <- yhat
+  }
+  return(yhatMat)
+}
+
+
+.predictSmooth_conditions <- function(dm, X, beta, pseudotime, gene, nPoints, conditions){
+  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  nConditions <- nlevels(conditions)
+
+  # get predictor matrix
+  for (jj in seq_len(nCurves)) {
+    for(kk in seq_len(nConditions)){
+      df <- .getPredictRangeDf(dm, as.numeric(paste0(jj,kk)), nPoints = nPoints,
+                               condPresent = TRUE)
+      Xdf <- predictGAM(lpmatrix = X,
+                        df = df,
+                        pseudotime = pseudotime,
+                        conditions = conditions)
+      if(kk == 1) XallCond <- Xdf
+      if(kk > 1) XallCond <- rbind(XallCond, Xdf)
+    }
+    if (jj == 1) Xall <- XallCond
+    if (jj > 1) Xall <- rbind(Xall, XallCond)
+  }
+
+  # loop over all genes
+  yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nConditions * nPoints)
+  rownames(yhatMat) <- gene
+  pointNames <- expand.grid(1:nCurves, 1:nConditions)
+  baseNames <- paste0("lineage", pointNames[,1], "_condition",
+                      levels(conditions)[pointNames[,2]])
+  colnames(yhatMat) <- paste0(baseNames, "_point",rep(1:nPoints, length(baseNames)))
+  for (jj in 1:length(gene)) {
+    yhat <- c(exp(t(Xall %*% t(beta[as.character(gene[jj]), ,
+                                    drop = FALSE])) +
+                    df$offset[1]))
+    yhatMat[jj, ] <- yhat
+  }
+  return(yhatMat)
+}
+
+
+
+
 #' @description Get smoothers estimated by \code{tradeSeq} along a
 #' grid. This function does not return fitted values but rather the predicted
 #' mean smoother, for a user-defined grid of points.
@@ -42,32 +112,29 @@ setMethod(f = "predictSmooth",
             pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                                  pattern = "pseudotime")]
             if (is.null(dim(pseudotime))) pseudotime <- matrix(pseudotime, ncol = 1)
-            nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
             betaMat <- rowData(models)$tradeSeq$beta[[1]]
             beta <- as.matrix(betaMat[id,])
             rownames(beta) <- gene
+            condPresent <- suppressWarnings({
+              !is.null(SummarizedExperiment::colData(models)$tradeSeq$conditions)
+            })
 
-            # get predictor matrix
-            for (jj in seq_len(nCurves)) {
-              df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
-              Xdf <- predictGAM(lpmatrix = X,
-                                df = df,
-                                pseudotime = pseudotime)
-              if (jj == 1) Xall <- Xdf
-              if (jj > 1) Xall <- rbind(Xall, Xdf)
-            }
-
-            # loop over all genes
-            yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nPoints)
-            rownames(yhatMat) <- gene
-            pointNames <- expand.grid(1:nPoints,1:nCurves)[,2:1]
-            colnames(yhatMat) <- paste0("lineage", apply(pointNames, 1, paste,
-                                                         collapse = "_"))
-            for (jj in 1:length(gene)) {
-              yhat <- c(exp(t(Xall %*% t(beta[as.character(gene[jj]), ,
-                                              drop = FALSE])) +
-                              df$offset[1]))
-              yhatMat[jj, ] <- yhat
+            if(!condPresent){
+              yhatMat <- .predictSmooth(dm = dm,
+                                        X = X,
+                                        beta = beta,
+                                        pseudotime = pseudotime,
+                                        gene = gene,
+                                        nPoints = nPoints)
+            } else if(condPresent){
+              conditions <- SummarizedExperiment::colData(models)$tradeSeq$conditions
+              yhatMat <- .predictSmooth_conditions(dm = dm,
+                                                   X = X,
+                                                   beta = beta,
+                                                   pseudotime = pseudotime,
+                                                   gene = gene,
+                                                   nPoints = nPoints,
+                                                   conditions = conditions)
             }
             return(yhatMat)
           }
@@ -88,7 +155,7 @@ setMethod(f = "predictSmooth",
               }
               id <- which(names(models) %in% gene)
             } else id <- gene
-            
+
             m <- .getModelReference(models)
             dm <- m$model[, -1]
             X <- predict(m, type = "lpmatrix")
