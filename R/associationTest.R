@@ -175,8 +175,9 @@
       if(any(is.na(betam))) return(NA)
       .getFoldChanges(betam, L)
     })
+    if(is(fcAll, "list")) fcAll <- do.call(rbind, fcAll)
     if(is.null(dim(fcAll))){
-        fcMedian <- abs(fcAll)
+        fcMedian <- abs(unlist(fcAll))
       } else {
         fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol=1)
       }
