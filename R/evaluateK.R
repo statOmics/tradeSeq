@@ -27,8 +27,8 @@
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
                       cellWeights = cellWeights, nknots = currK,
-                      verbose = verbose,sce = FALSE, weights = weightSub,
-                      offset = offset, aic = TRUE, ...)
+                      verbose = verbose, sce = FALSE, weights = weightSub,
+                      offset = offset, aic = TRUE)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
