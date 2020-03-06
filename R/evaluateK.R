@@ -26,9 +26,9 @@
   #gamLists <- BiocParallel::bplapply(kList, function(currK){
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
-                      cellWeights = cellWeights, nknots = currK, 
-                      verbose = verbose,sce = FALSE, weights = weightSub, 
-                      offset = offset, aic = TRUE)
+                      cellWeights = cellWeights, nknots = currK,
+                      verbose = verbose,sce = FALSE, weights = weightSub,
+                      offset = offset, aic = TRUE, ...)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
@@ -36,7 +36,7 @@
   aicMat <- do.call(cbind,aicVals)
   colnames(aicMat) <- paste("k:", k)
 
-  if (plot) {  
+  if (plot) {
     par(mfrow = c(1, 4))
     # boxplots of AIC
     devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
