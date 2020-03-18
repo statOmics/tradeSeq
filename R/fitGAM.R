@@ -577,10 +577,10 @@ setMethod(f = "fitGAM",
             y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%
               as.data.frame() %>%
               dplyr::mutate(cells = rownames(.)) %>%
-              rename("Y" = V1)
+              dplyr::rename("Y" = V1)
             root <- counts@auxOrderingData[[counts@dim_reduce_type]]$root_cell
             root <- y_to_cells$Y[y_to_cells$cells == root]
-            mst <- minSpanningTree(counts)
+            mst <- monocle::minSpanningTree(counts)
             endpoints <- names(which(igraph::degree(mst) == 1))
             endpoints <- endpoints[endpoints != paste0("Y_", root)]
             cellWeights <- lapply(endpoints, function(endpoint) {
