@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.16</span>
       </span>
     </div>
 
@@ -92,7 +92,7 @@
     
 <p><code>tradeSeq</code> is an <code>R</code> package that allows analysis of gene expression along trajectories. While it has been developed and applied to single-cell RNA-sequencing (scRNA-seq) data, its applicability extends beyond that, and also allows the analysis of, e.g., single-cell ATAC-seq data along trajectories or bulk RNA-seq time series datasets. For every gene in the dataset, <code>tradeSeq</code> fits a generalized additive model (GAM) by building on the <code>mgcv</code> R package. It then allows statistical inference on the GAM by assessing contrasts of the parameters of the fitted GAM model, aiding in interpreting complex datasets. All details about the <code>tradeSeq</code> model and statistical tests are described in our preprint <span class="citation">(Van den Berge et al. 2019)</span>.</p>
 <p>In this vignette, we analyze a subset of the data from <span class="citation">(Paul et al. 2015)</span>. A <code>SingleCellExperiment</code> object of the data has been provided with the <a href="https://github.com/statOmics/tradeSeqpaper"><code>tradeSeq</code></a> package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the <a href="http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3">Monocle 3 vignette</a>.</p>
-<p>In this vignette, we use <code>tradeSeq</code> downstream of <code>slinghsot</code><span class="citation">(Street et al. 2018)</span> but it can be used downstream of any trajectory. In particular, if you want to use <code>tradeSeq</code> downstream of <code>monocle</code><span class="citation">(Qiu et al. 2017)</span> and <code>monocle3</code><span class="citation">(Cao et al. 2019)</span>, please refer to our <a href="https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/Monocle.html">Monocle vignette</a>.</p>
+<p>In this vignette, we use <code>tradeSeq</code> downstream of <code>slinghsot</code><span class="citation">(Street et al. 2018)</span> but it can be used downstream of any trajectory. In particular, if you want to use <code>tradeSeq</code> downstream of <code>monocle</code><span class="citation">(Qiu et al. 2017)</span> and <code>monocle3</code><span class="citation">(Cao et al. 2019)</span>, please refer to our <a href="https://statomics.github.io/tradeSeq/articles/Monocle.html">Monocle vignette</a>.</p>
 <div id="installation" class="section level1">
 <h1 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h1>
@@ -122,14 +122,14 @@
 <div id="fit-negative-binomial-model" class="section level1">
 <h1 class="hasAnchor">
 <a href="#fit-negative-binomial-model" class="anchor"></a>Fit negative binomial model</h1>
-<p>Here we fit the <code>tradeSeq</code> negative binomial generalized additive model (NB-GAM). Please see the <a href="https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html">fitGAM vignette</a> for an extensive description on how to use this function, tune its options and modify its output.</p>
-<p>We first need to decide on how to choose the number of knots. This is done with the <strong>evaluateK</strong> function. This takes a little time to run so it is not run hr</p>
+<p>Here we fit the <code>tradeSeq</code> negative binomial generalized additive model (NB-GAM). Please see the <a href="https://statomics.github.io/tradeSeq/articles/fitGAM.html">fitGAM vignette</a> for an extensive description on how to fit the models, tune its options and modify its output.</p>
+<p>We first need to decide on the number of knots. This is done using the <strong>evaluateK</strong> function. This takes a little time to run so it is not run here.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">5</span>)</span>
-<span id="cb3-2"><a href="#cb3-2"></a>icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">sds =</span> crv, <span class="dt">k =</span> <span class="dv">3</span><span class="op">:</span><span class="dv">20</span>, </span>
+<span id="cb3-2"><a href="#cb3-2"></a>icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">sds =</span> crv, <span class="dt">k =</span> <span class="dv">3</span><span class="op">:</span><span class="dv">10</span>, </span>
 <span id="cb3-3"><a href="#cb3-3"></a>                   <span class="dt">nGenes =</span> <span class="dv">200</span>, <span class="dt">verbose =</span> T)</span></code></pre></div>
 <p><img src="evalK_paul.png" width="668"></p>
-<p>For more explanations on the outputs from <strong>evaluateK</strong>, we once again refer users to the <a href="https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/fitGAM.html">fitGAM vignette</a>. Here, we pick <code>nknots = 6</code>.</p>
-<p>We then run the <strong>fitGAM</strong> function.</p>
+<p>For more explanation on the output from <strong>evaluateK</strong>, we refer users to the <a href="https://statomics.github.io/tradeSeq/articles/fitGAM.html">fitGAM vignette</a>. Here, we pick <code>nknots = 6</code>.</p>
+<p>We then fit the models by running the <strong>fitGAM</strong> function. By default, the gene-wise NB-GAM estimates one smoother for every lineage using the negative binomial distribution. Please refer to the <a href="https://statomics.github.io/tradeSeq/articles/fitGAM.html">fitGAM vignette</a> Additional to add additional covariates to the model, speed up computation or allow for custom normalization, amongst others.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">7</span>)</span>
 <span id="cb4-2"><a href="#cb4-2"></a>pseudotime &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>)</span>
 <span id="cb4-3"><a href="#cb4-3"></a>cellWeights &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(crv)</span>
@@ -255,7 +255,7 @@
 <span id="cb32-12"><a href="#cb32-12"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">col =</span> transientScore)) <span class="op">+</span></span>
 <span id="cb32-13"><a href="#cb32-13"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"patternTest Wald Statistic (log scale)"</span>,</span>
 <span id="cb32-14"><a href="#cb32-14"></a>       <span class="dt">y =</span> <span class="st">"diffEndTest Wald Statistic (log scale)"</span>) <span class="op">+</span></span>
-<span id="cb32-15"><a href="#cb32-15"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_color_continuous</a></span>(<span class="dt">low =</span> <span class="st">"yellow"</span>, <span class="dt">high =</span> <span class="st">"red"</span>) <span class="op">+</span></span>
+<span id="cb32-15"><a href="#cb32-15"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_colour_continuous.html">scale_color_continuous</a></span>(<span class="dt">low =</span> <span class="st">"yellow"</span>, <span class="dt">high =</span> <span class="st">"red"</span>) <span class="op">+</span></span>
 <span id="cb32-16"><a href="#cb32-16"></a><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span>()</span></code></pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-17-1.png" width="50%"></p>
 <p>Or, we can visualize the expression in UMAP space of the top gene.</p>
@@ -399,20 +399,20 @@
 ## 
 ## other attached packages:
 ##  [1] cowplot_1.0.0               clusterExperiment_2.6.1    
-##  [3] tidyr_1.0.2                 ggplot2_3.2.1              
-##  [5] dplyr_0.8.4                 slingshot_1.4.0            
+##  [3] tidyr_1.0.2                 ggplot2_3.3.0              
+##  [5] dplyr_0.8.5                 slingshot_1.4.0            
 ##  [7] princurve_2.1.4             SingleCellExperiment_1.8.0 
 ##  [9] SummarizedExperiment_1.16.1 DelayedArray_0.12.2        
 ## [11] BiocParallel_1.20.1         matrixStats_0.55.0         
 ## [13] GenomicRanges_1.38.0        GenomeInfoDb_1.22.0        
 ## [15] IRanges_2.20.2              S4Vectors_0.24.3           
-## [17] RColorBrewer_1.1-2          tradeSeq_1.1.13            
+## [17] RColorBrewer_1.1-2          tradeSeq_1.1.16            
 ## [19] bigmemory_4.5.36            Biobase_2.46.0             
 ## [21] BiocGenerics_0.32.0         knitr_1.28                 
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] uuid_0.1-2             backports_1.1.5        VGAM_1.1-2            
-##   [4] NMF_0.22.0             plyr_1.8.5             igraph_1.2.4.2        
+##   [1] uuid_0.1-4             backports_1.1.5        VGAM_1.1-2            
+##   [4] NMF_0.22.0             plyr_1.8.6             igraph_1.2.4.2        
 ##   [7] lazyeval_0.2.2         splines_3.6.1          densityClust_0.3      
 ##  [10] rncl_0.8.4             fastICA_1.2-2          gridBase_0.4-7        
 ##  [13] digest_0.6.25          foreach_1.4.8          htmltools_0.4.0       
@@ -422,29 +422,29 @@
 ##  [25] prettyunits_1.1.1      colorspace_1.4-1       blob_1.2.1            
 ##  [28] ggrepel_0.8.1          xfun_0.12              sparsesvd_0.2         
 ##  [31] crayon_1.3.4           RCurl_1.98-1.1         bigmemory.sri_0.1.3   
-##  [34] genefilter_1.68.0      phylobase_0.8.8        survival_3.1-8        
+##  [34] genefilter_1.68.0      phylobase_0.8.10       survival_3.1-11       
 ##  [37] iterators_1.0.12       ape_5.3                glue_1.3.1            
 ##  [40] registry_0.5-1         gtable_0.3.0           zlibbioc_1.32.0       
 ##  [43] XVector_0.26.0         kernlab_0.9-29         Rhdf5lib_1.8.0        
-##  [46] HDF5Array_1.14.2       scales_1.1.0           pheatmap_1.0.12       
+##  [46] HDF5Array_1.14.3       scales_1.1.0           pheatmap_1.0.12       
 ##  [49] DBI_1.1.0              edgeR_3.28.1           rngtools_1.5          
 ##  [52] bibtex_0.4.2.2         Rcpp_1.0.3             viridisLite_0.3.0     
 ##  [55] xtable_1.8-4           progress_1.2.2         bit_1.1-15.2          
 ##  [58] httr_1.4.1             FNN_1.1.3              farver_2.0.3          
 ##  [61] pkgconfig_2.0.3        XML_3.99-0.3           locfit_1.5-9.1        
 ##  [64] labeling_0.3           howmany_0.3-1          tidyselect_1.0.0      
-##  [67] rlang_0.4.4            softImpute_1.4         reshape2_1.4.3        
+##  [67] rlang_0.4.5            softImpute_1.4         reshape2_1.4.3        
 ##  [70] AnnotationDbi_1.48.0   munsell_0.5.0          tools_3.6.1           
 ##  [73] RSQLite_2.2.0          ade4_1.7-15            evaluate_0.14         
 ##  [76] stringr_1.4.0          yaml_2.2.1             bit64_0.9-7           
-##  [79] fs_1.3.1               DDRTree_0.1.5          purrr_0.3.3           
-##  [82] RANN_2.6.1             pbapply_1.4-2          nlme_3.1-144          
+##  [79] fs_1.3.2               DDRTree_0.1.5          purrr_0.3.3           
+##  [82] RANN_2.6.1             pbapply_1.4-2          nlme_3.1-145          
 ##  [85] monocle_2.14.0         slam_0.1-47            xml2_1.2.2            
 ##  [88] compiler_3.6.1         rstudioapi_0.11        png_0.1-7             
-##  [91] tibble_2.1.3           RNeXML_2.4.2           stringi_1.4.6         
+##  [91] tibble_2.1.3           RNeXML_2.4.3           stringi_1.4.6         
 ##  [94] desc_1.2.0             RSpectra_0.16-0        lattice_0.20-40       
 ##  [97] Matrix_1.2-18          HSMMSingleCell_1.6.0   vctrs_0.2.3           
-## [100] pillar_1.4.3           lifecycle_0.1.0        combinat_0.0-8        
+## [100] pillar_1.4.3           lifecycle_0.2.0        combinat_0.0-8        
 ## [103] zinbwave_1.8.0         bitops_1.0-6           irlba_2.3.3           
 ## [106] R6_2.4.1               gridExtra_2.3          codetools_0.2-16      
 ## [109] MASS_7.3-51.5          assertthat_0.2.1       rhdf5_2.30.1          

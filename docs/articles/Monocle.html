@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.16</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <p><code>tradeSeq</code> is an <code>R</code> package that allows analysis of gene expression along trajectories. While it has been developed and applied to single-cell RNA-sequencing (scRNA-seq) data, its applicability extends beyond that, and also allows the analysis of, e.g., single-cell ATAC-seq data along trajectories or bulk RNA-seq time series datasets. For every gene in the dataset, <code>tradeSeq</code> fits a generalized additive model (GAM) by building on the <code>mgcv</code> R package. It then allows statistical inference on the GAM by assessing contrasts of the parameters of the fitted GAM model, aiding in interpreting complex datasets. All details about the <code>tradeSeq</code> model and statistical tests are described in our preprint <span class="citation">(Van den Berge et al. 2019)</span>.</p>
 <p>In this vignette, we analyze a subset of the data from <span class="citation">(Paul et al. 2015)</span>. A <code>SingleCellExperiment</code> object of the data has been provided with the <a href="https://github.com/statOmics/tradeSeqpaper"><code>tradeSeq</code></a> package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the <a href="http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3">Monocle 3 vignette</a>.</p>
-<p>The main <a href="https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">vignette</a> focuses on using <code>tradeSeq</code> downsteam of <code>slingshot</code>. Here, we present how to use <code>tradeSeq</code> downstream of <code>monocle</code><span class="citation">(Qiu et al. 2017)</span>.</p>
+<p>The <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a> focuses on using <code>tradeSeq</code> downsteam of <code>slingshot</code>. Here, we present how to use <code>tradeSeq</code> downstream of <code>monocle</code><span class="citation">(Qiu et al. 2017)</span>.</p>
 </div>
 <div id="load-data" class="section level1">
 <h1 class="hasAnchor">
@@ -137,7 +137,7 @@
 <a href="#fit-smoothers" class="anchor"></a>Fit Smoothers</h1>
 <p>Only possible for DDRTree</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>sce &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(cds, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
-<p>You can then analyse the <code>sce</code> object following the main <a href="https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html#within-lineage-comparisons">vignette</a>.</p>
+<p>You can then analyse the <code>sce</code> object following the <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a>.</p>
 </div>
 <div id="monocle3" class="section level1">
 <h1 class="hasAnchor">
@@ -194,7 +194,7 @@
 <span id="cb7-18"><a href="#cb7-18"></a>sce &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts, </span>
 <span id="cb7-19"><a href="#cb7-19"></a>       <span class="dt">pseudotime =</span> pseudotime,</span>
 <span id="cb7-20"><a href="#cb7-20"></a>       <span class="dt">cellWeights =</span> cellWeights)</span></code></pre></div>
-<p>Then, the <code>sce</code> object can be analyzed following the <a href="https://bioconductor.org/packages/release/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a>.</p>
+<p>Then, the <code>sce</code> object can be analyzed following the <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a>.</p>
 </div>
 </div>
 <div id="session" class="section level1">
@@ -217,22 +217,22 @@
 ##  [8] datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] tidyr_1.0.2                 dplyr_0.8.4                
+##  [1] tidyr_1.0.2                 dplyr_0.8.5                
 ##  [3] monocle_2.14.0              DDRTree_0.1.5              
 ##  [5] irlba_2.3.3                 VGAM_1.1-2                 
-##  [7] ggplot2_3.2.1               Matrix_1.2-18              
+##  [7] ggplot2_3.3.0               Matrix_1.2-18              
 ##  [9] SingleCellExperiment_1.8.0  SummarizedExperiment_1.16.1
 ## [11] DelayedArray_0.12.2         BiocParallel_1.20.1        
 ## [13] matrixStats_0.55.0          GenomicRanges_1.38.0       
 ## [15] GenomeInfoDb_1.22.0         IRanges_2.20.2             
 ## [17] S4Vectors_0.24.3            RColorBrewer_1.1-2         
-## [19] tradeSeq_1.1.13             bigmemory_4.5.36           
+## [19] tradeSeq_1.1.16             bigmemory_4.5.36           
 ## [21] Biobase_2.46.0              BiocGenerics_0.32.0        
 ## [23] knitr_1.28                 
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] uuid_0.1-2              backports_1.1.5         NMF_0.22.0             
-##   [4] plyr_1.8.5              igraph_1.2.4.2          lazyeval_0.2.2         
+##   [1] uuid_0.1-4              backports_1.1.5         NMF_0.22.0             
+##   [4] plyr_1.8.6              igraph_1.2.4.2          lazyeval_0.2.2         
 ##   [7] densityClust_0.3        rncl_0.8.4              fastICA_1.2-2          
 ##  [10] gridBase_0.4-7          digest_0.6.25           foreach_1.4.8          
 ##  [13] htmltools_0.4.0         viridis_0.5.1           magrittr_1.5           
@@ -242,27 +242,27 @@
 ##  [25] colorspace_1.4-1        blob_1.2.1              ggrepel_0.8.1          
 ##  [28] xfun_0.12               sparsesvd_0.2           crayon_1.3.4           
 ##  [31] RCurl_1.98-1.1          bigmemory.sri_0.1.3     genefilter_1.68.0      
-##  [34] phylobase_0.8.8         survival_3.1-8          iterators_1.0.12       
+##  [34] phylobase_0.8.10        survival_3.1-11         iterators_1.0.12       
 ##  [37] ape_5.3                 glue_1.3.1              registry_0.5-1         
 ##  [40] gtable_0.3.0            zlibbioc_1.32.0         XVector_0.26.0         
-##  [43] kernlab_0.9-29          Rhdf5lib_1.8.0          HDF5Array_1.14.2       
+##  [43] kernlab_0.9-29          Rhdf5lib_1.8.0          HDF5Array_1.14.3       
 ##  [46] scales_1.1.0            pheatmap_1.0.12         DBI_1.1.0              
 ##  [49] edgeR_3.28.1            rngtools_1.5            bibtex_0.4.2.2         
 ##  [52] Rcpp_1.0.3              viridisLite_0.3.0       xtable_1.8-4           
 ##  [55] progress_1.2.2          proxy_0.4-23            bit_1.1-15.2           
 ##  [58] httr_1.4.1              FNN_1.1.3               pkgconfig_2.0.3        
 ##  [61] XML_3.99-0.3            locfit_1.5-9.1          howmany_0.3-1          
-##  [64] tidyselect_1.0.0        rlang_0.4.4             softImpute_1.4         
+##  [64] tidyselect_1.0.0        rlang_0.4.5             softImpute_1.4         
 ##  [67] reshape2_1.4.3          AnnotationDbi_1.48.0    munsell_0.5.0          
 ##  [70] tools_3.6.1             RSQLite_2.2.0           ade4_1.7-15            
 ##  [73] evaluate_0.14           stringr_1.4.0           yaml_2.2.1             
-##  [76] bit64_0.9-7             fs_1.3.1                purrr_0.3.3            
-##  [79] RANN_2.6.1              pbapply_1.4-2           nlme_3.1-144           
+##  [76] bit64_0.9-7             fs_1.3.2                purrr_0.3.3            
+##  [79] RANN_2.6.1              pbapply_1.4-2           nlme_3.1-145           
 ##  [82] slam_0.1-47             xml2_1.2.2              compiler_3.6.1         
-##  [85] rstudioapi_0.11         tibble_2.1.3            RNeXML_2.4.2           
+##  [85] rstudioapi_0.11         tibble_2.1.3            RNeXML_2.4.3           
 ##  [88] stringi_1.4.6           desc_1.2.0              RSpectra_0.16-0        
 ##  [91] lattice_0.20-40         HSMMSingleCell_1.6.0    vctrs_0.2.3            
-##  [94] pillar_1.4.3            lifecycle_0.1.0         combinat_0.0-8         
+##  [94] pillar_1.4.3            lifecycle_0.2.0         combinat_0.0-8         
 ##  [97] zinbwave_1.8.0          bitops_1.0-6            R6_2.4.1               
 ## [100] gridExtra_2.3           codetools_0.2-16        MASS_7.3-51.5          
 ## [103] assertthat_0.2.1        rhdf5_2.30.1            pkgmaker_0.31          
