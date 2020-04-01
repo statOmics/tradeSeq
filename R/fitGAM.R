@@ -392,9 +392,8 @@ setMethod(f = "fitGAM",
               pseudotime = pseudotime,
               cellWeights = cellWeights)
             # tradeSeq gene-level info
-            df <- tibble::enframe(gamOutput$Sigma)
-            colnames(df)[2] <- "Sigma"
-            df$beta <- tibble::tibble(gamOutput$beta)
+            df <- tibble::enframe(gamOutput$Sigma, value = "Sigma")
+            df$beta <- tibble::tibble(beta = gamOutput$beta)
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
             SummarizedExperiment::colData(sc)$tradeSeq <- tibble::tibble(X = X,
