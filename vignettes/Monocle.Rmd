@@ -70,7 +70,7 @@ You can then analyse the `sce` object following the [main vignette](https://bioc
 
 # Monocle3
 
-As of now (02/2020), monocle3[@Cao], is still in its beta version. Therefore, we have no plan yet to include a S4 method for monocle3 while it is not on CRAN or Bioconductor and the format is still moving. However, we present below a way to use `tradeSeq` downstream of `monocle3` as of version '0.2', for a fully connected graph. We follow the tutorial from the [monocle3 website](https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/). 
+As of now (02/2020), monocle3[@Cao2019], is still in its beta version. Therefore, we have no plan yet to include a S4 method for monocle3 while it is not on CRAN or Bioconductor and the format is still moving. However, we present below a way to use `tradeSeq` downstream of `monocle3` as of version '0.2', for a fully connected graph. We follow the tutorial from the [monocle3 website](https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/). 
 
 ## Constructing the trajectory
 
