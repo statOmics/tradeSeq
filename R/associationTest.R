@@ -95,11 +95,12 @@
       }
     }
   }
+  L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
 
 
   # perform global statistical test for every model
   if (global) {
-    L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
+    # L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
     if (!sce) {
       waldResultsOmnibus <- lapply(models, function(m){
         if (is(m, "try-error")) return(c(NA, NA, NA))
