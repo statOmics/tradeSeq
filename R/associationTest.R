@@ -161,26 +161,26 @@
   }
 
   ## get fold changes for output
-  if(!sce){
+  if (!sce) {
     fcAll <- lapply(models, function(m){
-      if(is(m, "try-error")) return(NA)
+      if (is(m, "try-error")) return(NA)
       betam <- coef(m)
       fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
     })
     fcMedian <- rowMedians(abs(do.call(rbind, fcAll)))
 
-  } else if(sce){
+  } else if (sce) {
     betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
     fcAll <- apply(betaAll,1,function(betam){
-      if(any(is.na(betam))) return(NA)
+      if (any(is.na(betam))) return(NA)
       .getFoldChanges(betam, L)
     })
-    if(is(fcAll, "list")) fcAll <- do.call(rbind, fcAll)
-    if(is.null(dim(fcAll))){
+    if (is(fcAll, "list")) fcAll <- do.call(rbind, fcAll)
+    if (is.null(dim(fcAll))) {
         fcMedian <- abs(unlist(fcAll))
       } else {
-        fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol=1)
+        fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol = 1)
       }
   }
   # return output
@@ -200,6 +200,8 @@
 #' \code{\link{fitGAM}}.
 #' @param global If TRUE, test for all lineages simultaneously.
 #' @param lineages If TRUE, test for all lineages independently.
+#' @param l2fc The log2 fold change threshold to test against. Note, that
+#' this will affect both the global test and the pairwise comparisons.
 #' @importFrom magrittr %>%
 #' @examples
 #' set.seed(8)

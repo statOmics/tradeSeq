@@ -3,6 +3,7 @@
 \name{fitGAM}
 \alias{fitGAM}
 \alias{fitGAM,matrix-method}
+\alias{fitGAM,dgCMatrix-method}
 \alias{fitGAM,SingleCellExperiment-method}
 \alias{fitGAM,CellDataSet-method}
 \title{fitGAM}
@@ -10,6 +11,24 @@
 fitGAM(counts, ...)
 
 \S4method{fitGAM}{matrix}(
+  counts,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  U = NULL,
+  genes = seq_len(nrow(counts)),
+  weights = NULL,
+  offset = NULL,
+  nknots = 6,
+  verbose = TRUE,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  control = mgcv::gam.control(),
+  sce = TRUE,
+  family = "nb"
+)
+
+\S4method{fitGAM}{dgCMatrix}(
   counts,
   sds = NULL,
   pseudotime = NULL,

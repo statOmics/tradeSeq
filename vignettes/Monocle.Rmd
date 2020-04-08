@@ -49,9 +49,12 @@ We will fit developmental trajectories using the `monocle` package.
 
 ```{r, warning=FALSE, out.width="50%", fig.asp=.6}
 set.seed(200)
-df <- data.frame(cells = colnames(counts), cellType = celltype)
-rownames(df) <- df$cells
-cds <- newCellDataSet(counts, phenoData = new("AnnotatedDataFrame", data = df))
+pd <- data.frame(cells = colnames(counts), cellType = celltype)
+rownames(pd) <- pd$cells
+fd <- data.frame(gene_short_name = rownames(counts))
+rownames(fd) <- fd$gene_short_name
+cds <- newCellDataSet(counts, phenoData = new("AnnotatedDataFrame", data = pd),
+                      featureData = new("AnnotatedDataFrame", data = fd))
 cds <- estimateSizeFactors(cds)
 cds <- reduceDimension(cds, max_components = 2)
 cds <- orderCells(cds)
