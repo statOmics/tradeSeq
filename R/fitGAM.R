@@ -475,6 +475,42 @@ setMethod(f = "fitGAM",
             return(sc)
           }
 )
+#' @rdname fitGAM
+setMethod(f = "fitGAM",
+          signature = c(counts = "dgCMatrix"),
+          definition = function(counts,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
+                                U = NULL,
+                                genes = seq_len(nrow(counts)),
+                                weights = NULL,
+                                offset = NULL,
+                                nknots = 6,
+                                verbose = TRUE,
+                                parallel = FALSE,
+                                BPPARAM = BiocParallel::bpparam(),
+                                control = mgcv::gam.control(),
+                                sce = TRUE,
+                                family = "nb"){
+            gamOutput <- fitGAM(counts = as.matrix(counts),
+                                U = U,
+                                sds = sds,
+                                pseudotime = pseudotime,
+                                cellWeights = cellWeights,
+                                genes = genes,
+                                weights = weights,
+                                offset = offset,
+                                nknots = nknots,
+                                verbose = verbose,
+                                parallel = parallel,
+                                BPPARAM = BPPARAM,
+                                control = control,
+                                sce = sce,
+                                family = family)
+            return(gamOutput)
+          }
+)
 
 #' @rdname fitGAM
 #' @importFrom SummarizedExperiment assays colData
