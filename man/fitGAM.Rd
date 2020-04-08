@@ -78,7 +78,7 @@ fitGAM(counts, ...)
 }
 \arguments{
 \item{counts}{The count matrix of expression values, with genes
-in rows and cells in columns.}
+in rows and cells in columns. Can be a matrix or a sparse matrix.}
 
 \item{...}{parameters including:}
 
@@ -148,17 +148,7 @@ There are two ways to provide the required input in \code{fitGAM}.
 See Details and the vignette.
 }
 \details{
-\code{fitGAM} supports three different ways to input the required objects:
-\itemize{
-\item{"Count matrix and matrix of pseudotime and cellWeights input."}{
-Input count matrix using \code{counts} argument and
-pseudotimes and cellWeights as a matrix, with number of rows equal to
-number of cells, and number of columns equal to number of lineages.}
-\item{"Count matrix and Slingshot input."}{Input count matrix using
-\code{counts} argument and Slingshot object using \code{sds} argument.}
-\item{"SingleCellExperiment Object with slingshot run."}{
-Input SingleCellExperiment Object using \code{counts} argument.}
-}
+
 }
 \examples{
 set.seed(8)

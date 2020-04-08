@@ -321,7 +321,7 @@
 #'
 #' @rdname fitGAM
 #' @param counts The count matrix of expression values, with genes
-#' in rows and cells in columns.
+#' in rows and cells in columns. Can be a matrix or a sparse matrix.
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param sds an object of class \code{SlingshotDataSet}, typically obtained
@@ -359,16 +359,19 @@
 #' @param family The assumed distribution for the response. Is set to \code{"nb"}
 #' by default.
 #' @details
-#' \code{fitGAM} supports three different ways to input the required objects:
+#' \code{fitGAM} supports four different ways to input the required objects:
 #' \itemize{
-#' \item{"Count matrix and matrix of pseudotime and cellWeights input."}{
+#' \item{"Count matrix, matrix of pseudotime and matrix of cellWeights."}{
 #' Input count matrix using \code{counts} argument and
 #' pseudotimes and cellWeights as a matrix, with number of rows equal to
 #' number of cells, and number of columns equal to number of lineages.}
 #' \item{"Count matrix and Slingshot input."}{Input count matrix using
 #' \code{counts} argument and Slingshot object using \code{sds} argument.}
-#' \item{"SingleCellExperiment Object with slingshot run."}{
+#' \item{"SingleCellExperiment Object after running slingshot on the object."}{
 #' Input SingleCellExperiment Object using \code{counts} argument.}
+#' }
+#' \item{"CellDataSet object after running the \code{orderCells} function."}{
+#' Input CellDataSet Object using \code{counts} argument.}
 #' }
 #' @return
 #' If \code{sce=FALSE}, returns a list of length equal to the number of genes
