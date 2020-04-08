@@ -22,6 +22,9 @@ associationTest(models, ...)
 \item{global}{If TRUE, test for all lineages simultaneously.}
 
 \item{lineages}{If TRUE, test for all lineages independently.}
+
+\item{l2fc}{The log2 fold change threshold to test against. Note, that
+this will affect both the global test and the pairwise comparisons.}
 }
 \value{
 A matrix with the wald statistic, the number of
