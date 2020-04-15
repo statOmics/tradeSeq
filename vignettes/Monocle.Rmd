@@ -81,18 +81,28 @@ You will need to install monocle3 from [here](https://cole-trapnell-lab.github.i
 
 ```{r, eval = FALSE}
 library(monocle3)
+# Create a cell_data_set object
 cds <- new_cell_data_set(counts, cell_metadata = df,
                 gene_metadata = data.frame(gene_short_name = rownames(counts),
                                            row.names = rownames(counts)))
+# Run PCA then UMAP on the data
 cds <- preprocess_cds(cds, method = "PCA")
 cds <- reduce_dimension(cds, preprocess_method = "PCA",
                         reduction_method = "UMAP")
+# First display, coloring by the cell types from Paul et al
 plot_cells(cds, label_groups_by_cluster = FALSE, cell_size = 1,
            color_cells_by = "cellType")
+
+# Running the clustering method. This is necessary to the construct the graph
 cds <- cluster_cells(cds, reduction_method = "UMAP")
+# Visualize the clusters
 plot_cells(cds, color_cells_by = "cluster", cell_size = 1)
+# Construct the graph
+# Note that, for the rest of the code to run, the graph should be fully connected
 cds <- learn_graph(cds, use_partition = FALSE)
-# Find root 
+
+# Find the root of the graph, i.e the node that is closest to the
+# cell labelled Multipotent progenitors
 cell_ids <- which(celltype ==  "Multipotent progenitors")
 closest_vertex <- 
   cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
