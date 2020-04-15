@@ -369,10 +369,8 @@
 #' \code{counts} argument and Slingshot object using \code{sds} argument.}
 #' \item{"SingleCellExperiment Object after running slingshot on the object."}{
 #' Input SingleCellExperiment Object using \code{counts} argument.}
-#' }
 #' \item{"CellDataSet object after running the \code{orderCells} function."}{
-#' Input CellDataSet Object using \code{counts} argument.}
-#' }
+#' Input CellDataSet Object using \code{counts} argument.}}
 #' @return
 #' If \code{sce=FALSE}, returns a list of length equal to the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a

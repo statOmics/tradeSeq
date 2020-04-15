@@ -148,7 +148,18 @@ There are two ways to provide the required input in \code{fitGAM}.
 See Details and the vignette.
 }
 \details{
-
+\code{fitGAM} supports four different ways to input the required objects:
+\itemize{
+\item{"Count matrix, matrix of pseudotime and matrix of cellWeights."}{
+Input count matrix using \code{counts} argument and
+pseudotimes and cellWeights as a matrix, with number of rows equal to
+number of cells, and number of columns equal to number of lineages.}
+\item{"Count matrix and Slingshot input."}{Input count matrix using
+\code{counts} argument and Slingshot object using \code{sds} argument.}
+\item{"SingleCellExperiment Object after running slingshot on the object."}{
+Input SingleCellExperiment Object using \code{counts} argument.}
+\item{"CellDataSet object after running the \code{orderCells} function."}{
+Input CellDataSet Object using \code{counts} argument.}}
 }
 \examples{
 set.seed(8)

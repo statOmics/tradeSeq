@@ -168,7 +168,7 @@
       fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
     })
-    fcMedian <- rowMedians(abs(do.call(rbind, fcAll)))
+    fcMean <- rowMeans(abs(do.call(rbind, fcAll)))
 
   } else if (sce) {
     betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
@@ -178,16 +178,16 @@
     })
     if (is(fcAll, "list")) fcAll <- do.call(rbind, fcAll)
     if (is.null(dim(fcAll))) {
-        fcMedian <- abs(unlist(fcAll))
+        fcMean <- abs(unlist(fcAll))
       } else {
-        fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol = 1)
+        fcMean <- matrix(rowMeans(abs(t(fcAll))), ncol = 1)
       }
   }
   # return output
-  if (global == TRUE & lineages == FALSE) return(cbind(waldResults, medianLogFC = fcMedian))
-  if (global == FALSE & lineages == TRUE) return(cbind(waldResAllLineages, medianLogFC = fcMedian))
+  if (global == TRUE & lineages == FALSE) return(cbind(waldResults, meanLogFC = fcMean))
+  if (global == FALSE & lineages == TRUE) return(cbind(waldResAllLineages, meanLogFC = fcMean))
   if (global == TRUE & lineages == TRUE) {
-    waldAll <- cbind(waldResults, waldResAllLineages, medianLogFC = fcMedian)
+    waldAll <- cbind(waldResults, waldResAllLineages, meanLogFC = fcMean)
     return(waldAll)
   }
 }
