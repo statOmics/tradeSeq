@@ -6,19 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fitting the models and additional control of fitGAM in **tradeSeq** • tradeSeq</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Fitting the models and additional control of fitGAM in **tradeSeq**">
-<meta property="og:description" content="">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="tradeSeq">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.16</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.18</span>
       </span>
     </div>
 
@@ -65,7 +65,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/statOmics/tradeSeq/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -78,13 +85,13 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Fitting the models and additional control of fitGAM in <strong>tradeSeq</strong>
+      <h1 data-toc-skip>Fitting the models and additional control of fitGAM in <strong>tradeSeq</strong>
 </h1>
                         <h4 class="author">Koen Van den Berge and Hector Roux de Bézieux</h4>
             
             <h4 class="date">25/02/2020</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/statOmics/tradeSeq/blob/master/vignettes/fitGAM.Rmd"><code>vignettes/fitGAM.Rmd</code></a></small>
       <div class="hidden name"><code>fitGAM.Rmd</code></div>
 
     </div>
@@ -101,31 +108,31 @@
 <h1 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h1>
 <p>To install the package, simply run</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(<span class="st">"BiocManager"</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {</span>
-<span id="cb1-2"><a href="#cb1-2"></a> <span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"BiocManager"</span>) </span>
-<span id="cb1-3"><a href="#cb1-3"></a>}</span>
-<span id="cb1-4"><a href="#cb1-4"></a>BiocManager<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">"tradeSeq"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="kw">if</span>(!<span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(<span class="st">"BiocManager"</span>, <span class="kw">quietly</span> <span class="kw">=</span> <span class="fl">TRUE</span>)) {
+ <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"BiocManager"</span>)
+}
+<span class="kw pkg">BiocManager</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">"tradeSeq"</span>)</pre></body></html></div>
 <p>Alternatively, the development version can be installed from GitHub at <a href="https://github.com/statOmics/tradeSeq" class="uri">https://github.com/statOmics/tradeSeq</a>.</p>
 </div>
 <div id="load-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#load-data" class="anchor"></a>Load data</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tradeSeq)</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(RColorBrewer)</span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(SingleCellExperiment)</span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(slingshot)</span>
-<span id="cb2-5"><a href="#cb2-5"></a></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="co"># For reproducibility</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">RNGversion</a></span>(<span class="st">"3.5.0"</span>)</span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="kw"><a href="https://rdrr.io/r/grDevices/palette.html">palette</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span>(<span class="dv">8</span>, <span class="st">"Dark2"</span>))</span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(countMatrix, <span class="dt">package =</span> <span class="st">"tradeSeq"</span>)</span>
-<span id="cb2-10"><a href="#cb2-10"></a>counts &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(countMatrix)</span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="kw"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(countMatrix)</span>
-<span id="cb2-12"><a href="#cb2-12"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(crv, <span class="dt">package =</span> <span class="st">"tradeSeq"</span>)</span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(celltype, <span class="dt">package =</span> <span class="st">"tradeSeq"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">tradeSeq</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">RColorBrewer</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">SingleCellExperiment</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">slingshot</span>)
+
+<span class="co"># For reproducibility</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">RNGversion</a></span>(<span class="st">"3.5.0"</span>)
+<span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html">palette</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span>(<span class="fl">8</span>, <span class="st">"Dark2"</span>))
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">countMatrix</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"tradeSeq"</span>)
+<span class="no">counts</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="no">countMatrix</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(<span class="no">countMatrix</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">crv</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"tradeSeq"</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">celltype</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"tradeSeq"</span>)</pre></body></html></div>
 <p>We find two lineages for this dataset. The trajectory can be visualized using the <code>plotGeneCount</code> function, using either the cluster labels or cell type to color the cells.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="dt">curve =</span> crv, <span class="dt">clusters =</span> celltype, </span>
-<span id="cb3-2"><a href="#cb3-2"></a>              <span class="dt">title =</span> <span class="st">"Colored by cell type"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">curve</span> <span class="kw">=</span> <span class="no">crv</span>, <span class="kw">clusters</span> <span class="kw">=</span> <span class="no">celltype</span>,
+              <span class="kw">title</span> <span class="kw">=</span> <span class="st">"Colored by cell type"</span>)</pre></body></html></div>
 <p><img src="fitGAM_files/figure-html/unnamed-chunk-4-1.png" width="50%"></p>
 </div>
 <div id="choosing-k-a-deeper-dive-into-the-output-from-evaluatek" class="section level1">
@@ -136,18 +143,18 @@
 <p>Ideally, the number of knots should be selected to reach an optimal bias-variance trade-off for the smoother, where one explains as much variability in the expression data as possible with only a few regression coefficients. In order to guide that choice, we developed diagnostic plots using the Akaike Informaction Criterion (AIC). This is implemented in the <code>evaluateK</code> function in <code>tradeSeq</code>. The function takes as input the expression count matrix, and the trajectory information, which can be either a <code>SlingshotDataSet</code>, or a matrix of pseudotimes and cell-level weights from any trajectory inference object. The range of knots to evaluate is provided with the <code>knots</code> argument. The minimum allowed number of knots is <span class="math inline">\(3\)</span>. While there is no boundary on the maximum number of knots, typically the interesting range is around <span class="math inline">\(3\)</span> to <span class="math inline">\(10\)</span> knots. The <code>evaluateK</code> function will fit NB-GAM models for some random subset of genes, provided by the <code>nGenes</code> argument, over the range of knots that are provided, and return the AIC for each gene fitted with each number of knots. It is generally a good idea to evaluate this multiple times using different seeds (using the <code>set.seed</code> function), to check whether the results are reproducible across different gene subsets.</p>
 <p>By default, <code>evaluateK</code> outputs diagnostic plots that should help in deciding on an appropriate number of knots. If you want to use the different diagnostic plots to choose the number of knots when fitting the smoothers, you can disable to plotting option and store the AIC values in an object.</p>
 <p>Below, we use the Slingshot object to run the function.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co">### Based on Slingshot object</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">6</span>)</span>
-<span id="cb4-3"><a href="#cb4-3"></a>icMat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">sds =</span> crv, <span class="dt">k =</span> <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>, <span class="dt">nGenes =</span> <span class="dv">100</span>,</span>
-<span id="cb4-4"><a href="#cb4-4"></a>                   <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">plot =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(icMat[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, ])</span>
-<span id="cb4-6"><a href="#cb4-6"></a></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="co">### Downstream of any trajectory inference method using pseudotime and cell weights</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">7</span>)</span>
-<span id="cb4-9"><a href="#cb4-9"></a>pseudotime &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(crv, <span class="dt">na=</span><span class="ot">FALSE</span>)</span>
-<span id="cb4-10"><a href="#cb4-10"></a>cellWeights &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(crv)</span>
-<span id="cb4-11"><a href="#cb4-11"></a>icMat2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="dt">counts =</span> counts, <span class="dt">pseudotime =</span> pseudotime, <span class="dt">cellWeights =</span> cellWeights,</span>
-<span id="cb4-12"><a href="#cb4-12"></a>                   <span class="dt">k=</span><span class="dv">3</span><span class="op">:</span><span class="dv">7</span>, <span class="dt">nGenes =</span> <span class="dv">100</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">plot =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co">### Based on Slingshot object</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">6</span>)
+<span class="no">icMat</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="kw">counts</span> <span class="kw">=</span> <span class="no">counts</span>, <span class="kw">sds</span> <span class="kw">=</span> <span class="no">crv</span>, <span class="kw">k</span> <span class="kw">=</span> <span class="fl">3</span>:<span class="fl">7</span>, <span class="kw">nGenes</span> <span class="kw">=</span> <span class="fl">100</span>,
+                   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">plot</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="no">icMat</span>[<span class="fl">1</span>:<span class="fl">2</span>, ])
+
+<span class="co">### Downstream of any trajectory inference method using pseudotime and cell weights</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">7</span>)
+<span class="no">pseudotime</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(<span class="no">crv</span>, <span class="kw">na</span><span class="kw">=</span><span class="fl">FALSE</span>)
+<span class="no">cellWeights</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(<span class="no">crv</span>)
+<span class="no">icMat2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/evaluateK.html">evaluateK</a></span>(<span class="kw">counts</span> <span class="kw">=</span> <span class="no">counts</span>, <span class="kw">pseudotime</span> <span class="kw">=</span> <span class="no">pseudotime</span>, <span class="kw">cellWeights</span> <span class="kw">=</span> <span class="no">cellWeights</span>,
+                   <span class="kw">k</span><span class="kw">=</span><span class="fl">3</span>:<span class="fl">7</span>, <span class="kw">nGenes</span> <span class="kw">=</span> <span class="fl">100</span>, <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">plot</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
 <p>The output graphics are organized into four panels. The left panel plots a boxplot for each number of knots we wanted to evaluate. The plotted values are the deviation from a gene’s AIC at that specific knot value from the average AIC of that gene across all the knots under evaluation. Typically, AIC values are somewhat higher for low number of knots, and we expect them to decrease as the number of knots gets higher. The two middle panels plot the average drop in AIC across all genes. The middle left panel simply plots the average AIC, while the middle right panel plots the change in AIC relative to the average AIC at the lowest knot number (here, this is 3 knots, as can also be seen from the plot since the relative AIC equals <span class="math inline">\(1\)</span>). Finally, the right panel only plots a subset of genes where the AIC value changes significantly across the evaluated number of knots. Here, a significant change is defined as a change in absolute value of at least <span class="math inline">\(2\)</span>, but this can be tuned using the <code>aicDiff</code> argument to <code>evaluateK</code>. For the subset of genes, a barplot is displayed that shows the number of genes that have their lowest AIC at a specific knot value.</p>
 <p>The middle panels show that the drop in AIC levels off if the number of knots is increased beyond <span class="math inline">\(6\)</span>, and we will choose that number of knots to fit the <code>tradeSeq</code> models.</p>
 </div>
@@ -159,22 +166,22 @@
 <p>Similar to <code>evaluateK</code>, fitGAM can either take a <code>SlingshotDataSet</code> object as input (<code>sds</code> argument), or a matrix of pseudotimes and cell-level weights (<code>pseudotime</code> and <code>cellWeights</code> argument). By default, the returned object will be a <code>SingleCellExperiment</code> object that contains all essential output from the model fitting. Note, that also a more extensive output may be requested by setting <code>sce=FALSE</code>, but this is much less memory efficient, see below in Section `tradeSeq list output’.</p>
 <p>Because cells are assigned to a lineage based on their weights, the result of <code>fitGAM</code> is stochastic. While this should have limited impact on the overall results in practice, users are therefore encouraged to use the <code>set.seed</code> function before running <code>fitGAM</code> to ensure reproducibility of their analyses.</p>
 <p>Below, we show two ways in which you can provide the required input to <code>fitGAM</code>: downstream of any trajectory inference method and downstream of <code>slingshot</code>. To follow progress with a progress bar, set <code>verbose=TRUE</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">### Based on Slingshot object</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">6</span>)</span>
-<span id="cb5-3"><a href="#cb5-3"></a>sce &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts, <span class="dt">sds =</span> crv, <span class="dt">nknots =</span> <span class="dv">6</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb5-4"><a href="#cb5-4"></a></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="co">### Downstream of any trajectory inference method using pseudotime and cell weights</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">7</span>)</span>
-<span id="cb5-7"><a href="#cb5-7"></a>pseudotime &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb5-8"><a href="#cb5-8"></a>cellWeights &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(crv)</span>
-<span id="cb5-9"><a href="#cb5-9"></a>sce &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts, <span class="dt">pseudotime =</span> pseudotime, <span class="dt">cellWeights =</span> cellWeights,</span>
-<span id="cb5-10"><a href="#cb5-10"></a>                 <span class="dt">nknots =</span> <span class="dv">6</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="co">### Based on Slingshot object</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">6</span>)
+<span class="no">sce</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="kw">counts</span> <span class="kw">=</span> <span class="no">counts</span>, <span class="kw">sds</span> <span class="kw">=</span> <span class="no">crv</span>, <span class="kw">nknots</span> <span class="kw">=</span> <span class="fl">6</span>, <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
+
+<span class="co">### Downstream of any trajectory inference method using pseudotime and cell weights</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">7</span>)
+<span class="no">pseudotime</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(<span class="no">crv</span>, <span class="kw">na</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
+<span class="no">cellWeights</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(<span class="no">crv</span>)
+<span class="no">sce</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="kw">counts</span> <span class="kw">=</span> <span class="no">counts</span>, <span class="kw">pseudotime</span> <span class="kw">=</span> <span class="no">pseudotime</span>, <span class="kw">cellWeights</span> <span class="kw">=</span> <span class="no">cellWeights</span>,
+                 <span class="kw">nknots</span> <span class="kw">=</span> <span class="fl">6</span>, <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></body></html></div>
 <div id="parallel-computing" class="section level2">
 <h2 class="hasAnchor">
 <a href="#parallel-computing" class="anchor"></a>Parallel computing</h2>
 <p>If large datasets are being analyzed, <code>fitGAM</code> may be running for quite some time. We have implemented support for parallelization using <code>BiocParallel</code>. Parallelization options can be provided through the <code>BPPARAM</code> argument, as shown below.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>BPPARAM &lt;-<span class="st"> </span>BiocParallel<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html">bpparam</a></span>()</span>
-<span id="cb6-2"><a href="#cb6-2"></a>BPPARAM <span class="co"># lists current options</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">BPPARAM</span> <span class="kw">&lt;-</span> <span class="kw pkg">BiocParallel</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html">bpparam</a></span>()
+<span class="no">BPPARAM</span> <span class="co"># lists current options</span></pre></body></html></div>
 <pre><code>## class: MulticoreParam
 ##   bpisup: FALSE; bpnworkers: 2; bptasks: 0; bpjobname: BPJOB
 ##   bplog: FALSE; bpthreshold: INFO; bpstopOnError: TRUE
@@ -183,17 +190,17 @@
 ##   bplogdir: NA
 ##   bpresultdir: NA
 ##   cluster type: FORK</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>BPPARAM<span class="op">$</span>workers &lt;-<span class="st"> </span><span class="dv">2</span> <span class="co"># use 2 cores</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a></span>
-<span id="cb8-3"><a href="#cb8-3"></a>sce &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts, <span class="dt">pseudotime =</span> pseudotime, <span class="dt">cellWeights =</span> cellWeights,</span>
-<span id="cb8-4"><a href="#cb8-4"></a>                 <span class="dt">nknots =</span> <span class="dv">6</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">BPPARAM =</span> BPPARAM)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">BPPARAM</span>$<span class="no">workers</span> <span class="kw">&lt;-</span> <span class="fl">2</span> <span class="co"># use 2 cores</span>
+
+<span class="no">sce</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="kw">counts</span> <span class="kw">=</span> <span class="no">counts</span>, <span class="kw">pseudotime</span> <span class="kw">=</span> <span class="no">pseudotime</span>, <span class="kw">cellWeights</span> <span class="kw">=</span> <span class="no">cellWeights</span>,
+                 <span class="kw">nknots</span> <span class="kw">=</span> <span class="fl">6</span>, <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">BPPARAM</span> <span class="kw">=</span> <span class="no">BPPARAM</span>)</pre></body></html></div>
 </div>
 <div id="fitting-only-a-subset-of-genes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-only-a-subset-of-genes" class="anchor"></a>Fitting only a subset of genes</h2>
 <p>It may be of interest to only fit the NB-GAM for a subset of genes, but use the information across all genes to perform the normalization. This can be achieved using the <code>genes</code> argument in <code>fitGAM</code>, which accepts a numeric vector specifying the rows of the count matrix for which the models should be fitted.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>sce25 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="dt">counts =</span> counts, <span class="dt">pseudotime =</span> pseudotime, <span class="dt">cellWeights =</span> cellWeights,</span>
-<span id="cb9-2"><a href="#cb9-2"></a>                 <span class="dt">nknots =</span> <span class="dv">6</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">genes =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">25</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">sce25</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="kw">counts</span> <span class="kw">=</span> <span class="no">counts</span>, <span class="kw">pseudotime</span> <span class="kw">=</span> <span class="no">pseudotime</span>, <span class="kw">cellWeights</span> <span class="kw">=</span> <span class="no">cellWeights</span>,
+                 <span class="kw">nknots</span> <span class="kw">=</span> <span class="fl">6</span>, <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">genes</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">25</span>)</pre></body></html></div>
 </div>
 <div id="zero-inflation" class="section level2">
 <h2 class="hasAnchor">
@@ -204,7 +211,7 @@
 <h2 class="hasAnchor">
 <a href="#convergence-issues-on-small-or-zero-inflated-datasets" class="anchor"></a>Convergence issues on small or zero-inflated datasets</h2>
 <p>If you’re working with a dataset that has a limited number of cells, or if you are incorporating zero inflation weights, the NB-GAMs may be harder to fit, as noted by the warnings when running <code>fitGAM</code>. In that case, the situation might improve if you allow for more iterations in the GAM fitting. This can be done with the <code>control</code> argument of <code>fitGAM</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mgcv)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">mgcv</span>)</pre></body></html></div>
 <pre><code>## Loading required package: nlme</code></pre>
 <pre><code>## 
 ## Attaching package: 'nlme'</code></pre>
@@ -212,25 +219,25 @@
 ## 
 ##     collapse</code></pre>
 <pre><code>## This is mgcv 1.8-31. For overview type 'help("mgcv-package")'.</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>control &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/mgcv/man/gam.control.html">gam.control</a></span>()</span>
-<span id="cb15-2"><a href="#cb15-2"></a>control<span class="op">$</span>maxit &lt;-<span class="st"> </span><span class="dv">1000</span> <span class="co">#set maximum number of iterations to 1K</span></span>
-<span id="cb15-3"><a href="#cb15-3"></a><span class="co"># pass to control argument of fitGAM as below:</span></span>
-<span id="cb15-4"><a href="#cb15-4"></a><span class="co"># </span></span>
-<span id="cb15-5"><a href="#cb15-5"></a><span class="co"># gamList &lt;- fitGAM(counts = counts,</span></span>
-<span id="cb15-6"><a href="#cb15-6"></a><span class="co">#                   pseudotime = slingPseudotime(crv, na = FALSE),</span></span>
-<span id="cb15-7"><a href="#cb15-7"></a><span class="co">#                   cellWeights = slingCurveWeights(crv),</span></span>
-<span id="cb15-8"><a href="#cb15-8"></a><span class="co">#                   control = control)</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">control</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mgcv/man/gam.control.html">gam.control</a></span>()
+<span class="no">control</span>$<span class="no">maxit</span> <span class="kw">&lt;-</span> <span class="fl">1000</span> <span class="co">#set maximum number of iterations to 1K</span>
+<span class="co"># pass to control argument of fitGAM as below:</span>
+<span class="co"># </span>
+<span class="co"># gamList &lt;- fitGAM(counts = counts,</span>
+<span class="co">#                   pseudotime = slingPseudotime(crv, na = FALSE),</span>
+<span class="co">#                   cellWeights = slingCurveWeights(crv),</span>
+<span class="co">#                   control = control)</span></pre></body></html></div>
 </div>
 <div id="tradeseq-list-output" class="section level2">
 <h2 class="hasAnchor">
 <a href="#tradeseq-list-output" class="anchor"></a>tradeSeq list output</h2>
 <p>The output from <code>fitGAM</code> will be different if one sets <code>sce=FALSE</code>, and less memory efficient. Instead of a <code>SingleCellExperiment</code> object, it will return a list with all fitted <code>mgcv</code> models. Most functions we have discussed above work exactly the same with the list output. However, the list output functionality is a little bit bigger, and here we discuss some capabilities that are only available with the list output.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>gamList &lt;-<span class="st"> </span><span class="kw"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts,</span>
-<span id="cb16-2"><a href="#cb16-2"></a>                  <span class="dt">pseudotime =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(crv, <span class="dt">na =</span> <span class="ot">FALSE</span>),</span>
-<span id="cb16-3"><a href="#cb16-3"></a>                  <span class="dt">cellWeights =</span> <span class="kw"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(crv),</span>
-<span id="cb16-4"><a href="#cb16-4"></a>                  <span class="dt">nknots =</span> <span class="dv">6</span>, <span class="dt">sce =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">gamList</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="no">counts</span>,
+                  <span class="kw">pseudotime</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(<span class="no">crv</span>, <span class="kw">na</span> <span class="kw">=</span> <span class="fl">FALSE</span>),
+                  <span class="kw">cellWeights</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(<span class="no">crv</span>),
+                  <span class="kw">nknots</span> <span class="kw">=</span> <span class="fl">6</span>, <span class="kw">sce</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></body></html></div>
 <p>First, one may explore the results of a model by requesting its summary.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(gamList[[<span class="st">"Irf8"</span>]])</span></code></pre></div>
+<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">gamList</span><span class="kw">[[</span><span class="st">"Irf8"</span>]])</pre></body></html></div>
 <pre><code>## 
 ## Family: Negative Binomial(2.213) 
 ## Link function: log 
@@ -256,18 +263,18 @@
 ## R-sq.(adj) =  0.532   Deviance explained =   64%
 ## -REML = 2028.5  Scale est. = 1         n = 2660</code></pre>
 <p>Related to the <code>associationTest</code>, one can extract the p-values generated by the <code>mgcv</code> package using the <code>getSmootherPvalues</code> function. These p-values are derived from a test that assesses the null hypothesis that all smoother coefficients are equal to zero. Note, however, that their interpretation is thus more complex. A significant lineage for a particular gene might thus be the result of (a) a different mean expression in that lineage as compared to the overall expression of that gene, or (b) significantly varying expression along that lineage, even if the means are equal, or (c) a combination of both. This function extracts the p-values calculated by <code>mgcv</code> from the GAM, and will return <code>NA</code> for genes that we were unable to fit properly. Similarly, the test statistics may be extracted with <code>getSmootherTestStats</code>. Since this dataset was pre-filtered to only contain relevant genes, all p-values (test statistics) will be very low (high). Note, that these functions are only applicable with the list output of <code>tradeSeq</code>, and not with the <code>SingleCellExperiment</code> output. We will therefore not evaluate these here.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>pvalLineage &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getSmootherPvalues.html">getSmootherPvalues</a></span>(gamList)</span>
-<span id="cb19-2"><a href="#cb19-2"></a>statLineage &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getSmootherTestStats.html">getSmootherTestStats</a></span>(gamList)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="no">pvalLineage</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getSmootherPvalues.html">getSmootherPvalues</a></span>(<span class="no">gamList</span>)
+<span class="no">statLineage</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getSmootherTestStats.html">getSmootherTestStats</a></span>(<span class="no">gamList</span>)</pre></body></html></div>
 <p>Also, the list output could be a good starting point for users that want to develop their own tests. A number of tests have been implemented in tradeSeq, but researchers may be interested in other hypotheses that current implementations may not be able to address. We therefore welcome contributions on GitHub on novel tests based on the tradeSeq model. Similar, you may also request novel tests to be implemented in tradeSeq by the developers, preferably by adding <a href="https://github.com/statOmics/tradeSeq/issues">an issue on the GitHub repository</a>. If we feel that the suggested test is widely applicable, we will implement it in tradeSeq.</p>
 </div>
 </div>
 <div id="session" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session" class="anchor"></a>Session</h1>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</span></code></pre></div>
+<div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</pre></body></html></div>
 <pre><code>## R version 3.6.1 (2019-07-05)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS Catalina 10.15.3
+## Running under: macOS Catalina 10.15.4
 ## 
 ## Matrix products: default
 ## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
@@ -290,55 +297,56 @@
 ##  [3] slingshot_1.4.0             princurve_2.1.4            
 ##  [5] SingleCellExperiment_1.8.0  SummarizedExperiment_1.16.1
 ##  [7] DelayedArray_0.12.2         BiocParallel_1.20.1        
-##  [9] matrixStats_0.55.0          GenomicRanges_1.38.0       
-## [11] GenomeInfoDb_1.22.0         IRanges_2.20.2             
+##  [9] matrixStats_0.56.0          GenomicRanges_1.38.0       
+## [11] GenomeInfoDb_1.22.1         IRanges_2.20.2             
 ## [13] S4Vectors_0.24.3            RColorBrewer_1.1-2         
-## [15] tradeSeq_1.1.16             bigmemory_4.5.36           
+## [15] tradeSeq_1.1.18             bigmemory_4.5.36           
 ## [17] Biobase_2.46.0              BiocGenerics_0.32.0        
 ## [19] knitr_1.28                 
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] uuid_0.1-4              backports_1.1.5         VGAM_1.1-2             
-##   [4] NMF_0.22.0              plyr_1.8.6              igraph_1.2.4.2         
+##   [1] uuid_0.1-4              backports_1.1.6         VGAM_1.1-2             
+##   [4] NMF_0.22.0              plyr_1.8.6              igraph_1.2.5           
 ##   [7] lazyeval_0.2.2          splines_3.6.1           densityClust_0.3       
 ##  [10] rncl_0.8.4              fastICA_1.2-2           ggplot2_3.3.0          
-##  [13] gridBase_0.4-7          digest_0.6.25           foreach_1.4.8          
-##  [16] htmltools_0.4.0         viridis_0.5.1           magrittr_1.5           
-##  [19] memoise_1.1.0           cluster_2.1.0           doParallel_1.0.15      
-##  [22] limma_3.42.2            annotate_1.64.0         docopt_0.6.1           
-##  [25] pkgdown_1.4.1           prettyunits_1.1.1       colorspace_1.4-1       
-##  [28] blob_1.2.1              ggrepel_0.8.1           xfun_0.12              
-##  [31] dplyr_0.8.5             sparsesvd_0.2           crayon_1.3.4           
-##  [34] RCurl_1.98-1.1          bigmemory.sri_0.1.3     genefilter_1.68.0      
-##  [37] phylobase_0.8.10        survival_3.1-11         iterators_1.0.12       
-##  [40] ape_5.3                 glue_1.3.1              registry_0.5-1         
-##  [43] gtable_0.3.0            zlibbioc_1.32.0         XVector_0.26.0         
-##  [46] kernlab_0.9-29          Rhdf5lib_1.8.0          HDF5Array_1.14.3       
-##  [49] scales_1.1.0            pheatmap_1.0.12         DBI_1.1.0              
-##  [52] edgeR_3.28.1            rngtools_1.5            bibtex_0.4.2.2         
-##  [55] Rcpp_1.0.3              viridisLite_0.3.0       xtable_1.8-4           
-##  [58] progress_1.2.2          bit_1.1-15.2            httr_1.4.1             
-##  [61] FNN_1.1.3               farver_2.0.3            pkgconfig_2.0.3        
-##  [64] XML_3.99-0.3            locfit_1.5-9.1          labeling_0.3           
-##  [67] howmany_0.3-1           tidyselect_1.0.0        rlang_0.4.5            
-##  [70] softImpute_1.4          reshape2_1.4.3          AnnotationDbi_1.48.0   
-##  [73] munsell_0.5.0           tools_3.6.1             RSQLite_2.2.0          
-##  [76] ade4_1.7-15             evaluate_0.14           stringr_1.4.0          
-##  [79] yaml_2.2.1              bit64_0.9-7             fs_1.3.2               
-##  [82] DDRTree_0.1.5           purrr_0.3.3             RANN_2.6.1             
-##  [85] pbapply_1.4-2           monocle_2.14.0          slam_0.1-47            
-##  [88] xml2_1.2.2              compiler_3.6.1          rstudioapi_0.11        
-##  [91] tibble_2.1.3            RNeXML_2.4.3            stringi_1.4.6          
-##  [94] desc_1.2.0              RSpectra_0.16-0         lattice_0.20-40        
-##  [97] Matrix_1.2-18           HSMMSingleCell_1.6.0    vctrs_0.2.3            
-## [100] pillar_1.4.3            lifecycle_0.2.0         combinat_0.0-8         
-## [103] zinbwave_1.8.0          bitops_1.0-6            irlba_2.3.3            
-## [106] R6_2.4.1                gridExtra_2.3           codetools_0.2-16       
-## [109] MASS_7.3-51.5           assertthat_0.2.1        rhdf5_2.30.1           
-## [112] pkgmaker_0.31           rprojroot_1.3-2         withr_2.1.2            
-## [115] qlcMatrix_0.9.7         GenomeInfoDbData_1.2.2  locfdr_1.1-8           
-## [118] hms_0.5.3               grid_3.6.1              tidyr_1.0.2            
-## [121] rmarkdown_2.1           Rtsne_0.15              clusterExperiment_2.6.1</code></pre>
+##  [13] gridBase_0.4-7          digest_0.6.25           foreach_1.5.0          
+##  [16] htmltools_0.4.0         viridis_0.5.1           fansi_0.4.1            
+##  [19] magrittr_1.5            memoise_1.1.0           cluster_2.1.0          
+##  [22] doParallel_1.0.15       limma_3.42.2            annotate_1.64.0        
+##  [25] docopt_0.6.1            pkgdown_1.5.0           prettyunits_1.1.1      
+##  [28] colorspace_1.4-1        blob_1.2.1              ggrepel_0.8.2          
+##  [31] xfun_0.12               dplyr_0.8.5             sparsesvd_0.2          
+##  [34] crayon_1.3.4            RCurl_1.98-1.1          bigmemory.sri_0.1.3    
+##  [37] genefilter_1.68.0       phylobase_0.8.10        survival_3.1-11        
+##  [40] iterators_1.0.12        ape_5.3                 glue_1.4.0             
+##  [43] registry_0.5-1          gtable_0.3.0            zlibbioc_1.32.0        
+##  [46] XVector_0.26.0          kernlab_0.9-29          Rhdf5lib_1.8.0         
+##  [49] HDF5Array_1.14.3        scales_1.1.0            pheatmap_1.0.12        
+##  [52] DBI_1.1.0               edgeR_3.28.1            rngtools_1.5           
+##  [55] bibtex_0.4.2.2          Rcpp_1.0.4              viridisLite_0.3.0      
+##  [58] xtable_1.8-4            progress_1.2.2          bit_1.1-15.2           
+##  [61] httr_1.4.1              FNN_1.1.3               ellipsis_0.3.0         
+##  [64] farver_2.0.3            pkgconfig_2.0.3         XML_3.99-0.3           
+##  [67] locfit_1.5-9.4          labeling_0.3            softImpute_1.4         
+##  [70] howmany_0.3-1           tidyselect_1.0.0        rlang_0.4.5            
+##  [73] reshape2_1.4.3          AnnotationDbi_1.48.0    munsell_0.5.0          
+##  [76] tools_3.6.1             cli_2.0.2               RSQLite_2.2.0          
+##  [79] ade4_1.7-15             evaluate_0.14           stringr_1.4.0          
+##  [82] yaml_2.2.1              bit64_0.9-7             fs_1.4.0               
+##  [85] DDRTree_0.1.5           purrr_0.3.3             RANN_2.6.1             
+##  [88] pbapply_1.4-2           monocle_2.14.0          slam_0.1-47            
+##  [91] xml2_1.3.0              compiler_3.6.1          rstudioapi_0.11        
+##  [94] tibble_3.0.0            RNeXML_2.4.3            stringi_1.4.6          
+##  [97] desc_1.2.0              RSpectra_0.16-0         lattice_0.20-40        
+## [100] Matrix_1.2-18           HSMMSingleCell_1.6.0    vctrs_0.2.4            
+## [103] pillar_1.4.3            lifecycle_0.2.0         combinat_0.0-8         
+## [106] zinbwave_1.8.0          bitops_1.0-6            irlba_2.3.3            
+## [109] R6_2.4.1                gridExtra_2.3           codetools_0.2-16       
+## [112] MASS_7.3-51.5           assertthat_0.2.1        rhdf5_2.30.1           
+## [115] pkgmaker_0.31.1         rprojroot_1.3-2         withr_2.1.2            
+## [118] qlcMatrix_0.9.7         GenomeInfoDbData_1.2.2  locfdr_1.1-8           
+## [121] hms_0.5.3               grid_3.6.1              tidyr_1.0.2            
+## [124] rmarkdown_2.1           Rtsne_0.15              clusterExperiment_2.6.1</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1 class="hasAnchor">
@@ -346,30 +354,11 @@
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-<li><a href="#introduction">Introduction</a></li>
-      <li><a href="#installation">Installation</a></li>
-      <li><a href="#load-data">Load data</a></li>
-      <li><a href="#choosing-k-a-deeper-dive-into-the-output-from-evaluatek">Choosing K: a deeper dive into the output from <strong>evaluateK</strong></a></li>
-      <li>
-<a href="#fit-additive-models">Fit additive models</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#parallel-computing">Parallel computing</a></li>
-      <li><a href="#fitting-only-a-subset-of-genes">Fitting only a subset of genes</a></li>
-      <li><a href="#zero-inflation">Zero inflation</a></li>
-      <li><a href="#convergence-issues-on-small-or-zero-inflated-datasets">Convergence issues on small or zero-inflated datasets</a></li>
-      <li><a href="#tradeseq-list-output">tradeSeq list output</a></li>
-      </ul>
-</li>
-      <li><a href="#session">Session</a></li>
-      <li><a href="#references">References</a></li>
-      </ul>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
 </div>
-      </div>
 
 </div>
 
@@ -380,7 +369,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
 </div>
 
       </footer>

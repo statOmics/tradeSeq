@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -40,7 +44,6 @@
 Van den Berge et al.[2019].
 There are two ways to provide the required input in fitGAM.
 See Details and the vignette." />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -58,7 +61,7 @@ See Details and the vignette." />
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -72,7 +75,7 @@ See Details and the vignette." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.16</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.18</span>
       </span>
     </div>
 
@@ -107,7 +110,12 @@ See Details and the vignette." />
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/statOmics/tradeSeq/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -122,7 +130,7 @@ See Details and the vignette." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>fitGAM</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/statOmics/tradeSeq/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/statOmics/tradeSeq/blob/master/R/fitGAM.R'><code>R/fitGAM.R</code></a></small>
     <div class="hidden name"><code>fitGAM.Rd</code></div>
     </div>
 
@@ -136,6 +144,25 @@ See Details and the vignette.</p>
     <pre class="usage"><span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for matrix</span>
+<span class='fu'>fitGAM</span>(
+  <span class='no'>counts</span>,
+  <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>genes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>counts</span>)),
+  <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
+  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
+  <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>
+)
+
+<span class='co'># S4 method for dgCMatrix</span>
 <span class='fu'>fitGAM</span>(
   <span class='no'>counts</span>,
   <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -192,7 +219,7 @@ See Details and the vignette.</p>
     <tr>
       <th>counts</th>
       <td><p>The count matrix of expression values, with genes
-in rows and cells in columns.</p></td>
+in rows and cells in columns. Can be a matrix or a sparse matrix.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -289,15 +316,17 @@ the <code>tradeSeq</code> results stored in the <code>rowData</code>,
 <code>colData</code> and <code>metadata</code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>fitGAM</code> supports three different ways to input the required objects:</p><ul>
-<li><p>"Count matrix and matrix of pseudotime and cellWeights input."
+    <p><code>fitGAM</code> supports four different ways to input the required objects:</p><ul>
+<li><p>"Count matrix, matrix of pseudotime and matrix of cellWeights."
 Input count matrix using <code>counts</code> argument and
 pseudotimes and cellWeights as a matrix, with number of rows equal to
 number of cells, and number of columns equal to number of lineages.</p></li>
 <li><p>"Count matrix and Slingshot input."Input count matrix using
 <code>counts</code> argument and Slingshot object using <code>sds</code> argument.</p></li>
-<li><p>"SingleCellExperiment Object with slingshot run."
+<li><p>"SingleCellExperiment Object after running slingshot on the object."
 Input SingleCellExperiment Object using <code>counts</code> argument.</p></li>
+<li><p>"CellDataSet object after running the <code>orderCells</code> function."
+Input CellDataSet Object using <code>counts</code> argument.</p></li>
 </ul>
 
 
@@ -309,15 +338,10 @@ Input SingleCellExperiment Object using <code>counts</code> argument.</p></li>
                   <span class='kw'>sds</span> <span class='kw'>=</span> <span class='no'>crv</span>,
                   <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -328,7 +352,7 @@ Input SingleCellExperiment Object using <code>counts</code> argument.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
 </div>
 
       </footer>

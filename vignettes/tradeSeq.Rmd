@@ -288,18 +288,14 @@ ysmooth <- predictSmooth(models = sce, gene = "Irf8", nPoints = 40)
 tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the `clusterExpressionPatterns` function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the `nPoints` argument. The `genes` argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset.
 The clustering itself occurs by the `clusterExperiment` package [@Risso2018], hence the user may select any clustering algorithm that's built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within `clusterExperiment`, run `clusterExperiment::listBuiltInFunctions()` on the command line.
 
-```{r, warning=FALSE,message=F, eval = F}
+```{r, warning=FALSE,message=F}
 library(clusterExperiment)
 nPointsClus <- 20
 clusPat <- clusterExpressionPatterns(sce, nPoints = nPointsClus,
                                      genes = rownames(counts)[1:100])
 clusterLabels <- primaryCluster(clusPat$rsec)
 ```
-```{r, echo = FALSE}
-nPointsClus <- 20
-clusPat <- readRDS("clusPat.rds")
-clusterLabels <- readRDS("clus.rds")
-```
+
 The first 4 clusters can be visualized using the normalized expression upon which the clustering is based. Please note that the code below would only works for a trajectory with two lineages. Modify the code appropriately if using with a dataset with 3 lineages or more. 
 
 ```{r, out.width="50%", fig.asp=1}
