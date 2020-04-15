@@ -57,7 +57,7 @@
 
 .get_offset <- function(offset, counts) {
   if (is.null(offset)) {
-    nf <- try(edgeR::calcNormFactors(counts))
+    nf <- try(edgeR::calcNormFactors(counts), silent=TRUE)
     if (is(nf, "try-error")) {
       message("TMM normalization failed. Will use unnormalized library sizes",
               "as offset.")
@@ -436,6 +436,14 @@ setMethod(f = "fitGAM",
               cellWeights <- slingCurveWeights(sds)
             }
 
+            if(any(is.na(pseudotime))){
+              stop("The pseudotimes contain NA values, and these cannot be used",
+              " for GAM fitting.")
+            }
+            if(any(is.na(cellWeights))){
+              stop("The cellWeights contain NA values, and these cannot be used",
+                   " for GAM fitting.")
+            }
 
             gamOutput <- .fitGAM(counts = counts,
                                  U = U,
