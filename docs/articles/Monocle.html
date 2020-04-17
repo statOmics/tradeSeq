@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.19</span>
       </span>
     </div>
 
@@ -157,15 +157,17 @@
 <h2 class="hasAnchor">
 <a href="#constructing-the-trajectory" class="anchor"></a>Constructing the trajectory</h2>
 <p>You will need to install monocle3 from <a href="https://cole-trapnell-lab.github.io/monocle3/docs/installation/">here</a> before running the code below.</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">monocle3</span>)
+<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">22</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">monocle3</span>)
 <span class="co"># Create a cell_data_set object</span>
-<span class="no">cds</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/new_cell_data_set.html">new_cell_data_set</a></span>(<span class="no">counts</span>, <span class="kw">cell_metadata</span> <span class="kw">=</span> <span class="no">df</span>,
+<span class="no">cds</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/new_cell_data_set.html">new_cell_data_set</a></span>(<span class="no">counts</span>, <span class="kw">cell_metadata</span> <span class="kw">=</span> <span class="no">pd</span>,
                 <span class="kw">gene_metadata</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">gene_short_name</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">counts</span>),
                                            <span class="kw">row.names</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">counts</span>)))
 <span class="co"># Run PCA then UMAP on the data</span>
 <span class="no">cds</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/preprocess_cds.html">preprocess_cds</a></span>(<span class="no">cds</span>, <span class="kw">method</span> <span class="kw">=</span> <span class="st">"PCA"</span>)
 <span class="no">cds</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/reduce_dimension.html">reduce_dimension</a></span>(<span class="no">cds</span>, <span class="kw">preprocess_method</span> <span class="kw">=</span> <span class="st">"PCA"</span>,
                         <span class="kw">reduction_method</span> <span class="kw">=</span> <span class="st">"UMAP"</span>)
+
 <span class="co"># First display, coloring by the cell types from Paul et al</span>
 <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/plot_cells.html">plot_cells</a></span>(<span class="no">cds</span>, <span class="kw">label_groups_by_cluster</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">cell_size</span> <span class="kw">=</span> <span class="fl">1</span>,
            <span class="kw">color_cells_by</span> <span class="kw">=</span> <span class="st">"cellType"</span>)
@@ -174,44 +176,57 @@
 <span class="no">cds</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/cluster_cells.html">cluster_cells</a></span>(<span class="no">cds</span>, <span class="kw">reduction_method</span> <span class="kw">=</span> <span class="st">"UMAP"</span>)
 <span class="co"># Visualize the clusters</span>
 <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/plot_cells.html">plot_cells</a></span>(<span class="no">cds</span>, <span class="kw">color_cells_by</span> <span class="kw">=</span> <span class="st">"cluster"</span>, <span class="kw">cell_size</span> <span class="kw">=</span> <span class="fl">1</span>)
+
 <span class="co"># Construct the graph</span>
 <span class="co"># Note that, for the rest of the code to run, the graph should be fully connected</span>
 <span class="no">cds</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/learn_graph.html">learn_graph</a></span>(<span class="no">cds</span>, <span class="kw">use_partition</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
 
-<span class="co"># Find the root of the graph, i.e the node that is closest to the</span>
-<span class="co"># cell labelled Multipotent progenitors</span>
-<span class="no">cell_ids</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="no">celltype</span> <span class="kw">==</span>  <span class="st">"Multipotent progenitors"</span>)
-<span class="no">closest_vertex</span> <span class="kw">&lt;-</span>
-  <span class="no">cds</span>@<span class="kw">principal_graph_aux</span><span class="kw">[[</span><span class="st">"UMAP"</span>]]$<span class="no">pr_graph_cell_proj_closest_vertex</span>
-<span class="no">closest_vertex</span> <span class="kw">&lt;-</span> <span class="no">closest_vertex</span>[<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">cds</span>), <span class="fl">1</span>]
-<span class="no">closest_vertex</span> <span class="kw">&lt;-</span> <span class="no">closest_vertex</span>[<span class="no">cell_ids</span>]
-<span class="no">closest_vertex</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Y_"</span>, <span class="no">closest_vertex</span>)
-<span class="no">root</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="kw pkg">igraph</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/degree.html">degree</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/principal_graph.html">principal_graph</a></span>(<span class="no">cds</span>)<span class="kw">[[</span><span class="st">"UMAP"</span>]]) <span class="kw">==</span> <span class="fl">1</span>))
-<span class="no">root</span> <span class="kw">&lt;-</span> <span class="no">root</span>[<span class="no">root</span> <span class="kw">%in%</span> <span class="no">closest_vertex</span>]
-<span class="no">cds</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/order_cells.html">order_cells</a></span>(<span class="no">cds</span>, <span class="kw">root_pr_nodes</span> <span class="kw">=</span> <span class="no">root</span>)
+<span class="co"># We find all the cells that are close to the starting point</span>
+<span class="no">cell_ids</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">cds</span>)[<span class="no">pd</span>$<span class="no">cellType</span> <span class="kw">==</span>  <span class="st">"Multipotent progenitors"</span>]
+<span class="no">closest_vertex</span> <span class="kw">&lt;-</span> <span class="no">cds</span>@<span class="kw">principal_graph_aux</span><span class="kw">[[</span><span class="st">"UMAP"</span>]]$<span class="no">pr_graph_cell_proj_closest_vertex</span>
+<span class="no">closest_vertex</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="no">closest_vertex</span>[<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">cds</span>), ])
+<span class="no">closest_vertex</span> <span class="kw">&lt;-</span> <span class="no">closest_vertex</span>[<span class="no">cell_ids</span>, ]
+<span class="no">closest_vertex</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/which.min.html">which.max</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">closest_vertex</span>))))
+<span class="no">mst</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/principal_graph.html">principal_graph</a></span>(<span class="no">cds</span>)$<span class="no">UMAP</span>
+<span class="no">root_pr_nodes</span> <span class="kw">&lt;-</span> <span class="kw pkg">igraph</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/V.html">V</a></span>(<span class="no">mst</span>)$<span class="no">name</span>[<span class="no">closest_vertex</span>]
+
+<span class="co"># We compute the trajectory</span>
+<span class="no">cds</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/order_cells.html">order_cells</a></span>(<span class="no">cds</span>, <span class="kw">root_pr_nodes</span> <span class="kw">=</span> <span class="no">root_pr_nodes</span>)
 <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/plot_cells.html">plot_cells</a></span>(<span class="no">cds</span>, <span class="kw">color_cells_by</span> <span class="kw">=</span> <span class="st">"pseudotime"</span>)</pre></body></html></div>
 </div>
 <div id="extracting-the-pseudotimes-and-cell-weights-for-tradeseq" class="section level2">
 <h2 class="hasAnchor">
 <a href="#extracting-the-pseudotimes-and-cell-weights-for-tradeseq" class="anchor"></a>Extracting the pseudotimes and cell weights for tradeSeq</h2>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">y_to_cells</span> <span class="kw">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/principal_graph_aux.html">principal_graph_aux</a></span>(<span class="no">cds</span>)$<span class="no">UMAP</span>$<span class="no">pr_graph_cell_proj_closest_vertex</span> <span class="kw">%&gt;%</span>
+<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="co"># Get the closest vertice for every cell</span>
+<span class="no">y_to_cells</span> <span class="kw">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/principal_graph_aux.html">principal_graph_aux</a></span>(<span class="no">cds</span>)$<span class="no">UMAP</span>$<span class="no">pr_graph_cell_proj_closest_vertex</span> <span class="kw">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="kw">%&gt;%</span>
   <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="kw">cells</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">.</span>)) <span class="kw">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">rename</a></span>(<span class="st">"Y"</span> <span class="kw">=</span> <span class="no">V1</span>)
-<span class="no">mst</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/principal_graph.html">principal_graph</a></span>(<span class="no">cds</span>)$<span class="no">UMAP</span>
+
+<span class="co"># Get the root vertices</span>
+<span class="co"># It is the same node as above</span>
+<span class="no">root</span> <span class="kw">&lt;-</span> <span class="no">cds</span>@<span class="kw">principal_graph_aux</span>$<span class="no">UMAP</span>$<span class="no">root_pr_nodes</span>
+
+<span class="co"># Get the other endpoints</span>
 <span class="no">endpoints</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="kw pkg">igraph</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/degree.html">degree</a></span>(<span class="no">mst</span>) <span class="kw">==</span> <span class="fl">1</span>))
-<span class="no">endpoints</span> <span class="kw">&lt;-</span> <span class="no">endpoints</span>[<span class="no">endpoints</span> <span class="kw">!=</span> <span class="no">root</span>]
+<span class="no">endpoints</span> <span class="kw">&lt;-</span> <span class="no">endpoints</span>[!<span class="no">endpoints</span> <span class="kw">%in%</span> <span class="no">root</span>]
+
+<span class="co"># For each endpoint</span>
 <span class="no">cellWeights</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="no">endpoints</span>, <span class="kw">function</span>(<span class="no">endpoint</span>) {
+  <span class="co"># We find the path between the endpoint and the root</span>
   <span class="no">path</span> <span class="kw">&lt;-</span> <span class="kw pkg">igraph</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/distances.html">shortest_paths</a></span>(<span class="no">mst</span>, <span class="no">root</span>, <span class="no">endpoint</span>)$<span class="no">vpath</span><span class="kw">[[</span><span class="fl">1</span>]]
   <span class="no">path</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(<span class="no">path</span>)
+  <span class="co"># We find the cells that map along that path</span>
   <span class="no">df</span> <span class="kw">&lt;-</span> <span class="no">y_to_cells</span> <span class="kw">%&gt;%</span>
     <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="no">Y</span> <span class="kw">%in%</span> <span class="no">path</span>)
   <span class="no">df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">weights</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">cds</span>) <span class="kw">%in%</span> <span class="no">df</span>$<span class="no">cells</span>))
   <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">df</span>) <span class="kw">&lt;-</span> <span class="no">endpoint</span>
   <span class="fu"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="no">df</span>)
   }) <span class="kw">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_cols</a></span>()
-<span class="no">pseudotime</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(<span class="no">cellWeights</span>, <span class="kw">function</span>(<span class="no">w</span>) <span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/pseudotime.html">pseudotime</a></span>(<span class="no">cds</span>))
-<span class="no">sce</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="kw">counts</span> <span class="kw">=</span> <span class="no">counts</span>,
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">cellWeights</span>) <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">cds</span>)
+<span class="no">pseudotime</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/monocle3/man/pseudotime.html">pseudotime</a></span>(<span class="no">cds</span>), <span class="kw">ncol</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="no">cellWeights</span>),
+                     <span class="kw">nrow</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="no">cds</span>), <span class="kw">byrow</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">sce</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="kw">counts</span> <span class="kw">=</span> <span class="no">counts</span>,
        <span class="kw">pseudotime</span> <span class="kw">=</span> <span class="no">pseudotime</span>,
        <span class="kw">cellWeights</span> <span class="kw">=</span> <span class="no">cellWeights</span>)</pre></body></html></div>
 <p>Then, the <code>sce</code> object can be analyzed following the <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a>.</p>
@@ -220,7 +235,7 @@
 <div id="session" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session" class="anchor"></a>Session</h1>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</pre></body></html></div>
+<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</pre></body></html></div>
 <pre><code>## R version 3.6.1 (2019-07-05)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS Catalina 10.15.4
@@ -246,7 +261,7 @@
 ## [13] matrixStats_0.56.0          GenomicRanges_1.38.0       
 ## [15] GenomeInfoDb_1.22.1         IRanges_2.20.2             
 ## [17] S4Vectors_0.24.3            RColorBrewer_1.1-2         
-## [19] tradeSeq_1.1.18             bigmemory_4.5.36           
+## [19] tradeSeq_1.1.19             bigmemory_4.5.36           
 ## [21] Biobase_2.46.0              BiocGenerics_0.32.0        
 ## [23] knitr_1.28                 
 ## 

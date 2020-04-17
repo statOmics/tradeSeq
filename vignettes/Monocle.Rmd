@@ -80,15 +80,17 @@ As of now (02/2020), monocle3[@Cao2019], is still in its beta version. Therefore
 You will need to install monocle3 from [here](https://cole-trapnell-lab.github.io/monocle3/docs/installation/) before running the code below.
 
 ```{r, eval = FALSE}
+set.seed(22)
 library(monocle3)
 # Create a cell_data_set object
-cds <- new_cell_data_set(counts, cell_metadata = df,
+cds <- new_cell_data_set(counts, cell_metadata = pd,
                 gene_metadata = data.frame(gene_short_name = rownames(counts),
                                            row.names = rownames(counts)))
 # Run PCA then UMAP on the data
 cds <- preprocess_cds(cds, method = "PCA")
 cds <- reduce_dimension(cds, preprocess_method = "PCA",
                         reduction_method = "UMAP")
+
 # First display, coloring by the cell types from Paul et al
 plot_cells(cds, label_groups_by_cluster = FALSE, cell_size = 1,
            color_cells_by = "cellType")
@@ -97,44 +99,60 @@ plot_cells(cds, label_groups_by_cluster = FALSE, cell_size = 1,
 cds <- cluster_cells(cds, reduction_method = "UMAP")
 # Visualize the clusters
 plot_cells(cds, color_cells_by = "cluster", cell_size = 1)
+
 # Construct the graph
 # Note that, for the rest of the code to run, the graph should be fully connected
 cds <- learn_graph(cds, use_partition = FALSE)
 
-# Find the root of the graph, i.e the node that is closest to the
-# cell labelled Multipotent progenitors
-cell_ids <- which(celltype ==  "Multipotent progenitors")
-closest_vertex <- 
-  cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
-closest_vertex <- closest_vertex[colnames(cds), 1]
-closest_vertex <- closest_vertex[cell_ids]
-closest_vertex <- paste0("Y_", closest_vertex)
-root <- names(which(igraph::degree(principal_graph(cds)[["UMAP"]]) == 1))
-root <- root[root %in% closest_vertex]
-cds <- order_cells(cds, root_pr_nodes = root)
+# We find all the cells that are close to the starting point
+cell_ids <- colnames(cds)[pd$cellType ==  "Multipotent progenitors"]
+closest_vertex <- cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
+closest_vertex <- as.matrix(closest_vertex[colnames(cds), ])
+closest_vertex <- closest_vertex[cell_ids, ]
+closest_vertex <- as.numeric(names(which.max(table(closest_vertex))))
+mst <- principal_graph(cds)$UMAP
+root_pr_nodes <- igraph::V(mst)$name[closest_vertex]
+
+# We compute the trajectory
+cds <- order_cells(cds, root_pr_nodes = root_pr_nodes)
 plot_cells(cds, color_cells_by = "pseudotime")
 ```
 
 ## Extracting the pseudotimes and cell weights for tradeSeq
 
 ```{r, eval = FALSE}
+# Get the closest vertice for every cell
 y_to_cells <-  principal_graph_aux(cds)$UMAP$pr_graph_cell_proj_closest_vertex %>%
   as.data.frame() %>%
   dplyr::mutate(cells = rownames(.)) %>%
   rename("Y" = V1)
-mst <- principal_graph(cds)$UMAP
+
+# Get the root vertices
+# It is the same node as above
+root <- cds@principal_graph_aux$UMAP$root_pr_nodes
+
+# Get the other endpoints
 endpoints <- names(which(igraph::degree(mst) == 1))
-endpoints <- endpoints[endpoints != root]
+endpoints <- endpoints[!endpoints %in% root]
+
+# For each endpoint
 cellWeights <- lapply(endpoints, function(endpoint) {
+  # We find the path between the endpoint and the root
   path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
   path <- as.character(path)
+  # We find the cells that map along that path
   df <- y_to_cells %>%
     dplyr::filter(Y %in% path)
   df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
   colnames(df) <- endpoint
   return(df)
   }) %>% bind_cols() 
-pseudotime <- sapply(cellWeights, function(w) pseudotime(cds))
+rownames(cellWeights) <- colnames(cds)
+pseudotime <- matrix(pseudotime(cds), ncol = ncol(cellWeights),
+                     nrow = ncol(cds), byrow = FALSE)
+```
+
+```{r, eval = FALSE}
 sce <- fitGAM(counts = counts, 
        pseudotime = pseudotime,
        cellWeights = cellWeights)
