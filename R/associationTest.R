@@ -180,7 +180,11 @@
     if (is.null(dim(fcAll))) {
         fcMean <- abs(unlist(fcAll))
       } else {
-        fcMean <- matrix(rowMeans(abs(t(fcAll))), ncol = 1)
+        if(nrow(fcAll) == nrow(models)){
+          fcMean <- matrix(rowMeans(abs(fcAll)), ncol = 1)
+        } else {
+          fcMean <- matrix(rowMeans(abs(t(fcAll))), ncol = 1)
+        }
       }
   }
   # return output
