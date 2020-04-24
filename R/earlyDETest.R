@@ -94,6 +94,7 @@
       waldResOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        if(any(is.na(beta))) return(c(NA,NA))
         getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
       })
       names(waldResOmnibus) <- rownames(models)
@@ -150,6 +151,7 @@
         waldResPair <- lapply(seq_len(nrow(models)), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+          if(any(is.na(beta))) return(c(NA,NA))
           getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
         })
       }
