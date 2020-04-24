@@ -185,7 +185,6 @@
         }, FUN.VALUE = c(.1, 1, .1)))
       })
     } else if (sce) {
-<<<<<<< HEAD
       if(is.null(conditions)){
         waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
@@ -205,9 +204,6 @@
           }, FUN.VALUE = rep(.1, 3 * nlevels(conditions))))
         })
       }
-
-      names(waldResultsLineages) <- rownames(models)
-=======
       waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
