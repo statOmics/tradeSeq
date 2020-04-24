@@ -212,7 +212,6 @@
         }, FUN.VALUE = c(.1, 1, .1)))
       })
       names(waldResultsLineages) <- names(models)
->>>>>>> master
     }
 
     if(is.null(conditions)){
