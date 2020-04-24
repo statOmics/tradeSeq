@@ -57,7 +57,7 @@
 
 .get_offset <- function(offset, counts) {
   if (is.null(offset)) {
-    nf <- try(edgeR::calcNormFactors(counts), silent=TRUE)
+    nf <- try(edgeR::calcNormFactors(counts), silent = TRUE)
     if (is(nf, "try-error")) {
       message("TMM normalization failed. Will use unnormalized library sizes",
               "as offset.")
@@ -296,7 +296,7 @@
     # Get X, dm and knotPoints
     element <- min(which(!is.na(SigmaAll)))
     m <- gamList[[element]]
-    X <- predict(m, type = "lpmatrix")
+    X <- stats::predict(m, type = "lpmatrix")
     dm <- m$model[, -1]
     knotPoints <- m$smooth[[1]]$xp
 

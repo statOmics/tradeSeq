@@ -153,9 +153,9 @@ pseudotime <- matrix(pseudotime(cds), ncol = ncol(cellWeights),
 ```
 
 ```{r, eval = FALSE}
-sce <- fitGAM(counts = counts, 
-       pseudotime = pseudotime,
-       cellWeights = cellWeights)
+sce <- fitGAM(counts = counts,
+              pseudotime = pseudotime,
+              cellWeights = cellWeights)
 ```
 
 Then, the `sce` object can be analyzed following the [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html).
