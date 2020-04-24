@@ -3,7 +3,9 @@
 \name{fitGAM}
 \alias{fitGAM}
 \alias{fitGAM,matrix-method}
+\alias{fitGAM,dgCMatrix-method}
 \alias{fitGAM,SingleCellExperiment-method}
+\alias{fitGAM,CellDataSet-method}
 \title{fitGAM}
 \usage{
 fitGAM(counts, ...)
@@ -14,6 +16,24 @@ fitGAM(counts, ...)
   pseudotime = NULL,
   cellWeights = NULL,
   conditions = NULL,
+  U = NULL,
+  genes = seq_len(nrow(counts)),
+  weights = NULL,
+  offset = NULL,
+  nknots = 6,
+  verbose = TRUE,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  control = mgcv::gam.control(),
+  sce = TRUE,
+  family = "nb"
+)
+
+\S4method{fitGAM}{dgCMatrix}(
+  counts,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
   U = NULL,
   genes = seq_len(nrow(counts)),
   weights = NULL,
@@ -42,10 +62,25 @@ fitGAM(counts, ...)
   sce = TRUE,
   family = "nb"
 )
+
+\S4method{fitGAM}{CellDataSet}(
+  counts,
+  U = NULL,
+  genes = seq_len(nrow(counts)),
+  weights = NULL,
+  offset = NULL,
+  nknots = 6,
+  verbose = TRUE,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  control = mgcv::gam.control(),
+  sce = TRUE,
+  family = "nb"
+)
 }
 \arguments{
 \item{counts}{The count matrix of expression values, with genes
-in rows and cells in columns.}
+in rows and cells in columns. Can be a matrix or a sparse matrix.}
 
 \item{...}{parameters including:}
 
@@ -120,17 +155,18 @@ There are two ways to provide the required input in \code{fitGAM}.
 See Details and the vignette.
 }
 \details{
-\code{fitGAM} supports three different ways to input the required objects:
+\code{fitGAM} supports four different ways to input the required objects:
 \itemize{
-\item{"Count matrix and matrix of pseudotime and cellWeights input."}{
+\item{"Count matrix, matrix of pseudotime and matrix of cellWeights."}{
 Input count matrix using \code{counts} argument and
 pseudotimes and cellWeights as a matrix, with number of rows equal to
 number of cells, and number of columns equal to number of lineages.}
 \item{"Count matrix and Slingshot input."}{Input count matrix using
 \code{counts} argument and Slingshot object using \code{sds} argument.}
-\item{"SingleCellExperiment Object with slingshot run."}{
+\item{"SingleCellExperiment Object after running slingshot on the object."}{
 Input SingleCellExperiment Object using \code{counts} argument.}
-}
+\item{"CellDataSet object after running the \code{orderCells} function."}{
+Input CellDataSet Object using \code{counts} argument.}}
 }
 \examples{
 set.seed(8)

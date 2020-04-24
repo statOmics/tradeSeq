@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -36,8 +40,10 @@
 
 
 <meta property="og:title" content="fitGAM — fitGAM" />
-<meta property="og:description" content="This fits the NB-GAM model as described in Van den Berge et al.[2019]" />
-<meta name="twitter:card" content="summary" />
+<meta property="og:description" content="This fits the NB-GAM model as described in
+Van den Berge et al.[2019].
+There are two ways to provide the required input in fitGAM.
+See Details and the vignette." />
 
 
 
@@ -55,7 +61,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +75,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.19</span>
       </span>
     </div>
 
@@ -87,9 +93,29 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Monocle.html">Using Monocle as input to **tradeSeq**</a>
+    </li>
+    <li>
+      <a href="../articles/fitGAM.html">Fitting the models and additional control of fitGAM in **tradeSeq**</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/statOmics/tradeSeq/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -104,29 +130,96 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>fitGAM</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/statOmics/tradeSeq/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/statOmics/tradeSeq/blob/master/R/fitGAM.R'><code>R/fitGAM.R</code></a></small>
     <div class="hidden name"><code>fitGAM.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This fits the NB-GAM model as described in Van den Berge et al.[2019]</p>
+    <p>This fits the NB-GAM model as described in
+Van den Berge et al.[2019].
+There are two ways to provide the required input in <code>fitGAM</code>.
+See Details and the vignette.</p>
     </div>
 
     <pre class="usage"><span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='no'>...</span>)
 
 <span class='co'># S4 method for matrix</span>
-<span class='fu'>fitGAM</span>(<span class='no'>counts</span>, <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>81</span>,
-  <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(), <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
-  <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>)</pre>
+<span class='fu'>fitGAM</span>(
+  <span class='no'>counts</span>,
+  <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>genes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>counts</span>)),
+  <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
+  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
+  <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>
+)
+
+<span class='co'># S4 method for dgCMatrix</span>
+<span class='fu'>fitGAM</span>(
+  <span class='no'>counts</span>,
+  <span class='kw'>sds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>genes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>counts</span>)),
+  <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
+  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
+  <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>
+)
+
+<span class='co'># S4 method for SingleCellExperiment</span>
+<span class='fu'>fitGAM</span>(
+  <span class='no'>counts</span>,
+  <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>genes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>counts</span>)),
+  <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
+  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
+  <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>
+)
+
+<span class='co'># S4 method for CellDataSet</span>
+<span class='fu'>fitGAM</span>(
+  <span class='no'>counts</span>,
+  <span class='kw'>U</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>genes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>counts</span>)),
+  <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>offset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
+  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw pkg'>mgcv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
+  <span class='kw'>sce</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"nb"</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>counts</th>
-      <td><p>the count matrix.</p></td>
+      <td><p>The count matrix of expression values, with genes
+in rows and cells in columns. Can be a matrix or a sparse matrix.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -140,39 +233,44 @@ after running Slingshot. If this is provided, <code>pseudotime</code> and
     </tr>
     <tr>
       <th>pseudotime</th>
-      <td><p>a matrix of pseudotime values, each row represents a cell
+      <td><p>A matrix of pseudotime values, each row represents a cell
 and each column represents a lineage.</p></td>
     </tr>
     <tr>
       <th>cellWeights</th>
-      <td><p>a matrix of cell weights defining the probability that a
+      <td><p>A matrix of cell weights defining the probability that a
 cell belongs to a particular lineage. Each row represents a cell and each
-column represents a lineage.</p></td>
+column represents a lineage. If only a single lineage, provide a matrix with
+one column containing all values of 1.</p></td>
     </tr>
     <tr>
       <th>U</th>
-      <td><p>the design matrix of fixed effects. The design matrix should not
+      <td><p>The design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.</p></td>
     </tr>
     <tr>
+      <th>genes</th>
+      <td><p>The genes on which to run <code>fitGAM</code>. Default to all the genes.
+If only a subset of the genes is indicated, normalization will be done using
+all the genes but the smoothers will be computed only for the subset.</p></td>
+    </tr>
+    <tr>
       <th>weights</th>
-      <td><p>a matrix of weights with identical dimensions
+      <td><p>A matrix of weights with identical dimensions
 as the <code>counts</code> matrix. Usually a matrix of zero-inflation weights.</p></td>
     </tr>
     <tr>
-      <th>seed</th>
-      <td><p>the seed used for assigning cells to lineages.</p></td>
-    </tr>
-    <tr>
       <th>offset</th>
-      <td><p>the offset, on log-scale. If NULL, TMM is used to account for
+      <td><p>The offset, on log-scale. If NULL, TMM is used to account for
 differences in sequencing depth., see <code><a href='https://rdrr.io/pkg/edgeR/man/calcNormFactors.html'>edgeR::calcNormFactors</a></code>.
-Alternatively, this may also be a matrix of the same dimensions as the
-expression matrix.</p></td>
+Alternatively, this may also be a vector with length equal to the number of
+cells.</p></td>
     </tr>
     <tr>
       <th>nknots</th>
-      <td><p>Number of knots used to fit the GAM. Defaults to 6.</p></td>
+      <td><p>Number of knots used to fit the GAM. Defaults to 6. It is
+recommended to use the `evaluateK` function to guide in selecting an
+appropriate number of knots.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -196,44 +294,54 @@ back-end to be used for computations. See
     </tr>
     <tr>
       <th>sce</th>
-      <td><p>Should output be of SingleCellExperiment class? This argument
-should not be changed by users.</p></td>
+      <td><p>Logical: should output be of SingleCellExperiment class? This is
+recommended to be TRUE. If <code>sds</code> argument is specified, it will always
+be set to TRUE</p></td>
     </tr>
     <tr>
       <th>family</th>
-      <td><p>The assumed distribution for the response, set to <code>"nb"</code>
+      <td><p>The assumed distribution for the response. Is set to <code>"nb"</code>
 by default.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of length the number of genes
+    <p>If <code>sce=FALSE</code>, returns a list of length equal to the number of genes
  (number of rows of <code>counts</code>). Each element of the list is either a
   <code>gamObject</code> if the fiting procedure converged, or an error
-   message.</p>
+   message.
+If <code>sce=TRUE</code>, returns a <code>singleCellExperiment</code> object with
+the <code>tradeSeq</code> results stored in the <code>rowData</code>,
+<code>colData</code> and <code>metadata</code>.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p><code>fitGAM</code> supports four different ways to input the required objects:</p><ul>
+<li><p>"Count matrix, matrix of pseudotime and matrix of cellWeights."
+Input count matrix using <code>counts</code> argument and
+pseudotimes and cellWeights as a matrix, with number of rows equal to
+number of cells, and number of columns equal to number of lineages.</p></li>
+<li><p>"Count matrix and Slingshot input."Input count matrix using
+<code>counts</code> argument and Slingshot object using <code>sds</code> argument.</p></li>
+<li><p>"SingleCellExperiment Object after running slingshot on the object."
+Input SingleCellExperiment Object using <code>counts</code> argument.</p></li>
+<li><p>"CellDataSet object after running the <code>orderCells</code> function."
+Input CellDataSet Object using <code>counts</code> argument.</p></li>
+</ul>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>8</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/download.file.html'>download.file</a></span>(<span class='st'>"https://github.com/statOmics/tradeSeqPaper/raw/master/data/se_paul.rda"</span>,
-<span class='kw'>destfile</span><span class='kw'>=</span><span class='st'>"./se_paul.rda"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/load.html'>load</a></span>(<span class='st'>"./se_paul.rda"</span>)
-<span class='no'>se</span> <span class='kw'>&lt;-</span> <span class='no'>se</span>[( <span class='fl'>20</span>:<span class='fl'>31</span>)[-<span class='fl'>7</span>], <span class='fl'>25</span>:<span class='fl'>40</span>]
-<span class='no'>pseudotimes</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='no'>se</span>) * <span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>5</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='no'>cellWeights</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='no'>se</span>) * <span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'>fitGAM</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(
-                      <span class='kw pkg'>SummarizedExperiment</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html'>assays</a></span>(<span class='no'>se</span>)$<span class='no'>counts</span>),
-                  <span class='kw'>pseudotime</span> <span class='kw'>=</span> <span class='no'>pseudotimes</span>, <span class='kw'>cellWeights</span> <span class='kw'>=</span> <span class='no'>cellWeights</span>,
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>crv</span>, <span class='kw'>package</span><span class='kw'>=</span><span class='st'>"tradeSeq"</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>countMatrix</span>, <span class='kw'>package</span><span class='kw'>=</span><span class='st'>"tradeSeq"</span>)
+<span class='no'>gamList</span> <span class='kw'>&lt;-</span> <span class='fu'>fitGAM</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='no'>countMatrix</span>),
+                  <span class='kw'>sds</span> <span class='kw'>=</span> <span class='no'>crv</span>,
                   <span class='kw'>nknots</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -244,7 +352,7 @@ by default.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
 </div>
 
       </footer>

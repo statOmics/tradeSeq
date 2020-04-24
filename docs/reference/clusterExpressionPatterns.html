@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -36,9 +40,11 @@
 
 
 <meta property="og:title" content="Cluster gene expression patterns. — clusterExpressionPatterns" />
-<meta property="og:description" content="Cluster genes in clusters with similar expression patterns along the
-trajectory." />
-<meta name="twitter:card" content="summary" />
+<meta property="og:description" content="Cluster genes in clusters that have similar expression patterns
+along all lineages in the trajectory. By default, this function uses the
+clusterExperiment package to do the clustering. If another clustering
+method is of interest, one can extract fitted values to use for clustering,
+see details in the vignette." />
 
 
 
@@ -56,7 +62,7 @@ trajectory." />
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -70,7 +76,7 @@ trajectory." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.80</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.19</span>
       </span>
     </div>
 
@@ -88,9 +94,29 @@ trajectory." />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Monocle.html">Using Monocle as input to **tradeSeq**</a>
+    </li>
+    <li>
+      <a href="../articles/fitGAM.html">Fitting the models and additional control of fitGAM in **tradeSeq**</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/statOmics/tradeSeq/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -105,35 +131,52 @@ trajectory." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Cluster gene expression patterns.</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/statOmics/tradeSeq/blob/master/R/clusterExpressionPatterns.R'><code>R/clusterExpressionPatterns.R</code></a></small>
     <div class="hidden name"><code>clusterExpressionPatterns.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Cluster genes in clusters with similar expression patterns along the
-trajectory.</p>
+    <p>Cluster genes in clusters that have similar expression patterns
+along all lineages in the trajectory. By default, this function uses the
+<code>clusterExperiment</code> package to do the clustering. If another clustering
+method is of interest, one can extract fitted values to use for clustering,
+see details in the vignette.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>.clusterExpressionPatterns</span>(<span class='no'>models</span>, <span class='no'>nPoints</span>, <span class='no'>genes</span>, <span class='kw'>reduceMethod</span> <span class='kw'>=</span> <span class='st'>"PCA"</span>,
-  <span class='kw'>nReducedDims</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>minSizes</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>random.seed</span> <span class='kw'>=</span> <span class='fl'>176201</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)
-
-<span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>clusterExpressionPatterns</span>(<span class='no'>models</span>, <span class='no'>nPoints</span>,
-  <span class='no'>genes</span>, <span class='kw'>reduceMethod</span> <span class='kw'>=</span> <span class='st'>"PCA"</span>, <span class='kw'>nReducedDims</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>minSizes</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>random.seed</span> <span class='kw'>=</span> <span class='fl'>176201</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='co'># S4 method for SingleCellExperiment</span>
+<span class='fu'>clusterExpressionPatterns</span>(
+  <span class='no'>models</span>,
+  <span class='no'>nPoints</span>,
+  <span class='no'>genes</span>,
+  <span class='kw'>reduceMethod</span> <span class='kw'>=</span> <span class='st'>"PCA"</span>,
+  <span class='kw'>nReducedDims</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>minSizes</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>random.seed</span> <span class='kw'>=</span> <span class='fl'>176201</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='no'>...</span>
+)
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>clusterExpressionPatterns</span>(<span class='no'>models</span>, <span class='no'>nPoints</span>, <span class='no'>genes</span>,
-  <span class='kw'>reduceMethod</span> <span class='kw'>=</span> <span class='st'>"PCA"</span>, <span class='kw'>nReducedDims</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>minSizes</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>random.seed</span> <span class='kw'>=</span> <span class='fl'>176201</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>clusterExpressionPatterns</span>(
+  <span class='no'>models</span>,
+  <span class='no'>nPoints</span>,
+  <span class='no'>genes</span>,
+  <span class='kw'>reduceMethod</span> <span class='kw'>=</span> <span class='st'>"PCA"</span>,
+  <span class='kw'>nReducedDims</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>minSizes</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>ncores</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>random.seed</span> <span class='kw'>=</span> <span class='fl'>176201</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>models</th>
-      <td><p>The list of GAMs, typically the output from
+      <td><p>The fitted GAMs, typically the output from
 <code><a href='fitGAM.html'>fitGAM</a></code>.</p></td>
     </tr>
     <tr>
@@ -144,23 +187,23 @@ patterns.</p></td>
     <tr>
       <th>genes</th>
       <td><p>A numerical or character vector specifying the genes from
-<code>models</code>
-that should be clustered.</p></td>
+<code>models</code> that should be clustered.</p></td>
     </tr>
     <tr>
       <th>reduceMethod</th>
-      <td><p>Method used before running the clustering methods.
-Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
+      <td><p>Dimensionality reduction method used before running the
+clustering methods. Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code>.
+Defaults to PCA.</p></td>
     </tr>
     <tr>
       <th>nReducedDims</th>
       <td><p>Number of dimensions kept after <code>reduceMethod</code>.
-Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
+Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code>.</p></td>
     </tr>
     <tr>
       <th>minSizes</th>
-      <td><p>Number of dimensions kept after <code>reduceMethod</code>.
-Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code></p></td>
+      <td><p>Minimum size of clusters.
+Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code>.</p></td>
     </tr>
     <tr>
       <th>ncores</th>
@@ -185,7 +228,8 @@ Passed to <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RS
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list containing the scaled fitted values <code>yhatScaled</code>(for
- plotting) and a <code>ClusterExperiment</code> object.</p>
+ plotting) and a <code>ClusterExperiment</code> object, containing the
+ clustering results.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This method adopts the <code><a href='https://rdrr.io/pkg/clusterExperiment/man/RSEC.html'>RSEC</a></code>
@@ -1109,15 +1153,10 @@ function from the clusterExperiment package to perform consensus clustering.</p>
 #&gt;    19.6535193 
 #&gt; </div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -1128,7 +1167,7 @@ function from the clusterExperiment package to perform consensus clustering.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
 </div>
 
       </footer>

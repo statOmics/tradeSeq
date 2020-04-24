@@ -24,8 +24,9 @@ means[id, ] <- sweep(means[id, ], 2, FUN = "*", STATS = (pseudotime / 50))
 # simulate NB counts
 counts <- matrix(rnbinom(n = G * n, mu = means, size = 1 / dispersions),
                  nrow = G, ncol = n)
+rownames(counts) <- paste0("gene", 1:nrow(counts))
 
-# fitGAM 
+# fitGAM
 set.seed(20)
 oneDimFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
                               cellWeights = cellWeights, nknots = 3,
@@ -67,8 +68,9 @@ test_that("NB-GAM estimates are equal all input.",{
 test_that("assocationTest results are equal for sds and sce input.",{
   assocSds <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE)
   assocSce <- tradeSeq::associationTest(oneDimFit, global = TRUE, lineages = TRUE)
-  # assocList <- tradeSeq::associationTest(oneDimList, global = TRUE, lineages = TRUE)
-  # expect_equal(assocSds, assocList)
+  assocList <- tradeSeq::associationTest(oneDimList, global = TRUE, lineages = TRUE)
+  expect_equal(assocSds, assocList)
+  expect_equal(assocSce, assocList)
   expect_equal(mean(assocSds == assocSce), 1)
 })
 

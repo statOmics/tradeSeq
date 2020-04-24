@@ -64,7 +64,7 @@
 
 .get_offset <- function(offset, counts) {
   if (is.null(offset)) {
-    nf <- try(edgeR::calcNormFactors(counts))
+    nf <- try(edgeR::calcNormFactors(counts), silent = TRUE)
     if (is(nf, "try-error")) {
       message("TMM normalization failed. Will use unnormalized library sizes",
               "as offset.")
@@ -315,7 +315,7 @@
       return(beta)
     })
     betaAllDf <- data.frame(t(do.call(cbind,betaAll)))
-    rownames(betaAllDf) <- rownames(counts)
+    rownames(betaAllDf) <- rownames(counts)[genes]
 
     # list of variance covariance matrices
     SigmaAll <- lapply(gamList, function(m) {
@@ -330,7 +330,7 @@
     # Get X, dm and knotPoints
     element <- min(which(!is.na(SigmaAll)))
     m <- gamList[[element]]
-    X <- predict(m, type = "lpmatrix")
+    X <- stats::predict(m, type = "lpmatrix")
     dm <- m$model[, -1]
     knotPoints <- m$smooth[[1]]$xp
 
@@ -355,7 +355,7 @@
 #'
 #' @rdname fitGAM
 #' @param counts The count matrix of expression values, with genes
-#' in rows and cells in columns.
+#' in rows and cells in columns. Can be a matrix or a sparse matrix.
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param conditions This argument is in beta phase and should be used carefully.
@@ -397,17 +397,18 @@
 #' @param family The assumed distribution for the response. Is set to \code{"nb"}
 #' by default.
 #' @details
-#' \code{fitGAM} supports three different ways to input the required objects:
+#' \code{fitGAM} supports four different ways to input the required objects:
 #' \itemize{
-#' \item{"Count matrix and matrix of pseudotime and cellWeights input."}{
+#' \item{"Count matrix, matrix of pseudotime and matrix of cellWeights."}{
 #' Input count matrix using \code{counts} argument and
 #' pseudotimes and cellWeights as a matrix, with number of rows equal to
 #' number of cells, and number of columns equal to number of lineages.}
 #' \item{"Count matrix and Slingshot input."}{Input count matrix using
 #' \code{counts} argument and Slingshot object using \code{sds} argument.}
-#' \item{"SingleCellExperiment Object with slingshot run."}{
+#' \item{"SingleCellExperiment Object after running slingshot on the object."}{
 #' Input SingleCellExperiment Object using \code{counts} argument.}
-#' }
+#' \item{"CellDataSet object after running the \code{orderCells} function."}{
+#' Input CellDataSet Object using \code{counts} argument.}}
 #' @return
 #' If \code{sce=FALSE}, returns a list of length equal to the number of genes
 #'  (number of rows of \code{counts}). Each element of the list is either a
@@ -474,6 +475,14 @@ setMethod(f = "fitGAM",
               cellWeights <- slingCurveWeights(sds)
             }
 
+            if(any(is.na(pseudotime))){
+              stop("The pseudotimes contain NA values, and these cannot be used",
+              " for GAM fitting.")
+            }
+            if(any(is.na(cellWeights))){
+              stop("The cellWeights contain NA values, and these cannot be used",
+                   " for GAM fitting.")
+            }
 
             if(!is.null(conditions)){
               if(class(conditions) != "factor") stop("conditions must be a factor vector.")
@@ -501,15 +510,14 @@ setMethod(f = "fitGAM",
             }
 
             # return SingleCellExperiment object
-            sc <- SingleCellExperiment(assays = list(counts = counts))
+            sc <- SingleCellExperiment(assays = list(counts = counts[genes,]))
             # slingshot info
             SummarizedExperiment::colData(sc)$slingshot <- S4Vectors::DataFrame(
               pseudotime = pseudotime,
               cellWeights = cellWeights)
             # tradeSeq gene-level info
-            df <- tibble::enframe(gamOutput$Sigma)
-            colnames(df)[2] <- "Sigma"
-            df$beta <- tibble::tibble(gamOutput$beta)
+            df <- tibble::enframe(gamOutput$Sigma, value = "Sigma")
+            df$beta <- tibble::tibble(beta = gamOutput$beta)
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
             if(is.null(conditions)){
@@ -524,6 +532,42 @@ setMethod(f = "fitGAM",
             S4Vectors::metadata(sc)$tradeSeq <-
               list(knots = gamOutput$knotPoints)
             return(sc)
+          }
+)
+#' @rdname fitGAM
+setMethod(f = "fitGAM",
+          signature = c(counts = "dgCMatrix"),
+          definition = function(counts,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
+                                U = NULL,
+                                genes = seq_len(nrow(counts)),
+                                weights = NULL,
+                                offset = NULL,
+                                nknots = 6,
+                                verbose = TRUE,
+                                parallel = FALSE,
+                                BPPARAM = BiocParallel::bpparam(),
+                                control = mgcv::gam.control(),
+                                sce = TRUE,
+                                family = "nb"){
+            gamOutput <- fitGAM(counts = as.matrix(counts),
+                                U = U,
+                                sds = sds,
+                                pseudotime = pseudotime,
+                                cellWeights = cellWeights,
+                                genes = genes,
+                                weights = weights,
+                                offset = offset,
+                                nknots = nknots,
+                                verbose = verbose,
+                                parallel = parallel,
+                                BPPARAM = BPPARAM,
+                                control = control,
+                                sce = sce,
+                                family = family)
+            return(gamOutput)
           }
 )
 
@@ -598,6 +642,71 @@ setMethod(f = "fitGAM",
 
           return(counts)
           }
+)
+
+#' @rdname fitGAM
+#' @import monocle
+#' @importFrom Biobase exprs
+#' @importFrom igraph degree shortest_paths
+#' @importFrom dplyr mutate filter
+setMethod(f = "fitGAM",
+          signature = c(counts = "CellDataSet"),
+          definition = function(counts,
+                                U = NULL,
+                                genes = seq_len(nrow(counts)),
+                                weights = NULL,
+                                offset = NULL,
+                                nknots = 6,
+                                verbose = TRUE,
+                                parallel = FALSE,
+                                BPPARAM = BiocParallel::bpparam(),
+                                control = mgcv::gam.control(),
+                                sce = TRUE,
+                                family = "nb"){
+            if (counts@dim_reduce_type != "DDRTree") {
+              stop(paste0("For now tradeSeq only support Monocle with DDRTree",
+                          "reduction. If you want to use another type",
+                          "please use another format for tradeSeq inputs."))
+            }
+            # COnvert to appropriate format
+            y_to_cells <- counts@auxOrderingData[["DDRTree"]]
+            y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%
+              as.data.frame() %>%
+              dplyr::mutate(cells = rownames(.)) %>%
+              dplyr::rename("Y" = V1)
+            root <- counts@auxOrderingData[[counts@dim_reduce_type]]$root_cell
+            root <- y_to_cells$Y[y_to_cells$cells == root]
+            mst <- monocle::minSpanningTree(counts)
+            endpoints <- names(which(igraph::degree(mst) == 1))
+            endpoints <- endpoints[endpoints != paste0("Y_", root)]
+            cellWeights <- lapply(endpoints, function(endpoint) {
+              path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
+              path <- as.character(path)
+              df <- y_to_cells %>%
+                dplyr::filter(Y %in% path)
+              df <- data.frame(weights = as.numeric(colnames(counts) %in% df$cells))
+              colnames(df) <- endpoint
+              return(df)
+            }) %>% bind_cols()
+            pseudotime <- sapply(cellWeights, function(w) counts$Pseudotime)
+            rownames(cellWeights) <- rownames(pseudotime) <- colnames(counts)
 
 
+            gamOutput <- fitGAM(counts = Biobase::exprs(cds),
+                                U = U,
+                                cellWeights = cellWeights,
+                                pseudotime = pseudotime,
+                                genes = genes,
+                                weights = weights,
+                                offset = offset,
+                                nknots = nknots,
+                                verbose = verbose,
+                                parallel = parallel,
+                                BPPARAM = BPPARAM,
+                                control = control,
+                                sce = sce,
+                                family = family)
+
+            return(gamOutput)
+          }
 )

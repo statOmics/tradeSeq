@@ -5,9 +5,10 @@ reference:
       check the fit, extract components and decide on the appropriate number of knots.
     contents:
       - '`fitGAM`'
+      - '`evaluateK`'
+      - '`nknots`'
       - '`getSmootherPvalues`'
       - '`getSmootherTestStats`'
-      - '`evaluateK`'
   - title: "Tests"
     desc: >
       All tests currently implemented in tradeSeq. All tests are of the form
@@ -29,10 +30,16 @@ reference:
     desc: "The dataset used in example"
     contents:
       - '`gamList`'
+      - '`celltype`'
+      - '`countMatrix`'
+      - '`crv`'
+      - '`sds`'
   - title: Clustering
     desc: "Clustering of gene expression patterns"
     contents:
       - '`clusterExpressionPatterns`'
+      - '`predictCells`'
+      - '`predictSmooth`'
 
 navbar:
   structure:
@@ -54,8 +61,3 @@ navbar:
     intro:
       text: Get started
       href: articles/tradeSeq.html
-
-articles:
-- title: All vignettes
-  desc: ~
-  contents: '`tradeSeq`'

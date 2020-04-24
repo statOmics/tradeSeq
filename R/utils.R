@@ -239,7 +239,7 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   }
   logFCCutoff <- log(2^l2fc) # log2 to log scale
   estFC <- (t(LQR) %*% beta) # estimated log fold change
-  est <- pmax(0, abs(estFC) - logFCCutoff) # zero or remainder
+  est <- matrix(sign(estFC)*(pmax(0, abs(estFC) - logFCCutoff)), ncol=1) # zero or remainder
   wald <- t(est) %*%
     sigmaInv %*%
     est

@@ -1,0 +1,169 @@
+---
+title: 'Using Monocle as input to **tradeSeq**'
+author: "Koen Van den Berge and Hector Roux de Bézieux"
+bibliography: tradeSeq.bib
+date: "02/20/2020"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Monocle + tradeSeq}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, echo = FALSE}
+library(knitr)
+```
+
+# Introduction
+
+`tradeSeq` is an `R` package that allows analysis of gene expression along trajectories. While it has been developed and applied to single-cell RNA-sequencing (scRNA-seq) data, its applicability extends beyond that, and also allows the analysis of, e.g., single-cell ATAC-seq data along trajectories or bulk RNA-seq time series datasets. For every gene in the dataset, `tradeSeq` fits a generalized additive model (GAM) by building on the `mgcv` R package. It then allows statistical inference on the GAM by assessing contrasts of the parameters of the fitted GAM model, aiding in interpreting complex datasets. All details about the `tradeSeq` model and statistical tests are described in our preprint [@VandenBerge2019a].
+
+In this vignette, we analyze a subset of the data from [@Paul2015]. 
+A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
+
+The [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html) focuses on using `tradeSeq` downsteam of `slingshot`. Here, we present how to use `tradeSeq` downstream of `monocle`[@Qiu2017].
+
+# Load data
+
+```{r, warning=F, message=F}
+library(tradeSeq)
+library(RColorBrewer)
+library(SingleCellExperiment)
+library(monocle)
+library(dplyr)
+library(tidyr)
+
+# For reproducibility
+palette(brewer.pal(8, "Dark2"))
+data(countMatrix, package = "tradeSeq")
+counts <- as.matrix(countMatrix)
+rm(countMatrix)
+data(celltype, package = "tradeSeq")
+```
+
+# Fit trajectories using Monocle
+
+We will fit developmental trajectories using the `monocle` package.
+
+```{r, warning=FALSE, out.width="50%", fig.asp=.6}
+set.seed(200)
+pd <- data.frame(cells = colnames(counts), cellType = celltype)
+rownames(pd) <- pd$cells
+fd <- data.frame(gene_short_name = rownames(counts))
+rownames(fd) <- fd$gene_short_name
+cds <- newCellDataSet(counts, phenoData = new("AnnotatedDataFrame", data = pd),
+                      featureData = new("AnnotatedDataFrame", data = fd))
+cds <- estimateSizeFactors(cds)
+cds <- reduceDimension(cds, max_components = 2)
+cds <- orderCells(cds)
+cds <- orderCells(cds, root_state = 5)
+```
+
+# Fit Smoothers
+
+Only possible for DDRTree
+
+```{r}
+sce <- fitGAM(cds, verbose = TRUE)
+```
+
+You can then analyse the `sce` object following the [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html).
+
+# Monocle3
+
+As of now (02/2020), monocle3[@Cao2019], is still in its beta version. Therefore, we have no plan yet to include a S4 method for monocle3 while it is not on CRAN or Bioconductor and the format is still moving. However, we present below a way to use `tradeSeq` downstream of `monocle3` as of version '0.2', for a fully connected graph. We follow the tutorial from the [monocle3 website](https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/). 
+
+## Constructing the trajectory
+
+You will need to install monocle3 from [here](https://cole-trapnell-lab.github.io/monocle3/docs/installation/) before running the code below.
+
+```{r, eval = FALSE}
+set.seed(22)
+library(monocle3)
+# Create a cell_data_set object
+cds <- new_cell_data_set(counts, cell_metadata = pd,
+                gene_metadata = data.frame(gene_short_name = rownames(counts),
+                                           row.names = rownames(counts)))
+# Run PCA then UMAP on the data
+cds <- preprocess_cds(cds, method = "PCA")
+cds <- reduce_dimension(cds, preprocess_method = "PCA",
+                        reduction_method = "UMAP")
+
+# First display, coloring by the cell types from Paul et al
+plot_cells(cds, label_groups_by_cluster = FALSE, cell_size = 1,
+           color_cells_by = "cellType")
+
+# Running the clustering method. This is necessary to the construct the graph
+cds <- cluster_cells(cds, reduction_method = "UMAP")
+# Visualize the clusters
+plot_cells(cds, color_cells_by = "cluster", cell_size = 1)
+
+# Construct the graph
+# Note that, for the rest of the code to run, the graph should be fully connected
+cds <- learn_graph(cds, use_partition = FALSE)
+
+# We find all the cells that are close to the starting point
+cell_ids <- colnames(cds)[pd$cellType ==  "Multipotent progenitors"]
+closest_vertex <- cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
+closest_vertex <- as.matrix(closest_vertex[colnames(cds), ])
+closest_vertex <- closest_vertex[cell_ids, ]
+closest_vertex <- as.numeric(names(which.max(table(closest_vertex))))
+mst <- principal_graph(cds)$UMAP
+root_pr_nodes <- igraph::V(mst)$name[closest_vertex]
+
+# We compute the trajectory
+cds <- order_cells(cds, root_pr_nodes = root_pr_nodes)
+plot_cells(cds, color_cells_by = "pseudotime")
+```
+
+## Extracting the pseudotimes and cell weights for tradeSeq
+
+```{r, eval = FALSE}
+# Get the closest vertice for every cell
+y_to_cells <-  principal_graph_aux(cds)$UMAP$pr_graph_cell_proj_closest_vertex %>%
+  as.data.frame() %>%
+  dplyr::mutate(cells = rownames(.)) %>%
+  rename("Y" = V1)
+
+# Get the root vertices
+# It is the same node as above
+root <- cds@principal_graph_aux$UMAP$root_pr_nodes
+
+# Get the other endpoints
+endpoints <- names(which(igraph::degree(mst) == 1))
+endpoints <- endpoints[!endpoints %in% root]
+
+# For each endpoint
+cellWeights <- lapply(endpoints, function(endpoint) {
+  # We find the path between the endpoint and the root
+  path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
+  path <- as.character(path)
+  # We find the cells that map along that path
+  df <- y_to_cells %>%
+    dplyr::filter(Y %in% path)
+  df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
+  colnames(df) <- endpoint
+  return(df)
+  }) %>% bind_cols() 
+rownames(cellWeights) <- colnames(cds)
+pseudotime <- matrix(pseudotime(cds), ncol = ncol(cellWeights),
+                     nrow = ncol(cds), byrow = FALSE)
+```
+
+```{r, eval = FALSE}
+sce <- fitGAM(counts = counts,
+              pseudotime = pseudotime,
+              cellWeights = cellWeights)
+```
+
+Then, the `sce` object can be analyzed following the [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html).
+
+# Session
+
+```{r}
+sessionInfo()
+```
+
+# References
