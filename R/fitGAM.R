@@ -227,6 +227,7 @@
   ## fit NB GAM
   ### Actually fit the model ----
   teller <- 0
+  converged <- rep(TRUE, nrow(counts))
   counts_to_Gam <- function(y) {
     teller <<- teller + 1
     # define formula (only works if defined within apply loop.)
@@ -266,13 +267,19 @@
       )
     }
 
-    # fit smoother
+    # fit smoother, catch errors and warnings
     s = mgcv:::s
-    m <- try(
+    m <- suppressWarnings(withCallingHandlers({
       mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
-                control = control),
-      silent = TRUE)
-   return(m)
+                control = control)},
+      error = function(e){ #if errors: return try-error class
+        return(structure("Fitting errored",
+        class = c("try-error", "character")))
+        },
+      warning = function(w){ #if warning: set converged to FALSE
+        converged[teller] <<- FALSE
+      }))
+    return(m)
   }
 
   #### fit models
@@ -339,7 +346,8 @@
                 Sigma = SigmaAll,
                 X = X,
                 dm = dm,
-                knotPoints = knotPoints)
+                knotPoints = knotPoints,
+                converged = converged)
            )
   } else {
     return(gamList)
@@ -518,6 +526,7 @@ setMethod(f = "fitGAM",
             # tradeSeq gene-level info
             df <- tibble::enframe(gamOutput$Sigma, value = "Sigma")
             df$beta <- tibble::tibble(beta = gamOutput$beta)
+            df$converged <- gamOutput$converged
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
             if(is.null(conditions)){
