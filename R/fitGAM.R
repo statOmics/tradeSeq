@@ -227,7 +227,7 @@
   ## fit NB GAM
   ### Actually fit the model ----
   teller <- 0
-  converged <- rep(TRUE, nrow(counts))
+  converged <- rep(TRUE, length(genes))
   counts_to_Gam <- function(y) {
     teller <<- teller + 1
     # define formula (only works if defined within apply loop.)
