@@ -112,6 +112,7 @@
       waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        if(any(is.na(beta))) return(c(NA,NA, NA))
         waldTestFC(beta, Sigma, L, l2fc)
       })
       names(waldResultsOmnibus) <- names(models)
@@ -140,6 +141,7 @@
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         t(vapply(seq_len(nCurves), function(ii){
+          if(any(is.na(beta))) return(c(NA,NA, NA))
           waldTestFC(beta, Sigma, get(paste0("L", ii)), l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
