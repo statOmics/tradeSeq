@@ -235,16 +235,17 @@
     )
     # fit smoother, catch errors and warnings
     s = mgcv:::s
-    m <- suppressWarnings(withCallingHandlers({
+    m <- suppressWarnings(try(withCallingHandlers({
       mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
                 control = control)},
       error = function(e){ #if errors: return try-error class
+        converged[teller] <<- FALSE
         return(structure("Fitting errored",
                          class = c("try-error", "character")))
       },
       warning = function(w){ #if warning: set converged to FALSE
         converged[teller] <<- FALSE
-      }))
+      }), silent=TRUE))
     return(m)
   }
 
