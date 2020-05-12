@@ -650,7 +650,7 @@ setMethod(f = "fitGAM",
             rownames(cellWeights) <- rownames(pseudotime) <- colnames(counts)
 
 
-            gamOutput <- fitGAM(counts = Biobase::exprs(cds),
+            gamOutput <- fitGAM(counts = Biobase::exprs(counts),
                                 U = U,
                                 cellWeights = cellWeights,
                                 pseudotime = pseudotime,
