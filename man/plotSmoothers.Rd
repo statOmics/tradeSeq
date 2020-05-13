@@ -32,7 +32,8 @@ plotSmoothers(models, ...)
   ylab = "Log(expression + 1)",
   border = TRUE,
   alpha = 1,
-  sample = 1
+  sample = 1,
+  pointCol = NULL
 )
 }
 \arguments{
@@ -64,6 +65,10 @@ are too many so that it can plot faster.}
 \item{counts}{The matrix of gene expression counts.}
 
 \item{gene}{Gene name or row in count matrix of gene to plot.}
+
+\item{pointCol}{Plotting colors for each cell. Can be either character vector of
+length 1, denoting a variable in the \code{colData(models)} to color cells by,
+or a vector of length equal to the number of cells.}
 }
 \value{
 A \code{\link{ggplot}} object

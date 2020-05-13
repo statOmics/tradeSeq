@@ -201,6 +201,9 @@ setOldClass("gam")
 #' see \code{scale_color_viridis_d}.
 #' @param sample Numeric between 0 and 1, use to subsample the cells when there
 #' are too many so that it can plot faster.
+#' @param pointCol Plotting colors for each cell. Can be either character vector of
+#' length 1, denoting a variable in the \code{colData(models)} to color cells by,
+#' or a vector of length equal to the number of cells.
 #' @return A \code{\link{ggplot}} object
 #' @examples
 #' data(gamList, package = "tradeSeq")
