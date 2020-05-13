@@ -68,7 +68,7 @@
 .plotSmoothers_sce <- function(models, counts, gene, nPoints = 100, lwd = 2,
                                size = 2/3, xlab = "Pseudotime",
                                ylab = "Log(expression + 1)", border = FALSE,
-                               alpha = 2/3, sample = sample)
+                               alpha = 2/3, sample = sample, pointCol = NULL)
 {
 
   #input is singleCellExperiment object.
@@ -96,29 +96,53 @@
 
 
   #construct time variable based on cell assignments.
-  col <- timeAll <- rep(0, nrow(dm))
+  lcol <- timeAll <- rep(0, nrow(dm))
   for (jj in seq_len(nCurves)) {
     for (ii in seq_len(nrow(dm))) {
       if (dm[ii, paste0("l", jj)] == 1) {
         timeAll[ii] <- dm[ii, paste0("t", jj)]
-        col[ii] <- jj
+        lcol[ii] <- jj
       } else {
         next
       }
     }
   }
 
+  if(!is.null(pointCol)){
+    if(length(pointCol) == 1){
+      col <- colData(models)[,pointCol]
+    } else if(length(pointCol) == ncol(models)){
+      col <- pointCol
+    } else {
+      message(paste("pointCol should have length of either 1 or the number of cells,",
+              "reverting to default color scheme."))
+    }
+  } else {
+    col <- lcol
+  }
+
   # plot raw data
   df <- data.frame("time" = timeAll,
                    "gene_count" = y,
-                   "lineage" = as.character(col))
+                   "pCol" = as.character(col),
+                   "lineage" = as.character(lcol))
   rows <- sample(seq_len(nrow(df)), nrow(df) * sample, replace = FALSE)
   df <- df[rows, ]
-  p <- ggplot(df, aes(x = time, y = log1p(gene_count), col = lineage)) +
-    geom_point(size = size) +
-    labs(x = xlab, y = ylab) +
-    theme_classic() +
-    scale_color_viridis_d(alpha = alpha)
+  if(is.null(pointCol)){
+    p <- ggplot(df, aes(x = time, y = log1p(gene_count), col = lineage)) +
+      geom_point(size = size) +
+      labs(x = xlab, y = ylab) +
+      theme_classic() +
+      scale_color_viridis_d(alpha = alpha)
+  } else {
+    p <- ggplot(df, aes(x = time, y = log1p(gene_count), col = pCol)) +
+      geom_point(size = size, alpha = alpha) +
+      labs(x = xlab, y = ylab) +
+      theme_classic() +
+      scale_color_discrete() +
+      labs(col = "Cell labels")
+  }
+
 
 
   # predict and plot smoothers across the range
@@ -132,21 +156,27 @@
       p <- p +
         geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                     "gene_count" = yhat,
-                                    "lineage" = as.character(jj)),
+                                    "lineage" = as.character(jj),
+                                    "pCol" = as.character(jj)),
                   lwd = lwd + 1, colour = "white") +
         geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                     "gene_count" = yhat,
-                                    "lineage" = as.character(jj)),
-                  lwd = lwd)
+                                    "lineage" = as.character(jj),
+                                    "pCol" = as.character(jj)),
+                  lwd = lwd, col=viridis::viridis(nCurves)[jj])
     } else {
       p <- p +
         geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                     "gene_count" = yhat,
-                                    "lineage" = as.character(jj)),
-                  lwd = lwd)
+                                    "lineage" = as.character(jj),
+                                    "pCol" = as.character(jj)),
+                  lwd = lwd, col=viridis::viridis(nCurves)[jj])
     }
 
   }
+
+  ## TODO: add legend for different lineages
+
   return(p)
 }
 
@@ -219,7 +249,8 @@ setMethod(f = "plotSmoothers",
                                 ylab = "Log(expression + 1)",
                                 border = TRUE,
                                 alpha = 1,
-                                sample = 1){
+                                sample = 1,
+                                pointCol = NULL){
 
             .plotSmoothers_sce(models = models,
                                counts = counts,
@@ -231,6 +262,7 @@ setMethod(f = "plotSmoothers",
                                ylab = ylab,
                                border = border,
                                alpha = alpha,
-                               sample = sample)
+                               sample = sample,
+                               pointCol = pointCol)
           }
 )
