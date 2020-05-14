@@ -32,7 +32,7 @@ setMethod(f = "predictSmooth",
               if (!all(gene %in% rownames(models))) {
                 stop("Not all gene IDs are present in the models object.")
               }
-              id <- which(rownames(models) %in% gene)
+              id <- match(gene, rownames(models))
             } else id <- gene
 
             # get tradeSeq info
@@ -63,11 +63,11 @@ setMethod(f = "predictSmooth",
             pointNames <- expand.grid(1:nPoints,1:nCurves)[,2:1]
             colnames(yhatMat) <- paste0("lineage", apply(pointNames, 1, paste,
                                                          collapse = "_"))
-            for (jj in 1:length(gene)) {
-              yhat <- c(exp(t(Xall %*% t(beta[as.character(gene[jj]), ,
+            for (gg in 1:length(gene)) {
+              yhat <- c(exp(t(Xall %*% t(beta[as.character(gene[gg]), ,
                                               drop = FALSE])) +
                               df$offset[1]))
-              yhatMat[jj, ] <- yhat
+              yhatMat[gg, ] <- yhat
             }
             return(yhatMat)
           }
@@ -88,7 +88,7 @@ setMethod(f = "predictSmooth",
               }
               id <- which(names(models) %in% gene)
             } else id <- gene
-            
+
             m <- .getModelReference(models)
             dm <- m$model[, -1]
             X <- predict(m, type = "lpmatrix")
