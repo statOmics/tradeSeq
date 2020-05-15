@@ -150,98 +150,12 @@
   return(p)
 }
 
-
-#' @import mgcv
-setOldClass("gam")
-
-#' @description Plot the smoothers estimated by \code{tradeSeq}.
-#' @param models Either the \code{SingleCellExperiment} object obtained after
-#' running \code{fitGAM}, or the specific GAM model for the corresponding gene,
-#' if working with the list output of \code{tradeSeq}.
-#' @param counts The matrix of gene expression counts.
-#' @param gene Gene name or row in count matrix of gene to plot.
-#' @param nPoints The number of points used to extraplolate the fit.
-#' Defaults to 100.
-#' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}.
-#' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}.
-#' @param xlab x-axis label. Passed to \code{\link{labs}}.
-#' @param ylab y-axis label. Passed to \code{\link{labs}}.
-#' @param border Logical: should a white border be drawn around the mean smoother.
-#' @param alpha Numeric between 0 and 1, determines the transparancy of data points,
-#' see \code{scale_color_viridis_d}.
-#' @param sample Numeric between 0 and 1, use to subsample the cells when there
-#' are too many so that it can plot faster.
-#' @return A \code{\link{ggplot}} object
-#' @examples
-#' data(gamList, package = "tradeSeq")
-#' plotSmoothers(gamList[[4]])
-#' @import ggplot2
-#' @import mgcv
-#' @importFrom methods is
-#' @rdname plotSmoothers
-#' @export
-setMethod(f = "plotSmoothers",
-          signature = c(models = "gam"),
-          definition = function(models,
-                                nPoints = 100,
-                                lwd = 2,
-                                size = 2/3,
-                                xlab = "Pseudotime",
-                                ylab = "Log(expression + 1)",
-                                border = TRUE,
-                                alpha = 1,
-                                sample = 1){
-
-            .plotSmoothers(model = models,
-                           nPoints = nPoints,
-                           lwd = lwd,
-                           size = size,
-                           xlab = xlab,
-                           ylab = ylab,
-                           border = border,
-                           alpha = alpha,
-                           sample = sample)
-          }
-)
-
-#' @rdname plotSmoothers
-#' @import SingleCellExperiment
-#' @export
-setMethod(f = "plotSmoothers",
-          signature = c(models = "SingleCellExperiment"),
-          definition = function(models,
-                                counts,
-                                gene,
-                                nPoints = 100,
-                                lwd = 2,
-                                size = 2/3,
-                                xlab = "Pseudotime",
-                                ylab = "Log(expression + 1)",
-                                border = TRUE,
-                                alpha = 1,
-                                sample = 1){
-
-            .plotSmoothers_sce(models = models,
-                               counts = counts,
-                               gene = gene,
-                               nPoints = nPoints,
-                               lwd = lwd,
-                               size = size,
-                               xlab = xlab,
-                               ylab = ylab,
-                               border = border,
-                               alpha = alpha,
-                               sample = sample)
-          }
-)
-
-
 .plotSmoothers_conditions <- function(models, counts, gene, nPoints = 100, lwd = 2,
-                               size = 2/3,
-                               xlab = "Pseudotime",
-                               ylab = "Log(expression + 1)",
-                               border = FALSE,
-                               alpha = 2/3)
+                                      size = 2/3,
+                                      xlab = "Pseudotime",
+                                      ylab = "Log(expression + 1)",
+                                      border = FALSE,
+                                      alpha = 2/3)
 {
 
   #input is singleCellExperiment object.
@@ -327,4 +241,108 @@ setMethod(f = "plotSmoothers",
   return(p)
 }
 
+
+#' @import mgcv
+setOldClass("gam")
+
+#' @description Plot the smoothers estimated by \code{tradeSeq}.
+#' @param models Either the \code{SingleCellExperiment} object obtained after
+#' running \code{fitGAM}, or the specific GAM model for the corresponding gene,
+#' if working with the list output of \code{tradeSeq}.
+#' @param counts The matrix of gene expression counts.
+#' @param gene Gene name or row in count matrix of gene to plot.
+#' @param nPoints The number of points used to extraplolate the fit.
+#' Defaults to 100.
+#' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}.
+#' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}.
+#' @param xlab x-axis label. Passed to \code{\link{labs}}.
+#' @param ylab y-axis label. Passed to \code{\link{labs}}.
+#' @param border Logical: should a white border be drawn around the mean smoother.
+#' @param alpha Numeric between 0 and 1, determines the transparancy of data points,
+#' see \code{scale_color_viridis_d}.
+#' @param sample Numeric between 0 and 1, use to subsample the cells when there
+#' are too many so that it can plot faster.
+#' @return A \code{\link{ggplot}} object
+#' @examples
+#' data(gamList, package = "tradeSeq")
+#' plotSmoothers(gamList[[4]])
+#' @import ggplot2
+#' @import mgcv
+#' @importFrom methods is
+#' @rdname plotSmoothers
+#' @export
+setMethod(f = "plotSmoothers",
+          signature = c(models = "gam"),
+          definition = function(models,
+                                nPoints = 100,
+                                lwd = 2,
+                                size = 2/3,
+                                xlab = "Pseudotime",
+                                ylab = "Log(expression + 1)",
+                                border = TRUE,
+                                alpha = 1,
+                                sample = 1){
+
+            .plotSmoothers(model = models,
+                           nPoints = nPoints,
+                           lwd = lwd,
+                           size = size,
+                           xlab = xlab,
+                           ylab = ylab,
+                           border = border,
+                           alpha = alpha,
+                           sample = sample)
+          }
+)
+
+#' @rdname plotSmoothers
+#' @import SingleCellExperiment
+#' @export
+setMethod(f = "plotSmoothers",
+          signature = c(models = "SingleCellExperiment"),
+          definition = function(models,
+                                counts,
+                                gene,
+                                nPoints = 100,
+                                lwd = 2,
+                                size = 2/3,
+                                xlab = "Pseudotime",
+                                ylab = "Log(expression + 1)",
+                                border = TRUE,
+                                alpha = 1,
+                                sample = 1,
+                                conditions = suppressWarnings(is.null(models$tradeSeq$conditions))){
+
+            if(conditions){
+
+              .plotSmoothers_conditions(models = models,
+                                 counts = counts,
+                                 gene = gene,
+                                 nPoints = nPoints,
+                                 lwd = lwd,
+                                 size = size,
+                                 xlab = xlab,
+                                 ylab = ylab,
+                                 border = border,
+                                 alpha = alpha,
+                                 sample = sample)
+
+            } else {
+
+              .plotSmoothers_sce(models = models,
+                                 counts = counts,
+                                 gene = gene,
+                                 nPoints = nPoints,
+                                 lwd = lwd,
+                                 size = size,
+                                 xlab = xlab,
+                                 ylab = ylab,
+                                 border = border,
+                                 alpha = alpha,
+                                 sample = sample)
+
+            }
+
+          }
+)
 

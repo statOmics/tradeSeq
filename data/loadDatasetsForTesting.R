@@ -9,7 +9,7 @@
 #                sds = crv,
 #                nknots = 5,
 #                conditions = NULL)
-#
+
 # ### sce output, 4 lineages
 # download.file("https://docs.google.com/uc?export=download&id=1GhjXcdNLcvukX5Mr68oElemoUxI15v-I",
 #               destfile="~/tmp/sce4.rds")
