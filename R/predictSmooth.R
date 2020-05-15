@@ -102,7 +102,7 @@ setMethod(f = "predictSmooth",
               if (!all(gene %in% rownames(models))) {
                 stop("Not all gene IDs are present in the models object.")
               }
-              id <- which(rownames(models) %in% gene)
+              id <- match(gene, rownames(models))
             } else id <- gene
 
             # get tradeSeq info
