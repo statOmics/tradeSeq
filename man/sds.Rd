@@ -4,7 +4,9 @@
 \name{sds}
 \alias{sds}
 \title{A SlingshotDataset object, used in the package unit tests.}
-\format{An object of class \code{SlingshotDataSet} of length 1.}
+\format{
+An object of class \code{SlingshotDataSet} of length 1.
+}
 \source{
 \url{https://bioconductor.org/packages/release/bioc/html/slingshot.html}
 }

@@ -603,10 +603,6 @@ setMethod(f = "fitGAM",
 )
 
 #' @rdname fitGAM
-#' @import monocle
-#' @importFrom Biobase exprs
-#' @importFrom igraph degree shortest_paths
-#' @importFrom dplyr mutate filter
 setMethod(f = "fitGAM",
           signature = c(counts = "CellDataSet"),
           definition = function(counts,
@@ -621,39 +617,13 @@ setMethod(f = "fitGAM",
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
                                 family = "nb"){
-            if (counts@dim_reduce_type != "DDRTree") {
-              stop(paste0("For now tradeSeq only support Monocle with DDRTree",
-                          "reduction. If you want to use another type",
-                          "please use another format for tradeSeq inputs."))
-            }
-            # COnvert to appropriate format
-            y_to_cells <- counts@auxOrderingData[["DDRTree"]]
-            y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%
-              as.data.frame() %>%
-              dplyr::mutate(cells = rownames(.)) %>%
-              dplyr::rename("Y" = V1)
-            root <- counts@auxOrderingData[[counts@dim_reduce_type]]$root_cell
-            root <- y_to_cells$Y[y_to_cells$cells == root]
-            mst <- monocle::minSpanningTree(counts)
-            endpoints <- names(which(igraph::degree(mst) == 1))
-            endpoints <- endpoints[endpoints != paste0("Y_", root)]
-            cellWeights <- lapply(endpoints, function(endpoint) {
-              path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
-              path <- as.character(path)
-              df <- y_to_cells %>%
-                dplyr::filter(Y %in% path)
-              df <- data.frame(weights = as.numeric(colnames(counts) %in% df$cells))
-              colnames(df) <- endpoint
-              return(df)
-            }) %>% bind_cols()
-            pseudotime <- sapply(cellWeights, function(w) counts$Pseudotime)
-            rownames(cellWeights) <- rownames(pseudotime) <- colnames(counts)
-
+            # Convert to appropriate format
+            monocle_extraction <- extract_monocle_info(counts)
 
             gamOutput <- fitGAM(counts = Biobase::exprs(counts),
                                 U = U,
-                                cellWeights = cellWeights,
-                                pseudotime = pseudotime,
+                                cellWeights = monocle_extraction$cellWeights,
+                                pseudotime = monocle_extraction$pseudotime,
                                 genes = genes,
                                 weights = weights,
                                 offset = offset,

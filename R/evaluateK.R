@@ -169,3 +169,137 @@ setMethod(f = "evaluateK",
 
           }
 )
+#' @rdname evaluateK
+setMethod(f = "evaluateK",
+          signature = c(counts = "dgCMatrix"),
+          definition = function(counts,
+                                k = 3:10,
+                                nGenes = 500,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
+                                plot = TRUE,
+                                U = NULL,
+                                weights = NULL,
+                                offset = NULL,
+                                aicDiff = 2,
+                                verbose = TRUE,
+                                control = mgcv::gam.control(),
+                                sce = FALSE,
+                                family = "nb",
+                                ...){
+            
+            
+            aicOut <- evaluateK(counts = as.matrix(counts),
+                                k = k,
+                                nGenes = nGenes,
+                                sds = sds,
+                                pseudotime = pseudotime,
+                                cellWeights = cellWeights,
+                                plot = plot,
+                                U = U,
+                                weights = weights,
+                                offset = offset,
+                                aicDiff = aicDiff,
+                                verbose = verbose,
+                                control = control,
+                                sce = sce,
+                                family = family,
+                                ...)
+            
+            return(aicOut)
+            
+          }
+)
+#' @rdname evaluateK
+#' @importFrom SummarizedExperiment assays colData
+#' @importFrom S4Vectors DataFrame metadata
+#' @importFrom slingshot SlingshotDataSet
+#' @importFrom SingleCellExperiment counts
+#' @importFrom tibble tibble
+#' @importFrom dplyr full_join
+setMethod(f = "evaluateK",
+          signature = c(counts = "SingleCellExperiment"),
+          definition = function(counts,
+                                k = 3:10,
+                                nGenes = 500,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
+                                plot = TRUE,
+                                U = NULL,
+                                weights = NULL,
+                                offset = NULL,
+                                aicDiff = 2,
+                                verbose = TRUE,
+                                control = mgcv::gam.control(),
+                                sce = FALSE,
+                                family = "nb",
+                                ...){
+            if (is.null(counts@int_metadata$slingshot)) {
+              stop(paste0("For now tradeSeq only works downstream of slingshot",
+                          "in this format.\n Consider using the method with a ",
+                          "matrix as input instead."))
+            }
+            
+            aicOut <- evaluateK(counts = SingleCellExperiment::counts(counts),
+                                k = k,
+                                nGenes = nGenes,
+                                sds = slingshot::SlingshotDataSet(counts),
+                                plot = plot,
+                                U = U,
+                                weights = weights,
+                                offset = offset,
+                                aicDiff = aicDiff,
+                                verbose = verbose,
+                                control = control,
+                                sce = sce,
+                                family = family,
+                                ...)
+            
+            return(aicOut)
+            
+          }
+)
+#' @rdname evaluateK
+setMethod(f = "evaluateK",
+          signature = c(counts = "CellDataSet"),
+          definition = function(counts,
+                                k = 3:10,
+                                nGenes = 500,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
+                                plot = TRUE,
+                                U = NULL,
+                                weights = NULL,
+                                offset = NULL,
+                                aicDiff = 2,
+                                verbose = TRUE,
+                                control = mgcv::gam.control(),
+                                sce = FALSE,
+                                family = "nb",
+                                ...){
+            # Convert to appropriate format
+            monocle_extraction <- extract_monocle_info(counts)
+            
+            aicOut <- evaluateK(counts = SingleCellExperiment::counts(counts),
+                                k = k,
+                                nGenes = nGenes,
+                                cellWeights = monocle_extraction$cellWeights,
+                                pseudotime = monocle_extraction$pseudotime,
+                                plot = plot,
+                                U = U,
+                                weights = weights,
+                                offset = offset,
+                                aicDiff = aicDiff,
+                                verbose = verbose,
+                                control = control,
+                                sce = sce,
+                                family = family,
+                                ...)
+            
+            return(aicOut)
+            
+          }
+)

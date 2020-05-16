@@ -3,11 +3,71 @@
 \name{evaluateK}
 \alias{evaluateK}
 \alias{evaluateK,matrix-method}
+\alias{evaluateK,dgCMatrix-method}
+\alias{evaluateK,SingleCellExperiment-method}
+\alias{evaluateK,CellDataSet-method}
 \title{Evaluate the optimal number of knots required for fitGAM.}
 \usage{
 evaluateK(counts, ...)
 
 \S4method{evaluateK}{matrix}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  plot = TRUE,
+  U = NULL,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  control = mgcv::gam.control(),
+  sce = FALSE,
+  family = "nb",
+  ...
+)
+
+\S4method{evaluateK}{dgCMatrix}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  plot = TRUE,
+  U = NULL,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  control = mgcv::gam.control(),
+  sce = FALSE,
+  family = "nb",
+  ...
+)
+
+\S4method{evaluateK}{SingleCellExperiment}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  plot = TRUE,
+  U = NULL,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  control = mgcv::gam.control(),
+  sce = FALSE,
+  family = "nb",
+  ...
+)
+
+\S4method{evaluateK}{CellDataSet}(
   counts,
   k = 3:10,
   nGenes = 500,
