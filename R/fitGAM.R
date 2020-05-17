@@ -266,8 +266,6 @@
                , " + offset(offset)")
       )
     }
-
-    }
     # fit smoother, catch errors and warnings
     s = mgcv:::s
     m <- suppressWarnings(try(withCallingHandlers({
