@@ -234,13 +234,40 @@
     nknots <- nknots
     if (!is.null(weights)) weights <- weights[teller,]
     if (!is.null(dim(offset))) offset <- offset[teller,]
-    smoothForm <- as.formula(
-      paste0("y ~ -1 + U + ",
-             paste(vapply(seq_len(ncol(pseudotime)), function(ii){
-               paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
-             }, FUN.VALUE = "formula"),
-             collapse = "+"), " + offset(offset)")
-    )
+    if(is.null(conditions)){
+      smoothForm <- as.formula(
+        paste0("y ~ -1 + U + ",
+               paste(vapply(seq_len(ncol(pseudotime)), function(ii){
+                 paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
+               }, FUN.VALUE = "formula"),
+               collapse = "+"), " + offset(offset)")
+      )
+    } else {
+      for(jj in seq_len(ncol(pseudotime))){
+        for(kk in 1:nlevels(conditions)){
+          # three levels doesnt work. split it up and loop over both conditions and pseudotime
+          # to get a condition-and-lineage-specific smoother. Also in formula.
+          lCurrent <- get(paste0("l",jj))
+          id1 <- which(lCurrent == 1)
+          lCurrent[id1] <- ifelse(conditions[id1] == levels(conditions)[kk], 1, 0)
+          assign(paste0("l",jj,kk), lCurrent)
+        }
+      }
+      smoothForm <- as.formula(
+        paste0("y ~ -1 + U + ",
+               paste(vapply(seq_len(ncol(pseudotime)), function(ii){
+                 paste(vapply(seq_len(nlevels(conditions)), function(kk){
+                   paste0("s(t", ii, ", by=l", ii, kk,
+                          ", bs='cr', id=1, k=nknots)")
+                 }, FUN.VALUE = "formula"),
+                 collapse = "+")
+               }, FUN.VALUE = "formula"),
+               collapse="+")
+               , " + offset(offset)")
+      )
+    }
+
+    }
     # fit smoother, catch errors and warnings
     s = mgcv:::s
     m <- suppressWarnings(try(withCallingHandlers({
