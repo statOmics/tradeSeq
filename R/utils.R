@@ -373,7 +373,7 @@ getRank <- function(m,L){
 #' @title Extract info from Monocle models 
 #'
 #' @description This function extracts info that will be used downstream to make
-#' \code{\link{CellDataSet}} objects compatible with a \code{\lin{tradeSeq}}
+#' \code{\link{CellDataSet}} objects compatible with a \code{\link{tradeSeq}}
 #' analysis
 #'
 #' @rdname extract_monocle_info
@@ -381,12 +381,13 @@ getRank <- function(m,L){
 #' @details For now, this only works for the DDRTree dimentionality reduction. 
 #' It is the one recommanded by the Monocle developers.
 #' @return
-#' A list with four objects. A pseudotime matrix and a cellWeights matrix that
-#' can be used as input to \code\{link{fitGAM}} or \code\{link{evaluateK}}, the 
-#' reduced dimension matrix for the cells, and a list of length the number of
-#'  lineages, containing the reduced dimension of each lineage.
-#' @importFrom magrittr %>%
+#' A list with four objects. A \code{pseudotime} matrix and a \code{cellWeights}
+#' matrix that can be used as input to \code{\link{fitGAM}} or 
+#' \code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a 
+#' list of length the number of lineages, containing the reduced dimension of 
+#' each lineage.
 #' @import monocle
+#' @importFrom magrittr %>%
 #' @importFrom Biobase exprs
 #' @importFrom igraph degree shortest_paths
 #' @importFrom dplyr mutate filter

@@ -10,11 +10,15 @@ extract_monocle_info(cds)
 \item{cds}{A \code{\link{CellDataSet}}}
 }
 \value{
-
+A list with four objects. A \code{pseudotime} matrix and a \code{cellWeights}
+matrix that can be used as input to \code{\link{fitGAM}} or 
+\code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a 
+list of length the number of lineages, containing the reduced dimension of 
+each lineage.
 }
 \description{
 This function extracts info that will be used downstream to make
-\code{\link{CellDataSet}} objects compatible with a \code{\lin{tradeSeq}}
+\code{\link{CellDataSet}} objects compatible with a \code{\link{tradeSeq}}
 analysis
 }
 \details{
