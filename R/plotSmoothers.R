@@ -374,7 +374,7 @@ setMethod(f = "plotSmoothers",
                                 sample = 1,
                                 pointCol = NULL){
 
-            conditions <- suppressWarnings(is.null(models$tradeSeq$conditions))
+            conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
 
             if(conditions){
 

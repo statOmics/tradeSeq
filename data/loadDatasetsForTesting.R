@@ -29,5 +29,5 @@
 #                sds = crv,
 #                conditions = conditions,
 #                nknots = 5)
-
-
+# plotSmoothers(sce2_cond, as.matrix(countMatrix), names(sce2_cond)[1])
+# tradeSeq:::.plotSmoothers_conditions(sce2_cond, as.matrix(countMatrix), names(sce2_cond)[1])
