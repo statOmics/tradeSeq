@@ -57,7 +57,8 @@ Imports:
     dplyr,
     monocle,
     igraph,
-    clusterExperiment
+    clusterExperiment,
+    viridis
 Suggests:
     knitr,
     rmarkdown,
