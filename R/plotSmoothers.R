@@ -222,7 +222,7 @@
       for (ii in seq_len(nrow(dm))) {
         if (dm[ii, paste0("l", jj, kk)] == 1) {
           timeAll[ii] <- dm[ii, paste0("t", jj)]
-          lcol[ii] <- as.numeric(paste0(jj, kk))
+          lcol[ii] <- paste0(jj, levels(conditions)[kk])
         } else {
           next
         }
