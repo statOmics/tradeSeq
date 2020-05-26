@@ -12,6 +12,13 @@ setOldClass("gam")
 #' to the row(s) of the gene(s).
 #' @param nPoints The number of points used to create the grid along the
 #' smoother for each lineage. Defaults to 100.
+#' @param tidy Logical: return tidy output. If TRUE, returns a \code{data.frame}
+#' specifying lineage, gene, pseudotime and value of estimated smoother. If FALSE,
+#' returns matrix of predicted smoother values, where each row is a gene and
+#' each column is a point on the uniform grid along the lineage. For example,
+#' if the trajectory consists of 2 lineages and \code{nPoints=100}, then the
+#' returned matrix will have 2*100 columns, where the first 100 correspond to
+#' the first lineage and columns 101-200 to the second lineage.
 #' @return A \code{matrix} with estimated averages.
 #' @examples
 #' data(gamList, package = "tradeSeq")
@@ -25,8 +32,8 @@ setMethod(f = "predictSmooth",
           signature = c(models = "SingleCellExperiment"),
           definition = function(models,
                                 gene,
-                                nPoints = 100
-          ){
+                                nPoints = 100,
+                                tidy = FALSE){
             # check if all gene IDs provided are present in the models object.
             if (is(gene, "character")) {
               if (!all(gene %in% rownames(models))) {
@@ -48,6 +55,7 @@ setMethod(f = "predictSmooth",
             rownames(beta) <- gene
 
             # get predictor matrix
+            if(tidy) out <- list()
             for (jj in seq_len(nCurves)) {
               df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
               Xdf <- predictGAM(lpmatrix = X,
@@ -55,7 +63,9 @@ setMethod(f = "predictSmooth",
                                 pseudotime = pseudotime)
               if (jj == 1) Xall <- Xdf
               if (jj > 1) Xall <- rbind(Xall, Xdf)
+              if(tidy) out[[jj]] <- data.frame(lineage=jj, time=df[,paste0("t",jj)])
             }
+            if(tidy) outAll <- do.call(rbind,out)
 
             # loop over all genes
             yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nPoints)
@@ -69,7 +79,20 @@ setMethod(f = "predictSmooth",
                               df$offset[1]))
               yhatMat[gg, ] <- yhat
             }
-            return(yhatMat)
+
+            ## return output
+            if(!tidy){
+              return(yhatMat)
+            } else {
+              outList <- list()
+              for(gg in seq_len(length(gene))){
+                curOut <- outAll
+                curOut$gene <- gene[gg]
+                curOut$yhat <- yhatMat[gg,]
+                outList[[gg]] <- curOut
+              }
+              return(do.call(rbind, outList))
+            }
           }
 )
 
@@ -111,3 +134,5 @@ setMethod(f = "predictSmooth",
             return(exp(yhatMat))
           }
 )
+
+
