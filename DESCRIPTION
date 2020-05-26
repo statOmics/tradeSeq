@@ -55,15 +55,15 @@ Imports:
     tibble,
     dplyr,
     monocle,
-    igraph,
-    clusterExperiment
+    igraph
 Suggests:
     knitr,
     rmarkdown,
     cowplot,
     tidyr,
     testthat,
-    covr
+    covr,
+    clusterExperiment
 VignetteBuilder: knitr
 biocViews:
     Clustering,
