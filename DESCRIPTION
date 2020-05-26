@@ -55,7 +55,8 @@ Imports:
     tibble,
     dplyr,
     monocle,
-    igraph
+    igraph,
+    matrixStats
 Suggests:
     knitr,
     rmarkdown,

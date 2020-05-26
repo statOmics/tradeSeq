@@ -176,14 +176,14 @@
       fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
     })
-    fcMedian <- rowMedians(abs(do.call(rbind, fcAll)))
+    fcMedian <- matrixStats::rowMedians(abs(do.call(rbind, fcAll)))
 
   } else if(sce){
     betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
     fcAll <- apply(betaAll,1,function(betam){
       fcAll <- .getFoldChanges(betam, L)
     })
-    fcMedian <- matrix(rowMedians(abs(t(fcAll))), ncol=1)
+    fcMedian <- matrix(matrixStats::rowMedians(abs(t(fcAll))), ncol=1)
   }
   #return output
   if (global == TRUE & pairwise == FALSE) return(cbind(waldResultsOmnibus, fcMedian))
