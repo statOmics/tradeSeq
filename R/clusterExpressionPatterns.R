@@ -99,7 +99,6 @@
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' clusterExpressionPatterns(gamList, 200, seq_len(11))
-#' @importFrom clusterExperiment RSEC
 #' @importFrom methods is
 #' @name clusterExpressionPatterns
 #' @aliases clusterExpressionPatterns,SingleCellExperiment-method
