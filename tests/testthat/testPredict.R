@@ -59,15 +59,15 @@ test_that("predictCells works the same on all inputs", {
 test_that("predictSmooth returns the right kind of outputs", {
   nPoints <- 50
   yhat <- predictSmooth(sdsFit, gene = 1, nPoints = nPoints)
-  expect_equal(ncol(yhat), 
+  expect_equal(ncol(yhat),
                nPoints * ncol(colData(sdsFit)$slingshot) / 2)
   expect_equal(nrow(yhat), 1)
   yhat <- predictSmooth(sdsFit, nPoints = nPoints,
                         gene = sample(seq_len(nrow(sdsFit)), 10))
-  expect_equal(ncol(yhat), 
+  expect_equal(ncol(yhat),
                nPoints * ncol(colData(sdsFit)$slingshot) / 2)
   expect_equal(nrow(yhat), 10)
-  
+
 })
 
 
@@ -87,4 +87,12 @@ test_that("predictSmooth works the same on all inputs", {
   yhatList <- predictSmooth(listFit, gene = seq_len(nrow(sdsFit)),
                             nPoints = nPoints)
   expect_equal(yhatSds, yhatList)
+})
+
+
+test_that("predictSmooth tidy output works", {
+  nPoints <- 50
+  yhatSds <- predictSmooth(sdsFit, gene = seq_len(nrow(sdsFit)),
+                           nPoints = nPoints, tidy=TRUE)
+  expect_true(is(yhatSds, "data.frame"))
 })
