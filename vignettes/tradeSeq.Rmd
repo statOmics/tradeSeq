@@ -274,7 +274,7 @@ While `tradeSeq` provides readily implemented functionality to cluster genes usi
 Fitted values from the `tradeSeq` models, which can subsequently be used for clustering, can be extracted using the `predictSmooth` or `predictCells` functions.
 `predictCells` predicts the estimated expression for each cell (i.e. it is a fitted value for that cell) on the count scale.
 `predictSmooth`, instead, returns values of the estimated smoother on a grid of pseudotimes.
-Either of these may be used as input to a clustering method; roughly, `predictSmooth` may be considered as a cleaner version of `predictCells`.
+Either of these may be used as input to a clustering method; roughly, `predictSmooth` may be considered as a cleaner version of `predictCells`. By default `predictSmooth` returns a `data.frame` specifying the estimated smoother for each gene. A matrix containing these values, where each row is a gene, and each column is a point along the lineage on the uniform grid, can be obtained by setting `tidy=FALSE` in `predictSmooth`.
 
 ```{r}
 yhat <- predictCells(models = sce, gene = "Irf8")
