@@ -370,7 +370,7 @@ getRank <- function(m,L){
 
 
 # Monocle stuff ----
-#' @title Extract info from Monocle models 
+#' @title Extract info from Monocle models
 #'
 #' @description This function extracts info that will be used downstream to make
 #' \code{\link{CellDataSet}} objects compatible with a \code{\link{tradeSeq}}
@@ -378,18 +378,16 @@ getRank <- function(m,L){
 #'
 #' @rdname extract_monocle_info
 #' @param cds A \code{\link{CellDataSet}}
-#' @details For now, this only works for the DDRTree dimentionality reduction. 
+#' @details For now, this only works for the DDRTree dimentionality reduction.
 #' It is the one recommanded by the Monocle developers.
 #' @return
 #' A list with four objects. A \code{pseudotime} matrix and a \code{cellWeights}
-#' matrix that can be used as input to \code{\link{fitGAM}} or 
-#' \code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a 
-#' list of length the number of lineages, containing the reduced dimension of 
+#' matrix that can be used as input to \code{\link{fitGAM}} or
+#' \code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a
+#' list of length the number of lineages, containing the reduced dimension of
 #' each lineage.
-#' @import monocle
 #' @importFrom magrittr %>%
 #' @importFrom Biobase exprs
-#' @importFrom igraph degree shortest_paths
 #' @importFrom dplyr mutate filter
 #' @export
 extract_monocle_info <- function(cds) {
@@ -400,7 +398,7 @@ extract_monocle_info <- function(cds) {
   }
   # Get the reduced dimension of DDRT
   rd <- t(monocle::reducedDimS(cds)) %>% as.data.frame()
-  
+
   # Get the various lineages info for weights and pseudotime
   y_to_cells <- cds@auxOrderingData[["DDRTree"]]
   y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%

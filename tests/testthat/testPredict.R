@@ -58,12 +58,13 @@ test_that("predictCells works the same on all inputs", {
 # Tests for predictSmooth----
 test_that("predictSmooth returns the right kind of outputs", {
   nPoints <- 50
-  yhat <- predictSmooth(sdsFit, gene = 1, nPoints = nPoints)
+  yhat <- predictSmooth(sdsFit, gene = 1, nPoints = nPoints, tidy = FALSE)
   expect_equal(ncol(yhat),
                nPoints * ncol(colData(sdsFit)$slingshot) / 2)
   expect_equal(nrow(yhat), 1)
   yhat <- predictSmooth(sdsFit, nPoints = nPoints,
-                        gene = sample(seq_len(nrow(sdsFit)), 10))
+                        gene = sample(seq_len(nrow(sdsFit)), 10),
+                        tidy = FALSE)
   expect_equal(ncol(yhat),
                nPoints * ncol(colData(sdsFit)$slingshot) / 2)
   expect_equal(nrow(yhat), 10)
@@ -73,9 +74,9 @@ test_that("predictSmooth returns the right kind of outputs", {
 
 test_that("predictSmooth works the same for one or several inputs", {
   nPoints <- 50
-  yhat <- predictSmooth(sdsFit, gene = 1, nPoints = nPoints)
-  yhat2 <- predictSmooth(sdsFit, gene = 2, nPoints = nPoints)
-  yhat_all <- predictSmooth(sdsFit, gene = 1:2, nPoints = nPoints)
+  yhat <- predictSmooth(sdsFit, gene = 1, nPoints = nPoints, tidy = FALSE)
+  yhat2 <- predictSmooth(sdsFit, gene = 2, nPoints = nPoints, tidy = FALSE)
+  yhat_all <- predictSmooth(sdsFit, gene = 1:2, nPoints = nPoints, tidy = FALSE)
   expect_equal(yhat[1, ], yhat_all[1, ])
   expect_equal(yhat2[1, ], yhat_all[2, ])
 })
@@ -83,7 +84,7 @@ test_that("predictSmooth works the same for one or several inputs", {
 test_that("predictSmooth works the same on all inputs", {
   nPoints <- 50
   yhatSds <- predictSmooth(sdsFit, gene = seq_len(nrow(sdsFit)),
-                           nPoints = nPoints)
+                           nPoints = nPoints, tidy = FALSE)
   yhatList <- predictSmooth(listFit, gene = seq_len(nrow(sdsFit)),
                             nPoints = nPoints)
   expect_equal(yhatSds, yhatList)

@@ -11,9 +11,9 @@ extract_monocle_info(cds)
 }
 \value{
 A list with four objects. A \code{pseudotime} matrix and a \code{cellWeights}
-matrix that can be used as input to \code{\link{fitGAM}} or 
-\code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a 
-list of length the number of lineages, containing the reduced dimension of 
+matrix that can be used as input to \code{\link{fitGAM}} or
+\code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a
+list of length the number of lineages, containing the reduced dimension of
 each lineage.
 }
 \description{
@@ -22,6 +22,6 @@ This function extracts info that will be used downstream to make
 analysis
 }
 \details{
-For now, this only works for the DDRTree dimentionality reduction. 
+For now, this only works for the DDRTree dimentionality reduction.
 It is the one recommanded by the Monocle developers.
 }
