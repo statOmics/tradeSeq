@@ -33,7 +33,7 @@ setMethod(f = "predictSmooth",
           definition = function(models,
                                 gene,
                                 nPoints = 100,
-                                tidy = FALSE){
+                                tidy = TRUE){
             # check if all gene IDs provided are present in the models object.
             if (is(gene, "character")) {
               if (!all(gene %in% rownames(models))) {
