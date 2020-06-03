@@ -100,6 +100,7 @@ jobs:
       - name: Check
         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "warning", check_dir = "check")
         shell: Rscript {0}
+        failOnWarnings: false
 
       - name: BiocCheck
         run: |
