@@ -18,7 +18,7 @@ each lineage.
 }
 \description{
 This function extracts info that will be used downstream to make
-\code{\link{CellDataSet}} objects compatible with a \code{tradeSeq}
+\code{CellDataSet} objects compatible with a \code{tradeSeq}
 analysis
 }
 \details{

@@ -373,7 +373,7 @@ getRank <- function(m,L){
 #' @title Extract info from Monocle models
 #'
 #' @description This function extracts info that will be used downstream to make
-#' \code{\link{CellDataSet}} objects compatible with a \code{tradeSeq}
+#' \code{CellDataSet} objects compatible with a \code{tradeSeq}
 #' analysis
 #'
 #' @rdname extract_monocle_info
