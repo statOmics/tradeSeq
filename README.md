@@ -2,6 +2,7 @@
 
   <!-- badges: start -->
   [![Build Status](https://travis-ci.com/statOmics/tradeSeq.svg?branch=master)](https://travis-ci.com/statOmics/tradeSeq)
+  [![R-CMD-check](https://github.com/statOmics/tradeSeq/workflows/R-CMD-check/badge.svg)](https://github.com/statOmics/tradeSeq/actions)  
   [![Codecov test coverage](https://codecov.io/gh/statOmics/tradeSeq/branch/master/graph/badge.svg)](https://codecov.io/gh/statOmics/tradeSeq?branch=master)
   <!-- badges: end -->
 
