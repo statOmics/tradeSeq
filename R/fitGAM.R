@@ -234,7 +234,7 @@
              collapse = "+"), " + offset(offset)")
     )
     # fit smoother, catch errors and warnings
-    s = mgcv:::s
+    s <- mgcv::s
     m <- suppressWarnings(try(withCallingHandlers({
       mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
                 control = control)},

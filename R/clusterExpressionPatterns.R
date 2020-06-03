@@ -94,7 +94,7 @@
 #' @details This method adopts the \code{\link[clusterExperiment]{RSEC}}
 #' function from the clusterExperiment package to perform consensus clustering.
 #' @return A list containing the scaled fitted values \code{yhatScaled}(for
-#'  plotting) and a \code{\link{ClusterExperiment}} object, containing the
+#'  plotting) and a \code{clusterExperiment} object, containing the
 #'  clustering results.
 #' @examples
 #' data(gamList, package = "tradeSeq")

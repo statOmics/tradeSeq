@@ -64,7 +64,8 @@ Suggests:
     covr,
     monocle,
     igraph,
-    clusterExperiment
+    clusterExperiment,
+    viridis
 VignetteBuilder: knitr
 biocViews:
     Clustering,
