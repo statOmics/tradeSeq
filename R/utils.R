@@ -373,11 +373,11 @@ getRank <- function(m,L){
 #' @title Extract info from Monocle models
 #'
 #' @description This function extracts info that will be used downstream to make
-#' \code{\link{CellDataSet}} objects compatible with a \code{\link{tradeSeq}}
+#' \code{\link{CellDataSet}} objects compatible with a \code{tradeSeq}
 #' analysis
 #'
 #' @rdname extract_monocle_info
-#' @param cds A \code{\link{CellDataSet}}
+#' @param cds A \code{CellDataSet} object.
 #' @details For now, this only works for the DDRTree dimentionality reduction.
 #' It is the one recommanded by the Monocle developers.
 #' @return

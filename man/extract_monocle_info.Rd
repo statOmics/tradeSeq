@@ -7,7 +7,7 @@
 extract_monocle_info(cds)
 }
 \arguments{
-\item{cds}{A \code{\link{CellDataSet}}}
+\item{cds}{A \code{CellDataSet} object.}
 }
 \value{
 A list with four objects. A \code{pseudotime} matrix and a \code{cellWeights}
@@ -18,7 +18,7 @@ each lineage.
 }
 \description{
 This function extracts info that will be used downstream to make
-\code{\link{CellDataSet}} objects compatible with a \code{\link{tradeSeq}}
+\code{\link{CellDataSet}} objects compatible with a \code{tradeSeq}
 analysis
 }
 \details{
