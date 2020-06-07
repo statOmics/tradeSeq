@@ -28,6 +28,7 @@
 # sce2_cond <- fitGAM(counts = as.matrix(countMatrix),
 #                sds = crv,
 #                conditions = conditions,
-#                nknots = 5)
+#                nknots = 5, sce=FALSE)
 # plotSmoothers(sce2_cond, as.matrix(countMatrix), names(sce2_cond)[1])
 # tradeSeq:::.plotSmoothers_conditions(sce2_cond, as.matrix(countMatrix), names(sce2_cond)[1])
+# evaluateK(counts = as.matrix(countMatrix), sds=crv, conditions=conditions, k=4:6, nGenes=50)
