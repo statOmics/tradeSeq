@@ -161,7 +161,7 @@
                     weights = NULL, offset = NULL, nknots = 6, verbose = TRUE,
                     parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
                     aic = FALSE, control = mgcv::gam.control(), sce = TRUE,
-                    family = "nb"){
+                    family = "nb", gcv = FALSE){
 
   if (is(genes, "character")) {
     if (!all(genes %in% rownames(counts))) {
@@ -271,10 +271,21 @@
 
   ### output
   if (aic) { # only return AIC
-    return(unlist(lapply(gamList, function(x){
+    # return(unlist(lapply(gamList, function(x){
+    #   if (class(x)[1] == "try-error") return(NA)
+    #   x$aic
+    # })))
+    aicVals <- unlist(lapply(gamList, function(x){
       if (class(x)[1] == "try-error") return(NA)
       x$aic
-    })))
+    }))
+    if(gcv){
+      gcvVals <- unlist(lapply(gamList, function(x){
+        if (class(x)[1] == "try-error") return(NA)
+        x$gcv.ubre
+      }))
+      return(list(aicVals, gcvVals))
+    } else return(aicVals)
   }
 
   if (sce) { #tidy output: also return X
@@ -367,6 +378,7 @@
 #' be set to TRUE
 #' @param family The assumed distribution for the response. Is set to \code{"nb"}
 #' by default.
+#' @param gcv (In development). Logical, should a GCV score also be returned?
 #' @details
 #' \code{fitGAM} supports four different ways to input the required objects:
 #' \itemize{
@@ -419,7 +431,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
-                                family = "nb"){
+                                family = "nb",
+                                gcv = FALSE){
 
             if (is.null(counts)) stop("Provide expression counts using counts",
                                       " argument.")
@@ -467,7 +480,8 @@ setMethod(f = "fitGAM",
                                  BPPARAM = BPPARAM,
                                  control = control,
                                  sce = sce,
-                                 family = family)
+                                 family = family,
+                                 gcv = gcv)
 
             # old behaviour: return list
             if (!sce) {
@@ -511,7 +525,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
-                                family = "nb"){
+                                family = "nb",
+                                gcv = FALSE){
             gamOutput <- fitGAM(counts = as.matrix(counts),
                                 U = U,
                                 sds = sds,
@@ -526,7 +541,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BPPARAM,
                                 control = control,
                                 sce = sce,
-                                family = family)
+                                family = family,
+                                gcv = gcv)
             return(gamOutput)
           }
 )
@@ -551,7 +567,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
-                                family = "nb"){
+                                family = "nb",
+                                gcv = FALSE){
           if (is.null(counts@int_metadata$slingshot)) {
             stop(paste0("For now tradeSeq only works downstream of slingshot",
                         "in this format.\n Consider using the method with a ",
@@ -569,7 +586,8 @@ setMethod(f = "fitGAM",
                               BPPARAM = BPPARAM,
                               control = control,
                               sce = sce,
-                              family = family)
+                              family = family,
+                              gcv = gcv)
 
           # tradeSeq gene-level info
           geneInfo <- SummarizedExperiment::rowData(gamOutput)$tradeSeq
@@ -616,7 +634,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
-                                family = "nb"){
+                                family = "nb",
+                                gcv = FALSE){
             # Convert to appropriate format
             monocle_extraction <- extract_monocle_info(counts)
 
@@ -633,7 +652,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BPPARAM,
                                 control = control,
                                 sce = sce,
-                                family = family)
+                                family = family,
+                                gcv = gcv)
 
             return(gamOutput)
           }
