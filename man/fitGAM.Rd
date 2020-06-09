@@ -25,7 +25,8 @@ fitGAM(counts, ...)
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
   sce = TRUE,
-  family = "nb"
+  family = "nb",
+  gcv = FALSE
 )
 
 \S4method{fitGAM}{dgCMatrix}(
@@ -43,7 +44,8 @@ fitGAM(counts, ...)
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
   sce = TRUE,
-  family = "nb"
+  family = "nb",
+  gcv = FALSE
 )
 
 \S4method{fitGAM}{SingleCellExperiment}(
@@ -58,7 +60,8 @@ fitGAM(counts, ...)
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
   sce = TRUE,
-  family = "nb"
+  family = "nb",
+  gcv = FALSE
 )
 
 \S4method{fitGAM}{CellDataSet}(
@@ -73,7 +76,8 @@ fitGAM(counts, ...)
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
   sce = TRUE,
-  family = "nb"
+  family = "nb",
+  gcv = FALSE
 )
 }
 \arguments{
@@ -131,6 +135,8 @@ be set to TRUE}
 
 \item{family}{The assumed distribution for the response. Is set to \code{"nb"}
 by default.}
+
+\item{gcv}{(In development). Logical, should a GCV score also be returned?}
 }
 \value{
 If \code{sce=FALSE}, returns a list of length equal to the number of genes

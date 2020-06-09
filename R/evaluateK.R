@@ -108,8 +108,8 @@
 #' @param sce Logical, should a \code{SingleCellExperiment} object be returned?
 #' @param gcv (In development). Logical, should a GCV score also be returned?
 #' @return A plot of average AIC value over the range of selected knots, and a
-#' matrix of AIC values for the selected genes (rows) and the range of knots
-#' (columns).
+#' matrix of AIC and GCV values for the selected genes (rows) and the
+#' range of knots (columns).
 #' @examples
 #' ## This is an artifical example, please check the vignette for a realistic one.
 #' set.seed(8)
