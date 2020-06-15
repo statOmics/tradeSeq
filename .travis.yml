@@ -1,6 +1,10 @@
 language: r
-cache: packages
+r: bioc-release
+cache:
+  packages: true
 warnings_are_errors: false
+install:
+- R -e 'devtools::install_deps(dep = NA)'
 
 after_success:
     - Rscript -e 'covr::codecov()'
