@@ -4,7 +4,7 @@ cache:
   packages: true
 warnings_are_errors: false
 install:
-- R -e 'devtools::install_deps(dep = NA)'
+- R -e 'devtools::install_deps(dependencies = NA)'
 
 after_success:
     - Rscript -e 'covr::codecov()'
