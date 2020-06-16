@@ -44,10 +44,11 @@
 
 
   if (plot) {
+    op <- par()
     par(mfrow = c(1, 4))
     # boxplots of AIC
     devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
-    for (ii in seq_len(length(k))) {
+    for (ii in seq_len(nrow(aicMat))) {
       devs[ii, ] <- aicMat[ii, ] - mean(aicMat[ii, ])
     }
     boxplot(devs, ylab = "Deviation from genewise average AIC",
@@ -67,6 +68,7 @@
       tab <- table(k[apply(aicMatSub, 1, which.min)])
       barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
     }
+    par(op)
   }
 
   if(gcv){
