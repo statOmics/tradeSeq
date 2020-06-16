@@ -16,7 +16,7 @@
       )
       # sample weights
       wSamp <- apply(normWeights, 1, function(prob) {
-        rmultinom(n = 1, prob = prob, size = 1)
+        stats::rmultinom(n = 1, prob = prob, size = 1)
       })
       # If there is only one lineage, wSamp is a vector so we need to adjust for that
       if (is.null(dim(wSamp))) {
@@ -88,12 +88,12 @@
     tAll[ii] <- pseudotime[ii, which(as.logical(wSamp[ii,]))]
   }
 
-  knotLocs <- quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
+  knotLocs <- stats::quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
   if (any(duplicated(knotLocs))) {
     # fix pathological case where cells can be squeezed on one pseudotime value.
     # take knots solely based on longest lineage
-    knotLocs <- quantile(t1[l1 == 1],
-                         probs = (0:(nknots - 1)) / (nknots - 1))
+    knotLocs <- stats::quantile(t1[l1 == 1],
+                                probs = (0:(nknots - 1)) / (nknots - 1))
     # if duplication still occurs, get average btw 2 points for dups.
     if (any(duplicated(knotLocs))) {
       dupId <- duplicated(knotLocs)
@@ -226,7 +226,7 @@
     nknots <- nknots
     if (!is.null(weights)) weights <- weights[teller,]
     if (!is.null(dim(offset))) offset <- offset[teller,]
-    smoothForm <- as.formula(
+    smoothForm <- stats::as.formula(
       paste0("y ~ -1 + U + ",
              paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
@@ -279,7 +279,7 @@
       if (class(x)[1] == "try-error") return(NA)
       x$aic
     }))
-    if(gcv){
+    if (gcv) {
       gcvVals <- unlist(lapply(gamList, function(x){
         if (class(x)[1] == "try-error") return(NA)
         x$gcv.ubre
@@ -294,8 +294,8 @@
       if (is(m, "try-error")) {
         beta <- NA
       } else {
-        beta <- matrix(coef(m), ncol = 1)
-        rownames(beta) <- names(coef(m))
+        beta <- matrix(stats::coef(m), ncol = 1)
+        rownames(beta) <- names(stats::coef(m))
       }
       return(beta)
     })

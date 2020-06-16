@@ -181,15 +181,17 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 
-compare <- inner_join(patternRes %>% mutate(Gene = rownames(patternRes),
-                                            pattern = waldStat) %>%
-                                     select(Gene, pattern),
-                      endRes %>% mutate(Gene = rownames(endRes),
-                                        end = waldStat) %>%
-                                 select(Gene, end),
-                      by = c("Gene" = "Gene")) %>%
-           mutate(transientScore = (min_rank(desc(end)))^2 +
-                                   (dense_rank(pattern))^2)
+compare <- dplyr::inner_join(
+  patternRes %>% 
+    dplyr::mutate(Gene = rownames(patternRes),
+                  pattern = waldStat) %>%
+    dplyr::select(Gene, pattern),
+  endRes %>% 
+    dplyr::mutate(Gene = rownames(endRes),
+                  end = waldStat) %>%
+    dplyr::select(Gene, end),
+  by = c("Gene" = "Gene")) %>%
+  dplyr::mutate(transientScore = (min_rank(desc(end)))^2 + (dense_rank(pattern))^2)
 
 ggplot(compare, aes(x = log(pattern), y = log(end))) +
   geom_point(aes(col = transientScore)) +
@@ -213,7 +215,12 @@ plotGeneCount(crv, counts, gene = topTransient)
 Interestingly, we recover the Irf8 gene in the top 5 genes according to that ranking.
 
 ```{r}
-head(compare %>% arrange(desc(transientScore)) %>% select(Gene), n = 5)
+head(
+  compare %>% 
+    dplyr::arrange(desc(transientScore)) %>% 
+    dplyr::select(Gene),
+  n = 5
+)
 ```
 
 We can also plot the Irf8 gene.

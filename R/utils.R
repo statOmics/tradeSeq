@@ -29,10 +29,10 @@ predictGAM <- function(lpmatrix, df, pseudotime){
   for (ii in seq_len(nCurves)) { # loop over curves
     for (jj in seq_len(length(allBs) / nCurves)) { #within curve, loop over basis functions
       assign(paste0("l",ii,".",jj),
-             splinefun(x = pseudotime[lineageID == ii, ii],
-                       y = lpmatrix[lineageID == ii, #only cells for lineage
-                                    get(paste0("id", ii))[jj]],
-                       ties = mean)) #basis function
+             stats::splinefun(x = pseudotime[lineageID == ii, ii],
+                              y = lpmatrix[lineageID == ii, #only cells for lineage
+                                           get(paste0("id", ii))[jj]],
+                              ties = mean)) #basis function
     }
   }
 
@@ -152,7 +152,7 @@ waldTest <- function(beta, Sigma, L){
     est
   if (wald < 0) wald <- 0
   df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
+  pval <- 1 - stats::pchisq(wald, df = df)
   return(c(wald, df, pval))
 }
 
@@ -175,7 +175,7 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
     est
   if (wald < 0) wald <- 0
   df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
+  pval <- 1 - stats::pchisq(wald, df = df)
 
   ## get ALL observed fold changes for output
   # obsFC <- t(L) %*% beta
@@ -346,7 +346,7 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
 }
 
 getRank <- function(m,L){
-  beta <- matrix(coef(m), ncol = 1)
+  beta <- matrix(stats::coef(m), ncol = 1)
   est <- t(L) %*% beta
   sigma <- t(L) %*% m$Vp %*% L
   eSigma <- eigen(sigma, symmetric = TRUE)
@@ -388,7 +388,7 @@ getRank <- function(m,L){
 #' each lineage.
 #' @importFrom magrittr %>%
 #' @importFrom Biobase exprs
-#' @importFrom dplyr mutate filter
+#' @importFrom dplyr mutate filter bind_cols
 #' @export
 extract_monocle_info <- function(cds) {
   if (cds@dim_reduce_type != "DDRTree") {
@@ -418,7 +418,7 @@ extract_monocle_info <- function(cds) {
     df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
     colnames(df) <- endpoint
     return(df)
-  }) %>% bind_cols()
+  }) %>% dplyr::bind_cols()
   pseudotime <- sapply(cellWeights, function(w) cds$Pseudotime)
   rownames(cellWeights) <- rownames(pseudotime) <- colnames(cds)
   # Get the lineages representation

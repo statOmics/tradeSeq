@@ -32,7 +32,7 @@
   })
   #, BPPARAM = MulticoreParam(ncores))
 
-  if(gcv){
+  if (gcv) {
     aicMat <- do.call(cbind, lapply(aicVals, "[[", 1))
     colnames(aicMat) <- paste("k:", k)
     gcvMat <- do.call(cbind, lapply(aicVals, "[[", 2))
@@ -44,16 +44,16 @@
 
 
   if (plot) {
-    op <- par()
-    par(mfrow = c(1, 4))
+    op <- graphics::par()
+    graphics::par(mfrow = c(1, 4))
     # boxplots of AIC
     devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
     for (ii in seq_len(nrow(aicMat))) {
       devs[ii, ] <- aicMat[ii, ] - mean(aicMat[ii, ])
     }
-    boxplot(devs, ylab = "Deviation from genewise average AIC",
-            xlab = "Number of knots", xaxt = "n")
-    axis(1, at = seq_len(length(k)), labels = k)
+    graphics::boxplot(devs, ylab = "Deviation from genewise average AIC",
+                      xlab = "Number of knots", xaxt = "n")
+    graphics::axis(1, at = seq_len(length(k)), labels = k)
     # scatterplot of average AIC
     plot(x = k, y = colMeans(aicMat, na.rm = TRUE), type = "b",
          ylab = "Average AIC", xlab = "Number of knots")
@@ -66,9 +66,10 @@
     if (length(varID) > 0) {
       aicMatSub <- aicMat[varID, ]
       tab <- table(k[apply(aicMatSub, 1, which.min)])
-      barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
+      graphics::barplot(tab, xlab = "Number of knots",
+                        ylab = "# Genes with optimal k")
     }
-    par(op)
+    graphics::par(op)
   }
 
   if(gcv){

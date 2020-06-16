@@ -17,7 +17,7 @@
 
     data <- modelTemp$model
     # construct within-lineage contrast matrix
-    L <- matrix(0, nrow = length(coef(modelTemp)), ncol = nCurves)
+    L <- matrix(0, nrow = length(stats::coef(modelTemp)), ncol = nCurves)
     colnames(L) <- paste0("lineage", seq_len(nCurves))
 
 
@@ -90,7 +90,7 @@
     if (!sce) { #gam list output
       waldResultsOmnibus <- lapply(models, function(m){
         if (class(m)[1] == "try-error") return(c(NA, NA, NA))
-        beta <- matrix(coef(m), ncol = 1)
+        beta <- matrix(stats::coef(m), ncol = 1)
         Sigma <- m$Vp
         waldTestFC(beta, Sigma, L, l2fc)
       })
@@ -99,7 +99,7 @@
       waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        if(any(is.na(beta))) return(c(NA,NA, NA))
+        if (any(is.na(beta))) return(c(NA,NA, NA))
         waldTestFC(beta, Sigma, L, l2fc)
       })
       names(waldResultsOmnibus) <- rownames(models)
@@ -117,7 +117,7 @@
         if (class(m)[1] == "try-error") {
           return(matrix(NA, nrow = ncol(L), ncol = 3))
         }
-        beta <- matrix(coef(m), ncol = 1)
+        beta <- matrix(stats::coef(m), ncol = 1)
         Sigma <- m$Vp
         t(vapply(seq_len(ncol(L)), function(ii){
           waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
@@ -128,7 +128,7 @@
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
         t(vapply(seq_len(ncol(L)), function(ii){
-          if(any(is.na(beta))) return(c(NA,NA, NA))
+          if (any(is.na(beta))) return(c(NA,NA, NA))
           waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
@@ -151,23 +151,23 @@
 
 
   ## get fold changes for output
-  if(!sce){
+  if (!sce) {
     fcAll <- lapply(models, function(m){
-      betam <- coef(m)
+      betam <- stats::coef(m)
       fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
     })
-    if(ncol(L) == 1) fcAll <- matrix(unlist(fcAll), ncol=1)
-    if(ncol(L) > 1) fcAll <- do.call(rbind, fcAll)
+    if (ncol(L) == 1) fcAll <- matrix(unlist(fcAll), ncol = 1)
+    if (ncol(L) > 1) fcAll <- do.call(rbind, fcAll)
     colnames(fcAll) <- paste0("logFC",colnames(L))
 
-  } else if(sce){
+  } else if (sce) {
     betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
     fcAll <- apply(betaAll,1,function(betam){
       fcAll <- .getFoldChanges(betam, L)
     })
-    if(ncol(L) == 1) fcAll <- matrix(fcAll, ncol=1)
-    if(ncol(L)>1) fcAll <- t(fcAll)
+    if (ncol(L) == 1) fcAll <- matrix(fcAll, ncol = 1)
+    if (ncol(L) > 1) fcAll <- t(fcAll)
     colnames(fcAll) <- paste0("logFC",colnames(L))
   }
   ## return output

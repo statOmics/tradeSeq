@@ -50,8 +50,8 @@
                          paste0("t", jj)])
         # number of knots for that lineage
         nknots <- sum(knotPoints <= tmax)
-        C <- matrix(0, nrow = length(coef(modelTemp)), ncol = nknots - 1,
-                    dimnames = list(names(coef(modelTemp)), NULL)
+        C <- matrix(0, nrow = length(stats::coef(modelTemp)), ncol = nknots - 1,
+                    dimnames = list(names(stats::coef(modelTemp)), NULL)
         )
         for (i in seq_len(nknots - 1)) {
           C[npar + nknots_max * (jj - 1) + i, i] <- 1
@@ -104,7 +104,7 @@
     if (!sce) {
       waldResultsOmnibus <- lapply(models, function(m){
         if (is(m, "try-error")) return(c(NA, NA, NA))
-        beta <- matrix(coef(m), ncol = 1)
+        beta <- matrix(stats::coef(m), ncol = 1)
         Sigma <- m$Vp
         waldTestFC(beta, Sigma, L, l2fc)
       })
@@ -112,7 +112,7 @@
       waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        if(any(is.na(beta))) return(c(NA,NA, NA))
+        if (any(is.na(beta))) return(c(NA,NA, NA))
         waldTestFC(beta, Sigma, L, l2fc)
       })
       names(waldResultsOmnibus) <- names(models)
@@ -131,7 +131,7 @@
           return(matrix(NA, nrow = nCurves, ncol = 3))
         }
         t(vapply(seq_len(nCurves), function(ii){
-          beta <- matrix(coef(m), ncol = 1)
+          beta <- matrix(stats::coef(m), ncol = 1)
           Sigma <- m$Vp
           waldTestFC(beta, Sigma, get(paste0("L", ii)), l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
@@ -166,7 +166,7 @@
   if (!sce) {
     fcAll <- lapply(models, function(m){
       if (is(m, "try-error")) return(NA)
-      betam <- coef(m)
+      betam <- stats::coef(m)
       fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
     })

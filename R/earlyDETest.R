@@ -66,7 +66,7 @@
     }
 
     # construct pairwise contrast matrix
-    combs <- combn(nCurves, m = 2)
+    combs <- utils::combn(nCurves, m = 2)
     for (jj in seq_len(ncol(combs))) {
       curvesNow <- combs[, jj]
       if (jj == 1) {
@@ -86,7 +86,7 @@
     if (!sce) {
       waldResOmnibus <- lapply(models, function(m){
         if (is(m)[1] == "try-error") return(c(NA))
-        beta <- matrix(coef(m), ncol = 1)
+        beta <- matrix(stats::coef(m), ncol = 1)
         Sigma <- m$Vp
         getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
       })
@@ -94,14 +94,14 @@
       waldResOmnibus <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        if(any(is.na(beta))) return(c(NA,NA))
+        if (any(is.na(beta))) return(c(NA, NA))
         getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
       })
       names(waldResOmnibus) <- rownames(models)
     }
     #tidy output
     waldResults <- do.call(rbind, waldResOmnibus)
-    pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+    pval <- 1 - stats::pchisq(waldResults[, 1], df = waldResults[, 2])
     waldResults <- cbind(waldResults, pval)
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResultsOmnibus <- as.data.frame(waldResults)
@@ -109,7 +109,7 @@
 
   #perform pairwise comparisons
   if (pairwise) {
-    combs <- combn(x = nCurves, m = 2)
+    combs <- utils::combn(x = nCurves, m = 2)
     for (jj in seq_len(ncol(combs))) {
       curvesNow <- combs[,jj]
       if (!sce) {
@@ -128,12 +128,12 @@
         L <- t(X1 - X2)
         waldResPair <- lapply(models, function(m){
           if (is(m)[1] == "try-error") return(c(NA))
-          beta <- matrix(coef(m), ncol = 1)
+          beta <- matrix(stats::coef(m), ncol = 1)
           Sigma <- m$Vp
           getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
           })
 
-      } else if(sce){
+      } else if (sce) {
 
         # get df
         dfList <- .patternDfPairwise(dm = dm,
@@ -151,13 +151,13 @@
         waldResPair <- lapply(seq_len(nrow(models)), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-          if(any(is.na(beta))) return(c(NA,NA))
+          if (any(is.na(beta))) return(c(NA,NA))
           getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
         })
       }
       # tidy output
       waldResults <- do.call(rbind, waldResPair)
-      pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+      pval <- 1 - stats::pchisq(waldResults[, 1], df = waldResults[, 2])
       waldResults <- cbind(waldResults, pval)
       colnames(waldResults) <- c(
         paste0("waldStat_", paste(curvesNow, collapse = "vs")),
@@ -170,20 +170,20 @@
   }
 
   ## get fold changes for output
-  if(!sce){
+  if (!sce) {
     fcAll <- lapply(models, function(m){
-      betam <- coef(m)
+      betam <- stats::coef(m)
       fcAll <- .getFoldChanges(betam, L)
       return(fcAll)
     })
     fcMedian <- matrixStats::rowMedians(abs(do.call(rbind, fcAll)))
 
-  } else if(sce){
+  } else if (sce) {
     betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
     fcAll <- apply(betaAll,1,function(betam){
       fcAll <- .getFoldChanges(betam, L)
     })
-    fcMedian <- matrix(matrixStats::rowMedians(abs(t(fcAll))), ncol=1)
+    fcMedian <- matrix(matrixStats::rowMedians(abs(t(fcAll))), ncol = 1)
   }
   #return output
   if (global == TRUE & pairwise == FALSE) return(cbind(waldResultsOmnibus, fcMedian))
