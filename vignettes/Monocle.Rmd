@@ -32,8 +32,6 @@ library(tradeSeq)
 library(RColorBrewer)
 library(SingleCellExperiment)
 library(monocle)
-library(dplyr)
-library(tidyr)
 
 # For reproducibility
 palette(brewer.pal(8, "Dark2"))
@@ -69,7 +67,8 @@ Either use the `extract_monocle_info` function and fit using the default `fitGAM
 
 ```{r, eval = FALSE}
 info <- extract_monocle_info(cds)
-sce <- fitGAM(counts = cds, cellWeights = info$cellWeights,
+sce <- fitGAM(counts = Biobase::exprs(cds),
+              cellWeights = info$cellWeights,
               pseudotime = info$pseudotime)
 ```
 
@@ -83,7 +82,7 @@ You can then analyse the `sce` object following the [main vignette](https://bioc
 
 # Monocle3
 
-As of now (02/2020), monocle3[@Cao2019], is still in its beta version. Therefore, we have no plan yet to include a S4 method for monocle3 while it is not on CRAN or Bioconductor and the format is still moving. However, we present below a way to use `tradeSeq` downstream of `monocle3` as of version '0.2', for a fully connected graph. We follow the tutorial from the [monocle3 website](https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/). 
+As of now (06/2020), monocle3[@Cao2019], is still in its beta version. Therefore, we have no plan yet to include a S4 method for monocle3 while it is not on CRAN or Bioconductor and the format is still moving. However, we present below a way to use `tradeSeq` downstream of `monocle3` as of version '0.2', for a fully connected graph. We follow the tutorial from the [monocle3 website](https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/). 
 
 ## Constructing the trajectory
 
@@ -131,11 +130,12 @@ plot_cells(cds, color_cells_by = "pseudotime")
 ## Extracting the pseudotimes and cell weights for tradeSeq
 
 ```{r, eval = FALSE}
+library(magrittr)
 # Get the closest vertice for every cell
 y_to_cells <-  principal_graph_aux(cds)$UMAP$pr_graph_cell_proj_closest_vertex %>%
-  as.data.frame() %>%
-  dplyr::mutate(cells = rownames(.)) %>%
-  rename("Y" = V1)
+  as.data.frame()
+y_to_cells$cells <- rownames(y_to_cells)
+y_to_cells$Y <- y_to_cells$V1
 
 # Get the root vertices
 # It is the same node as above
@@ -151,12 +151,12 @@ cellWeights <- lapply(endpoints, function(endpoint) {
   path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
   path <- as.character(path)
   # We find the cells that map along that path
-  df <- y_to_cells %>%
-    dplyr::filter(Y %in% path)
+  df <- y_to_cells[y_to_cells$Y %in% path, ]
   df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
   colnames(df) <- endpoint
   return(df)
-  }) %>% bind_cols() 
+  }) %>% do.call(what = 'cbind', args = .) %>%
+    as.matrix()
 rownames(cellWeights) <- colnames(cds)
 pseudotime <- matrix(pseudotime(cds), ncol = ncol(cellWeights),
                      nrow = ncol(cds), byrow = FALSE)

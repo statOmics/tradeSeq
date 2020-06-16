@@ -237,7 +237,6 @@ setMethod(f = "evaluateK",
 #' @importFrom slingshot SlingshotDataSet
 #' @importFrom SingleCellExperiment counts
 #' @importFrom tibble tibble
-#' @importFrom dplyr full_join
 setMethod(f = "evaluateK",
           signature = c(counts = "SingleCellExperiment"),
           definition = function(counts,
@@ -284,6 +283,7 @@ setMethod(f = "evaluateK",
           }
 )
 #' @rdname evaluateK
+#' @importClassesFrom monocle CellDataSet
 setMethod(f = "evaluateK",
           signature = c(counts = "CellDataSet"),
           definition = function(counts,

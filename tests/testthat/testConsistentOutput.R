@@ -21,6 +21,7 @@ means[id, ] <- sweep(means[id, ], 2, FUN = "*", STATS = (pseudotime[, 1] / 50))
 # simulate NB counts
 counts <- matrix(rnbinom(n = G * n, mu = means, size = 1 / dispersions),
                  nrow = G, ncol = n)
+rownames(counts) <- 1:100
 sce <- SingleCellExperiment(assays = list(counts = counts))
 sce@int_metadata$slingshot <- sds
 

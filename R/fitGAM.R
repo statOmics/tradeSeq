@@ -412,6 +412,7 @@
 #' @importFrom BiocParallel bplapply bpparam
 #' @importFrom pbapply pblapply
 #' @importFrom S4Vectors DataFrame metadata
+#' @importFrom edgeR calcNormFactors
 #' @importFrom methods is
 #' @importFrom tibble enframe tibble
 #' @export
@@ -509,6 +510,7 @@ setMethod(f = "fitGAM",
           }
 )
 #' @rdname fitGAM
+#' @importClassesFrom Matrix dgCMatrix 
 setMethod(f = "fitGAM",
           signature = c(counts = "dgCMatrix"),
           definition = function(counts,
@@ -553,7 +555,6 @@ setMethod(f = "fitGAM",
 #' @importFrom slingshot SlingshotDataSet
 #' @importFrom SingleCellExperiment counts
 #' @importFrom tibble tibble
-#' @importFrom dplyr full_join
 setMethod(f = "fitGAM",
           signature = c(counts = "SingleCellExperiment"),
           definition = function(counts,
@@ -605,7 +606,9 @@ setMethod(f = "fitGAM",
           } else {
             newGeneInfo <- tibble::tibble(name = rownames(counts))
           }
-          newGeneInfo <- dplyr::full_join(newGeneInfo, geneInfo, by = "name")
+          newGeneInfo <- merge(newGeneInfo, geneInfo, by = "name", all = TRUE)
+          rownames(newGeneInfo) <- newGeneInfo$name
+          newGeneInfo <- newGeneInfo[rownames(counts), ]
           SummarizedExperiment::rowData(counts)$tradeSeq <- newGeneInfo
           # tradeSeq cell-level info
           SummarizedExperiment::colData(counts)$tradeSeq <-
@@ -621,6 +624,7 @@ setMethod(f = "fitGAM",
 )
 
 #' @rdname fitGAM
+#' @importClassesFrom monocle CellDataSet
 setMethod(f = "fitGAM",
           signature = c(counts = "CellDataSet"),
           definition = function(counts,
