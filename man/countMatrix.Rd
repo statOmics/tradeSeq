@@ -4,9 +4,11 @@
 \name{countMatrix}
 \alias{countMatrix}
 \title{A count matrix, used in the package vignette.}
-\format{An object of class \code{dgCMatrix} with 240 rows and 2660 columns.}
+\format{
+An object of class \code{dgCMatrix} with 240 rows and 2660 columns.
+}
 \usage{
-countMatrix
+data(countMatrix)
 }
 \description{
 This object contains the gene expression counts from the data described in

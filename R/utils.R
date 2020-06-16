@@ -358,13 +358,13 @@ getRank <- function(m,L){
   apply(L,2,function(contrast) contrast %*% beta)
 }
 
-.onAttach <- function(libname, pkgname){
-  packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",
-                               "singleCellExperiment objects as output, making ",
-                               "it much more memory efficient. Please ",
-                               "check the news file and the updated vignette ",
-                               "for details."))
-}
+# .onAttach <- function(libname, pkgname){
+#   packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",
+#                                "singleCellExperiment objects as output, making ",
+#                                "it much more memory efficient. Please ",
+#                                "check the news file and the updated vignette ",
+#                                "for details."))
+# }
 
 
 

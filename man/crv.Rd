@@ -4,9 +4,11 @@
 \name{crv}
 \alias{crv}
 \title{A SlingshotDataset object, used in the package vignette.}
-\format{An object of class \code{SlingshotDataSet} of length 1.}
+\format{
+An object of class \code{SlingshotDataSet} of length 1.
+}
 \usage{
-crv
+data(crv)
 }
 \description{
 This dataset contains the Slingshot trajectory from the data described in
