@@ -6,8 +6,18 @@
 
   if (is(models, "list")) {
     sce <- FALSE
+    conditions <- FALSE
   } else if (is(models, "SingleCellExperiment")) {
     sce <- TRUE
+    condPresent <- suppressWarnings({
+      !is.null(SummarizedExperiment::colData(models)$tradeSeq$conditions)
+    })
+    if(condPresent){
+      conditions <- SummarizedExperiment::colData(models)$tradeSeq$conditions
+      nConditions <- nlevels(conditions)
+    } else {
+      conditions <- NULL
+    }
   }
 
   # get predictor matrix for every lineage.
@@ -15,25 +25,38 @@
 
     modelTemp <- .getModelReference(models)
     nCurves <- length(modelTemp$smooth)
-    if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if (nCurves == 2 & pairwise == TRUE) {
+    if (nCurves == 1 & condPresent == FALSE){
+      stop("You cannot run this test with only one lineage.")
+    }
+    if (nCurves == 2 & pairwise == TRUE & condPresent == FALSE) {
       message("Only two lineages; skipping pairwise comparison.")
       pairwise <- FALSE
     }
     data <- modelTemp$model
   } else if (sce) {
-
+    #singlecellexperiment models
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
     knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
     slingshotColData <- colData(models)$slingshot
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime")]
-    nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-    if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if (nCurves == 2 & pairwise == TRUE) {
-      message("Only two lineages; skipping pairwise comparison.")
-      pairwise <- FALSE
+    if(!condPresent){
+      # no conditions present
+      nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+      if (nCurves == 1) stop("You cannot run this test with only one lineage.")
+      if (nCurves == 2 & pairwise == TRUE) {
+        message("Only two lineages; skipping pairwise comparison.")
+        pairwise <- FALSE
+      }
+    } else if(condPresent){
+      # conditions are present
+      nCurves <- length(grep(x = colnames(dm), pattern = "l[(1-9)+]"))
+      if (nCurves == 1) stop("You cannot run this test with only one lineage.")
+      if (nCurves == 2 & pairwise == TRUE) {
+        message("Only two lineages; skipping pairwise comparison.")
+        pairwise <- FALSE
+      }
     }
   }
 
@@ -54,33 +77,68 @@
     } else if (sce) {
       # get df
       dfList <- .patternDf(dm = dm,
-                      nPoints = nPoints,
-                      knots = knots,
-                      knotPoints = knotPoints)
+                           nPoints = nPoints,
+                           knots = knots,
+                           knotPoints = knotPoints,
+                           conditions = conditions)
+
+
+    # construct pairwise contrast matrix
+    if(!condPresent) {
       # get linear predictor
       for (jj in seq_len(nCurves)) {
         assign(paste0("X", jj), predictGAM(lpmatrix = X,
-                                        df = dfList[[jj]],
-                                        pseudotime = pseudotime))
+                                           df = dfList[[jj]],
+                                           pseudotime = pseudotime))
       }
-    }
 
-    # construct pairwise contrast matrix
-    combs <- utils::combn(nCurves, m = 2)
-    for (jj in seq_len(ncol(combs))) {
-      curvesNow <- combs[, jj]
-      if (jj == 1) {
-        L <- get(paste0("X", curvesNow[1])) - get(paste0("X", curvesNow[2]))
-      } else if (jj > 1) {
-        L <- rbind(L, get(paste0("X", curvesNow[1])) -
-                     get(paste0("X", curvesNow[2])))
+      combs <- combn(nCurves, m = 2)
+      for (jj in seq_len(ncol(combs))) {
+        curvesNow <- combs[, jj]
+        if (jj == 1) {
+          L <- get(paste0("X", curvesNow[1])) - get(paste0("X", curvesNow[2]))
+        } else if (jj > 1) {
+          L <- rbind(L, get(paste0("X", curvesNow[1])) -
+                       get(paste0("X", curvesNow[2])))
+        }
       }
-    }
-    # point x comparison y colnames
-    rownames(L) <- paste0("p", rep(seq_len(nPoints), ncol(combs)), "_", "c",
-                          rep(seq_len(ncol(combs)), each = nPoints))
-    #transpose => one column is one contrast.
-    L <- t(L)
+      # point x comparison y colnames
+      rownames(L) <- paste0("p", rep(seq_len(nPoints), ncol(combs)), "_", "c",
+                            rep(seq_len(ncol(combs)), each = nPoints))
+      #transpose => one column is one contrast.
+      L <- t(L)
+    } else if(condPresent) {
+
+      # if conditions are present, we assess
+      # condition-agnostic between-lineage DE
+      # by taking average across conditions
+      # within each lineage
+
+      # get linear predictor across the lineage
+      # you can get the mean of l11 and l12 if l11=1/2 and l12=1/2
+      dfIk <- lapply(dfList, function(x){
+        do.call("+", x) / length(x)
+      })
+      for (jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+        assign(paste0("X", jj), predictGAM(lpmatrix = X,
+                                           df = dfIk[[jj]],
+                                           pseudotime = pseudotime,
+                                           conditions = conditions))
+      }
+
+      LBetween <- list()
+      combBetween <- combn((seq_len(nCurves)[seq(2, nCurves, by=2)])/2, m = 2)
+      for (jj in seq_len(ncol(combBetween))) {
+        curvesNow <- combBetween[, jj]
+        LBetween[[jj]] <- get(paste0("X", curvesNow[1])) - get(paste0("X", curvesNow[2]))
+      }
+      LBetweenGlobal <- do.call(rbind, LBetween)
+      # point x comparison y colnames
+      rownames(LBetweenGlobal) <- paste0("p", rep(seq_len(nPoints), ncol(combBetween)), "_", "c",
+                            rep(seq_len(ncol(combBetween)), each = nPoints))
+
+      L <- t(LBetweenGlobal)
+      }
 
     # perform Wald test and calculate p-value
     if (!sce) {
@@ -105,69 +163,96 @@
     waldResults <- cbind(waldResults, pval)
     colnames(waldResults) <- c("waldStat", "df", "pvalue")
     waldResultsOmnibus <- as.data.frame(waldResults)
+    }
   }
 
   #perform pairwise comparisons
   if (pairwise) {
-    combs <- utils::combn(x = nCurves, m = 2)
-    for (jj in seq_len(ncol(combs))) {
-      curvesNow <- combs[,jj]
-      if (!sce) {
-        # get df
-        dfListPair <- .patternDfPairwise(dm = modelTemp$model,
-                                     curves = curvesNow,
-                                     nPoints = nPoints,
-                                     knots = knots,
-                                     knotPoints = modelTemp$smooth[[1]]$xp)
-        # get linear predictor
-        for (ii in seq_len(2)) { #always 2 curves we're comparing
-          assign(paste0("X", ii), predict(modelTemp,
-                                          newdata = dfListPair[[ii]],
-                                          type = "lpmatrix"))
-        }
-        L <- t(X1 - X2)
-        waldResPair <- lapply(models, function(m){
-          if (is(m)[1] == "try-error") return(c(NA))
-          beta <- matrix(stats::coef(m), ncol = 1)
-          Sigma <- m$Vp
-          getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
+    if(!condPresent){
+      # no conditions present: loop over lineages for both !sce and sce
+      combs <- combn(x = nCurves, m = 2)
+      for (jj in seq_len(ncol(combs))) {
+        curvesNow <- combs[,jj]
+        if (!sce) {
+          # get df
+          dfListPair <- .patternDfPairwise(dm = modelTemp$model,
+                                           curves = curvesNow,
+                                           nPoints = nPoints,
+                                           knots = knots,
+                                           knotPoints = modelTemp$smooth[[1]]$xp)
+          # get linear predictor
+          for (ii in seq_len(2)) { #always 2 curves we're comparing
+            assign(paste0("X", ii), predict(modelTemp,
+                                            newdata = dfListPair[[ii]],
+                                            type = "lpmatrix"))
+          }
+          L <- t(X1 - X2)
+          waldResPair <- lapply(models, function(m){
+            if (is(m)[1] == "try-error") return(c(NA))
+            beta <- matrix(coef(m), ncol = 1)
+            Sigma <- m$Vp
+            getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
           })
 
-      } else if (sce) {
-
-        # get df
-        dfList <- .patternDfPairwise(dm = dm,
-                                     curves = curvesNow,
-                                     nPoints = nPoints,
-                                     knots = knots,
-                                     knotPoints = knotPoints)
-        # get linear predictor
-        for (ii in seq_len(2)) { #pairwise => always 2 curves
-          assign(paste0("X", ii), predictGAM(lpmatrix = X,
-                                             df = dfList[[ii]],
-                                             pseudotime = pseudotime))
+        } else if(sce){
+          # get df
+          dfList <- .patternDfPairwise(dm = dm,
+                                       curves = curvesNow,
+                                       nPoints = nPoints,
+                                       knots = knots,
+                                       knotPoints = knotPoints)
+          # get linear predictor
+          for (ii in seq_len(2)) { #pairwise => always 2 curves
+            assign(paste0("X", ii), predictGAM(lpmatrix = X,
+                                               df = dfList[[ii]],
+                                               pseudotime = pseudotime))
+          }
+          L <- t(X1 - X2)
+          waldResPair <- lapply(seq_len(nrow(models)), function(ii){
+            beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+            Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+            getEigenStatGAM(beta, Sigma, L)
+          })
         }
-        L <- t(X1 - X2)
+        # tidy output
+        waldResults <- do.call(rbind, waldResPair)
+        pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+        waldResults <- cbind(waldResults, pval)
+        colnames(waldResults) <- c(
+          paste0("waldStat_", paste(curvesNow, collapse = "vs")),
+          paste0("df_", paste(curvesNow, collapse = "vs")),
+          paste0("pvalue_", paste(curvesNow, collapse = "vs")))
+        waldResults <- as.data.frame(waldResults)
+        if (jj == 1) waldResAllPair <- waldResults
+        if (jj > 1) waldResAllPair <- cbind(waldResAllPair, waldResults)
+      }
+    } else if(condPresent){
+      # conditions present: return two sets of hypotheses.
+
+      # between-lineage DE agnostic of conditions
+      betweenLineageTests <- length(LBetween)
+      # loop over list of between-lineage DE contrasts
+      for(jj in seq_len(length(LBetween))) {
         waldResPair <- lapply(seq_len(nrow(models)), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
           if (any(is.na(beta))) return(c(NA,NA))
           getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
         })
+        waldResults <- do.call(rbind, waldResPair)
+        pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+        waldResults <- cbind(waldResults, pval)
+        colnames(waldResults) <- c(
+          paste0("waldStat_", paste(combBetween[,jj], collapse = "vs")),
+          paste0("df_", paste(combBetween[,jj], collapse = "vs")),
+          paste0("pvalue_", paste(combBetween[,jj], collapse = "vs")))
+        waldResults <- as.data.frame(waldResults)
+        if (jj == 1) waldResBetween <- waldResults
+        if (jj > 1) waldResBetween <- cbind(waldResBetween, waldResults)
       }
-      # tidy output
-      waldResults <- do.call(rbind, waldResPair)
-      pval <- 1 - stats::pchisq(waldResults[, 1], df = waldResults[, 2])
-      waldResults <- cbind(waldResults, pval)
-      colnames(waldResults) <- c(
-        paste0("waldStat_", paste(curvesNow, collapse = "vs")),
-        paste0("df_", paste(curvesNow, collapse = "vs")),
-        paste0("pvalue_", paste(curvesNow, collapse = "vs")))
-      waldResults <- as.data.frame(waldResults)
-      if (jj == 1) waldResAllPair <- waldResults
-      if (jj > 1) waldResAllPair <- cbind(waldResAllPair, waldResults)
+      waldResAllPair <- waldResBetween
     }
-  }
+  } # end of if(pairwise)
 
   ## get fold changes for output
   if (!sce) {

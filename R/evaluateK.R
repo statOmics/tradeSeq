@@ -157,12 +157,11 @@ setMethod(f = "evaluateK",
             if (!is.null(sds)) {
               # check if input is slingshotdataset
               if (is(sds, "SlingshotDataSet")) {
-                sce <- TRUE
-              } else stop("sds argument must be a SlingshotDataSet object.")
-
-              # extract variables from slingshotdataset
-              pseudotime <- slingPseudotime(sds, na = FALSE)
-              cellWeights <- slingCurveWeights(sds)
+                # extract variables from slingshotdataset
+                pseudotime <- slingPseudotime(sds, na = FALSE)
+                cellWeights <- slingCurveWeights(sds)
+              }
+              else stop("sds argument must be a SlingshotDataSet object.")
             }
 
             if (is.null(counts)) stop("Provide expression counts using counts",

@@ -29,7 +29,8 @@
   }
 }
 
-.checks <- function(pseudotime, cellWeights, U, counts) {
+
+.checks <- function(pseudotime, cellWeights, U, counts, conditions) {
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
     if (!identical(dim(pseudotime), dim(cellWeights))) {
@@ -51,6 +52,12 @@
     }
     if (!identical(nrow(cellWeights), ncol(counts))) {
       stop("cellWeights and count matrix must have equal number of cells.")
+    }
+  }
+
+  if(!is.null(conditions)){
+    if(!is(conditions, "factor")){
+      stop("conditions must be a vector of class factor.")
     }
   }
 }
@@ -157,6 +164,7 @@
 }
 
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights,
+                    conditions = conditions,
                     genes = seq_len(nrow(counts)),
                     weights = NULL, offset = NULL, nknots = 6, verbose = TRUE,
                     parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
@@ -191,7 +199,7 @@
     cellWeights <- matrix(cellWeights, nrow = length(cellWeights))
   }
 
-  .checks(pseudotime, cellWeights, U, counts)
+  .checks(pseudotime, cellWeights, U, counts, conditions)
 
   wSamp <- .assignCells(cellWeights)
 
@@ -226,13 +234,38 @@
     nknots <- nknots
     if (!is.null(weights)) weights <- weights[teller,]
     if (!is.null(dim(offset))) offset <- offset[teller,]
-    smoothForm <- stats::as.formula(
-      paste0("y ~ -1 + U + ",
-             paste(vapply(seq_len(ncol(pseudotime)), function(ii){
-               paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
-             }, FUN.VALUE = "formula"),
-             collapse = "+"), " + offset(offset)")
-    )
+    if(is.null(conditions)){
+      smoothForm <- as.formula(
+        paste0("y ~ -1 + U + ",
+               paste(vapply(seq_len(ncol(pseudotime)), function(ii){
+                 paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
+               }, FUN.VALUE = "formula"),
+               collapse = "+"), " + offset(offset)")
+      )
+    } else {
+      for(jj in seq_len(ncol(pseudotime))){
+        for(kk in 1:nlevels(conditions)){
+          # three levels doesnt work. split it up and loop over both conditions and pseudotime
+          # to get a condition-and-lineage-specific smoother. Also in formula.
+          lCurrent <- get(paste0("l",jj))
+          id1 <- which(lCurrent == 1)
+          lCurrent[id1] <- ifelse(conditions[id1] == levels(conditions)[kk], 1, 0)
+          assign(paste0("l",jj,kk), lCurrent)
+        }
+      }
+      smoothForm <- as.formula(
+        paste0("y ~ -1 + U + ",
+               paste(vapply(seq_len(ncol(pseudotime)), function(ii){
+                 paste(vapply(seq_len(nlevels(conditions)), function(kk){
+                   paste0("s(t", ii, ", by=l", ii, kk,
+                          ", bs='cr', id=1, k=nknots)")
+                 }, FUN.VALUE = "formula"),
+                 collapse = "+")
+               }, FUN.VALUE = "formula"),
+               collapse="+")
+               , " + offset(offset)")
+      )
+    }
     # fit smoother, catch errors and warnings
     s <- mgcv::s
     m <- suppressWarnings(try(withCallingHandlers({
@@ -344,6 +377,10 @@
 #' in rows and cells in columns. Can be a matrix or a sparse matrix.
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
+#' @param conditions This argument is in beta phase and should be used carefully.
+#' If each lineage consists of mutliple conditions, this argument can be used to
+#' specify the conditions. tradeSeq will then fit a condition-specific smoother for
+#' every lineage.
 #' @param sds an object of class \code{SlingshotDataSet}, typically obtained
 #' after running Slingshot. If this is provided, \code{pseudotime} and
 #' \code{cellWeights} arguments are derived from this object.
@@ -422,6 +459,7 @@ setMethod(f = "fitGAM",
                                 sds = NULL,
                                 pseudotime = NULL,
                                 cellWeights = NULL,
+                                conditions = NULL,
                                 U = NULL,
                                 genes = seq_len(nrow(counts)),
                                 weights = NULL,
@@ -468,10 +506,15 @@ setMethod(f = "fitGAM",
                    " for GAM fitting.")
             }
 
+            if(!is.null(conditions)){
+              if(class(conditions) != "factor") stop("conditions must be a factor vector.")
+            }
+
             gamOutput <- .fitGAM(counts = counts,
                                  U = U,
                                  pseudotime = pseudotime,
                                  cellWeights = cellWeights,
+                                 conditions = conditions,
                                  genes = genes,
                                  weights = weights,
                                  offset = offset,
@@ -501,8 +544,14 @@ setMethod(f = "fitGAM",
             df$converged <- gamOutput$converged
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
-            SummarizedExperiment::colData(sc)$tradeSeq <-
-              tibble::tibble(X = gamOutput$X, dm = gamOutput$dm)
+            if(is.null(conditions)){
+              SummarizedExperiment::colData(sc)$tradeSeq <-
+                tibble::tibble(X = gamOutput$X, dm = gamOutput$dm)
+            } else {
+              SummarizedExperiment::colData(sc)$tradeSeq <-
+                tibble::tibble(X = gamOutput$X, dm = gamOutput$dm,
+                               conditions = conditions)
+            }
             # metadata: tradeSeq knots
             S4Vectors::metadata(sc)$tradeSeq <-
               list(knots = gamOutput$knotPoints)
@@ -560,6 +609,7 @@ setMethod(f = "fitGAM",
           definition = function(counts,
                                 U = NULL,
                                 genes = seq_len(nrow(counts)),
+                                conditions = NULL,
                                 weights = NULL,
                                 offset = NULL,
                                 nknots = 6,
@@ -579,6 +629,7 @@ setMethod(f = "fitGAM",
                               U = U,
                               sds = slingshot::SlingshotDataSet(counts),
                               genes = genes,
+                              conditions = conditions,
                               weights = weights,
                               offset = offset,
                               nknots = nknots,

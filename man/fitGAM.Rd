@@ -15,6 +15,7 @@ fitGAM(counts, ...)
   sds = NULL,
   pseudotime = NULL,
   cellWeights = NULL,
+  conditions = NULL,
   U = NULL,
   genes = seq_len(nrow(counts)),
   weights = NULL,
@@ -52,6 +53,7 @@ fitGAM(counts, ...)
   counts,
   U = NULL,
   genes = seq_len(nrow(counts)),
+  conditions = NULL,
   weights = NULL,
   offset = NULL,
   nknots = 6,
@@ -97,6 +99,11 @@ and each column represents a lineage.}
 cell belongs to a particular lineage. Each row represents a cell and each
 column represents a lineage. If only a single lineage, provide a matrix with
 one column containing all values of 1.}
+
+\item{conditions}{This argument is in beta phase and should be used carefully.
+If each lineage consists of mutliple conditions, this argument can be used to
+specify the conditions. tradeSeq will then fit a condition-specific smoother for
+every lineage.}
 
 \item{U}{The design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}

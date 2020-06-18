@@ -9,7 +9,10 @@
 #' @param nPoints The number of points to be compared between lineages.
 #' Defaults to twice the number of knots
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
-#' @param pairwise If TRUE, test for all pairwise comparisons independently.
+#' If \code{models} contains conditions (i.e. \code{fitGAM} was run with the
+#' conditions argument), then we compare the within-lineage average
+#' across conditions, between lineages.
+#' @param pairwise If TRUE, return output for all pairwise comparisons made.
 #' @param eigenThresh Eigenvalue threshold for inverting the variance-covariance matrix
 #' of the coefficients to use for calculating the Wald test statistics. Lower values
 #' are more lenient to adding more information but also decrease computational stability.
