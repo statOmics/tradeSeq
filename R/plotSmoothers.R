@@ -292,7 +292,7 @@
                                       "gene_count" = yhat,
                                       "lineage" = as.character(paste0(jj, kk))),
                     lwd = lwd,
-                    col=viridis::viridis(nCurves*nConditions)[jj*nConditions-(nConditions-kk)])
+                    col = viridis::viridis(nCurves*nConditions)[jj*nConditions-(nConditions-kk)])
       }
     }
   }
@@ -308,15 +308,15 @@ setOldClass("gam")
 #' running \code{fitGAM}, or the specific GAM model for the corresponding gene,
 #' if working with the list output of \code{tradeSeq}.
 #' @param counts The matrix of gene expression counts.
-#' @param gene Gene name or row in count matrix of gene to plot.
-#' @param nPoints The number of points used to extraplolate the fit.
+#' @param gene Gene name or row in count matrix of gene to plot. 
+#' @param nPoints The number of points used to extrapolate the fit.
 #' Defaults to 100.
 #' @param lwd Line width of the smoother. Passed to \code{\link{geom_line}}.
 #' @param size Character expansion of the data points. Passed to \code{\link{geom_point}}.
 #' @param xlab x-axis label. Passed to \code{\link{labs}}.
 #' @param ylab y-axis label. Passed to \code{\link{labs}}.
 #' @param border Logical: should a white border be drawn around the mean smoother.
-#' @param alpha Numeric between 0 and 1, determines the transparancy of data points,
+#' @param alpha Numeric between 0 and 1, determines the transparency of data points,
 #' see \code{scale_color_viridis_d}.
 #' @param sample Numeric between 0 and 1, use to subsample the cells when there
 #' are too many so that it can plot faster.
@@ -374,41 +374,34 @@ setMethod(f = "plotSmoothers",
                                 alpha = 1,
                                 sample = 1,
                                 pointCol = NULL){
-
-            conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
-
-            if(conditions){
-
-              .plotSmoothers_conditions(models = models,
-                                 counts = counts,
-                                 gene = gene,
-                                 nPoints = nPoints,
-                                 lwd = lwd,
-                                 size = size,
-                                 xlab = xlab,
-                                 ylab = ylab,
-                                 border = border,
-                                 alpha = alpha,
-                                 sample = sample,
-                                 pointCol = pointCol)
-
-            } else {
-
-              .plotSmoothers_sce(models = models,
-                                 counts = counts,
-                                 gene = gene,
-                                 nPoints = nPoints,
-                                 lwd = lwd,
-                                 size = size,
-                                 xlab = xlab,
-                                 ylab = ylab,
-                                 border = border,
-                                 alpha = alpha,
-                                 sample = sample,
-                                 pointCol = pointCol)
-
-            }
-
-          }
+    conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
+    if(conditions){
+    .plotSmoothers_conditions(models = models,
+                              counts = counts,
+                              gene = gene,
+                              nPoints = nPoints,
+                              lwd = lwd,
+                              size = size,
+                              xlab = xlab,
+                              ylab = ylab,
+                              border = border,
+                              alpha = alpha,
+                              sample = sample,
+                              pointCol = pointCol)
+      } else {
+        .plotSmoothers_sce(models = models,
+                           counts = counts,
+                           gene = gene,
+                           nPoints = nPoints,
+                           lwd = lwd,
+                           size = size,
+                           xlab = xlab,
+                           ylab = ylab,
+                           border = border,
+                           alpha = alpha,
+                           sample = sample,
+                           pointCol = pointCol)
+      }
+    }
 )
 
