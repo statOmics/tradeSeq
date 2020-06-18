@@ -4,9 +4,7 @@
                           ylab = "Log(expression + 1)",
                           border = FALSE,
                           alpha = 1,
-                          sample = 1)
-{
-
+                          sample = 1) {
   data <- model$model
   y <- data$y
 
@@ -222,7 +220,7 @@
       for (ii in seq_len(nrow(dm))) {
         if (dm[ii, paste0("l", jj, kk)] == 1) {
           timeAll[ii] <- dm[ii, paste0("t", jj)]
-          lcol[ii] <- paste0(jj, levels(conditions)[kk])
+          lcol[ii] <- paste0("Lineage ", jj, "_", levels(conditions)[kk])
         } else {
           next
         }
@@ -280,19 +278,21 @@
           geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                       "gene_count" = yhat,
                                       "lineage" = as.character(paste0(jj, kk))),
-                    lwd = lwd+1, colour="white") +
+                    lwd = lwd + 1, colour = "white") +
           geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                       "gene_count" = yhat,
                                       "lineage" = as.character(paste0(jj, kk))),
                     lwd = lwd,
-                    col=viridis::viridis(nCurves*nConditions)[jj*nConditions-(nConditions-kk)])
+                    col = viridis::viridis(nCurves * nConditions)[
+                      jj * nConditions - (nConditions - kk)])
       } else {
         p <- p +
           geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                       "gene_count" = yhat,
                                       "lineage" = as.character(paste0(jj, kk))),
                     lwd = lwd,
-                    col = viridis::viridis(nCurves*nConditions)[jj*nConditions-(nConditions-kk)])
+                    col = viridis::viridis(nCurves * nConditions)[
+                      jj * nConditions - (nConditions - kk)])
       }
     }
   }
