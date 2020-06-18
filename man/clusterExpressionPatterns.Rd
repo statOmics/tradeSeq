@@ -64,7 +64,7 @@ Passed to \code{\link[clusterExperiment]{RSEC}}.}
 }
 \value{
 A list containing the scaled fitted values \code{yhatScaled}(for
- plotting) and a \code{\link{ClusterExperiment}} object, containing the
+ plotting) and a \code{clusterExperiment} object, containing the
  clustering results.
 }
 \description{

@@ -16,7 +16,7 @@
       )
       # sample weights
       wSamp <- apply(normWeights, 1, function(prob) {
-        rmultinom(n = 1, prob = prob, size = 1)
+        stats::rmultinom(n = 1, prob = prob, size = 1)
       })
       # If there is only one lineage, wSamp is a vector so we need to adjust for that
       if (is.null(dim(wSamp))) {
@@ -95,12 +95,12 @@
     tAll[ii] <- pseudotime[ii, which(as.logical(wSamp[ii,]))]
   }
 
-  knotLocs <- quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
+  knotLocs <- stats::quantile(tAll, probs = (0:(nknots - 1)) / (nknots - 1))
   if (any(duplicated(knotLocs))) {
     # fix pathological case where cells can be squeezed on one pseudotime value.
     # take knots solely based on longest lineage
-    knotLocs <- quantile(t1[l1 == 1],
-                         probs = (0:(nknots - 1)) / (nknots - 1))
+    knotLocs <- stats::quantile(t1[l1 == 1],
+                                probs = (0:(nknots - 1)) / (nknots - 1))
     # if duplication still occurs, get average btw 2 points for dups.
     if (any(duplicated(knotLocs))) {
       dupId <- duplicated(knotLocs)
@@ -169,7 +169,7 @@
                     weights = NULL, offset = NULL, nknots = 6, verbose = TRUE,
                     parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
                     aic = FALSE, control = mgcv::gam.control(), sce = TRUE,
-                    family = "nb"){
+                    family = "nb", gcv = FALSE){
 
   if (is(genes, "character")) {
     if (!all(genes %in% rownames(counts))) {
@@ -267,7 +267,7 @@
       )
     }
     # fit smoother, catch errors and warnings
-    s = mgcv:::s
+    s <- mgcv::s
     m <- suppressWarnings(try(withCallingHandlers({
       mgcv::gam(smoothForm, family = family, knots = knotList, weights = weights,
                 control = control)},
@@ -304,10 +304,21 @@
 
   ### output
   if (aic) { # only return AIC
-    return(unlist(lapply(gamList, function(x){
+    # return(unlist(lapply(gamList, function(x){
+    #   if (class(x)[1] == "try-error") return(NA)
+    #   x$aic
+    # })))
+    aicVals <- unlist(lapply(gamList, function(x){
       if (class(x)[1] == "try-error") return(NA)
       x$aic
-    })))
+    }))
+    if (gcv) {
+      gcvVals <- unlist(lapply(gamList, function(x){
+        if (class(x)[1] == "try-error") return(NA)
+        x$gcv.ubre
+      }))
+      return(list(aicVals, gcvVals))
+    } else return(aicVals)
   }
 
   if (sce) { #tidy output: also return X
@@ -316,8 +327,8 @@
       if (is(m, "try-error")) {
         beta <- NA
       } else {
-        beta <- matrix(coef(m), ncol = 1)
-        rownames(beta) <- names(coef(m))
+        beta <- matrix(stats::coef(m), ncol = 1)
+        rownames(beta) <- names(stats::coef(m))
       }
       return(beta)
     })
@@ -404,6 +415,7 @@
 #' be set to TRUE
 #' @param family The assumed distribution for the response. Is set to \code{"nb"}
 #' by default.
+#' @param gcv (In development). Logical, should a GCV score also be returned?
 #' @details
 #' \code{fitGAM} supports four different ways to input the required objects:
 #' \itemize{
@@ -437,6 +449,7 @@
 #' @importFrom BiocParallel bplapply bpparam
 #' @importFrom pbapply pblapply
 #' @importFrom S4Vectors DataFrame metadata
+#' @importFrom edgeR calcNormFactors
 #' @importFrom methods is
 #' @importFrom tibble enframe tibble
 #' @export
@@ -457,7 +470,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
-                                family = "nb"){
+                                family = "nb",
+                                gcv = FALSE){
 
             if (is.null(counts)) stop("Provide expression counts using counts",
                                       " argument.")
@@ -510,7 +524,8 @@ setMethod(f = "fitGAM",
                                  BPPARAM = BPPARAM,
                                  control = control,
                                  sce = sce,
-                                 family = family)
+                                 family = family,
+                                 gcv = gcv)
 
             # old behaviour: return list
             if (!sce) {
@@ -544,6 +559,7 @@ setMethod(f = "fitGAM",
           }
 )
 #' @rdname fitGAM
+#' @importClassesFrom Matrix dgCMatrix 
 setMethod(f = "fitGAM",
           signature = c(counts = "dgCMatrix"),
           definition = function(counts,
@@ -560,7 +576,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
-                                family = "nb"){
+                                family = "nb",
+                                gcv = FALSE){
             gamOutput <- fitGAM(counts = as.matrix(counts),
                                 U = U,
                                 sds = sds,
@@ -575,7 +592,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BPPARAM,
                                 control = control,
                                 sce = sce,
-                                family = family)
+                                family = family,
+                                gcv = gcv)
             return(gamOutput)
           }
 )
@@ -586,7 +604,6 @@ setMethod(f = "fitGAM",
 #' @importFrom slingshot SlingshotDataSet
 #' @importFrom SingleCellExperiment counts
 #' @importFrom tibble tibble
-#' @importFrom dplyr full_join
 setMethod(f = "fitGAM",
           signature = c(counts = "SingleCellExperiment"),
           definition = function(counts,
@@ -601,7 +618,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
-                                family = "nb"){
+                                family = "nb",
+                                gcv = FALSE){
           if (is.null(counts@int_metadata$slingshot)) {
             stop(paste0("For now tradeSeq only works downstream of slingshot",
                         "in this format.\n Consider using the method with a ",
@@ -620,7 +638,8 @@ setMethod(f = "fitGAM",
                               BPPARAM = BPPARAM,
                               control = control,
                               sce = sce,
-                              family = family)
+                              family = family,
+                              gcv = gcv)
 
           # tradeSeq gene-level info
           geneInfo <- SummarizedExperiment::rowData(gamOutput)$tradeSeq
@@ -638,7 +657,9 @@ setMethod(f = "fitGAM",
           } else {
             newGeneInfo <- tibble::tibble(name = rownames(counts))
           }
-          newGeneInfo <- dplyr::full_join(newGeneInfo, geneInfo, by = "name")
+          newGeneInfo <- merge(newGeneInfo, geneInfo, by = "name", all = TRUE)
+          rownames(newGeneInfo) <- newGeneInfo$name
+          newGeneInfo <- newGeneInfo[rownames(counts), ]
           SummarizedExperiment::rowData(counts)$tradeSeq <- newGeneInfo
           # tradeSeq cell-level info
           SummarizedExperiment::colData(counts)$tradeSeq <-
@@ -654,10 +675,7 @@ setMethod(f = "fitGAM",
 )
 
 #' @rdname fitGAM
-#' @import monocle
-#' @importFrom Biobase exprs
-#' @importFrom igraph degree shortest_paths
-#' @importFrom dplyr mutate filter
+#' @importClassesFrom monocle CellDataSet
 setMethod(f = "fitGAM",
           signature = c(counts = "CellDataSet"),
           definition = function(counts,
@@ -671,40 +689,15 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
                                 sce = TRUE,
-                                family = "nb"){
-            if (counts@dim_reduce_type != "DDRTree") {
-              stop(paste0("For now tradeSeq only support Monocle with DDRTree",
-                          "reduction. If you want to use another type",
-                          "please use another format for tradeSeq inputs."))
-            }
-            # COnvert to appropriate format
-            y_to_cells <- counts@auxOrderingData[["DDRTree"]]
-            y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%
-              as.data.frame() %>%
-              dplyr::mutate(cells = rownames(.)) %>%
-              dplyr::rename("Y" = V1)
-            root <- counts@auxOrderingData[[counts@dim_reduce_type]]$root_cell
-            root <- y_to_cells$Y[y_to_cells$cells == root]
-            mst <- monocle::minSpanningTree(counts)
-            endpoints <- names(which(igraph::degree(mst) == 1))
-            endpoints <- endpoints[endpoints != paste0("Y_", root)]
-            cellWeights <- lapply(endpoints, function(endpoint) {
-              path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
-              path <- as.character(path)
-              df <- y_to_cells %>%
-                dplyr::filter(Y %in% path)
-              df <- data.frame(weights = as.numeric(colnames(counts) %in% df$cells))
-              colnames(df) <- endpoint
-              return(df)
-            }) %>% bind_cols()
-            pseudotime <- sapply(cellWeights, function(w) counts$Pseudotime)
-            rownames(cellWeights) <- rownames(pseudotime) <- colnames(counts)
-
+                                family = "nb",
+                                gcv = FALSE){
+            # Convert to appropriate format
+            monocle_extraction <- extract_monocle_info(counts)
 
             gamOutput <- fitGAM(counts = Biobase::exprs(counts),
                                 U = U,
-                                cellWeights = cellWeights,
-                                pseudotime = pseudotime,
+                                cellWeights = monocle_extraction$cellWeights,
+                                pseudotime = monocle_extraction$pseudotime,
                                 genes = genes,
                                 weights = weights,
                                 offset = offset,
@@ -714,7 +707,8 @@ setMethod(f = "fitGAM",
                                 BPPARAM = BPPARAM,
                                 control = control,
                                 sce = sce,
-                                family = family)
+                                family = family,
+                                gcv = gcv)
 
             return(gamOutput)
           }

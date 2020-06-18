@@ -3,6 +3,9 @@
 \name{evaluateK}
 \alias{evaluateK}
 \alias{evaluateK,matrix-method}
+\alias{evaluateK,dgCMatrix-method}
+\alias{evaluateK,SingleCellExperiment-method}
+\alias{evaluateK,CellDataSet-method}
 \title{Evaluate the optimal number of knots required for fitGAM.}
 \usage{
 evaluateK(counts, ...)
@@ -23,6 +26,67 @@ evaluateK(counts, ...)
   control = mgcv::gam.control(),
   sce = FALSE,
   family = "nb",
+  gcv = FALSE,
+  ...
+)
+
+\S4method{evaluateK}{dgCMatrix}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  plot = TRUE,
+  U = NULL,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  control = mgcv::gam.control(),
+  sce = FALSE,
+  family = "nb",
+  gcv = FALSE,
+  ...
+)
+
+\S4method{evaluateK}{SingleCellExperiment}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  plot = TRUE,
+  U = NULL,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  control = mgcv::gam.control(),
+  sce = FALSE,
+  family = "nb",
+  gcv = FALSE,
+  ...
+)
+
+\S4method{evaluateK}{CellDataSet}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  plot = TRUE,
+  U = NULL,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  control = mgcv::gam.control(),
+  sce = FALSE,
+  family = "nb",
+  gcv = FALSE,
   ...
 )
 }
@@ -70,11 +134,13 @@ that is part of the output of this function.}
 
 \item{family}{The distribution assumed, currently only \code{"nb"}
 (negative binomial) is supported.}
+
+\item{gcv}{(In development). Logical, should a GCV score also be returned?}
 }
 \value{
 A plot of average AIC value over the range of selected knots, and a
-matrix of AIC values for the selected genes (rows) and the range of knots
-(columns).
+matrix of AIC and GCV values for the selected genes (rows) and the
+range of knots (columns).
 }
 \description{
 Evaluate the optimal number of knots required for fitGAM.

@@ -4,10 +4,12 @@
 \name{gamList}
 \alias{gamList}
 \title{A list of GAM models, used to demonstrate the various tests.}
-\format{Can be re-obtained by runing the code in the example section
- of \code{\link{fitGAM}}.}
+\format{
+Can be re-obtained by runing the code in the example section
+ of \code{\link{fitGAM}}.
+}
 \usage{
-gamList
+data(gamList)
 }
 \description{
 A list of 11 \code{\link{gamObject}} obtained by fitting 10 genes on 15

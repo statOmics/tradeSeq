@@ -1,4 +1,4 @@
-
+# Manipulate the objects to extract meaningul values ----
 ### lpmatrix given X and design
 predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   # this function is an alternative of predict.gam(model, newdata = df, type = "lpmatrix")
@@ -151,7 +151,6 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   return(vars)
 }
 
-
 # get predictor matrix for the start point of a smoother.
 .getPredictStartPointDf <- function(dm, lineageId){
   # note that X or offset variables dont matter as long as they are the same,
@@ -207,7 +206,6 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   stop("All models errored")
 }
 
-
 # perform Wald test ----
 waldTest <- function(beta, Sigma, L){
   ### build a contrast matrix for a multivariate Wald test
@@ -222,7 +220,7 @@ waldTest <- function(beta, Sigma, L){
     est
   if (wald < 0) wald <- 0
   df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
+  pval <- 1 - stats::pchisq(wald, df = df)
   return(c(wald, df, pval))
 }
 
@@ -239,13 +237,13 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   }
   logFCCutoff <- log(2^l2fc) # log2 to log scale
   estFC <- (t(LQR) %*% beta) # estimated log fold change
-  est <- matrix(sign(estFC)*(pmax(0, abs(estFC) - logFCCutoff)), ncol=1) # zero or remainder
+  est <- matrix(sign(estFC) * (pmax(0, abs(estFC) - logFCCutoff)), ncol = 1) # zero or remainder
   wald <- t(est) %*%
     sigmaInv %*%
     est
   if (wald < 0) wald <- 0
   df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
+  pval <- 1 - stats::pchisq(wald, df = df)
 
   ## get ALL observed fold changes for output
   # obsFC <- t(L) %*% beta
@@ -463,7 +461,7 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
 }
 
 getRank <- function(m,L){
-  beta <- matrix(coef(m), ncol = 1)
+  beta <- matrix(stats::coef(m), ncol = 1)
   est <- t(L) %*% beta
   sigma <- t(L) %*% m$Vp %*% L
   eSigma <- eigen(sigma, symmetric = TRUE)
@@ -475,13 +473,77 @@ getRank <- function(m,L){
   apply(L,2,function(contrast) contrast %*% beta)
 }
 
+# .onAttach <- function(libname, pkgname){
+#   packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",
+#                                "singleCellExperiment objects as output, making ",
+#                                "it much more memory efficient. Please ",
+#                                "check the news file and the updated vignette ",
+#                                "for details."))
+# }
 
 
 
-.onAttach <- function(libname, pkgname){
-  packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",
-                               "singleCellExperiment objects as output, making ",
-                               "it much more memory efficient. Please ",
-                               "check the news file and the updated vignette ",
-                               "for details."))
+
+# Monocle stuff ----
+#' @title Extract info from Monocle models
+#'
+#' @description This function extracts info that will be used downstream to make
+#' \code{CellDataSet} objects compatible with a \code{tradeSeq}
+#' analysis
+#'
+#' @rdname extract_monocle_info
+#' @param cds A \code{CellDataSet} object.
+#' @details For now, this only works for the DDRTree dimentionality reduction.
+#' It is the one recommanded by the Monocle developers.
+#' @return
+#' A list with four objects. A \code{pseudotime} matrix and a \code{cellWeights}
+#' matrix that can be used as input to \code{\link{fitGAM}} or
+#' \code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a
+#' list of length the number of lineages, containing the reduced dimension of
+#' each lineage.
+#' @importFrom magrittr %>%
+#' @importFrom Biobase exprs
+#' @import monocle
+#' @importFrom igraph degree shortest_paths
+#' @export
+extract_monocle_info <- function(cds) {
+  if (cds@dim_reduce_type != "DDRTree") {
+    stop(paste0("For now tradeSeq only support Monocle with DDRTree",
+                "reduction. If you want to use another type",
+                "please use another format for tradeSeq inputs."))
+  }
+  # Get the reduced dimension of DDRT
+  rd <- t(monocle::reducedDimS(cds)) %>% as.data.frame()
+
+  # Get the various lineages info for weights and pseudotime
+  y_to_cells <- cds@auxOrderingData[["DDRTree"]]
+  y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%
+    as.data.frame()
+  y_to_cells$cells <- rownames(y_to_cells)
+  y_to_cells$Y <- y_to_cells$V1
+  root <- cds@auxOrderingData[[cds@dim_reduce_type]]$root_cell
+  root <- y_to_cells$Y[y_to_cells$cells == root]
+  mst <- monocle::minSpanningTree(cds)
+  endpoints <- names(which(igraph::degree(mst) == 1))
+  endpoints <- endpoints[endpoints != paste0("Y_", root)]
+  cellWeights <- lapply(endpoints, function(endpoint) {
+    path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
+    path <- as.character(path)
+    df <- y_to_cells[y_to_cells$Y %in% path, ]
+    df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
+    colnames(df) <- endpoint
+    return(df)
+  }) %>% do.call(what = 'cbind', args = .)
+  pseudotime <- sapply(cellWeights, function(w) cds$Pseudotime)
+  rownames(cellWeights) <- rownames(pseudotime) <- colnames(cds)
+  # Get the lineages representation
+  edges_rd <- t(monocle::reducedDimK(cds)) %>% as.data.frame()
+  rd_lineages <- lapply(endpoints, function(endpoint){
+    path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
+    path <- as.character(path)
+    path <- paste("Y", path, sep = "_")
+    return(edges_rd[path, ])
+  })
+  return(list("pseudotime" = pseudotime,
+              "cellWeights" = as.matrix(cellWeights)))
 }

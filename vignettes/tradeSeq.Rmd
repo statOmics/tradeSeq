@@ -177,19 +177,19 @@ plotGeneCount(crv, counts, gene = rownames(patternRes)[oPat][4])
 We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the `patternTest` and their rank in decreasing Wald statistics for the `diffEndTest`.
 
 ```{r, out.width="50%", fig.asp=.8}
-library(dplyr)
 library(ggplot2)
-library(tidyr)
 
-compare <- inner_join(patternRes %>% mutate(Gene = rownames(patternRes),
-                                            pattern = waldStat) %>%
-                                     select(Gene, pattern),
-                      endRes %>% mutate(Gene = rownames(endRes),
-                                        end = waldStat) %>%
-                                 select(Gene, end),
-                      by = c("Gene" = "Gene")) %>%
-           mutate(transientScore = (min_rank(desc(end)))^2 +
-                                   (dense_rank(pattern))^2)
+patternRes$Gene <- rownames(patternRes)
+patternRes$pattern <- patternRes$waldStat
+patternRes <- patternRes[, c("Gene", "pattern")]
+
+endRes$Gene <- rownames(endRes)
+endRes$end <- endRes$waldStat
+endRes <- endRes[, c("Gene", "end")]
+
+compare <- merge(patternRes, endRes, by = "Gene", all = FALSE)
+compare$transientScore <- 
+  rank(-compare$end, ties.method = "min")^2 + rank(compare$pattern, ties.method = "random")^2
 
 ggplot(compare, aes(x = log(pattern), y = log(end))) +
   geom_point(aes(col = transientScore)) +
@@ -202,7 +202,7 @@ ggplot(compare, aes(x = log(pattern), y = log(end))) +
 Or, we can visualize the expression in UMAP space of the top gene.
 
 ```{r, out.width="40%", fig.asp=1}
-topTransient <- (compare %>% arrange(desc(transientScore)))[1, "Gene"]
+topTransient <- compare[which.max(compare$transientScore), "Gene"]
 plotSmoothers(sce, counts, gene = topTransient)
 ```
 
@@ -213,7 +213,10 @@ plotGeneCount(crv, counts, gene = topTransient)
 Interestingly, we recover the Irf8 gene in the top 5 genes according to that ranking.
 
 ```{r}
-head(compare %>% arrange(desc(transientScore)) %>% select(Gene), n = 5)
+head(
+  compare[order(compare$transientScore, decreasing = TRUE), "Gene"],
+  n = 5
+)
 ```
 
 We can also plot the Irf8 gene.
@@ -274,7 +277,7 @@ While `tradeSeq` provides readily implemented functionality to cluster genes usi
 Fitted values from the `tradeSeq` models, which can subsequently be used for clustering, can be extracted using the `predictSmooth` or `predictCells` functions.
 `predictCells` predicts the estimated expression for each cell (i.e. it is a fitted value for that cell) on the count scale.
 `predictSmooth`, instead, returns values of the estimated smoother on a grid of pseudotimes.
-Either of these may be used as input to a clustering method; roughly, `predictSmooth` may be considered as a cleaner version of `predictCells`.
+Either of these may be used as input to a clustering method; roughly, `predictSmooth` may be considered as a cleaner version of `predictCells`. By default `predictSmooth` returns a `data.frame` specifying the estimated smoother for each gene. A matrix containing these values, where each row is a gene, and each column is a point along the lineage on the uniform grid, can be obtained by setting `tidy=FALSE` in `predictSmooth`.
 
 ```{r}
 yhat <- predictCells(models = sce, gene = "Irf8")
@@ -288,7 +291,7 @@ ysmooth <- predictSmooth(models = sce, gene = "Irf8", nPoints = 40)
 tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the `clusterExpressionPatterns` function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the `nPoints` argument. The `genes` argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset.
 The clustering itself occurs by the `clusterExperiment` package [@Risso2018], hence the user may select any clustering algorithm that's built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within `clusterExperiment`, run `clusterExperiment::listBuiltInFunctions()` on the command line.
 
-```{r, warning=FALSE,message=F}
+```{r clustering, warning=FALSE,message=F}
 library(clusterExperiment)
 nPointsClus <- 20
 clusPat <- clusterExpressionPatterns(sce, nPoints = nPointsClus,
@@ -298,12 +301,10 @@ clusterLabels <- primaryCluster(clusPat$rsec)
 
 The first 4 clusters can be visualized using the normalized expression upon which the clustering is based. Please note that the code below would only works for a trajectory with two lineages. Modify the code appropriately if using with a dataset with 3 lineages or more. 
 
-```{r, out.width="50%", fig.asp=1}
-library(cowplot)
+```{r plot clustering, out.width="25%", fig.asp=1, fig.show="hold"}
 cUniq <- unique(clusterLabels)
 cUniq <- cUniq[!cUniq == -1] # remove unclustered genes
 
-plots <- list()
 for (xx in cUniq[1:4]) {
   cId <- which(clusterLabels == xx)
   p <- ggplot(data = data.frame(x = 1:nPointsClus,
@@ -312,7 +313,8 @@ for (xx in cUniq[1:4]) {
               aes(x = x, y = y)) +
     geom_point(alpha = 0) +
     labs(title = paste0("Cluster ", xx),  x = "Pseudotime", y = "Normalized expression") +
-    theme_classic()
+    theme_classic() +
+    theme(plot.title = element_text(hjust = 0.5))
   for (ii in 1:length(cId)) {
     geneId <- rownames(clusPat$yhatScaled)[cId[ii]]
     p <- p +
@@ -324,10 +326,8 @@ for (xx in cUniq[1:4]) {
   p <- p + guides(color = FALSE) +
     scale_color_manual(values = c("orange", "darkseagreen3"),
                        breaks = c("0", "1"))  
-  plots[[as.character(xx)]] <- p
+  print(p)
 }
-plots$ncol <- 2
-do.call(plot_grid, plots)
 ```
 
 # Contributing and requesting

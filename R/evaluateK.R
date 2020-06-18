@@ -1,7 +1,7 @@
 
 .evaluateK <- function(counts, U = NULL, pseudotime, cellWeights, plot = TRUE,
                        nGenes = 500, k = 3:10, weights = NULL, offset = NULL,
-                       aicDiff = 2, verbose = TRUE, ...) {
+                       aicDiff = 2, verbose = TRUE, gcv = FALSE, ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
   if (length(k) == 1) stop("There should be more than one k value")
@@ -27,25 +27,33 @@
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
                       cellWeights = cellWeights, nknots = currK,
-                      verbose = verbose, weights = weightSub,
-                      offset = offset, aic = TRUE, ...)
+                      verbose = verbose, sce = FALSE, weights = weightSub,
+                      offset = offset, aic = TRUE, gcv = gcv)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
-  # return AIC, return NA if model failed to fit.
-  aicMat <- do.call(cbind,aicVals)
-  colnames(aicMat) <- paste("k:", k)
+  if (gcv) {
+    aicMat <- do.call(cbind, lapply(aicVals, "[[", 1))
+    colnames(aicMat) <- paste("k:", k)
+    gcvMat <- do.call(cbind, lapply(aicVals, "[[", 2))
+    colnames(gcvMat) <- paste("k:", k)
+  } else {
+    aicMat <- do.call(cbind,aicVals)
+    colnames(aicMat) <- paste("k:", k)
+  }
+
 
   if (plot) {
-    par(mfrow = c(1, 4))
+    op <- graphics::par()
+    graphics::par(mfrow = c(1, 4))
     # boxplots of AIC
     devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
-    for (ii in seq_len(length(k))) {
+    for (ii in seq_len(nrow(aicMat))) {
       devs[ii, ] <- aicMat[ii, ] - mean(aicMat[ii, ])
     }
-    boxplot(devs, ylab = "Deviation from genewise average AIC",
-            xlab = "Number of knots", xaxt = "n")
-    axis(1, at = seq_len(length(k)), labels = k)
+    graphics::boxplot(devs, ylab = "Deviation from genewise average AIC",
+                      xlab = "Number of knots", xaxt = "n")
+    graphics::axis(1, at = seq_len(length(k)), labels = k)
     # scatterplot of average AIC
     plot(x = k, y = colMeans(aicMat, na.rm = TRUE), type = "b",
          ylab = "Average AIC", xlab = "Number of knots")
@@ -58,11 +66,18 @@
     if (length(varID) > 0) {
       aicMatSub <- aicMat[varID, ]
       tab <- table(k[apply(aicMatSub, 1, which.min)])
-      barplot(tab, xlab = "Number of knots", ylab = "# Genes with optimal k")
+      graphics::barplot(tab, xlab = "Number of knots",
+                        ylab = "# Genes with optimal k")
     }
+    graphics::par(op)
   }
 
-  return(aicMat)
+  if(gcv){
+    return(list(aic = aicMat,
+                gcv = gcvMat))
+  } else {
+    return(aicMat)
+  }
 }
 
 #' Evaluate an appropriate number of knots.
@@ -94,9 +109,10 @@
 #' @param family The distribution assumed, currently only \code{"nb"}
 #' (negative binomial) is supported.
 #' @param sce Logical, should a \code{SingleCellExperiment} object be returned?
+#' @param gcv (In development). Logical, should a GCV score also be returned?
 #' @return A plot of average AIC value over the range of selected knots, and a
-#' matrix of AIC values for the selected genes (rows) and the range of knots
-#' (columns).
+#' matrix of AIC and GCV values for the selected genes (rows) and the
+#' range of knots (columns).
 #' @examples
 #' ## This is an artifical example, please check the vignette for a realistic one.
 #' set.seed(8)
@@ -128,6 +144,7 @@ setMethod(f = "evaluateK",
                                 control = mgcv::gam.control(),
                                 sce = FALSE,
                                 family = "nb",
+                                gcv = FALSE,
                                 ...){
 
             ## either pseudotime or slingshot object should be provided
@@ -162,7 +179,148 @@ setMethod(f = "evaluateK",
                                  verbose = verbose,
                                  control = control,
                                  sce = sce,
+                                 gcv = gcv,
                                  ...)
+
+            return(aicOut)
+
+          }
+)
+#' @rdname evaluateK
+setMethod(f = "evaluateK",
+          signature = c(counts = "dgCMatrix"),
+          definition = function(counts,
+                                k = 3:10,
+                                nGenes = 500,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
+                                plot = TRUE,
+                                U = NULL,
+                                weights = NULL,
+                                offset = NULL,
+                                aicDiff = 2,
+                                verbose = TRUE,
+                                control = mgcv::gam.control(),
+                                sce = FALSE,
+                                family = "nb",
+                                gcv = FALSE,
+                                ...){
+
+
+            aicOut <- evaluateK(counts = as.matrix(counts),
+                                k = k,
+                                nGenes = nGenes,
+                                sds = sds,
+                                pseudotime = pseudotime,
+                                cellWeights = cellWeights,
+                                plot = plot,
+                                U = U,
+                                weights = weights,
+                                offset = offset,
+                                aicDiff = aicDiff,
+                                verbose = verbose,
+                                control = control,
+                                sce = sce,
+                                family = family,
+                                gcv = gcv,
+                                ...)
+
+            return(aicOut)
+
+          }
+)
+#' @rdname evaluateK
+#' @importFrom SummarizedExperiment assays colData
+#' @importFrom S4Vectors DataFrame metadata
+#' @importFrom slingshot SlingshotDataSet
+#' @importFrom SingleCellExperiment counts
+#' @importFrom tibble tibble
+setMethod(f = "evaluateK",
+          signature = c(counts = "SingleCellExperiment"),
+          definition = function(counts,
+                                k = 3:10,
+                                nGenes = 500,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
+                                plot = TRUE,
+                                U = NULL,
+                                weights = NULL,
+                                offset = NULL,
+                                aicDiff = 2,
+                                verbose = TRUE,
+                                control = mgcv::gam.control(),
+                                sce = FALSE,
+                                family = "nb",
+                                gcv = FALSE,
+                                ...){
+            if (is.null(counts@int_metadata$slingshot)) {
+              stop(paste0("For now tradeSeq only works downstream of slingshot",
+                          "in this format.\n Consider using the method with a ",
+                          "matrix as input instead."))
+            }
+
+            aicOut <- evaluateK(counts = SingleCellExperiment::counts(counts),
+                                k = k,
+                                nGenes = nGenes,
+                                sds = slingshot::SlingshotDataSet(counts),
+                                plot = plot,
+                                U = U,
+                                weights = weights,
+                                offset = offset,
+                                aicDiff = aicDiff,
+                                verbose = verbose,
+                                control = control,
+                                sce = sce,
+                                family = family,
+                                gcv = gcv,
+                                ...)
+
+            return(aicOut)
+
+          }
+)
+#' @rdname evaluateK
+#' @importClassesFrom monocle CellDataSet
+setMethod(f = "evaluateK",
+          signature = c(counts = "CellDataSet"),
+          definition = function(counts,
+                                k = 3:10,
+                                nGenes = 500,
+                                sds = NULL,
+                                pseudotime = NULL,
+                                cellWeights = NULL,
+                                plot = TRUE,
+                                U = NULL,
+                                weights = NULL,
+                                offset = NULL,
+                                aicDiff = 2,
+                                verbose = TRUE,
+                                control = mgcv::gam.control(),
+                                sce = FALSE,
+                                family = "nb",
+                                gcv = FALSE,
+                                ...){
+            # Convert to appropriate format
+            monocle_extraction <- extract_monocle_info(counts)
+
+            aicOut <- evaluateK(counts = SingleCellExperiment::counts(counts),
+                                k = k,
+                                nGenes = nGenes,
+                                cellWeights = monocle_extraction$cellWeights,
+                                pseudotime = monocle_extraction$pseudotime,
+                                plot = plot,
+                                U = U,
+                                weights = weights,
+                                offset = offset,
+                                aicDiff = aicDiff,
+                                verbose = verbose,
+                                control = control,
+                                sce = sce,
+                                family = family,
+                                gcv = gcv,
+                                ...)
 
             return(aicOut)
 
