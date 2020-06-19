@@ -54,9 +54,9 @@
 
   yhatPatScaled <- t(scale(t(yhatPat)))
 
-  rsec <- clusterExperiment::RSEC(t(yhatPatScaled),
-                                  isCount = FALSE,
-                                  reduceMethod = reduceMethod, nReducedDims = nReducedDims,
+  rsec <- clusterExperiment::RSEC(t(yhatPatScaled), transFun = NULL, 
+                                  isCount = FALSE, reduceMethod = reduceMethod,
+                                  nReducedDims = nReducedDims, 
                                   minSizes = minSizes, ncores = ncores,
                                   random.seed = random.seed, verbose = verbose,
                                   ...

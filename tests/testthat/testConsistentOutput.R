@@ -38,6 +38,11 @@ set.seed(3)
 listFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
                             cellWeights = cellWeights, nknots = 3,
                             verbose = FALSE, sce = FALSE)
+set.seed(3)
+sparseCount <- Matrix::Matrix(counts, sparse = TRUE)
+sparseFit <- tradeSeq::fitGAM(sparseCount, pseudotime = pseudotime,
+                              cellWeights = cellWeights, nknots = 3,
+                              verbose = FALSE)
 rm(dispersions, means, G, id, n)
 
 # Do the tests ----
@@ -57,9 +62,14 @@ test_that("EvaluateK return all same answers", {
   listFit <- tradeSeq::evaluateK(counts, pseudotime = pseudotime, 
                                  cellWeights = cellWeights, k = 3:5, 
                                  verbose = FALSE, plot = FALSE,  nGenes = 20)
+  set.seed(3)
+  sparseFit <- tradeSeq::evaluateK(sparseCount, pseudotime = pseudotime, 
+                                   cellWeights = cellWeights, k = 3:5, 
+                                   verbose = FALSE, plot = FALSE,  nGenes = 20)
   expect_equal(sdsFit, sceFit)
   expect_equal(sdsFit, sceInput)
   expect_equal(sdsFit, listFit)
+  expect_equal(sdsFit, sparseFit)
 })
 
 ## Estimates
@@ -69,20 +79,27 @@ test_that("NB-GAM estimates are equal all input.",{
   betaSce <- as.matrix(rowData(sceFit)$tradeSeq$beta)
   betaSceInput <- as.matrix(rowData(sceInput)$tradeSeq$beta)
   betaList <- do.call(rbind, lapply(listFit, function(m) coef(m)))
+  betaSparseInput <- as.matrix(rowData(sparseFit)$tradeSeq$beta)
   dimnames(betaSceInput) <- dimnames(betaSce) <-
     dimnames(betaSds) <- dimnames(betaList)
+  dimnames(betaSds) <- dimnames(betaList) <- dimnames(betaSparseInput)
   expect_equal(betaSds, betaList)
   expect_equal(betaSds, betaSce)
   expect_equal(betaSds, betaSceInput)
+  expect_equal(betaSds, betaSparseInput)
   # extract variance-covariance matrix
   SigmaSds <- rowData(sdsFit)$tradeSeq$Sigma
   SigmaSce <- rowData(sceFit)$tradeSeq$Sigma
   SigmaSceInput <- rowData(sceInput)$tradeSeq$Sigma
+  SigmaSparseInput <- rowData(sparseFit)$tradeSeq$Sigma
   SigmaList <- lapply(listFit, function(m) m$Vp)
   names(SigmaSceInput) <- names(SigmaSce) <- names(SigmaSds) <- names(SigmaList)
+  names(SigmaSceInput) <- names(SigmaSce) <- names(SigmaSds) <- 
+    names(SigmaList) <- names(SigmaSparseInput)
   expect_equal(SigmaSds, SigmaList)
   expect_equal(SigmaSds, SigmaSce)
   expect_equal(SigmaSds, SigmaSceInput)
+  expect_equal(SigmaSds, SigmaSparseInput)
 })
 
 ## nknots
@@ -90,6 +107,7 @@ test_that("NB-GAM estimates are equal all input.",{
   expect_equal(nknots(sceFit), nknots(sdsFit))
   expect_equal(nknots(sceFit), nknots(listFit))
   expect_equal(nknots(sceFit), nknots(sceInput))
+  expect_equal(nknots(sceFit), nknots(sparseFit))
 })
 
 # DE tests
@@ -99,11 +117,13 @@ test_that("assocationTest results are equal for sds and manual input.",{
   assocSce <- tradeSeq::associationTest(sceFit, global = TRUE, lineages = TRUE)
   assocInput <- tradeSeq::associationTest(sceInput, global = TRUE, lineages = TRUE)
   assocList <- tradeSeq::associationTest(listFit, global = TRUE, lineages = TRUE)
-  dimnames(assocInput) <- dimnames(assocSce) <-
-    dimnames(assocSds) <- dimnames(assocList)
+  assocSparse <- tradeSeq::associationTest(sparseFit, global = TRUE, lineages = TRUE)
+  dimnames(assocInput) <- dimnames(assocSce) <- dimnames(assocSds) <- 
+    dimnames(assocList) <- dimnames(assocSparse)
   expect_equal(assocSds, assocList)
   expect_equal(assocSds, assocSce)
   expect_equal(assocSds, assocInput)
+  expect_equal(assocSds, assocSparse)
 })
 
 ## startVsEndTest
@@ -112,11 +132,13 @@ test_that("startVsEndTest results are equal for sds and manual input.",{
   setSds <- tradeSeq::startVsEndTest(sdsFit, global = TRUE, lineages = TRUE)
   setInput <- tradeSeq::startVsEndTest(sceInput, global = TRUE, lineages = TRUE)
   setList <- tradeSeq::startVsEndTest(listFit, global = TRUE, lineages = TRUE)
-  dimnames(setInput) <-  dimnames(setSce) <-
-    dimnames(setSds) <- dimnames(setList)
+  setSparse <- tradeSeq::startVsEndTest(sparseFit, global = TRUE, lineages = TRUE)
+  dimnames(setInput) <-  dimnames(setSce) <- dimnames(setSds) <- 
+    dimnames(setList) <- dimnames(setSparse)
   expect_equal(setSce, setList)
   expect_equal(setSds, setSce)
   expect_equal(setSds, setInput)
+  expect_equal(setSds, setSparse)
 })
 
 ## diffEndTest
@@ -125,11 +147,13 @@ test_that("diffEndTest results are equal for sds and manual input.",{
   detSds <- tradeSeq::diffEndTest(sdsFit, global = TRUE, pairwise = TRUE)
   detInput <- tradeSeq::diffEndTest(sceInput, global = TRUE, pairwise = TRUE)
   detList <- tradeSeq::diffEndTest(listFit, global = TRUE, pairwise = TRUE)
-  dimnames(detInput) <-  dimnames(detSce) <-
-    dimnames(detSds) <- dimnames(detList)
+  detSparse <- tradeSeq::diffEndTest(sparseFit, global = TRUE, pairwise = TRUE)
+  dimnames(detInput) <-  dimnames(detSce) <- dimnames(detSds) <- 
+    dimnames(detList) <- dimnames(detSparse)
   expect_equal(detSce, detList)
   expect_equal(detSds, detSce)
   expect_equal(detSds, detInput)
+  expect_equal(detSds, detSparse)
 })
 
 ## patternTest
@@ -138,11 +162,13 @@ test_that("patternTest results are equal for sds and manual input.",{
   patSds <- tradeSeq::patternTest(sdsFit, global = TRUE, pairwise = TRUE)
   patInput <- tradeSeq::patternTest(sceInput, global = TRUE, pairwise = TRUE)
   patList <- tradeSeq::patternTest(listFit, global = TRUE, pairwise = TRUE)
-  dimnames(patInput) <-  dimnames(patSce) <-
-    dimnames(patSds) <- dimnames(patList)
+  patSparse <- tradeSeq::patternTest(sparseFit, global = TRUE, pairwise = TRUE)
+  dimnames(patInput) <-  dimnames(patSce) <- dimnames(patSds) <- 
+    dimnames(patList) <- dimnames(patSparse)
   expect_equal(patSce, patList, tolerance = 1e-5)
   expect_equal(patSds, patSce)
   expect_equal(patSds, patInput)
+  expect_equal(patSds, patSparse)
 })
 
 ## earlyDETest
@@ -155,9 +181,12 @@ test_that("earlyDETest results are equal for sds and manual input.", {
                                   knots = 1:2)
   edtList <- tradeSeq::earlyDETest(listFit, global = TRUE, pairwise = TRUE,
                                    knots = 1:2)
-  dimnames(edtInput) <- dimnames(edtSce) <-
-    dimnames(edtSds) <- dimnames(edtList)
+  edtSparse <- tradeSeq::earlyDETest(sparseFit, global = TRUE, pairwise = TRUE,
+                                     knots = 1:2)
+  dimnames(edtInput) <- dimnames(edtSce) <- dimnames(edtSds) <- 
+    dimnames(edtList) <- dimnames(edtSparse)
   expect_equal(edtSds, edtList, tolerance = 1e-5)
+  expect_equal(edtSds, edtSparse, tolerance = 1e-5)
   expect_equal(edtSds, edtSce, tolerance = 1e-5)
   expect_equal(edtSds, edtInput, tolerance = 1e-5)
 })
