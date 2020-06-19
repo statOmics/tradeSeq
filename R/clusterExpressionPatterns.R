@@ -97,10 +97,12 @@
 #'  plotting) and a \code{clusterExperiment} object, containing the
 #'  clustering results.
 #' @examples
+#' \donotrun{
 #' data(gamList, package = "tradeSeq")
-#' clusterExpressionPatterns(models = gamList, nPoints = 200, genes = seq_len(11))
+#' clusterExpressionPatterns(models = gamList, nPoints = 200, genes = seq_len(11),
+#'                           verbose = FALSE)
+#' }
 #' @importFrom methods is
-#' @importFrom clusterExperiment RSEC
 #' @name clusterExpressionPatterns
 #' @aliases clusterExpressionPatterns,SingleCellExperiment-method
 #' @export

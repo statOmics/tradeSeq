@@ -79,6 +79,9 @@ This method adopts the \code{\link[clusterExperiment]{RSEC}}
 function from the clusterExperiment package to perform consensus clustering.
 }
 \examples{
+\donotrun{
 data(gamList, package = "tradeSeq")
-clusterExpressionPatterns(models = gamList, nPoints = 200, genes = seq_len(11))
+clusterExpressionPatterns(models = gamList, nPoints = 200, genes = seq_len(11),
+                          verbose = FALSE)
+}
 }
