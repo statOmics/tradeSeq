@@ -26,11 +26,14 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
     }
   } else if(condPresent){
     lineages <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
+                                  start = 8, stop = 8))
+    nLineages <- length(unique(lineages))
+    curves <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
                                   start = 8, stop = 9))
-    nCurves <- length(unique(lineages))
-    for (ii in seq_len(nCurves)) {
+    nCurves <- length(unique(curves))
+    for (ii in seq_len(nLineages)) {
       for(kk in seq_len(nConditions))
-      assign(paste0("id",ii, kk), allBs[which(lineages == paste0(ii, kk))])
+      assign(paste0("id",ii, kk), allBs[which(curves == paste0(ii, kk))])
     }
   }
 
@@ -47,7 +50,7 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   } else if(condPresent){
     # first number is lineage, second number is condition.
     lineageID <- apply(lpmatrix, 1, function(x){
-      for (ii in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+      for (ii in seq_len(nLineages)) {
         # loop over lineages
         for(kk in seq_len(nConditions)){
           # loop over conditions
@@ -72,10 +75,10 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
       }
     }
   } else if(condPresent) {
-    for (ii in  (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+    for (ii in  seq_len(nLineages)) {
       # loop over curves
       for(kk in seq_len(nConditions)){
-        for (jj in seq_len(length(allBs) / nCurves)) {
+        for (jj in seq_len(length(allBs) / (nLineages * nConditions))) {
           #within curve, loop over basis functions
           assign(paste0("l",ii,kk,".",jj),
                  stats::splinefun(
@@ -101,12 +104,14 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
       }
     }
   } else if(condPresent){
-    for (ii in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+    # for (ii in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+    for (ii in seq_len(nLineages)) {
       # loop over curves
       for(kk in seq_len(nConditions)){
         # loop over conditions
         if (all(df[, paste0("l", ii, kk)] != 0)) { # only predict if weight = 1
-          for (jj in seq_len(length(allBs) / nCurves)) { # within curve, loop over basis functions
+          for (jj in seq_len(length(allBs) / (nLineages * nConditions))) { 
+            # within curve, loop over basis functions
             f <- get(paste0("l", ii, kk, ".", jj))
             Xout[, get(paste0("id", ii, kk))[jj]] <- f(df[, paste0("t", ii)])
           }

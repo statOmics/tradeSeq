@@ -38,7 +38,7 @@ set.seed(3)
 listFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
                             cellWeights = cellWeights, nknots = 3,
                             verbose = FALSE, sce = FALSE)
-rm(cellWeights, counts, dispersions, means, pseudotime, G, id, n)
+rm(dispersions, means, G, id, n)
 
 # Do the tests ----
 ## EvaluateK

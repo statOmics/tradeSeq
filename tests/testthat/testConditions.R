@@ -81,14 +81,14 @@ test_that("All tests work", {
   pseudotime <- slingPseudotime(sds, na = FALSE)
   expect_s4_class(Fit <- tradeSeq::fitGAM(counts = counts,
                     pseudotime = pseudotime, cellWeights = cellWeights, 
-                    nknots = 7, verbose = FALSE, conditions = conditions),
+                    nknots = 3, verbose = FALSE, conditions = conditions),
                   "SingleCellExperiment")
   expect_is(associationTest(Fit), "data.frame")
-  expect_is(startVsEndTest(Fit), "data.frame")
-  expect_is(diffEndTest(Fit), "data.frame")
+  # expect_is(startVsEndTest(Fit), "data.frame")
+  # expect_is(diffEndTest(Fit), "data.frame")
   expect_is(conditionTest(Fit), "data.frame")
-  expect_is(patternTest(Fit), "data.frame")
-  expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")
+  # expect_is(patternTest(Fit), "data.frame")
+  # expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")
   
 })
 
@@ -110,18 +110,18 @@ test_that("All tests work", {
 #   expect_error(diffEndTest(Fit, knots = 1:2))
 # })
 # 
-# test_that("Condition work correctly with predictSmooth", {
-#   cellWeights <- slingCurveWeights(sce)
-#   counts <- SingleCellExperiment::counts(sce)
-#   pseudotime <- slingPseudotime(sds, na = FALSE)
-#   Fit <- tradeSeq::fitGAM(counts = counts,
-#                           pseudotime = pseudotime, cellWeights = cellWeights, 
-#                           nknots = 7, verbose = FALSE, conditions = conditions)
-#   expect_is(
-#     df <- tradeSeq::predictSmooth(Fit, gene = seq_len(nrow(Fit)), nPoints = 40),
-#     "data.frame")
-#   expect_equal(dim(df), c(40 * nrow(Fit), 5))
-#   expect_is(plotSmoothers(Fit, counts = counts, gene = rownames(Fit)[1]), "gg")
-#   expect_equal(dim(predictCells(Fit, gene = seq_len(nrow(Fit)))), dim(counts))
-# })
-# 
+test_that("Condition work correctly with predictSmooth", {
+  cellWeights <- slingCurveWeights(sce)
+  counts <- SingleCellExperiment::counts(sce)
+  pseudotime <- slingPseudotime(sds, na = FALSE)
+  Fit <- tradeSeq::fitGAM(counts = counts,
+                          pseudotime = pseudotime, cellWeights = cellWeights,
+                          nknots = 3, verbose = FALSE, conditions = conditions)
+  expect_is(
+    df <- tradeSeq::predictSmooth(Fit, gene = seq_len(nrow(Fit)), nPoints = 40),
+    "data.frame")
+  expect_equal(dim(df), c(40 * nrow(Fit) * 5 * 2, 5))
+  expect_is(plotSmoothers(Fit, counts = counts, gene = 1), "gg")
+  expect_equal(dim(predictCells(Fit, gene = seq_len(nrow(Fit)))), dim(counts))
+})
+
