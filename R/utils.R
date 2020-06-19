@@ -65,10 +65,10 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
     for (ii in seq_len(nCurves)) { # loop over curves
       for (jj in seq_len(length(allBs) / nCurves)) { #within curve, loop over basis functions
         assign(paste0("l",ii,".",jj),
-               splinefun(x = pseudotime[lineageID == ii, ii],
-                         y = lpmatrix[lineageID == ii, #only cells for lineage
-                                      get(paste0("id", ii))[jj]],
-                         ties = mean)) #basis function
+               stats::splinefun(x = pseudotime[lineageID == ii, ii],
+                                y = lpmatrix[lineageID == ii, #only cells for lineage
+                                             get(paste0("id", ii))[jj]],
+                                ties = mean)) #basis function
       }
     }
   } else if(condPresent) {
@@ -78,10 +78,11 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
         for (jj in seq_len(length(allBs) / nCurves)) {
           #within curve, loop over basis functions
           assign(paste0("l",ii,kk,".",jj),
-                 splinefun(x = pseudotime[lineageID == as.numeric(paste0(ii, kk)), ii],
-                           y = lpmatrix[lineageID == as.numeric(paste0(ii, kk)), #only cells for lineage
-                                        get(paste0("id", ii, kk))[jj]],
-                           ties = mean)) #basis function
+                 stats::splinefun(
+                   x = pseudotime[lineageID == as.numeric(paste0(ii, kk)), ii],
+                   y = lpmatrix[lineageID == as.numeric(paste0(ii, kk)), #only cells for lineage
+                                get(paste0("id", ii, kk))[jj]],
+                   ties = mean)) #basis function
         }
       }
     }

@@ -41,6 +41,27 @@ listFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
 rm(cellWeights, counts, dispersions, means, pseudotime, G, id, n)
 
 # Do the tests ----
+## EvaluateK
+test_that("EvaluateK return all same answers", {
+  set.seed(3)
+  sdsFit <- tradeSeq::evaluateK(counts, sds = sds, k = 3:5, verbose = FALSE,
+                                plot = FALSE, nGenes = 20)
+  set.seed(3)
+  sceFit <- tradeSeq::evaluateK(counts, pseudotime = pseudotime,
+                                cellWeights = cellWeights, k = 3:5, 
+                                verbose = FALSE, plot = FALSE, nGenes = 20)
+  set.seed(3)
+  sceInput <- tradeSeq::evaluateK(sce, k = 3:5, verbose = FALSE, plot = FALSE, 
+                                  nGenes = 20)
+  set.seed(3)
+  listFit <- tradeSeq::evaluateK(counts, pseudotime = pseudotime, 
+                                 cellWeights = cellWeights, k = 3:5, 
+                                 verbose = FALSE, plot = FALSE,  nGenes = 20)
+  expect_equal(sdsFit, sceFit)
+  expect_equal(sdsFit, sceInput)
+  expect_equal(sdsFit, listFit)
+})
+
 ## Estimates
 test_that("NB-GAM estimates are equal all input.",{
   # extract coefficients
