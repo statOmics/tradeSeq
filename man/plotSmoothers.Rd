@@ -43,7 +43,7 @@ if working with the list output of \code{tradeSeq}.}
 
 \item{...}{parameters including:}
 
-\item{nPoints}{The number of points used to extraplolate the fit.
+\item{nPoints}{The number of points used to extrapolate the fit.
 Defaults to 100.}
 
 \item{lwd}{Line width of the smoother. Passed to \code{\link{geom_line}}.}
@@ -56,7 +56,7 @@ Defaults to 100.}
 
 \item{border}{Logical: should a white border be drawn around the mean smoother.}
 
-\item{alpha}{Numeric between 0 and 1, determines the transparancy of data points,
+\item{alpha}{Numeric between 0 and 1, determines the transparency of data points,
 see \code{scale_color_viridis_d}.}
 
 \item{sample}{Numeric between 0 and 1, use to subsample the cells when there

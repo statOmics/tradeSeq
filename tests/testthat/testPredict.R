@@ -87,6 +87,7 @@ test_that("predictSmooth works the same on all inputs", {
                            nPoints = nPoints, tidy = FALSE)
   yhatList <- predictSmooth(listFit, gene = seq_len(nrow(sdsFit)),
                             nPoints = nPoints)
+  dimnames(yhatSds) <- dimnames(yhatList)
   expect_equal(yhatSds, yhatList)
 })
 

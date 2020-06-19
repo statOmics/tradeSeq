@@ -4,8 +4,8 @@ setOldClass("gam")
 
 
 
-.predictSmooth <- function(dm, X, beta, pseudotime, gene, nPoints){
-  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"), tidy = tidy)
+.predictSmooth <- function(dm, X, beta, pseudotime, gene, nPoints, tidy){
+  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
 
   # get predictor matrix
   for (jj in seq_len(nCurves)) {
@@ -25,9 +25,9 @@ setOldClass("gam")
                       pseudotime = pseudotime)
     if (jj == 1) Xall <- Xdf
     if (jj > 1) Xall <- rbind(Xall, Xdf)
-    if(tidy) out[[jj]] <- data.frame(lineage=jj, time=df[,paste0("t",jj)])
+    if (tidy) out[[jj]] <- data.frame(lineage = jj, time = df[, paste0("t",jj)])
   }
-  if(tidy) outAll <- do.call(rbind,out)
+  if (tidy) outAll <- do.call(rbind,out)
   
   # loop over all genes
   yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nPoints)
@@ -58,12 +58,14 @@ setOldClass("gam")
 
 
 .predictSmooth_conditions <- function(dm, X, beta, pseudotime, gene, nPoints,
-                                      conditions, tidy = tidy){
+                                      conditions, tidy){
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   nConditions <- nlevels(conditions)
 
   # get predictor matrix
+  if (tidy) out <- list()
   for (jj in seq_len(nCurves)) {
+    if (tidy) out_cond <- list()
     for(kk in seq_len(nConditions)){
       df <- .getPredictRangeDf(dm, as.numeric(paste0(jj,kk)), nPoints = nPoints,
                                condPresent = TRUE)
@@ -73,10 +75,16 @@ setOldClass("gam")
                         conditions = conditions)
       if(kk == 1) XallCond <- Xdf
       if(kk > 1) XallCond <- rbind(XallCond, Xdf)
+      if (tidy) {
+        out_cond[[kk]] <- data.frame(lineage = jj, time = df[, paste0("t",jj)],
+                                     condition = levels(conditions)[kk])
+      }
     }
     if (jj == 1) Xall <- XallCond
     if (jj > 1) Xall <- rbind(Xall, XallCond)
+    if (tidy) out[[jj]] <- do.call(rbind, out_cond)
   }
+  if (tidy) outAll <- do.call(rbind, out)
 
   # loop over all genes
   yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nConditions * nPoints)
@@ -91,7 +99,19 @@ setOldClass("gam")
                     df$offset[1]))
     yhatMat[jj, ] <- yhat
   }
-  return(yhatMat)
+  ## return output
+  if (!tidy) {
+    return(yhatMat)
+  } else {
+    outList <- list()
+    for (gg in seq_len(length(gene))){
+      curOut <- outAll
+      curOut$gene <- gene[gg]
+      curOut$yhat <- yhatMat[gg,]
+      outList[[gg]] <- curOut
+    }
+    return(do.call(rbind, outList))
+  }
 }
 
 

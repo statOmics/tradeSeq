@@ -508,6 +508,14 @@ setMethod(f = "fitGAM",
 
             if(!is.null(conditions)){
               if(class(conditions) != "factor") stop("conditions must be a factor vector.")
+              if(nlevels(conditions) == 1) {
+                message("Only one condition was provided. Will run fitGAM without conditions")
+                conditions <- NULL
+              }
+              if (!sce) {
+                warning(paste0("If conditions, tradeSeq will return", 
+                               " a SingleCellExperiment object"))
+              }
             }
 
             gamOutput <- .fitGAM(counts = counts,
@@ -625,6 +633,13 @@ setMethod(f = "fitGAM",
                         "in this format.\n Consider using the method with a ",
                         "matrix as input instead."))
           }
+          if((!is.null(conditions)) & is.character(conditions) & length(conditions == 1)) {
+            if (conditions %in% colnames(colData(counts))) {
+              conditions <- colData(counts)[, conditions]
+            } else {
+              stop("If condition is a character, it must be a colname of the colData")
+            }
+          }
           gamOutput <- fitGAM(counts = SingleCellExperiment::counts(counts),
                               U = U,
                               sds = slingshot::SlingshotDataSet(counts),
@@ -659,7 +674,11 @@ setMethod(f = "fitGAM",
           }
           newGeneInfo <- merge(newGeneInfo, geneInfo, by = "name", all = TRUE)
           rownames(newGeneInfo) <- newGeneInfo$name
-          newGeneInfo <- newGeneInfo[rownames(counts), ]
+          if (is.null(rownames(counts))) {
+            newGeneInfo <- newGeneInfo[paste0("V", seq_len(nrow(counts))), ]
+          } else {
+            newGeneInfo <- newGeneInfo[rownames(counts), ]
+          }
           SummarizedExperiment::rowData(counts)$tradeSeq <- newGeneInfo
           # tradeSeq cell-level info
           SummarizedExperiment::colData(counts)$tradeSeq <-
