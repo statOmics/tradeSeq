@@ -75,6 +75,23 @@ test_that("Different encoding of the same condition give the same output", {
   expect_equal(SigmaInput, Sigma2Input)
 })
 
+test_that("All tests work", {
+  cellWeights <- slingCurveWeights(sce)
+  counts <- SingleCellExperiment::counts(sce)
+  pseudotime <- slingPseudotime(sds, na = FALSE)
+  expect_s4_class(Fit <- tradeSeq::fitGAM(counts = counts,
+                    pseudotime = pseudotime, cellWeights = cellWeights, 
+                    nknots = 7, verbose = FALSE, conditions = conditions),
+                  "SingleCellExperiment")
+  expect_is(associationTest(Fit), "data.frame")
+  expect_is(startVsEndTest(Fit), "data.frame")
+  expect_is(diffEndTest(Fit), "data.frame")
+  expect_is(conditionTest(Fit), "data.frame")
+  expect_is(patternTest(Fit), "data.frame")
+  expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")
+  
+})
+
 test_that("Condition works with one lineage", {
   cellWeights <- slingCurveWeights(sce)
   keep <- cellWeights[, 1] > 0 
@@ -93,21 +110,3 @@ test_that("Condition works with one lineage", {
   expect_error(diffEndTest(Fit, knots = 1:2))
 })
 
-test_that("Condition works with three lineage", {
-  cellWeights <- slingCurveWeights(sce)
-  cellWeights <- cbind(cellWeights, rowMeans(cellWeights))
-  counts <- SingleCellExperiment::counts(sce)
-  pseudotime <- slingPseudotime(sds, na = FALSE)
-  pseudotime <- cbind(pseudotime, rowMeans(pseudotime))
-  expect_s4_class(Fit <- tradeSeq::fitGAM(counts = counts, 
-                          pseudotime = pseudotime, cellWeights = cellWeights, 
-                          nknots = 7, verbose = FALSE, conditions = conditions),
-                  "SingleCellExperiment")
-  expect_is(associationTest(Fit), "data.frame")
-  expect_is(startVsEndTest(Fit), "data.frame")
-  expect_is(diffEndTest(Fit), "data.frame")
-  expect_is(conditionTest(Fit), "data.frame")
-  expect_is(patternTest(Fit), "data.frame")
-  expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")
-  
-})

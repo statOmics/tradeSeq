@@ -39,7 +39,7 @@
   # construct pairwise contrast matrix
   # within-lineage between-condition DE
   # get linear predictor, condition specific
-  combsPerCurve <- combn(nConditions, 2)
+  combsPerCurve <- utils::combn(nConditions, 2)
   nComparisonsPerCurve <- ncol(combsPerCurve)
   ## construct generic contrast matrix to be filled in for all lineages
   Lsub <- matrix(0, nrow=nKnots*nConditions,
@@ -59,9 +59,9 @@
   rownames(LWithin) <- colnames(X)
   # fill in contrast matrix
   # some helpers to identify coefficients for each lineage/condition
-  smoothCoefs <- grep(x=colnames(X), pattern="^s(t[1-9]+)*")
+  smoothCoefs <- grep(x = colnames(X), pattern = "^s(t[1-9]+)*")
   smoothCoefNames <- colnames(X)[smoothCoefs]
-  textAfterSplit <- unlist(lapply(strsplit(smoothCoefNames, split=":l"), "[[", 2))
+  textAfterSplit <- unlist(lapply(strsplit(smoothCoefNames, split = ":l"), "[[", 2))
   # fill in with generic contrast
   for (jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
     curvID <- substr(textAfterSplit,1,1) == jj
@@ -82,7 +82,7 @@
   names(waldResOmnibus) <- rownames(models)
   #tidy output
   waldResults <- do.call(rbind, waldResOmnibus)
-  pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+  pval <- 1 - stats::pchisq(waldResults[, 1], df = waldResults[, 2])
   waldResults <- cbind(waldResults, pval)
   colnames(waldResults) <- c("waldStat", "df", "pvalue")
   waldResultsOmnibus <- as.data.frame(waldResults)
@@ -101,7 +101,7 @@
         getEigenStatGAMFC(beta, Sigma, LLin, l2fc, eigenThresh)
       })
       waldResults <- do.call(rbind, waldResPairWithin)
-      pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+      pval <- 1 - stats::pchisq(waldResults[, 1], df = waldResults[, 2])
       waldResults <- cbind(waldResults, pval)
       colnames(waldResults) <- c(
         paste0("waldStat_", paste0("lineage",jj)),

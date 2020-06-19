@@ -84,7 +84,7 @@
                                              pseudotime = pseudotime))
         }
       }
-      combs <- combn(nCurves, m = 2)
+      combs <- utils::combn(nCurves, m = 2)
       for (jj in seq_len(ncol(combs))) {
         curvesNow <- combs[, jj]
         if (jj == 1) {
@@ -118,7 +118,7 @@
       }
       
       LBetween <- list()
-      combBetween <- combn((seq_len(nCurves)[seq(2, nCurves, by=2)])/2, m = 2)
+      combBetween <- utils::combn((seq_len(nCurves)[seq(2, nCurves, by=2)])/2, m = 2)
       for (jj in seq_len(ncol(combBetween))) {
         curvesNow <- combBetween[, jj]
         LBetween[[jj]] <- get(paste0("X", curvesNow[1])) - get(paste0("X", curvesNow[2]))
@@ -160,7 +160,7 @@
   if (pairwise) {
     if(!condPresent){
       # no conditions present: loop over lineages for both !sce and sce
-      combs <- combn(x = nCurves, m = 2)
+      combs <- utils::combn(x = nCurves, m = 2)
       for (jj in seq_len(ncol(combs))) {
         curvesNow <- combs[,jj]
         if (!sce) {
@@ -179,7 +179,7 @@
           L <- t(X1 - X2)
           waldResPair <- lapply(models, function(m){
             if (is(m)[1] == "try-error") return(c(NA))
-            beta <- matrix(coef(m), ncol = 1)
+            beta <- matrix(stats::coef(m), ncol = 1)
             Sigma <- m$Vp
             getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
           })
@@ -206,7 +206,7 @@
         }
         # tidy output
         waldResults <- do.call(rbind, waldResPair)
-        pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+        pval <- 1 - stats::pchisq(waldResults[, 1], df = waldResults[, 2])
         waldResults <- cbind(waldResults, pval)
         colnames(waldResults) <- c(
           paste0("waldStat_", paste(curvesNow, collapse = "vs")),
@@ -230,7 +230,7 @@
           getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
         })
         waldResults <- do.call(rbind, waldResPair)
-        pval <- 1 - pchisq(waldResults[, 1], df = waldResults[, 2])
+        pval <- 1 - stats::pchisq(waldResults[, 1], df = waldResults[, 2])
         waldResults <- cbind(waldResults, pval)
         colnames(waldResults) <- c(
           paste0("waldStat_", paste(combBetween[,jj], collapse = "vs")),

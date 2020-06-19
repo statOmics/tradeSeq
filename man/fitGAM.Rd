@@ -101,7 +101,7 @@ column represents a lineage. If only a single lineage, provide a matrix with
 one column containing all values of 1.}
 
 \item{conditions}{This argument is in beta phase and should be used carefully.
-If each lineage consists of mutliple conditions, this argument can be used to
+If each lineage consists of multiple conditions, this argument can be used to
 specify the conditions. tradeSeq will then fit a condition-specific smoother for
 every lineage.}
 

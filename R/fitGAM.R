@@ -235,7 +235,7 @@
     if (!is.null(weights)) weights <- weights[teller,]
     if (!is.null(dim(offset))) offset <- offset[teller,]
     if(is.null(conditions)){
-      smoothForm <- as.formula(
+      smoothForm <- stats::as.formula(
         paste0("y ~ -1 + U + ",
                paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                  paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
@@ -253,7 +253,7 @@
           assign(paste0("l",jj,kk), lCurrent)
         }
       }
-      smoothForm <- as.formula(
+      smoothForm <- stats::as.formula(
         paste0("y ~ -1 + U + ",
                paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                  paste(vapply(seq_len(nlevels(conditions)), function(kk){
@@ -378,7 +378,7 @@
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param conditions This argument is in beta phase and should be used carefully.
-#' If each lineage consists of mutliple conditions, this argument can be used to
+#' If each lineage consists of multiple conditions, this argument can be used to
 #' specify the conditions. tradeSeq will then fit a condition-specific smoother for
 #' every lineage.
 #' @param sds an object of class \code{SlingshotDataSet}, typically obtained

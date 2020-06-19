@@ -57,14 +57,14 @@ Imports:
     S4Vectors,
     tibble,
     Matrix,
+    viridis,
     matrixStats
 Suggests:
     knitr,
     rmarkdown,
     testthat,
     covr,
-    clusterExperiment,
-    viridis
+    clusterExperiment
 VignetteBuilder: knitr
 biocViews:
     Clustering,

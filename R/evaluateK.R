@@ -1,7 +1,7 @@
 
 .evaluateK <- function(counts, U = NULL, pseudotime, cellWeights, plot = TRUE,
                        nGenes = 500, k = 3:10, weights = NULL, offset = NULL,
-                       aicDiff = 2, verbose = TRUE, gcv = FALSE, ...) {
+                       aicDiff = 2, verbose = TRUE, conditions, gcv = FALSE, ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
   if (length(k) == 1) stop("There should be more than one k value")
@@ -26,9 +26,10 @@
   #gamLists <- BiocParallel::bplapply(kList, function(currK){
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
-                      cellWeights = cellWeights, nknots = currK,
-                      verbose = verbose, sce = FALSE, weights = weightSub,
-                      offset = offset, aic = TRUE, gcv = gcv)
+                      cellWeights = cellWeights, conditions = conditions,
+                      nknots = currK, verbose = verbose, sce = FALSE,
+                      weights = weightSub, offset = offset, aic = TRUE, 
+                      gcv = gcv)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
@@ -44,7 +45,7 @@
 
 
   if (plot) {
-    op <- graphics::par()
+    init_shape <- graphics::par()$mfrow
     graphics::par(mfrow = c(1, 4))
     # boxplots of AIC
     devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
@@ -69,7 +70,7 @@
       graphics::barplot(tab, xlab = "Number of knots",
                         ylab = "# Genes with optimal k")
     }
-    graphics::par(op)
+    graphics::par(mfrow = init_shape)
   }
 
   if(gcv){
@@ -86,6 +87,10 @@
 #' @param sds Slingshot object containing the lineages.
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
+#' @param conditions This argument is in beta phase and should be used carefully.
+#' If each lineage consists of multiple conditions, this argument can be used to
+#' specify the conditions. tradeSeq will then fit a condition-specific smoother for
+#' every lineage.
 #' @param pseudotime a matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
 #' @param cellWeights a matrix of cell weights defining the probability that a
@@ -117,10 +122,10 @@
 #' ## This is an artifical example, please check the vignette for a realistic one.
 #' set.seed(8)
 #' data(sds, package="tradeSeq")
-#' loadings <- matrix(runif(2000*2,-2,2), nrow=2, ncol=2000)
-#' counts <- round(abs(t(slingshot::reducedDim(sds) %*% loadings)))+100
-#' aicK <- evaluateK(counts = counts, sds=sds,
-#'                   nGenes=100, k=3:5, verbose=FALSE)
+#' loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
+#' counts <- round(abs(t(slingshot::reducedDim(sds) %*% loadings))) + 100
+#' aicK <- evaluateK(counts = counts, sds = sds, nGenes = 100,
+#'                   k = 3:5, verbose = FALSE)
 #' @importFrom BiocParallel bplapply bpparam MulticoreParam
 #' @rdname evaluateK
 #' @export
@@ -141,6 +146,7 @@ setMethod(f = "evaluateK",
                                 offset = NULL,
                                 aicDiff = 2,
                                 verbose = TRUE,
+                                conditions = NULL,
                                 control = mgcv::gam.control(),
                                 sce = FALSE,
                                 family = "nb",
@@ -177,6 +183,7 @@ setMethod(f = "evaluateK",
                                  weights = weights,
                                  offset = offset,
                                  verbose = verbose,
+                                 conditions = conditions,
                                  control = control,
                                  sce = sce,
                                  gcv = gcv,
@@ -201,6 +208,7 @@ setMethod(f = "evaluateK",
                                 offset = NULL,
                                 aicDiff = 2,
                                 verbose = TRUE,
+                                conditions = NULL,
                                 control = mgcv::gam.control(),
                                 sce = FALSE,
                                 family = "nb",
@@ -220,11 +228,11 @@ setMethod(f = "evaluateK",
                                 offset = offset,
                                 aicDiff = aicDiff,
                                 verbose = verbose,
+                                conditions = conditions,
                                 control = control,
                                 sce = sce,
                                 family = family,
-                                gcv = gcv,
-                                ...)
+                                gcv = gcv)
 
             return(aicOut)
 
@@ -250,6 +258,7 @@ setMethod(f = "evaluateK",
                                 offset = NULL,
                                 aicDiff = 2,
                                 verbose = TRUE,
+                                conditions = NULL,
                                 control = mgcv::gam.control(),
                                 sce = FALSE,
                                 family = "nb",
@@ -259,6 +268,13 @@ setMethod(f = "evaluateK",
               stop(paste0("For now tradeSeq only works downstream of slingshot",
                           "in this format.\n Consider using the method with a ",
                           "matrix as input instead."))
+            }
+            if((!is.null(conditions)) & is.character(conditions) & length(conditions == 1)) {
+              if (conditions %in% colnames(colData(counts))) {
+                conditions <- colData(counts)[, conditions]
+              } else {
+                stop("If condition is a character, it must be a colname of the colData")
+              }
             }
 
             aicOut <- evaluateK(counts = SingleCellExperiment::counts(counts),
@@ -271,6 +287,7 @@ setMethod(f = "evaluateK",
                                 offset = offset,
                                 aicDiff = aicDiff,
                                 verbose = verbose,
+                                conditions = conditions,
                                 control = control,
                                 sce = sce,
                                 family = family,
@@ -297,6 +314,7 @@ setMethod(f = "evaluateK",
                                 offset = NULL,
                                 aicDiff = 2,
                                 verbose = TRUE,
+                                conditions = NULL,
                                 control = mgcv::gam.control(),
                                 sce = FALSE,
                                 family = "nb",
@@ -316,6 +334,7 @@ setMethod(f = "evaluateK",
                                 offset = offset,
                                 aicDiff = aicDiff,
                                 verbose = verbose,
+                                conditions = conditions,
                                 control = control,
                                 sce = sce,
                                 family = family,

@@ -23,6 +23,7 @@ evaluateK(counts, ...)
   offset = NULL,
   aicDiff = 2,
   verbose = TRUE,
+  conditions = NULL,
   control = mgcv::gam.control(),
   sce = FALSE,
   family = "nb",
@@ -43,6 +44,7 @@ evaluateK(counts, ...)
   offset = NULL,
   aicDiff = 2,
   verbose = TRUE,
+  conditions = NULL,
   control = mgcv::gam.control(),
   sce = FALSE,
   family = "nb",
@@ -63,6 +65,7 @@ evaluateK(counts, ...)
   offset = NULL,
   aicDiff = 2,
   verbose = TRUE,
+  conditions = NULL,
   control = mgcv::gam.control(),
   sce = FALSE,
   family = "nb",
@@ -83,6 +86,7 @@ evaluateK(counts, ...)
   offset = NULL,
   aicDiff = 2,
   verbose = TRUE,
+  conditions = NULL,
   control = mgcv::gam.control(),
   sce = FALSE,
   family = "nb",
@@ -128,6 +132,11 @@ that is part of the output of this function.}
 
 \item{verbose}{logical, should progress be verbose?}
 
+\item{conditions}{This argument is in beta phase and should be used carefully.
+If each lineage consists of multiple conditions, this argument can be used to
+specify the conditions. tradeSeq will then fit a condition-specific smoother for
+every lineage.}
+
 \item{control}{Control object for GAM fitting, see \code{mgcv::gam.control()}.}
 
 \item{sce}{Logical, should a \code{SingleCellExperiment} object be returned?}
@@ -151,8 +160,8 @@ Evaluate an appropriate number of knots.
 ## This is an artifical example, please check the vignette for a realistic one.
 set.seed(8)
 data(sds, package="tradeSeq")
-loadings <- matrix(runif(2000*2,-2,2), nrow=2, ncol=2000)
-counts <- round(abs(t(slingshot::reducedDim(sds) \%*\% loadings)))+100
-aicK <- evaluateK(counts = counts, sds=sds,
-                  nGenes=100, k=3:5, verbose=FALSE)
+loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
+counts <- round(abs(t(slingshot::reducedDim(sds) \%*\% loadings))) + 100
+aicK <- evaluateK(counts = counts, sds = sds, nGenes = 100,
+                  k = 3:5, verbose = FALSE)
 }
