@@ -80,9 +80,8 @@ test_that("NB-GAM estimates are equal all input.",{
   betaSceInput <- as.matrix(rowData(sceInput)$tradeSeq$beta)
   betaList <- do.call(rbind, lapply(listFit, function(m) coef(m)))
   betaSparseInput <- as.matrix(rowData(sparseFit)$tradeSeq$beta)
-  dimnames(betaSceInput) <- dimnames(betaSce) <-
-    dimnames(betaSds) <- dimnames(betaList)
-  dimnames(betaSds) <- dimnames(betaList) <- dimnames(betaSparseInput)
+  dimnames(betaSparseInput) <- dimnames(betaSceInput) <- dimnames(betaSce) <-
+    dimnames(betaSds) <- dimnames(betaList) 
   expect_equal(betaSds, betaList)
   expect_equal(betaSds, betaSce)
   expect_equal(betaSds, betaSceInput)

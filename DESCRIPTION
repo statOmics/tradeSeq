@@ -58,13 +58,13 @@ Imports:
     tibble,
     Matrix,
     viridis,
-    matrixStats
+    matrixStats,
+    clusterExperiment
 Suggests:
     knitr,
     rmarkdown,
     testthat,
-    covr,
-    clusterExperiment
+    covr
 VignetteBuilder: knitr
 biocViews:
     Clustering,

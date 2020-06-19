@@ -80,5 +80,5 @@ function from the clusterExperiment package to perform consensus clustering.
 }
 \examples{
 data(gamList, package = "tradeSeq")
-clusterExpressionPatterns(gamList, 200, seq_len(11))
+clusterExpressionPatterns(models = gamList, nPoints = 200, genes = seq_len(11))
 }
