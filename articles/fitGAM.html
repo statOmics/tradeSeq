@@ -189,7 +189,7 @@
 <div id="parallel-computing" class="section level2">
 <h2 class="hasAnchor">
 <a href="#parallel-computing" class="anchor"></a>Parallel computing</h2>
-<p>If large datasets are being analyzed, <code>fitGAM</code> may be running for quite some time. We have implemented support for parallelization using <code>BiocParallel</code>. Parallelization options can be provided through the <code>BPPARAM</code> argument, as shown below.</p>
+<p>If large datasets are being analyzed, <code>fitGAM</code> may be running for quite some time. We have implemented support for parallelization using <code>BiocParallel</code>, which can be activated by setting <code>parallel=TRUE</code>. Parallelization options can be provided through the <code>BPPARAM</code> argument, as shown below.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit">
 <span class="kw">BPPARAM</span> <span class="op">&lt;-</span> <span class="kw">BiocParallel</span>::<span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html">bpparam</a></span>()
 <span class="kw">BPPARAM</span> <span class="co"># lists current options</span>
@@ -206,7 +206,7 @@
 <span class="kw">BPPARAM</span><span class="op">$</span><span class="kw">workers</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="co"># use 2 cores</span>
 
 <span class="kw">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts = <span class="kw">counts</span>, pseudotime = <span class="kw">pseudotime</span>, cellWeights = <span class="kw">cellWeights</span>,
-                 nknots = <span class="fl">6</span>, verbose = <span class="fl">FALSE</span>, BPPARAM = <span class="kw">BPPARAM</span>)
+                 nknots = <span class="fl">6</span>, verbose = <span class="fl">FALSE</span>, parallel=<span class="fl">TRUE</span>, BPPARAM = <span class="kw">BPPARAM</span>)
 </pre></div>
 </div>
 <div id="fitting-only-a-subset-of-genes" class="section level2">
@@ -300,7 +300,7 @@
 <div class="sourceCode" id="cb20"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
 </pre></div>
-<pre><code>## R version 4.0.0 (2020-04-24)
+<pre><code>## R version 4.0.1 (2020-06-06)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.5
 ## 
@@ -321,10 +321,10 @@
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] mgcv_1.8-31                 nlme_3.1-147               
+##  [1] mgcv_1.8-31                 nlme_3.1-148               
 ##  [3] slingshot_1.7.0             princurve_2.1.4            
-##  [5] SingleCellExperiment_1.11.4 SummarizedExperiment_1.19.5
-##  [7] DelayedArray_0.15.4         matrixStats_0.56.0         
+##  [5] SingleCellExperiment_1.11.5 SummarizedExperiment_1.19.5
+##  [7] DelayedArray_0.15.5         matrixStats_0.56.0         
 ##  [9] Matrix_1.2-18               Biobase_2.49.0             
 ## [11] GenomicRanges_1.41.5        GenomeInfoDb_1.25.2        
 ## [13] IRanges_2.23.10             S4Vectors_0.27.12          
@@ -333,13 +333,13 @@
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] bitops_1.0-6           DDRTree_0.1.5          fs_1.4.1              
-##  [4] rprojroot_1.3-2        docopt_0.6.1           tools_4.0.0           
+##  [4] rprojroot_1.3-2        docopt_0.6.1           tools_4.0.1           
 ##  [7] backports_1.1.8        R6_2.4.1               irlba_2.3.3           
 ## [10] colorspace_1.4-1       tidyselect_1.1.0       gridExtra_2.3         
-## [13] compiler_4.0.0         desc_1.2.0             labeling_0.3          
+## [13] compiler_4.0.1         desc_1.2.0             labeling_0.3          
 ## [16] slam_0.1-47            scales_1.1.1           pbapply_1.4-2         
 ## [19] pkgdown_1.5.1.9000     stringr_1.4.0          digest_0.6.25         
-## [22] rmarkdown_2.2.6        sparsesvd_0.2          XVector_0.29.2        
+## [22] rmarkdown_2.3.1        sparsesvd_0.2          XVector_0.29.2        
 ## [25] pkgconfig_2.0.3        htmltools_0.5.0        limma_3.45.7          
 ## [28] rlang_0.4.6            VGAM_1.1-3             FNN_1.1.3             
 ## [31] farver_2.0.3           generics_0.0.2         combinat_0.0-8        
@@ -348,13 +348,13 @@
 ## [40] munsell_0.5.0          ape_5.4                viridis_0.5.1         
 ## [43] lifecycle_0.2.0        stringi_1.4.6          yaml_2.2.1            
 ## [46] edgeR_3.31.4           zlibbioc_1.35.0        Rtsne_0.15            
-## [49] plyr_1.8.6             grid_4.0.0             ggrepel_0.8.2         
-## [52] crayon_1.3.4           lattice_0.20-41        splines_4.0.0         
+## [49] plyr_1.8.6             grid_4.0.1             ggrepel_0.8.2         
+## [52] crayon_1.3.4           lattice_0.20-41        splines_4.0.1         
 ## [55] locfit_1.5-9.4         pillar_1.4.4           igraph_1.2.5          
 ## [58] reshape2_1.4.4         glue_1.4.1             evaluate_0.14         
 ## [61] vctrs_0.3.1            gtable_0.3.0           RANN_2.6.1            
-## [64] purrr_0.3.4            assertthat_0.2.1       ggplot2_3.3.1         
-## [67] xfun_0.14              monocle_2.17.0         HSMMSingleCell_1.9.0  
+## [64] purrr_0.3.4            assertthat_0.2.1       ggplot2_3.3.2         
+## [67] xfun_0.15              monocle_2.17.0         HSMMSingleCell_1.9.0  
 ## [70] qlcMatrix_0.9.7        viridisLite_0.3.0      tibble_3.0.1          
 ## [73] pheatmap_1.0.12        memoise_1.1.0          cluster_2.1.0         
 ## [76] fastICA_1.2-2          densityClust_0.3       ellipsis_0.3.1</code></pre>
