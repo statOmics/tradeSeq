@@ -129,7 +129,7 @@ sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeight
 ## Parallel computing
 
 If large datasets are being analyzed, `fitGAM` may be running for quite some time.
-We have implemented support for parallelization using `BiocParallel`. Parallelization options can be provided through the `BPPARAM` argument, as shown below.
+We have implemented support for parallelization using `BiocParallel`, which can be activated by setting `parallel=TRUE`. Parallelization options can be provided through the `BPPARAM` argument, as shown below.
 
 ```{r}
 BPPARAM <- BiocParallel::bpparam()
@@ -137,7 +137,7 @@ BPPARAM # lists current options
 BPPARAM$workers <- 2 # use 2 cores
 
 sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
-                 nknots = 6, verbose = FALSE, BPPARAM = BPPARAM)
+                 nknots = 6, verbose = FALSE, parallel=TRUE, BPPARAM = BPPARAM)
 ```
 
 ## Fitting only a subset of genes
