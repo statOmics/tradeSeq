@@ -100,8 +100,8 @@ test_that("All tests work", {
                     nknots = 3, verbose = FALSE, conditions = conditions),
                   "SingleCellExperiment")
   expect_is(associationTest(Fit), "data.frame")
-  # expect_is(startVsEndTest(Fit), "data.frame")
-  # expect_is(diffEndTest(Fit), "data.frame")
+  expect_is(startVsEndTest(Fit), "data.frame")
+  expect_is(diffEndTest(Fit), "data.frame")
   expect_is(conditionTest(Fit), "data.frame")
   # expect_is(patternTest(Fit), "data.frame")
   # expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")

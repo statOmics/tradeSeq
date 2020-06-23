@@ -22,10 +22,10 @@ counts <- matrix(rnbinom(n = G * n, mu = means, size = 1 / dispersions),
                  nrow = G, ncol = n)
 rownames(counts) <- 1:100
 cds <- newCellDataSet(cellData = counts, 
-  featureData = AnnotatedDataFrame(data.frame(gene_short_name = 1:100)))
+  featureData = Biobase::AnnotatedDataFrame(data.frame(gene_short_name = 1:100)))
 cds <- estimateSizeFactors(cds)
-cds <- reduceDimension(cds, max_components = 2)
-cds <- orderCells(cds)
+cds <- monocle::reduceDimension(cds, max_components = 2)
+cds <- monocle::orderCells(cds)
 
 # Do the tests ----
 test_that("NB-GAM estimates are equal all input.",{

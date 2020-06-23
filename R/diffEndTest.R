@@ -1,49 +1,56 @@
 #' @include utils.R
 
-.diffEndTest <- function(models, global = TRUE, pairwise = FALSE, l2fc=0){
+.diffEndTest <- function(models, global = TRUE, pairwise = FALSE, l2fc = 0){
 
   if (is(models, "list")) {
     sce <- FALSE
   } else if (is(models, "SingleCellExperiment")) {
     sce <- TRUE
+    condPresent <- suppressWarnings({
+      !is.null(SummarizedExperiment::colData(models)$tradeSeq$conditions)
+    })
+    if (!condPresent) {
+      conditions <- NULL
+      nConditions <- 1
+    } else {
+      conditions <- SummarizedExperiment::colData(models)$tradeSeq$conditions
+      nConditions <- nlevels(conditions)
+    }
+    
   }
-
-  # get predictor matrix for every lineage.
   if (!sce) { # list output of fitGAM
     modelTemp <- .getModelReference(models)
     nCurves <- length(modelTemp$smooth)
-    if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if (nCurves == 2 & pairwise == TRUE) {
-      message("Only two lineages; skipping pairwise comparison.")
-      pairwise <- FALSE
-    }
-
+  } else if (sce) {
+    dm <- colData(models)$tradeSeq$dm # design matrix
+    nCurves <- length(grep(x = colnames(dm), pattern = "l[1-9]"))
+    nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  }
+  if (nCurves == 1) stop("You cannot run this test with only one lineage.")
+  if (nCurves == 2 & pairwise == TRUE) {
+    message("Only two lineages; skipping pairwise comparison.")
+    pairwise <- FALSE
+  }
+  
+  # get predictor matrix for every lineage.
+  if (!sce) { # list output of fitGAM
     data <- modelTemp$model
-
     for (jj in seq_len(nCurves)) {
       df <- .getPredictEndPointDf(modelTemp$model, jj)
       assign(paste0("X",jj),
              predict(modelTemp, newdata = df, type = "lpmatrix"))
     }
   } else if (sce) {
-
-    dm <- colData(models)$tradeSeq$dm # design matrix
-    nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-    if (nCurves == 1) stop("You cannot run this test with only one lineage.")
-    if (nCurves == 2 & pairwise == TRUE) {
-      message("Only two lineages; skipping pairwise comparison.")
-      pairwise <- FALSE
-    }
-
     # get lp matrix
     slingshotColData <- colData(models)$slingshot
-    for (jj in seq_len(nCurves)) {
+    for (jj in seq_len(nLineages)) {
       df <- .getPredictEndPointDf(dm, jj)
-      assign(paste0("X",jj),
+      assign(paste0("X", jj),
              predictGAM(lpmatrix = colData(models)$tradeSeq$X,
                         df = df,
                         pseudotime = slingshotColData[,grep(x = colnames(slingshotColData),
-                                                            pattern = "pseudotime")]))
+                                                            pattern = "pseudotime")],
+                        conditions = conditions))
     }
   }
 
@@ -51,16 +58,17 @@
   # construct pairwise contrast matrix
   if (!sce) {
     p <- length(stats::coef(modelTemp))
+    combs <- utils::combn(nCurves,m = 2)
   } else if (sce) {
     p <- ncol(colData(models)$tradeSeq$X)
+    combs <- utils::combn(nLineages, m = 2)
   }
 
-  combs <- utils::combn(nCurves,m = 2)
   L <- matrix(0, nrow = p, ncol = ncol(combs))
   colnames(L) <- apply(combs, 2, paste, collapse = "_")
   for (jj in seq_len(ncol(combs))) {
     curvesNow <- combs[,jj]
-    L[,jj] <- get(paste0("X", curvesNow[1])) - get(paste0("X",curvesNow[2]))
+    L[, jj] <- get(paste0("X", curvesNow[1])) - get(paste0("X", curvesNow[2]))
   }
   if (!sce) rm(modelTemp)
 

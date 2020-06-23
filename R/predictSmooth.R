@@ -2,8 +2,6 @@
 #' @import mgcv
 setOldClass("gam")
 
-
-
 .predictSmooth <- function(dm, X, beta, pseudotime, gene, nPoints, tidy){
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
 

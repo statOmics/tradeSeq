@@ -1,6 +1,6 @@
 # Manipulate the objects to extract meaningul values ----
 ### lpmatrix given X and design
-predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
+predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
   # this function is an alternative of predict.gam(model, newdata = df, type = "lpmatrix")
   # INPUT:
   # lpmatrix is the linear predictor matrix of the GAM model
@@ -146,11 +146,16 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set max pseudotime for lineage of interest
-  vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l",
-                                                           lineageId)] == 1,
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  if (length(lineageIds) == 1){
+    vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l", lineageId)] == 1,
                                              paste0("t", lineageId)])
+  } else {
+    vars[, paste0("t", lineageId)] <- max(dm[rowSums(dm[, lineageIds]) == 1,
+                                             paste0("t", lineageId)])
+  }
   # set lineage
-  vars[, paste0("l", lineageId)] <- 1
+  vars[, lineageIds] <- 1 / length(lineageIds)
   # set offset
   vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
@@ -172,7 +177,8 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set lineage
-  vars[, paste0("l", lineageId)] <- 1
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  vars[, lineageIds] <- 1 / length(lineageIds)
   # set offset
   vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
@@ -194,7 +200,8 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set lineage
-  vars[, paste0("l", lineageId)] <- 1
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  vars[, lineageIds] <- 1 / length(lineageIds)
   # set custom pseudotime
   vars[, paste0("t", lineageId)] <- pseudotime
   # set offset
