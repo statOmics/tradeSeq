@@ -189,3 +189,26 @@ test_that("earlyDETest results are equal for sds and manual input.", {
   expect_equal(edtSds, edtSce, tolerance = 1e-5)
   expect_equal(edtSds, edtInput, tolerance = 1e-5)
 })
+
+## clusterExperiment
+
+test_that("clusterExpressionpattern returns the right objects.", {
+  set.seed(179)
+  PatSce <- tradeSeq::clusterExpressionPatterns(sceFit, nPoints = 20, genes = 1:50)
+  set.seed(179)
+  PatInput <- tradeSeq::clusterExpressionPatterns(sceInput, nPoints = 20, genes = 1:50)
+  set.seed(179)
+  PatSds <- tradeSeq::clusterExpressionPatterns(sdsFit, nPoints = 20, genes = 1:50)
+  set.seed(179)
+  PatList <- tradeSeq::clusterExpressionPatterns(listFit, nPoints = 20, genes = 1:50)
+  set.seed(179)
+  PatSparse <- tradeSeq::clusterExpressionPatterns(sparseFit, nPoints = 20, genes = 1:50)
+  # Same initial values
+  dimnames(PatSds$yhatScaled) <- dimnames(PatList$yhatScaled) <- 
+    dimnames(PatSparse$yhatScaled) <- dimnames(PatSce$yhatScaled) <- 
+    dimnames(PatInput$yhatScaled)
+  expect_equal(PatSds$yhatScaled, PatList$yhatScaled, tolerance = 1e-5)
+  expect_equal(PatSds$yhatScaled, PatSparse$yhatScaled, tolerance = 1e-5)
+  expect_equal(PatSds$yhatScaled, PatSce$yhatScaled, tolerance = 1e-5)
+  expect_equal(PatSds$yhatScaled, PatInput$yhatScaled, tolerance = 1e-5)
+})

@@ -40,6 +40,8 @@ test_that("Plots function do produce plots", {
   expect_is(p, "gg")
   p <- plotGeneCount(sds, counts = counts(sce), gene = 1)
   expect_is(p, "gg")
+  p <- plotGeneCount(sds, counts = counts(sce), gene = 1, models = listFit)
+  expect_is(p, "gg")
   p <- plotGeneCount(sds, counts = counts(sce), clusters = sample(1:10, n, T))
   expect_is(p, "gg")
 })
