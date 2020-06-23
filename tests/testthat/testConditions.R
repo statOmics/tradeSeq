@@ -2,8 +2,6 @@ context("tradeSeq works as expected with a condition vector")
 
 # Create data ----
 data("sds", package = "tradeSeq")
-
-# Create fake data ----
 set.seed(3)
 n <- nrow(reducedDim(sds))
 G <- 100
@@ -63,6 +61,24 @@ test_that("Different encoding of the same condition give the same output", {
   conditions2 <- as.factor(as.numeric(conditions) + 1)
   cond2Input <- tradeSeq::fitGAM(sce, nknots = 3, verbose = FALSE,
                                conditions = conditions2)
+  # Beta coefficients are the same
+  betaInput <- as.matrix(rowData(condInput)$tradeSeq$beta)
+  beta2Input <- as.matrix(rowData(cond2Input)$tradeSeq$beta)
+  dimnames(betaInput) <- dimnames(beta2Input)
+  expect_equal(betaInput, beta2Input)
+  # Sigma coefficients are the same
+  SigmaInput <- rowData(condInput)$tradeSeq$Sigma
+  Sigma2Input <- rowData(cond2Input)$tradeSeq$Sigma
+  names(SigmaInput) <- names(Sigma2Input)
+  expect_equal(SigmaInput, Sigma2Input)
+})
+
+test_that("One condition give the same result as no conditions", {
+  set.seed(1031)
+  condInput <- tradeSeq::fitGAM(sce, nknots = 3, verbose = FALSE)
+  set.seed(1031)
+  cond2Input <- tradeSeq::fitGAM(sce, nknots = 3, verbose = FALSE,
+                                 conditions = as.factor(rep(1, ncol(sce))))
   # Beta coefficients are the same
   betaInput <- as.matrix(rowData(condInput)$tradeSeq$beta)
   beta2Input <- as.matrix(rowData(cond2Input)$tradeSeq$beta)
