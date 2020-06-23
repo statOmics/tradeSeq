@@ -79,10 +79,11 @@ test_that("EvaluateK return all same answers", {
   listFit <- tradeSeq::evaluateK(counts, pseudotime = pseudotime, 
                                  cellWeights = cellWeights, k = 3:5, gcv = TRUE,
                                  verbose = FALSE, plot = FALSE,  nGenes = 20)
-  expect_equal(listFit, sceFit)
+  expect_equal(listFit$gcv, sceInput$gcv)
+  expect_equal(listFit$aic, sceInput$aic)
   expect_is(tradeSeq::evaluateK(sce, k = 3:4, verbose = FALSE, plot = TRUE, 
                                 nGenes = 20),
-            "data.frame")
+            "matrix")
 })
 
 ## Estimates
