@@ -38,6 +38,8 @@ test_that("Plots function do produce plots", {
   expect_is(p, "gg")
   p <- plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit))
   expect_is(p, "gg")
+  p <- plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit), border = FALSE)
+  expect_is(p, "gg")
   p <- plotGeneCount(sds, counts = counts(sce), gene = 1)
   expect_is(p, "gg")
   p <- plotGeneCount(sds, counts = counts(sce), gene = 1, models = listFit)

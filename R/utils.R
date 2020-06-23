@@ -219,24 +219,6 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
   stop("All models errored")
 }
 
-# perform Wald test ----
-# waldTest <- function(beta, Sigma, L){
-#   ### build a contrast matrix for a multivariate Wald test
-#   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-#   sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
-#   if (is(sigmaInv)[1] == "try-error") {
-#     return(c(NA, NA, NA))
-#   }
-#   est <- t(LQR) %*% beta
-#   wald <- t(est) %*%
-#     sigmaInv %*%
-#     est
-#   if (wald < 0) wald <- 0
-#   df <- ncol(LQR)
-#   pval <- 1 - stats::pchisq(wald, df = df)
-#   return(c(wald, df, pval))
-# }
-
 ## temporary version of Wald test that also outputs FC.
 ## Made this such that other tests don't break as we update relevant tests to
 ## also return fold changes. This should become the default one over time.
@@ -384,74 +366,6 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
   halfStat <- t(est) %*% halfCovInv
   stat <- crossprod(t(halfStat))
   return(c(stat, r))
-}
-
-# .patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
-#                                      knots = NULL){
-#   Knot <- !is.null(knots)
-#   if (Knot) {
-#     t1 <- model$smooth[[2]]$xp[knots[1]]
-#     t2 <- model$smooth[[2]]$xp[knots[2]]
-#   }
-# 
-#   # get predictor matrix for every lineage.
-#   for (jj in curves) {
-#     df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
-#     if (Knot) {
-#       df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-#     }
-#     assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
-#   }
-# 
-#   # construct pairwise contrast matrix
-#   L <- get(paste0("X", curves[1])) - get(paste0("X", curves[2]))
-# 
-#   # point x comparison y colnames
-#   rownames(L) <- paste0("p", seq_len(nPoints), "_", "c",
-#                         paste(curves, collapse = "_"))
-#   #transpose => one column is one contrast.
-#   L <- t(L)
-#   return(L)
-# }
-
-# for associationTest
-.getPredictKnots <- function(dm, lineageId, knotPoints){
-  # note that X or offset variables dont matter as long as they are the same,
-  # since they will get canceled.
-  vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
-  offsetId <- grep(x = colnames(vars), pattern = "offset")
-  offsetName <- colnames(vars)[offsetId]
-  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
-  names(vars)[offsetId] <- offsetName
-
-  # set all times on 0
-  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
-  # set all lineages on 0
-  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
-  # get max pseudotime for lineage of interest
-  tmax <- max(dm[dm[, paste0("l", lineageId)] == 1,
-                   paste0("t", lineageId)])
-  nknots <- sum(knotPoints <= tmax)
-  # Extend vars
-  vars <- vars[rep(1, nknots), ]
-  # Set time
-  vars[, paste0("t", lineageId)] <- knotPoints[seq_len(nknots)]
-  # set lineage
-  vars[, paste0("l", lineageId)] <- 1
-  # set offset
-  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
-                                            pattern = "offset")])
-  return(vars)
-}
-
-getRank <- function(m,L){
-  beta <- matrix(stats::coef(m), ncol = 1)
-  est <- t(L) %*% beta
-  sigma <- t(L) %*% m$Vp %*% L
-  eSigma <- eigen(sigma, symmetric = TRUE)
-  r <- sum(eSigma$values / eSigma$values[1] > 1e-8)
-  return(r)
 }
 
 .getFoldChanges <- function(beta, L){

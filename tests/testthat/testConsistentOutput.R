@@ -48,6 +48,7 @@ rm(dispersions, means, G, id, n)
 # Do the tests ----
 ## EvaluateK
 test_that("EvaluateK return all same answers", {
+  # With AIC
   set.seed(3)
   sdsFit <- tradeSeq::evaluateK(counts, sds = sds, k = 3:5, verbose = FALSE,
                                 plot = FALSE, nGenes = 20)
@@ -70,6 +71,18 @@ test_that("EvaluateK return all same answers", {
   expect_equal(sdsFit, sceInput)
   expect_equal(sdsFit, listFit)
   expect_equal(sdsFit, sparseFit)
+  # With gcv
+  set.seed(3)
+  sceInput <- tradeSeq::evaluateK(sce, k = 3:5, verbose = FALSE, plot = FALSE, 
+                                  nGenes = 20, gcv = TRUE)
+  set.seed(3)
+  listFit <- tradeSeq::evaluateK(counts, pseudotime = pseudotime, 
+                                 cellWeights = cellWeights, k = 3:5, gcv = TRUE,
+                                 verbose = FALSE, plot = FALSE,  nGenes = 20)
+  expect_equal(listFit, sceFit)
+  expect_is(tradeSeq::evaluateK(sce, k = 3:4, verbose = FALSE, plot = FALSE, 
+                                nGenes = 20, plot = TRUE),
+            "data.frame")
 })
 
 ## Estimates
