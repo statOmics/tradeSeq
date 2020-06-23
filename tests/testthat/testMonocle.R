@@ -1,5 +1,5 @@
 context("Consistent tradeSeq when running with monocle.")
-
+library(monocle)
 # Create data ----
 data("sds", package = "tradeSeq")
 # Create fake data
@@ -23,9 +23,9 @@ counts <- matrix(rnbinom(n = G * n, mu = means, size = 1 / dispersions),
 rownames(counts) <- 1:100
 cds <- newCellDataSet(cellData = counts, 
   featureData = Biobase::AnnotatedDataFrame(data.frame(gene_short_name = 1:100)))
-cds <- estimateSizeFactors(cds)
+cds <- suppressWarnings(estimateSizeFactors(cds))
 cds <- monocle::reduceDimension(cds, max_components = 2)
-cds <- monocle::orderCells(cds)
+cds <- suppressWarnings(monocle::orderCells(cds))
 
 # Do the tests ----
 test_that("NB-GAM estimates are equal all input.",{
@@ -56,11 +56,11 @@ test_that("EvaluateK give the same results.",{
   info <- tradeSeq::extract_monocle_info(cds)
   # fitGAM tests
   set.seed(22)
-  cdsFit <- tradeSeq::evaluateK(counts = cds, k = 3:8, verbose = FALSE,
+  cdsFit <- tradeSeq::evaluateK(counts = cds, k = 8:12, verbose = FALSE,
                                 nGenes = 50, plot = FALSE)
   set.seed(22)
   normalFit <- tradeSeq::evaluateK(counts = counts, pseudotime = info$pseudotime,
-                                   cellWeights = info$cellWeights, k = 3:8,
+                                   cellWeights = info$cellWeights, k = 8:12,
                                    verbose = FALSE, nGenes = 50, plot = FALSE)
   # Equal
   expect_equal(cdsFit, normalFit)

@@ -220,22 +220,22 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
 }
 
 # perform Wald test ----
-waldTest <- function(beta, Sigma, L){
-  ### build a contrast matrix for a multivariate Wald test
-  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
-  if (is(sigmaInv)[1] == "try-error") {
-    return(c(NA, NA, NA))
-  }
-  est <- t(LQR) %*% beta
-  wald <- t(est) %*%
-    sigmaInv %*%
-    est
-  if (wald < 0) wald <- 0
-  df <- ncol(LQR)
-  pval <- 1 - stats::pchisq(wald, df = df)
-  return(c(wald, df, pval))
-}
+# waldTest <- function(beta, Sigma, L){
+#   ### build a contrast matrix for a multivariate Wald test
+#   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
+#   sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
+#   if (is(sigmaInv)[1] == "try-error") {
+#     return(c(NA, NA, NA))
+#   }
+#   est <- t(LQR) %*% beta
+#   wald <- t(est) %*%
+#     sigmaInv %*%
+#     est
+#   if (wald < 0) wald <- 0
+#   df <- ncol(LQR)
+#   pval <- 1 - stats::pchisq(wald, df = df)
+#   return(c(wald, df, pval))
+# }
 
 ## temporary version of Wald test that also outputs FC.
 ## Made this such that other tests don't break as we update relevant tests to
@@ -265,9 +265,14 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
 }
 
 # get predictor matrix for a range of pseudotimes of a smoother.
-.getPredictRangeDf <- function(dm, lineageId, nPoints=100, condPresent=FALSE){
+.getPredictRangeDf <- function(dm, lineageId, conditionId = NULL, nPoints = 100){
   vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
+  if ("y" %in% colnames(vars)) {
+    vars <- vars[!colnames(vars) %in% "y"]
+    off <- 1
+  } else {
+    off <- 0
+  }
   offsetId <- grep(x = colnames(vars), pattern = "offset")
   offsetName <- colnames(vars)[offsetId]
   offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
@@ -279,45 +284,36 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   # duplicate to nPoints
   vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
   # set range of pseudotime for lineage of interest
-  if(!condPresent){
-    lineageData <- dm[dm[, paste0("l", lineageId)] == 1,
-                      paste0("t", lineageId)]
-    # make sure lineage starts at zero
-    if(min(lineageData)/max(lineageData) < .01){
-      lineageData[which.min(lineageData)] <- 0
-    }
-    vars[, paste0("t", lineageId)] <- seq(min(lineageData),
-                                          max(lineageData),
-                                          length = nPoints)
-  } else if(condPresent){
-    lineageData <- dm[dm[, paste0("l", lineageId)] == 1,
-                      paste0("t", substr(lineageId,1,1))]
-    # make sure lineage starts at zero
-    if(min(lineageData)/max(lineageData) < .01){
-      lineageData[which.min(lineageData)] <- 0
-    }
-    vars[, paste0("t", substr(lineageId,1,1))] <- seq(min(lineageData),
-                                                      max(lineageData),
-                                                      length = nPoints)
+  if (is.null(conditionId)) {
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))  
+  } else {
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, conditionId))
   }
+  if (length(lineageIds) == 1){
+    lineageData <- dm[dm[, lineageIds + off] == 1,
+                      paste0("t", lineageId)]
+  } else {
+    lineageData <- dm[rowSums(dm[, lineageIds + off]) == 1,
+                      paste0("t", lineageId)]
+  }
+  # make sure lineage starts at zero
+  if(min(lineageData) / max(lineageData) < .01) {
+    lineageData[which.min(lineageData)] <- 0
+  }
+  vars[, lineageIds] <- 1 / length(lineageIds)
   # set lineage
-  vars[, paste0("l", lineageId)] <- 1
+  vars[, paste0("t", lineageId)] <- seq(min(lineageData),
+                                        max(lineageData),
+                                        length = nPoints)
   # set offset
   vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
   return(vars)
 }
 
-.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints = 100,
-                       conditions=NULL){
-
-  condPresent <- !is.null(conditions)
-  if(!condPresent){
-    nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-  } else if(condPresent){
-    nCurves <- length(grep(x = colnames(dm), pattern = "l[(1-9)+]"))
-  }
-
+.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints = 100){
+  nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  
   Knot <- !is.null(knots)
   if (Knot) {
     t1 <- knotPoints[knots[1]]
@@ -325,45 +321,21 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   }
 
   # get predictor matrix for every lineage.
-  if(!condPresent){
-    # no conditions
-    dfList <- list()
-    for (jj in seq_len(nCurves)) {
-      df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
-      if (Knot) {
-        df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-      }
-      dfList[[jj]] <- df
+  dfList <- list()
+  for (jj in seq_len(nLineages)) {
+    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
     }
-  } else if(condPresent){
-    # conditions
-    dfList <- list()
-    dfCondList <- list()
-    for (jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2){
-      for(kk in seq_len(nlevels(conditions))){
-          # loop over condition levels
-          dfCond <- .getPredictRangeDf(dm, as.numeric(paste0(jj,kk)), nPoints = nPoints,
-                                       condPresent = condPresent)
-          dfCondList[[kk]] <- dfCond
-        }
-      # df <- do.call(cbind,dfCondList)
-      df <- dfCondList
-        if (Knot) {
-          lapply(df, function(x){
-            x[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-          })
-        }
-        dfList[[jj]] <- df
-    }
+    dfList[[jj]] <- df
   }
   return(dfList)
 }
 
 
 .patternDfPairwise <- function(dm, curves, knots = NULL, knotPoints = NULL,
-                               nPoints=100){
+                               nPoints = 100){
 
-  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   Knot <- !is.null(knots)
   if (Knot) {
     t1 <- knotPoints[knots[1]]
@@ -414,33 +386,33 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
   return(c(stat, r))
 }
 
-.patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
-                                     knots = NULL){
-  Knot <- !is.null(knots)
-  if (Knot) {
-    t1 <- model$smooth[[2]]$xp[knots[1]]
-    t2 <- model$smooth[[2]]$xp[knots[2]]
-  }
-
-  # get predictor matrix for every lineage.
-  for (jj in curves) {
-    df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
-    if (Knot) {
-      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-    }
-    assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
-  }
-
-  # construct pairwise contrast matrix
-  L <- get(paste0("X", curves[1])) - get(paste0("X", curves[2]))
-
-  # point x comparison y colnames
-  rownames(L) <- paste0("p", seq_len(nPoints), "_", "c",
-                        paste(curves, collapse = "_"))
-  #transpose => one column is one contrast.
-  L <- t(L)
-  return(L)
-}
+# .patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
+#                                      knots = NULL){
+#   Knot <- !is.null(knots)
+#   if (Knot) {
+#     t1 <- model$smooth[[2]]$xp[knots[1]]
+#     t2 <- model$smooth[[2]]$xp[knots[2]]
+#   }
+# 
+#   # get predictor matrix for every lineage.
+#   for (jj in curves) {
+#     df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
+#     if (Knot) {
+#       df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+#     }
+#     assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
+#   }
+# 
+#   # construct pairwise contrast matrix
+#   L <- get(paste0("X", curves[1])) - get(paste0("X", curves[2]))
+# 
+#   # point x comparison y colnames
+#   rownames(L) <- paste0("p", seq_len(nPoints), "_", "c",
+#                         paste(curves, collapse = "_"))
+#   #transpose => one column is one contrast.
+#   L <- t(L)
+#   return(L)
+# }
 
 # for associationTest
 .getPredictKnots <- function(dm, lineageId, knotPoints){
@@ -485,17 +457,6 @@ getRank <- function(m,L){
 .getFoldChanges <- function(beta, L){
   apply(L,2,function(contrast) contrast %*% beta)
 }
-
-# .onAttach <- function(libname, pkgname){
-#   packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",
-#                                "singleCellExperiment objects as output, making ",
-#                                "it much more memory efficient. Please ",
-#                                "check the news file and the updated vignette ",
-#                                "for details."))
-# }
-
-
-
 
 # Monocle stuff ----
 #' @title Extract info from Monocle models

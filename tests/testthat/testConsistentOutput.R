@@ -193,16 +193,25 @@ test_that("earlyDETest results are equal for sds and manual input.", {
 ## clusterExperiment
 
 test_that("clusterExpressionpattern returns the right objects.", {
-  set.seed(179)
-  PatSce <- tradeSeq::clusterExpressionPatterns(sceFit, nPoints = 20, genes = 1:50)
-  set.seed(179)
-  PatInput <- tradeSeq::clusterExpressionPatterns(sceInput, nPoints = 20, genes = 1:50)
-  set.seed(179)
-  PatSds <- tradeSeq::clusterExpressionPatterns(sdsFit, nPoints = 20, genes = 1:50)
-  set.seed(179)
-  PatList <- tradeSeq::clusterExpressionPatterns(listFit, nPoints = 20, genes = 1:50)
-  set.seed(179)
-  PatSparse <- tradeSeq::clusterExpressionPatterns(sparseFit, nPoints = 20, genes = 1:50)
+  suppressWarnings({
+    suppressMessages({
+      set.seed(179)
+      PatSce <- tradeSeq::clusterExpressionPatterns(sceFit, nPoints = 20,
+                                                    genes = 1:50)
+      set.seed(179)
+      PatInput <- tradeSeq::clusterExpressionPatterns(sceInput, nPoints = 20,
+                                                      genes = 1:50)
+      set.seed(179)
+      PatSds <- tradeSeq::clusterExpressionPatterns(sdsFit, nPoints = 20,
+                                                    genes = 1:50)
+      set.seed(179)
+      PatList <- tradeSeq::clusterExpressionPatterns(listFit, nPoints = 20,
+                                                     genes = 1:50)
+      set.seed(179)
+      PatSparse <- tradeSeq::clusterExpressionPatterns(sparseFit, nPoints = 20,
+                                                       genes = 1:50)
+    })
+  })
   # Same initial values
   dimnames(PatSds$yhatScaled) <- dimnames(PatList$yhatScaled) <- 
     dimnames(PatSparse$yhatScaled) <- dimnames(PatSce$yhatScaled) <- 

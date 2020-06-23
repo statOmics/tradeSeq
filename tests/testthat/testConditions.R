@@ -103,8 +103,8 @@ test_that("All tests work", {
   expect_is(startVsEndTest(Fit), "data.frame")
   expect_is(diffEndTest(Fit), "data.frame")
   expect_is(conditionTest(Fit), "data.frame")
-  # expect_is(patternTest(Fit), "data.frame")
-  # expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")
+  expect_is(patternTest(Fit), "data.frame")
+  expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")
   
 })
 

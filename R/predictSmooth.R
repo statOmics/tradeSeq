@@ -65,8 +65,8 @@ setOldClass("gam")
   for (jj in seq_len(nCurves)) {
     if (tidy) out_cond <- list()
     for(kk in seq_len(nConditions)){
-      df <- .getPredictRangeDf(dm, as.numeric(paste0(jj,kk)), nPoints = nPoints,
-                               condPresent = TRUE)
+      df <- .getPredictRangeDf(dm, lineageId = jj, conditionId = kk, 
+                               nPoints = nPoints)
       Xdf <- predictGAM(lpmatrix = X,
                         df = df,
                         pseudotime = pseudotime,

@@ -266,8 +266,8 @@
   # predict and plot smoothers across the range
   for (jj in seq_len(nCurves)) {
     for(kk in seq_len(nConditions)){
-      df <- .getPredictRangeDf(dm, as.numeric(paste0(jj, kk)), nPoints = nPoints,
-                               condPresent = TRUE)
+      df <- .getPredictRangeDf(dm, lineageId = jj, conditionId = kk,
+                               nPoints = nPoints)
       Xdf <- predictGAM(lpmatrix = X,
                         df = df,
                         pseudotime = pseudotime,
