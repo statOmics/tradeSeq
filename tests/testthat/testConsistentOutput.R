@@ -80,8 +80,8 @@ test_that("EvaluateK return all same answers", {
                                  cellWeights = cellWeights, k = 3:5, gcv = TRUE,
                                  verbose = FALSE, plot = FALSE,  nGenes = 20)
   expect_equal(listFit, sceFit)
-  expect_is(tradeSeq::evaluateK(sce, k = 3:4, verbose = FALSE, plot = FALSE, 
-                                nGenes = 20, plot = TRUE),
+  expect_is(tradeSeq::evaluateK(sce, k = 3:4, verbose = FALSE, plot = TRUE, 
+                                nGenes = 20),
             "data.frame")
 })
 
