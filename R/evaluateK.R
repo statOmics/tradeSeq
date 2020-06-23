@@ -323,7 +323,7 @@ setMethod(f = "evaluateK",
             # Convert to appropriate format
             monocle_extraction <- extract_monocle_info(counts)
 
-            aicOut <- evaluateK(counts = SingleCellExperiment::counts(counts),
+            aicOut <- evaluateK(counts = Biobase::exprs(counts),
                                 k = k,
                                 nGenes = nGenes,
                                 cellWeights = monocle_extraction$cellWeights,
