@@ -66,3 +66,11 @@ test_that("EvaluateK give the same results.",{
   expect_equal(cdsFit, normalFit)
 })
 
+test_that("plotting works as expected", {
+  expect_is(tradeSeq::plotGeneCount(cds, gene = rownames(cds)[1]), "gg")
+  expect_is(class = "gg",
+    tradeSeq::plotGeneCount(cds, clusters = sample(1:3, ncol(cds), replace = TRUE)))
+  expect_message(tradeSeq::plotGeneCount(cds, gene = rownames(cds)[1], models = 3))
+  expect_message(tradeSeq::plotGeneCount(cds, gene = rownames(cds)[1], counts = 3))
+  expect_error(tradeSeq::plotGeneCount(cds))
+})

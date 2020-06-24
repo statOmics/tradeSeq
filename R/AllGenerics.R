@@ -113,6 +113,19 @@ setGeneric(
   }
 )
 
+#' @export
+#' @title Plot gene expression in reduced dimension.
+#' @description Plot the gene in reduced dimensional space.
+#' @name plotGeneCount
+#' @param ... parameters including:
+setGeneric(
+  name = "plotGeneCount",
+  #signature = 'curve',
+  def = function(curve, ...) {
+    standardGeneric("plotGeneCount")
+  }
+)
+
 
 #' @export
 #' @title Assess differential expression patterns between conditions
