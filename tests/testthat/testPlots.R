@@ -35,6 +35,7 @@ rm(cellWeights, counts, dispersions, means, pseudotime, G, id)
 # Do the tests ----
 test_that("Plots function do produce plots", {
   expect_is(plotSmoothers(listFit[[1]]), "gg")
+  expect_is(plotSmoothers(listFit[[1]], border = FALSE), "gg")
   expect_is(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit)), "gg")
   expect_is(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit), border = FALSE), "gg")
   expect_is(plotGeneCount(sds, counts = counts(sce), gene = 1), "gg")
