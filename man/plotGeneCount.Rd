@@ -43,8 +43,7 @@ plotGeneCount(curve, ...)
 using Slingshot. 
  \item A \code{\link{SingleCellExperiment}} object. The output from trajectory inference
 using Slingshot. 
-\item A \code{CellDataset} object. In that case, the code relies on the related
- \code{\link{monocle}} function
+\item A \code{CellDataset} object.
 }}
 
 \item{...}{parameters including:}
