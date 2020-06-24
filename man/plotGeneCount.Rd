@@ -2,6 +2,7 @@
 % Please edit documentation in R/AllGenerics.R, R/plotGeneCount.R
 \name{plotGeneCount}
 \alias{plotGeneCount}
+\alias{plotGeneCount,SlingshotDataSet-method}
 \alias{plotGeneCount,SingleCellExperiment-method}
 \alias{plotGeneCount,CellDataSet-method}
 \title{Plot gene expression in reduced dimension.}

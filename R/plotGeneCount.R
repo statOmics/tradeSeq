@@ -69,8 +69,7 @@
 #' using Slingshot. 
 #'  \item A \code{\link{SingleCellExperiment}} object. The output from trajectory inference
 #' using Slingshot. 
-#' \item A \code{CellDataset} object. In that case, the code relies on the related
-#'  \code{\link{monocle}} function
+#' \item A \code{CellDataset} object.
 #' }
 #' @param counts The count matrix, genes in rows and cells in columns. Only needed
 #' if the input is of the type \code{\link{SlingshotDataSet}} and the \code{gene} 
@@ -109,7 +108,7 @@
 #' @import ggplot2
 #' @importFrom methods is
 #' @importFrom princurve project_to_curve
-#' @name plotGeneCount
+#' @rdname plotGeneCount
 #' @export
 setMethod(f = "plotGeneCount", signature = c(curve = "SlingshotDataSet"),
           definition = function(curve, 
