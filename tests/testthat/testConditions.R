@@ -119,7 +119,7 @@ test_that("Condition works with one lineage", {
                    conditions = conditions[keep]),
                   "SingleCellExperiment")
   expect_is(startVsEndTest(Fit), "data.frame")
-  expect_is(associationTest(Fit), "data.frame")
+  expect_is(associationTest(Fit, lineages = TRUE), "data.frame")
   expect_is(conditionTest(Fit), "data.frame")
   expect_error(patternTest(Fit))
   expect_error(earlyDETest(Fit, knots = 1:2))

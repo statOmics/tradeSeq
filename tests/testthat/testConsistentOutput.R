@@ -154,6 +154,25 @@ test_that("startVsEndTest results are equal for sds and manual input.",{
   expect_equal(setSds, setSparse)
 })
 
+test_that("startVsEndTest results are equal for sds and manual input with custom values",{
+  setSce <- tradeSeq::startVsEndTest(sceFit, global = TRUE, lineages = TRUE,
+                                     pseudotimeValues = c(1, 10))
+  setSds <- tradeSeq::startVsEndTest(sdsFit, global = TRUE, lineages = TRUE,
+                                     pseudotimeValues = c(1, 10))
+  setInput <- tradeSeq::startVsEndTest(sceInput, global = TRUE, lineages = TRUE,
+                                       pseudotimeValues = c(1, 10))
+  setList <- tradeSeq::startVsEndTest(listFit, global = TRUE, lineages = TRUE,
+                                      pseudotimeValues = c(1, 10))
+  setSparse <- tradeSeq::startVsEndTest(sparseFit, global = TRUE, lineages = TRUE,
+                                        pseudotimeValues = c(1, 10))
+  dimnames(setInput) <-  dimnames(setSce) <- dimnames(setSds) <- 
+    dimnames(setList) <- dimnames(setSparse)
+  expect_equal(setSce, setList)
+  expect_equal(setSds, setSce)
+  expect_equal(setSds, setInput)
+  expect_equal(setSds, setSparse)
+})
+
 ## diffEndTest
 test_that("diffEndTest results are equal for sds and manual input.",{
   detSce <- tradeSeq::diffEndTest(sceFit, global = TRUE, pairwise = TRUE)

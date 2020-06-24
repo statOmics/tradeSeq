@@ -51,4 +51,10 @@ test_that("All tests work with three lineage", {
     "SingleCellExperiment")
   expect_is(conditionTest(Fit_Conditions, global = TRUE, pairwise = TRUE),
             "data.frame")
+  
+  fitList <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
+                              cellWeights = cellWeights, nknots = 4,
+                              verbose = FALSE, sce = FALSE)
+  expect_is(earlyDETest(fitList, global = TRUE, pairwise = TRUE, 
+                        knots = c(1, 2)), "data.frame")
 })
