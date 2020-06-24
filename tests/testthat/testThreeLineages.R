@@ -26,8 +26,6 @@ counts <- matrix(rnbinom(n = G * n, mu = means, size = 1 / dispersions),
                  nrow = G, ncol = n)
 rownames(counts) <- paste0("gene", 1:nrow(counts))
 
-# fitGAM
-
 # Do the tests ----
 test_that("All tests work with three lineage", {
   Fit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
@@ -57,4 +55,5 @@ test_that("All tests work with three lineage", {
                               verbose = FALSE, sce = FALSE)
   expect_is(earlyDETest(fitList, global = TRUE, pairwise = TRUE, 
                         knots = c(1, 2)), "data.frame")
+  expect_is(diffEndTest(fitList, global = TRUE, pairwise = TRUE), "data.frame")
 })
