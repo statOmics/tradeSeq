@@ -41,17 +41,18 @@ test_that("All tests work with three lineage", {
             "data.frame")
   expect_is(startVsEndTest(Fit, global = TRUE, lineages = TRUE),
             "data.frame")
+  set.seed(1567)
   expect_s4_class(Fit_Conditions <- 
     tradeSeq::fitGAM(counts, pseudotime = pseudotime, cellWeights = cellWeights,
-                     nknots = 8, verbose = FALSE,
+                     nknots = 12, verbose = FALSE,
                      conditions = as.factor(sample(1:2, ncol(counts), 
                                                    replace = TRUE))),
     "SingleCellExperiment")
   expect_is(conditionTest(Fit_Conditions, global = TRUE, pairwise = TRUE),
             "data.frame")
-  
+  set.seed(18)
   fitList <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
-                              cellWeights = cellWeights, nknots = 4,
+                              cellWeights = cellWeights, nknots = 8,
                               verbose = FALSE, sce = FALSE)
   expect_is(earlyDETest(fitList, global = TRUE, pairwise = TRUE, 
                         knots = c(1, 2)), "data.frame")
