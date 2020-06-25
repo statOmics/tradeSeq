@@ -105,7 +105,7 @@
     if (any(duplicated(knotLocs))) {
       dupId <- duplicated(knotLocs)
       # if it's the last knot, get duplicates from end and replace by mean
-      if (which(dupId) == length(knotLocs)) {
+      if (max(which(dupId)) == length(knotLocs)) {
         dupId <- duplicated(knotLocs, fromLast = TRUE)
         knotLocs[dupId] <- mean(c(knotLocs[which(dupId) - 1],
                                   knotLocs[which(dupId) + 1]))

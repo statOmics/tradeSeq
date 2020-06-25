@@ -88,7 +88,7 @@ test_that("fitGAM fails when expected", {
   ## Switch to sce if conditions
   expect_warning(tradeSeq::fitGAM(verbose = FALSE, sce = FALSE, 
     counts, sds = sds, nknots = 3, conditions = as.factor(rep(1, ncol(counts)))))
-  set.seed(108)
+  set.seed(22)
   compacted_pseudotime <- pseudotime
   compacted_pseudotime[compacted_pseudotime > 10] <- 10
   expect_warning(tradeSeq::fitGAM(counts = counts, cellWeights = cellWeights,
