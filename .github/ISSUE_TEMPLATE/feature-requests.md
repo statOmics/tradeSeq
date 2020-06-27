@@ -1,6 +1,6 @@
 ---
 name: Feature requests
-about: Suggest an idea for this project
+about: Suggest an idea to help us improve tradeSeq.
 title: ''
 labels: ''
 assignees: ''
