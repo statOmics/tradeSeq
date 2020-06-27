@@ -10,8 +10,9 @@
 #' Defaults to twice the number of knots
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.
 #' @param pairwise If TRUE, test for all pairwise comparisons independently.
-#' @param eigenThresh Eigenvalue threshold for inverting the variance-covariance matrix
-#' of the coefficients to use for calculating the Wald test statistics. Lower values
+#' @param eigenThresh Eigenvalue threshold for deciding on the rank of the
+#' variance-covariance matrix of the contrasts defined by `patternTest`, and
+#' to use for calculating the Wald test statistics. Lower values
 #' are more lenient to adding more information but also decrease computational stability.
 #' This argument should in general not be changed by the user but is provided
 #' for back-compatability. Set to \code{1e-8} to reproduce results of older
