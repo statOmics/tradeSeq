@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.14</span>
       </span>
     </div>
 
@@ -61,6 +61,9 @@
     </li>
     <li>
       <a href="../articles/fitGAM.html">Fitting the models and additional control of fitGAM in **tradeSeq**</a>
+    </li>
+    <li>
+      <a href="../articles/multipleConditions.html">Working with multiple conditions</a>
     </li>
   </ul>
 </li>
@@ -300,7 +303,7 @@
 <div class="sourceCode" id="cb20"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
 </pre></div>
-<pre><code>## R version 4.0.1 (2020-06-06)
+<pre><code>## R version 4.0.2 (2020-06-22)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.5
 ## 
@@ -326,20 +329,20 @@
 ##  [5] SingleCellExperiment_1.11.5 SummarizedExperiment_1.19.5
 ##  [7] DelayedArray_0.15.5         matrixStats_0.56.0         
 ##  [9] Matrix_1.2-18               Biobase_2.49.0             
-## [11] GenomicRanges_1.41.5        GenomeInfoDb_1.25.2        
+## [11] GenomicRanges_1.41.5        GenomeInfoDb_1.25.4        
 ## [13] IRanges_2.23.10             S4Vectors_0.27.12          
 ## [15] BiocGenerics_0.35.4         RColorBrewer_1.1-2         
-## [17] tradeSeq_1.3.13             knitr_1.29                 
+## [17] tradeSeq_1.3.14             knitr_1.29                 
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] bitops_1.0-6           DDRTree_0.1.5          fs_1.4.1              
-##  [4] rprojroot_1.3-2        docopt_0.7             tools_4.0.1           
+##  [4] rprojroot_1.3-2        docopt_0.7.1           tools_4.0.2           
 ##  [7] backports_1.1.8        R6_2.4.1               irlba_2.3.3           
 ## [10] colorspace_1.4-1       tidyselect_1.1.0       gridExtra_2.3         
-## [13] compiler_4.0.1         desc_1.2.0             labeling_0.3          
+## [13] compiler_4.0.2         desc_1.2.0             labeling_0.3          
 ## [16] slam_0.1-47            scales_1.1.1           pbapply_1.4-2         
 ## [19] pkgdown_1.5.1.9000     stringr_1.4.0          digest_0.6.25         
-## [22] rmarkdown_2.3.1        sparsesvd_0.2          XVector_0.29.2        
+## [22] rmarkdown_2.3.1        sparsesvd_0.2          XVector_0.29.3        
 ## [25] pkgconfig_2.0.3        htmltools_0.5.0        limma_3.45.7          
 ## [28] rlang_0.4.6            VGAM_1.1-3             FNN_1.1.3             
 ## [31] farver_2.0.3           generics_0.0.2         combinat_0.0-8        
@@ -348,8 +351,8 @@
 ## [40] munsell_0.5.0          ape_5.4                viridis_0.5.1         
 ## [43] lifecycle_0.2.0        stringi_1.4.6          yaml_2.2.1            
 ## [46] edgeR_3.31.4           zlibbioc_1.35.0        Rtsne_0.15            
-## [49] plyr_1.8.6             grid_4.0.1             ggrepel_0.8.2         
-## [52] crayon_1.3.4           lattice_0.20-41        splines_4.0.1         
+## [49] plyr_1.8.6             grid_4.0.2             ggrepel_0.8.2         
+## [52] crayon_1.3.4           lattice_0.20-41        splines_4.0.2         
 ## [55] locfit_1.5-9.4         pillar_1.4.4           igraph_1.2.5          
 ## [58] reshape2_1.4.4         glue_1.4.1             evaluate_0.14         
 ## [61] vctrs_0.3.1            gtable_0.3.0           RANN_2.6.1            

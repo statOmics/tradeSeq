@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.14</span>
       </span>
     </div>
 
@@ -61,6 +61,9 @@
     </li>
     <li>
       <a href="../articles/fitGAM.html">Fitting the models and additional control of fitGAM in **tradeSeq**</a>
+    </li>
+    <li>
+      <a href="../articles/multipleConditions.html">Working with multiple conditions</a>
     </li>
   </ul>
 </li>
@@ -240,6 +243,10 @@
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">crv</span>, <span class="kw">counts</span>, gene = <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">patternRes</span>)[<span class="kw">oPat</span>][<span class="fl">4</span>])
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-16-1.png" width="50%"></p>
+<p>The <code>patternTest</code> has an argument <code>eigenThresh</code> that corresponds to an eigenvalue threshold for deciding on the rank of the variance-covariance matrix of the contrasts defined by the <code>patternTest</code>. Lower values are more lenient to adding more information but also decrease computational stability. While the default used to correspond to <code>1e-8</code>, we have recently increased this to <code>1e-2</code> for increased computational stability.</p>
+<div id="example-on-combining-patterntest-with-diffendtest-results" class="section level3">
+<h3 class="hasAnchor">
+<a href="#example-on-combining-patterntest-with-diffendtest-results" class="anchor"></a>Example on combining <code>patternTest</code> with <code>diffEndTest</code> results</h3>
 <p>We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the <code>patternTest</code> and their rank in decreasing Wald statistics for the <code>diffEndTest</code>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span>)
@@ -291,6 +298,7 @@
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">crv</span>, <span class="kw">counts</span>, gene = <span class="st">"Irf8"</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-22-1.png" width="50%"></p>
+</div>
 </div>
 <div id="early-drivers-of-differentiation" class="section level2">
 <h2 class="hasAnchor">
@@ -401,7 +409,7 @@
 <div class="sourceCode" id="cb36"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
 </pre></div>
-<pre><code>## R version 4.0.1 (2020-06-06)
+<pre><code>## R version 4.0.2 (2020-06-22)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.5
 ## 
@@ -427,28 +435,28 @@
 ##  [5] SingleCellExperiment_1.11.5 SummarizedExperiment_1.19.5
 ##  [7] DelayedArray_0.15.5         matrixStats_0.56.0         
 ##  [9] Matrix_1.2-18               Biobase_2.49.0             
-## [11] GenomicRanges_1.41.5        GenomeInfoDb_1.25.2        
+## [11] GenomicRanges_1.41.5        GenomeInfoDb_1.25.4        
 ## [13] IRanges_2.23.10             S4Vectors_0.27.12          
 ## [15] BiocGenerics_0.35.4         RColorBrewer_1.1-2         
-## [17] tradeSeq_1.3.13             knitr_1.29                 
+## [17] tradeSeq_1.3.14             knitr_1.29                 
 ## 
 ## loaded via a namespace (and not attached):
 ##   [1] uuid_0.1-4             backports_1.1.8        VGAM_1.1-3            
 ##   [4] NMF_0.22.0             plyr_1.8.6             igraph_1.2.5          
-##   [7] lazyeval_0.2.2         splines_4.0.1          BiocParallel_1.23.0   
+##   [7] lazyeval_0.2.2         splines_4.0.2          BiocParallel_1.23.0   
 ##  [10] densityClust_0.3       rncl_0.8.4             fastICA_1.2-2         
 ##  [13] gridBase_0.4-7         digest_0.6.25          foreach_1.5.0         
 ##  [16] htmltools_0.5.0        viridis_0.5.1          magrittr_1.5          
 ##  [19] memoise_1.1.0          cluster_2.1.0          doParallel_1.0.15     
-##  [22] limma_3.45.7           annotate_1.67.0        docopt_0.7            
+##  [22] limma_3.45.7           annotate_1.67.0        docopt_0.7.1          
 ##  [25] pkgdown_1.5.1.9000     prettyunits_1.1.1      colorspace_1.4-1      
 ##  [28] blob_1.2.1             ggrepel_0.8.2          xfun_0.15             
 ##  [31] dplyr_1.0.0            sparsesvd_0.2          crayon_1.3.4          
 ##  [34] RCurl_1.98-1.2         genefilter_1.71.0      phylobase_0.8.10      
 ##  [37] survival_3.1-12        iterators_1.0.12       ape_5.4               
 ##  [40] glue_1.4.1             registry_0.5-1         gtable_0.3.0          
-##  [43] zlibbioc_1.35.0        XVector_0.29.2         kernlab_0.9-29        
-##  [46] Rhdf5lib_1.11.2        HDF5Array_1.17.2       scales_1.1.1          
+##  [43] zlibbioc_1.35.0        XVector_0.29.3         kernlab_0.9-29        
+##  [46] Rhdf5lib_1.11.2        HDF5Array_1.17.3       scales_1.1.1          
 ##  [49] pheatmap_1.0.12        DBI_1.1.0              edgeR_3.31.4          
 ##  [52] rngtools_1.5           bibtex_0.4.2.2         Rcpp_1.0.4.6          
 ##  [55] viridisLite_0.3.0      xtable_1.8-4           progress_1.2.2        
@@ -457,13 +465,13 @@
 ##  [64] farver_2.0.3           locfit_1.5-9.4         softImpute_1.4        
 ##  [67] howmany_0.3-1          tidyselect_1.1.0       labeling_0.3          
 ##  [70] rlang_0.4.6            reshape2_1.4.4         AnnotationDbi_1.51.0  
-##  [73] munsell_0.5.0          tools_4.0.1            generics_0.0.2        
+##  [73] munsell_0.5.0          tools_4.0.2            generics_0.0.2        
 ##  [76] RSQLite_2.2.0          ade4_1.7-15            evaluate_0.14         
 ##  [79] stringr_1.4.0          yaml_2.2.1             bit64_0.9-7           
 ##  [82] fs_1.4.1               DDRTree_0.1.5          purrr_0.3.4           
 ##  [85] RANN_2.6.1             pbapply_1.4-2          nlme_3.1-148          
 ##  [88] monocle_2.17.0         slam_0.1-47            xml2_1.3.2            
-##  [91] compiler_4.0.1         tibble_3.0.1           RNeXML_2.4.5          
+##  [91] compiler_4.0.2         tibble_3.0.1           RNeXML_2.4.5          
 ##  [94] stringi_1.4.6          desc_1.2.0             RSpectra_0.16-0       
 ##  [97] lattice_0.20-41        HSMMSingleCell_1.9.0   vctrs_0.3.1           
 ## [100] rhdf5filters_1.1.0     pillar_1.4.4           lifecycle_0.2.0       
@@ -473,7 +481,7 @@
 ## [112] rhdf5_2.33.3           pkgmaker_0.31.1        rprojroot_1.3-2       
 ## [115] withr_2.2.0            qlcMatrix_0.9.7        GenomeInfoDbData_1.2.3
 ## [118] locfdr_1.1-8           mgcv_1.8-31            hms_0.5.3             
-## [121] grid_4.0.1             tidyr_1.1.0            rmarkdown_2.3.1       
+## [121] grid_4.0.2             tidyr_1.1.0            rmarkdown_2.3.1       
 ## [124] Rtsne_0.15</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
