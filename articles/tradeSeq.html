@@ -153,8 +153,9 @@
 <span class="kw">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts = <span class="kw">counts</span>, pseudotime = <span class="kw">pseudotime</span>, cellWeights = <span class="kw">cellWeights</span>,
                  nknots = <span class="fl">6</span>, verbose = <span class="fl">FALSE</span>)
 </pre></div>
+<pre><code>## Warning in any(counts): coercing argument of type 'double' to logical</code></pre>
 <p>The model may be hard to fit for some genes, and hence the fitting procedure may not converge for all of the genes in a dataset, especially in datasets with complex patterns and/or many lineages. You can check the convergence of each gene as shown below, where a <code>TRUE</code> value corresponds to a converged model fit, and a <code>FALSE</code> value corresponds to a model that hasn’t been able to converge fully.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
+<div class="sourceCode" id="cb6"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="fu">rowData</span>(<span class="kw">sce</span>)<span class="op">$</span><span class="kw">tradeSeq</span><span class="op">$</span><span class="kw">converged</span>)
 </pre></div>
 <pre><code>## 
@@ -168,7 +169,7 @@
 <h2 class="hasAnchor">
 <a href="#association-of-gene-expression-with-pseudotime" class="anchor"></a>Association of gene expression with pseudotime</h2>
 <p>A first exploration of the data analysis may consist of checking whether gene expression is associated with a particular lineage. The statistical test performed here, implemented in the <code>associationTest</code> function, is testing the null hypothesis that all smoother coefficients are equal to each other. This can be interpreted as testing whether the average gene expression is significantly changing along pseudotime.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit">
+<div class="sourceCode" id="cb8"><pre class="downlit">
 <span class="kw">assoRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/associationTest.html">associationTest</a></span>(<span class="kw">sce</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw">assoRes</span>)
 </pre></div>
@@ -184,18 +185,18 @@
 <h2 class="hasAnchor">
 <a href="#discovering-progenitor-marker-genes" class="anchor"></a>Discovering progenitor marker genes</h2>
 <p>In order to discover marker genes of the progenitor or differentiated cell population, researchers may be interested in assessing differential expression between the progenitor cell population (i.e., the starting point of a lineage) with the differentiated cell type population (i.e., the end point of a lineage). The function <code>startVsEndTest</code> uses a Wald test to assess the null hypothesis that the average expression at the starting point of the smoother (progenitor population) is equal to the average expression at the end point of the smoother (differentiated population). The test basically involves a comparison between two smoother coefficients for every lineage. The function <code>startVsEndTest</code> performs a global test across all lineages by default (i.e. it compares the start and end positions for all lineages simultaneously), but you can also assess all lineages separately by setting <code>lineages=TRUE</code>. Below, we adopt an omnibus test across the two lineages.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit">
+<div class="sourceCode" id="cb10"><pre class="downlit">
 <span class="kw">startRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(<span class="kw">sce</span>)
 </pre></div>
 <p>We can visualize the estimated smoothers for the third most significant gene.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit">
+<div class="sourceCode" id="cb11"><pre class="downlit">
 <span class="kw">oStart</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span>(<span class="kw">startRes</span><span class="op">$</span><span class="kw">waldStat</span>, decreasing = <span class="fl">TRUE</span>)
 <span class="kw">sigGeneStart</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="kw">sce</span>)[<span class="kw">oStart</span>[<span class="fl">3</span>]]
 <span class="fu"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(<span class="kw">sce</span>, <span class="kw">counts</span>, gene = <span class="kw">sigGeneStart</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-10-1.png" width="40%"></p>
 <p>Alternatively, we can color the cells in UMAP space with that gene’s expression.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit">
+<div class="sourceCode" id="cb12"><pre class="downlit">
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">crv</span>, <span class="kw">counts</span>, gene = <span class="kw">sigGeneStart</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-11-1.png" width="50%"></p>
@@ -204,7 +205,7 @@
 <h2 class="hasAnchor">
 <a href="#comparing-specific-pseudotime-values-within-a-lineage" class="anchor"></a>Comparing specific pseudotime values within a lineage</h2>
 <p>The <code>startVsEndTest</code> compares two points on a lineage, and by default it is comparing the start point with the end point. However, this is a specific form of a more general capability of the <code>startVsEndTest</code> to compare any two points on any lineage. If the interest lies in comparing any two custom pseudotime values, one can specify this using the <code>pseudotimeValues</code> arguments in <code>startVsEndTest</code>. For example, below we’d like to compare the expression for each gene at pseudotime values of <span class="math inline">\(0.8\)</span> and <span class="math inline">\(0.1\)</span>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit">
+<div class="sourceCode" id="cb13"><pre class="downlit">
 <span class="kw">customRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(<span class="kw">sce</span>, pseudotimeValues = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">0.8</span>))
 </pre></div>
 </div>
@@ -216,18 +217,18 @@
 <h2 class="hasAnchor">
 <a href="#discovering-differentiated-cell-type-markers" class="anchor"></a>Discovering differentiated cell type markers</h2>
 <p><code>tradeSeq</code> can discover marker genes for the differentiated cell types by comparing the average expression between end points of the lineage-specific smoothers. This is implemented in the <code>diffEndTest</code> function. By default, <code>diffEndTest</code> performs a global test, testing the null hypothesis that the average expression at the endpoints is equal for all lineages using a multivariate Wald test. If more than two lineages are present, one can assess all pairwise comparisons using the <code>pairwise=TRUE</code> argument.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit">
+<div class="sourceCode" id="cb14"><pre class="downlit">
 <span class="kw">endRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/diffEndTest.html">diffEndTest</a></span>(<span class="kw">sce</span>)
 </pre></div>
 <p>We can plot the most significant gene using the <code>plotSmoothers</code> function.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit">
+<div class="sourceCode" id="cb15"><pre class="downlit">
 <span class="kw">o</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span>(<span class="kw">endRes</span><span class="op">$</span><span class="kw">waldStat</span>, decreasing = <span class="fl">TRUE</span>)
 <span class="kw">sigGene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="kw">sce</span>)[<span class="kw">o</span>[<span class="fl">1</span>]]
 <span class="fu"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(<span class="kw">sce</span>, <span class="kw">counts</span>, <span class="kw">sigGene</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-14-1.png" width="40%"></p>
 <p>Alternatively, we can color the cells in UMAP space with that gene’s expression.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit">
+<div class="sourceCode" id="cb16"><pre class="downlit">
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">crv</span>, <span class="kw">counts</span>, gene = <span class="kw">sigGene</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-15-1.png" width="50%"></p>
@@ -236,17 +237,17 @@
 <h2 class="hasAnchor">
 <a href="#discovering-genes-with-different-expression-patterns" class="anchor"></a>Discovering genes with different expression patterns</h2>
 <p>Asides from testing at the level of the differentiated cell type, researchers may be interested in assessing the expression pattern of a gene over pseudotime. The function <code>patternTest</code> implements a statistical method that checks whether the smoothed gene expression is equal along pseudotime between two or multiple lineages. In practice, we use <span class="math inline">\(100\)</span> points, equally distributed along pseudotime, that are compared between two (or multiple) lineages, and this number can be changed using the <code>nPoints</code> argument.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit">
+<div class="sourceCode" id="cb17"><pre class="downlit">
 <span class="kw">patternRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/patternTest.html">patternTest</a></span>(<span class="kw">sce</span>)
 <span class="kw">oPat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span>(<span class="kw">patternRes</span><span class="op">$</span><span class="kw">waldStat</span>, decreasing = <span class="fl">TRUE</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">patternRes</span>)[<span class="kw">oPat</span>])
 </pre></div>
 <pre><code>## [1] "Mpo"   "Prtn3" "Car2"  "Ctsg"  "Elane" "Calr"</code></pre>
-<div class="sourceCode" id="cb18"><pre class="downlit">
+<div class="sourceCode" id="cb19"><pre class="downlit">
 <span class="fu"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(<span class="kw">sce</span>, <span class="kw">counts</span>, gene = <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">patternRes</span>)[<span class="kw">oPat</span>][<span class="fl">4</span>])
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-16-1.png" width="40%"></p>
-<div class="sourceCode" id="cb19"><pre class="downlit">
+<div class="sourceCode" id="cb20"><pre class="downlit">
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">crv</span>, <span class="kw">counts</span>, gene = <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">patternRes</span>)[<span class="kw">oPat</span>][<span class="fl">4</span>])
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-17-1.png" width="50%"></p>
@@ -255,7 +256,7 @@
 <h3 class="hasAnchor">
 <a href="#example-on-combining-patterntest-with-diffendtest-results" class="anchor"></a>Example on combining <code>patternTest</code> with <code>diffEndTest</code> results</h3>
 <p>We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the <code>patternTest</code> and their rank in decreasing Wald statistics for the <code>diffEndTest</code>.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit">
+<div class="sourceCode" id="cb21"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span>)
 
 <span class="kw">patternRes</span><span class="op">$</span><span class="kw">Gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">patternRes</span>)
@@ -279,17 +280,17 @@
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-18-1.png" width="50%"></p>
 <p>Or, we can visualize the expression in UMAP space of the top gene.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit">
+<div class="sourceCode" id="cb22"><pre class="downlit">
 <span class="kw">topTransient</span> <span class="op">&lt;-</span> <span class="kw">compare</span>[<span class="fu"><a href="https://rdrr.io/r/base/which.min.html">which.max</a></span>(<span class="kw">compare</span><span class="op">$</span><span class="kw">transientScore</span>), <span class="st">"Gene"</span>]
 <span class="fu"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(<span class="kw">sce</span>, <span class="kw">counts</span>, gene = <span class="kw">topTransient</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-19-1.png" width="40%"></p>
-<div class="sourceCode" id="cb22"><pre class="downlit">
+<div class="sourceCode" id="cb23"><pre class="downlit">
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">crv</span>, <span class="kw">counts</span>, gene = <span class="kw">topTransient</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-20-1.png" width="50%"></p>
 <p>Interestingly, we recover the Irf8 gene in the top 5 genes according to that ranking.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit">
+<div class="sourceCode" id="cb24"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(
   <span class="kw">compare</span>[<span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span>(<span class="kw">compare</span><span class="op">$</span><span class="kw">transientScore</span>, decreasing = <span class="fl">TRUE</span>), <span class="st">"Gene"</span>],
   n = <span class="fl">5</span>
@@ -297,11 +298,11 @@
 </pre></div>
 <pre><code>## [1] "Mt1"    "Irf8"   "Nedd4"  "Hint1"  "Eif4g1"</code></pre>
 <p>We can also plot the Irf8 gene.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit">
+<div class="sourceCode" id="cb26"><pre class="downlit">
 <span class="fu"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(<span class="kw">sce</span>, <span class="kw">counts</span>, gene = <span class="st">"Irf8"</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-22-1.png" width="40%"></p>
-<div class="sourceCode" id="cb26"><pre class="downlit">
+<div class="sourceCode" id="cb27"><pre class="downlit">
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">crv</span>, <span class="kw">counts</span>, gene = <span class="st">"Irf8"</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-23-1.png" width="50%"></p>
@@ -311,23 +312,23 @@
 <h2 class="hasAnchor">
 <a href="#early-drivers-of-differentiation" class="anchor"></a>Early drivers of differentiation</h2>
 <p>Another question of interest is to find a list of genes that are differentially expressed between lineages at a particular region, e.g. around the separation of two or multiple lineages. The function <code>earlyDETest</code> implements a statistical method to test the null hypothesis of whether the average gene expression smoothers are equal between lineages in a region defined by two user-specified knots. Again, the knots can be visualized with the <code>plotGeneCount</code> function. By selecting the region covering the first two knot points to test for differential patterns between the lineages, we check which genes are behaving differently around the bifurcation point.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit">
+<div class="sourceCode" id="cb28"><pre class="downlit">
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(curve = <span class="kw">crv</span>, counts = <span class="kw">counts</span>,
               clusters = <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingClusterLabels.html">slingClusterLabels</a></span>(<span class="kw">crv</span>), <span class="fl">1</span>, <span class="kw">which.max</span>),
               models = <span class="kw">sce</span>)
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-24-1.png" width="50%"></p>
-<div class="sourceCode" id="cb28"><pre class="downlit">
+<div class="sourceCode" id="cb29"><pre class="downlit">
 <span class="kw">earlyDERes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/earlyDETest.html">earlyDETest</a></span>(<span class="kw">sce</span>, knots = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">2</span>))
 <span class="kw">oEarly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span>(<span class="kw">earlyDERes</span><span class="op">$</span><span class="kw">waldStat</span>, decreasing = <span class="fl">TRUE</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">earlyDERes</span>)[<span class="kw">oEarly</span>])
 </pre></div>
 <pre><code>## [1] "Car1"  "Car2"  "Klf1"  "Vim"   "Mt1"   "Ermap"</code></pre>
-<div class="sourceCode" id="cb30"><pre class="downlit">
+<div class="sourceCode" id="cb31"><pre class="downlit">
 <span class="fu"><a href="../reference/plotSmoothers.html">plotSmoothers</a></span>(<span class="kw">sce</span>, <span class="kw">counts</span>, gene = <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">earlyDERes</span>)[<span class="kw">oEarly</span>][<span class="fl">2</span>])
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-25-1.png" width="40%"></p>
-<div class="sourceCode" id="cb31"><pre class="downlit">
+<div class="sourceCode" id="cb32"><pre class="downlit">
 <span class="fu"><a href="../reference/plotGeneCount.html">plotGeneCount</a></span>(<span class="kw">crv</span>, <span class="kw">counts</span>, gene = <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">earlyDERes</span>)[<span class="kw">oEarly</span>][<span class="fl">2</span>])
 </pre></div>
 <p><img src="tradeSeq_files/figure-html/unnamed-chunk-26-1.png" width="50%"></p>
@@ -337,7 +338,7 @@
 <h1 class="hasAnchor">
 <a href="#differential-expression-in-large-datasets" class="anchor"></a>Differential expression in large datasets</h1>
 <p>In large datasets with thousands of single cells, small fold changes can become statistically significant due to the very high sample size. However, these differences may not always be biologically meaningful. To tackle this problem, all DE tests in <code>tradeSeq</code> have an <code>l2fc</code> argument which specifies the absolute value of the log2 fold-change cut-off to test against. For example, setting <code>l2fc=log2(2)</code> will test which genes have a fold change that is significantly higher than 2 or significantly lower than 1/2 within or between the lineages of interest.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit">
+<div class="sourceCode" id="cb33"><pre class="downlit">
 <span class="co"># testing against fold change threshold of 2</span>
 <span class="kw">start2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/startVsEndTest.html">startVsEndTest</a></span>(<span class="kw">sce</span>, l2fc = <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="fl">2</span>))
 <span class="co"># testing against fold change threshold of 1.5</span>
@@ -351,7 +352,7 @@
 <h2 class="hasAnchor">
 <a href="#extracting-fitted-values-to-use-with-any-clustering-method" class="anchor"></a>Extracting fitted values to use with any clustering method</h2>
 <p>While <code>tradeSeq</code> provides readily implemented functionality to cluster genes using the <code>clusterExperiment</code> package, users may want to cluster genes using other clustering methods. Fitted values from the <code>tradeSeq</code> models, which can subsequently be used for clustering, can be extracted using the <code>predictSmooth</code> or <code>predictCells</code> functions. <code>predictCells</code> predicts the estimated expression for each cell (i.e. it is a fitted value for that cell) on the count scale. <code>predictSmooth</code>, instead, returns values of the estimated smoother on a grid of pseudotimes. Either of these may be used as input to a clustering method; roughly, <code>predictSmooth</code> may be considered as a cleaner version of <code>predictCells</code>. By default <code>predictSmooth</code> returns a <code>data.frame</code> specifying the estimated smoother for each gene. A matrix containing these values, where each row is a gene, and each column is a point along the lineage on the uniform grid, can be obtained by setting <code>tidy=FALSE</code> in <code>predictSmooth</code>.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit">
+<div class="sourceCode" id="cb34"><pre class="downlit">
 <span class="kw">yhat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predictCells.html">predictCells</a></span>(models = <span class="kw">sce</span>, gene = <span class="st">"Irf8"</span>)
 
 <span class="kw">ysmooth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predictSmooth.html">predictSmooth</a></span>(models = <span class="kw">sce</span>, gene = <span class="st">"Irf8"</span>, nPoints = <span class="fl">40</span>)
@@ -361,7 +362,7 @@
 <h2 class="hasAnchor">
 <a href="#clustering-using-rsec-clusterexperiment" class="anchor"></a>Clustering using RSEC, clusterExperiment</h2>
 <p>tradeSeq provides the functionality to cluster genes according to their expression pattern along the lineages with the <code>clusterExpressionPatterns</code> function. A number of equally spaced points for every lineage are selected to perform the clustering, and the number of points can be selected with the <code>nPoints</code> argument. The <code>genes</code> argument specifies which genes you want to cluster (e.g., all genes with differential expression patterns). Here, we use 20 points along each lineage to cluster the first 40 genes in the dataset. The clustering itself occurs by the <code>clusterExperiment</code> package <span class="citation">(Risso et al. 2018)</span>, hence the user may select any clustering algorithm that’s built into that package, or custom clustering algorithms implemented by the user. For a list of built-in clustering algorithms within <code>clusterExperiment</code>, run <code><a href="https://rdrr.io/pkg/clusterExperiment/man/builtInClusteringFunctions.html">clusterExperiment::listBuiltInFunctions()</a></code> on the command line.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit">
+<div class="sourceCode" id="cb35"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">clusterExperiment</span>)
 <span class="kw">nPointsClus</span> <span class="op">&lt;-</span> <span class="fl">20</span>
 <span class="kw">clusPat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clusterExpressionPatterns.html">clusterExpressionPatterns</a></span>(<span class="kw">sce</span>, nPoints = <span class="kw">nPointsClus</span>,
@@ -370,11 +371,11 @@
 <pre><code>## 36 parameter combinations, 36 use sequential method, 36 use subsampling method
 ## Running Clustering on Parameter Combinations...
 ## done.</code></pre>
-<div class="sourceCode" id="cb36"><pre class="downlit">
+<div class="sourceCode" id="cb37"><pre class="downlit">
 <span class="kw">clusterLabels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/clusterExperiment/man/ClusterExperiment-methods.html">primaryCluster</a></span>(<span class="kw">clusPat</span><span class="op">$</span><span class="kw">rsec</span>)
 </pre></div>
 <p>The first 4 clusters can be visualized using the normalized expression upon which the clustering is based. Please note that the code below would only works for a trajectory with two lineages. Modify the code appropriately if using with a dataset with 3 lineages or more.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit">
+<div class="sourceCode" id="cb38"><pre class="downlit">
 <span class="kw">cUniq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(<span class="kw">clusterLabels</span>)
 <span class="kw">cUniq</span> <span class="op">&lt;-</span> <span class="kw">cUniq</span>[<span class="op">!</span><span class="kw">cUniq</span> <span class="op">==</span> <span class="op">-</span><span class="fl">1</span>] <span class="co"># remove unclustered genes</span>
 
@@ -413,7 +414,7 @@
 <div id="session" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session" class="anchor"></a>Session</h1>
-<div class="sourceCode" id="cb38"><pre class="downlit">
+<div class="sourceCode" id="cb39"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
 </pre></div>
 <pre><code>## R version 4.0.2 (2020-06-22)

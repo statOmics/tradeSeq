@@ -159,6 +159,7 @@
 <div class="sourceCode" id="cb4"><pre class="downlit">
 <span class="kw">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="kw">cds</span>, verbose = <span class="fl">TRUE</span>)
 </pre></div>
+<pre><code>## Warning in any(counts): coercing argument of type 'double' to logical</code></pre>
 <p>You can then analyse the <code>sce</code> object following the <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a>.</p>
 </div>
 <div id="monocle3" class="section level1">
@@ -169,7 +170,7 @@
 <h2 class="hasAnchor">
 <a href="#constructing-the-trajectory" class="anchor"></a>Constructing the trajectory</h2>
 <p>You will need to install monocle3 from <a href="https://cole-trapnell-lab.github.io/monocle3/docs/installation/">here</a> before running the code below.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
+<div class="sourceCode" id="cb6"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">22</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">monocle3</span>)
 <span class="co"># Create a cell_data_set object</span>
@@ -211,7 +212,7 @@
 <div id="extracting-the-pseudotimes-and-cell-weights-for-tradeseq" class="section level2">
 <h2 class="hasAnchor">
 <a href="#extracting-the-pseudotimes-and-cell-weights-for-tradeseq" class="anchor"></a>Extracting the pseudotimes and cell weights for tradeSeq</h2>
-<div class="sourceCode" id="cb6"><pre class="downlit">
+<div class="sourceCode" id="cb7"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">magrittr</span>)
 <span class="co"># Get the closest vertice for every cell</span>
 <span class="kw">y_to_cells</span> <span class="op">&lt;-</span>  <span class="fu">principal_graph_aux</span>(<span class="kw">cds</span>)<span class="op">$</span><span class="kw">UMAP</span><span class="op">$</span><span class="kw">pr_graph_cell_proj_closest_vertex</span> <span class="op">%&gt;%</span>
@@ -243,7 +244,7 @@
 <span class="kw">pseudotime</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fu">pseudotime</span>(<span class="kw">cds</span>), ncol = <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="kw">cellWeights</span>),
                      nrow = <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="kw">cds</span>), byrow = <span class="fl">FALSE</span>)
 </pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit">
+<div class="sourceCode" id="cb8"><pre class="downlit">
 <span class="kw">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts = <span class="kw">counts</span>,
               pseudotime = <span class="kw">pseudotime</span>,
               cellWeights = <span class="kw">cellWeights</span>)
@@ -254,7 +255,7 @@
 <div id="session" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session" class="anchor"></a>Session</h1>
-<div class="sourceCode" id="cb8"><pre class="downlit">
+<div class="sourceCode" id="cb9"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
 </pre></div>
 <pre><code>## R version 4.0.2 (2020-06-22)

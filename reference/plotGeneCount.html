@@ -199,8 +199,7 @@ plot. Either <code>clusters</code> or <code>gene</code> and <code>counts</code> 
 <span class='kw'>counts</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw'>countMatrix</span>)
 <span class='kw'>gamList</span> <span class='op'>&lt;-</span> <span class='fu'>fitGAM</span>(counts = <span class='kw'>counts</span>,
  pseudotime = <span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/slingPseudotime.html'>slingPseudotime</a></span>(<span class='kw'>crv</span>, na = <span class='fl'>FALSE</span>),
- cellWeights = <span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/slingPseudotime.html'>slingCurveWeights</a></span>(<span class='kw'>crv</span>))
-<span class='fu'>plotGeneCount</span>(<span class='kw'>crv</span>, <span class='kw'>counts</span>, gene = <span class='st'>"Mpo"</span>)</div><div class='img'><img src='plotGeneCount-1.png' alt='' width='700' height='433' /></div></pre>
+ cellWeights = <span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/slingPseudotime.html'>slingCurveWeights</a></span>(<span class='kw'>crv</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: coercing argument of type 'double' to logical</span></div><div class='input'><span class='fu'>plotGeneCount</span>(<span class='kw'>crv</span>, <span class='kw'>counts</span>, gene = <span class='st'>"Mpo"</span>)</div><div class='img'><img src='plotGeneCount-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

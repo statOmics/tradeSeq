@@ -181,7 +181,9 @@
 <span class="co">### Based on Slingshot object</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">6</span>)
 <span class="kw">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts = <span class="kw">counts</span>, sds = <span class="kw">crv</span>, nknots = <span class="fl">6</span>, verbose = <span class="fl">FALSE</span>)
-
+</pre></div>
+<pre><code>## Warning in any(counts): coercing argument of type 'double' to logical</code></pre>
+<div class="sourceCode" id="cb7"><pre class="downlit">
 <span class="co">### Downstream of any trajectory inference method using pseudotime and cell weights</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">7</span>)
 <span class="kw">pseudotime</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(<span class="kw">crv</span>, na = <span class="fl">FALSE</span>)
@@ -189,11 +191,12 @@
 <span class="kw">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts = <span class="kw">counts</span>, pseudotime = <span class="kw">pseudotime</span>, cellWeights = <span class="kw">cellWeights</span>,
                  nknots = <span class="fl">6</span>, verbose = <span class="fl">FALSE</span>)
 </pre></div>
+<pre><code>## Warning in any(counts): coercing argument of type 'double' to logical</code></pre>
 <div id="parallel-computing" class="section level2">
 <h2 class="hasAnchor">
 <a href="#parallel-computing" class="anchor"></a>Parallel computing</h2>
 <p>If large datasets are being analyzed, <code>fitGAM</code> may be running for quite some time. We have implemented support for parallelization using <code>BiocParallel</code>, which can be activated by setting <code>parallel=TRUE</code>. Parallelization options can be provided through the <code>BPPARAM</code> argument, as shown below.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit">
+<div class="sourceCode" id="cb9"><pre class="downlit">
 <span class="kw">BPPARAM</span> <span class="op">&lt;-</span> <span class="kw">BiocParallel</span>::<span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html">bpparam</a></span>()
 <span class="kw">BPPARAM</span> <span class="co"># lists current options</span>
 </pre></div>
@@ -205,21 +208,23 @@
 ##   bplogdir: NA
 ##   bpresultdir: NA
 ##   cluster type: FORK</code></pre>
-<div class="sourceCode" id="cb8"><pre class="downlit">
+<div class="sourceCode" id="cb11"><pre class="downlit">
 <span class="kw">BPPARAM</span><span class="op">$</span><span class="kw">workers</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="co"># use 2 cores</span>
 
 <span class="kw">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts = <span class="kw">counts</span>, pseudotime = <span class="kw">pseudotime</span>, cellWeights = <span class="kw">cellWeights</span>,
                  nknots = <span class="fl">6</span>, verbose = <span class="fl">FALSE</span>, parallel=<span class="fl">TRUE</span>, BPPARAM = <span class="kw">BPPARAM</span>)
 </pre></div>
+<pre><code>## Warning in any(counts): coercing argument of type 'double' to logical</code></pre>
 </div>
 <div id="fitting-only-a-subset-of-genes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-only-a-subset-of-genes" class="anchor"></a>Fitting only a subset of genes</h2>
 <p>It may be of interest to only fit the NB-GAM for a subset of genes, but use the information across all genes to perform the normalization. This can be achieved using the <code>genes</code> argument in <code>fitGAM</code>, which accepts a numeric vector specifying the rows of the count matrix for which the models should be fitted.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit">
+<div class="sourceCode" id="cb13"><pre class="downlit">
 <span class="kw">sce25</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(counts = <span class="kw">counts</span>, pseudotime = <span class="kw">pseudotime</span>, cellWeights = <span class="kw">cellWeights</span>,
                  nknots = <span class="fl">6</span>, verbose = <span class="fl">FALSE</span>, genes = <span class="fl">1</span><span class="op">:</span><span class="fl">25</span>)
 </pre></div>
+<pre><code>## Warning in any(counts): coercing argument of type 'double' to logical</code></pre>
 </div>
 <div id="zero-inflation" class="section level2">
 <h2 class="hasAnchor">
@@ -230,7 +235,7 @@
 <h2 class="hasAnchor">
 <a href="#convergence-issues-on-small-or-zero-inflated-datasets" class="anchor"></a>Convergence issues on small or zero-inflated datasets</h2>
 <p>If you’re working with a dataset that has a limited number of cells, or if you are incorporating zero inflation weights, the NB-GAMs may be harder to fit, as noted by the warnings when running <code>fitGAM</code>. In that case, the situation might improve if you allow for more iterations in the GAM fitting. This can be done with the <code>control</code> argument of <code>fitGAM</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit">
+<div class="sourceCode" id="cb15"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">mgcv</span>)
 </pre></div>
 <pre><code>## Loading required package: nlme</code></pre>
@@ -240,7 +245,7 @@
 ## 
 ##     collapse</code></pre>
 <pre><code>## This is mgcv 1.8-31. For overview type 'help("mgcv-package")'.</code></pre>
-<div class="sourceCode" id="cb15"><pre class="downlit">
+<div class="sourceCode" id="cb20"><pre class="downlit">
 <span class="kw">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mgcv/man/gam.control.html">gam.control</a></span>()
 <span class="kw">control</span><span class="op">$</span><span class="kw">maxit</span> <span class="op">&lt;-</span> <span class="fl">1000</span> <span class="co">#set maximum number of iterations to 1K</span>
 <span class="co"># pass to control argument of fitGAM as below:</span>
@@ -255,14 +260,15 @@
 <h2 class="hasAnchor">
 <a href="#tradeseq-list-output" class="anchor"></a>tradeSeq list output</h2>
 <p>The output from <code>fitGAM</code> will be different if one sets <code>sce=FALSE</code>, and less memory efficient. Instead of a <code>SingleCellExperiment</code> object, it will return a list with all fitted <code>mgcv</code> models. Most functions we have discussed above work exactly the same with the list output. However, the list output functionality is a little bit bigger, and here we discuss some capabilities that are only available with the list output.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit">
+<div class="sourceCode" id="cb21"><pre class="downlit">
 <span class="kw">gamList</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span>(<span class="kw">counts</span>,
                   pseudotime = <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingPseudotime</a></span>(<span class="kw">crv</span>, na = <span class="fl">FALSE</span>),
                   cellWeights = <span class="fu"><a href="https://rdrr.io/pkg/slingshot/man/slingPseudotime.html">slingCurveWeights</a></span>(<span class="kw">crv</span>),
                   nknots = <span class="fl">6</span>, sce = <span class="fl">FALSE</span>)
 </pre></div>
+<pre><code>## Warning in any(counts): coercing argument of type 'double' to logical</code></pre>
 <p>First, one may explore the results of a model by requesting its summary.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit">
+<div class="sourceCode" id="cb23"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">gamList</span>[[<span class="st">"Irf8"</span>]])
 </pre></div>
 <pre><code>## 
@@ -290,7 +296,7 @@
 ## R-sq.(adj) =  0.532   Deviance explained =   64%
 ## -REML = 2028.5  Scale est. = 1         n = 2660</code></pre>
 <p>Related to the <code>associationTest</code>, one can extract the p-values generated by the <code>mgcv</code> package using the <code>getSmootherPvalues</code> function. These p-values are derived from a test that assesses the null hypothesis that all smoother coefficients are equal to zero. Note, however, that their interpretation is thus more complex. A significant lineage for a particular gene might thus be the result of (a) a different mean expression in that lineage as compared to the overall expression of that gene, or (b) significantly varying expression along that lineage, even if the means are equal, or (c) a combination of both. This function extracts the p-values calculated by <code>mgcv</code> from the GAM, and will return <code>NA</code> for genes that we were unable to fit properly. Similarly, the test statistics may be extracted with <code>getSmootherTestStats</code>. Since this dataset was pre-filtered to only contain relevant genes, all p-values (test statistics) will be very low (high). Note, that these functions are only applicable with the list output of <code>tradeSeq</code>, and not with the <code>SingleCellExperiment</code> output. We will therefore not evaluate these here.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit">
+<div class="sourceCode" id="cb25"><pre class="downlit">
 <span class="kw">pvalLineage</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSmootherPvalues.html">getSmootherPvalues</a></span>(<span class="kw">gamList</span>)
 <span class="kw">statLineage</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSmootherTestStats.html">getSmootherTestStats</a></span>(<span class="kw">gamList</span>)
 </pre></div>
@@ -300,7 +306,7 @@
 <div id="session" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session" class="anchor"></a>Session</h1>
-<div class="sourceCode" id="cb20"><pre class="downlit">
+<div class="sourceCode" id="cb26"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()
 </pre></div>
 <pre><code>## R version 4.0.2 (2020-06-22)
