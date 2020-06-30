@@ -80,6 +80,15 @@ sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeight
                  nknots = 6, verbose = FALSE)
 ```
 
+The model may be hard to fit for some genes, and hence the fitting procedure may not converge for all of the genes in a dataset, especially in datasets with complex patterns and/or many lineages.
+You can check the convergence of each gene as shown below, where a `TRUE` value corresponds to a converged model fit, and a `FALSE` value corresponds to a model that hasn't been able to converge fully.
+
+```{r}
+table(rowData(sce)$tradeSeq$converged)
+```
+
+
+
 
 # Within-lineage comparisons
 
