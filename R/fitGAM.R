@@ -30,6 +30,11 @@
 }
 
 .checks <- function(pseudotime, cellWeights, U, counts) {
+  # counts must only have positive integer values
+  if (any(counts) < 0) {
+    stop("All values of the count matrix should be non-negative")
+  }
+  
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
     if (!identical(dim(pseudotime), dim(cellWeights))) {
