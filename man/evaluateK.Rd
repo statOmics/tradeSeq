@@ -17,15 +17,16 @@ evaluateK(counts, ...)
   sds = NULL,
   pseudotime = NULL,
   cellWeights = NULL,
-  plot = TRUE,
   U = NULL,
+  conditions = NULL,
+  plot = TRUE,
   weights = NULL,
   offset = NULL,
   aicDiff = 2,
   verbose = TRUE,
-  conditions = NULL,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
-  sce = FALSE,
   family = "nb",
   gcv = FALSE,
   ...
@@ -46,7 +47,8 @@ evaluateK(counts, ...)
   verbose = TRUE,
   conditions = NULL,
   control = mgcv::gam.control(),
-  sce = FALSE,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
   family = "nb",
   gcv = FALSE,
   ...
@@ -66,8 +68,9 @@ evaluateK(counts, ...)
   aicDiff = 2,
   verbose = TRUE,
   conditions = NULL,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
-  sce = FALSE,
   family = "nb",
   gcv = FALSE,
   ...
@@ -87,8 +90,9 @@ evaluateK(counts, ...)
   aicDiff = 2,
   verbose = TRUE,
   conditions = NULL,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
-  sce = FALSE,
   family = "nb",
   gcv = FALSE,
   ...
@@ -99,7 +103,7 @@ evaluateK(counts, ...)
 
 \item{...}{parameters including:}
 
-\item{k}{The range of knots to evaluate. `3:10` by default.}
+\item{k}{The range of knots to evaluate. `3:10` by default. See details.}
 
 \item{nGenes}{The number of genes to use in the evaluation. Genes will be
 randomly selected. 500 by default.}
@@ -113,10 +117,15 @@ and each column represents a lineage.}
 cell belongs to a particular lineage. Each row represents a cell and each
 column represents a lineage.}
 
-\item{plot}{Whether to display diagnostic plots. Default to \code{TRUE}.}
-
 \item{U}{The design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}
+
+\item{conditions}{This argument is in beta phase and should be used carefully.
+If each lineage consists of multiple conditions, this argument can be used to
+specify the conditions. tradeSeq will then fit a condition-specific smoother for
+every lineage.}
+
+\item{plot}{Whether to display diagnostic plots. Default to \code{TRUE}.}
 
 \item{weights}{Optional: a matrix of weights with identical dimensions
 as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
@@ -132,14 +141,14 @@ that is part of the output of this function.}
 
 \item{verbose}{logical, should progress be verbose?}
 
-\item{conditions}{This argument is in beta phase and should be used carefully.
-If each lineage consists of multiple conditions, this argument can be used to
-specify the conditions. tradeSeq will then fit a condition-specific smoother for
-every lineage.}
+\item{parallel}{Logical, defaults to FALSE. Set to TRUE if you want to
+parallellize the fitting.}
+
+\item{BPPARAM}{object of class \code{bpparamClass} that specifies the
+back-end to be used for computations. See
+\code{bpparam} in \code{BiocParallel} package for details.}
 
 \item{control}{Control object for GAM fitting, see \code{mgcv::gam.control()}.}
-
-\item{sce}{Logical, should a \code{SingleCellExperiment} object be returned?}
 
 \item{family}{The distribution assumed, currently only \code{"nb"}
 (negative binomial) is supported.}
@@ -155,6 +164,13 @@ range of knots (columns).
 Evaluate the optimal number of knots required for fitGAM.
 
 Evaluate an appropriate number of knots.
+}
+\details{
+The number of parameter to evaluate (and therefore the runtime) scales in 
+\code{k} * the number of lineages. Morevoer, we have found that, in practice,
+values of k above 12-15 rarely lead to improved result, not matter the 
+complexity of the trajectory being considered. As such, we recommand that user
+proceed with care when setting k to value higher than 15.
 }
 \examples{
 ## This is an artifical example, please check the vignette for a realistic one.
