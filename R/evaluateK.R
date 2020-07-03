@@ -1,7 +1,8 @@
 
 .evaluateK <- function(counts, U = NULL, pseudotime, cellWeights, plot = TRUE,
                        nGenes = 500, k = 3:10, weights = NULL, offset = NULL,
-                       aicDiff = 2, verbose = TRUE, conditions, gcv = FALSE, ...) {
+                       aicDiff = 2, verbose = TRUE, conditions, parallel,
+                       BPPARAM, gcv = FALSE, ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
   if (length(k) == 1) stop("There should be more than one k value")
@@ -27,7 +28,8 @@
   aicVals <- lapply(kList, function(currK){
     gamAIC <- .fitGAM(counts = countSub, U = U, pseudotime = pseudotime,
                       cellWeights = cellWeights, conditions = conditions,
-                      nknots = currK, verbose = verbose, sce = FALSE,
+                      nknots = currK, verbose = verbose, sce = FALSE, 
+                      parallel = parallel, BPPARAM = BPPARAM,
                       weights = weightSub, offset = offset, aic = TRUE, 
                       gcv = gcv)
   })
@@ -110,10 +112,14 @@
 #' to check for the optimal number of knots through the barplot visualization
 #' that is part of the output of this function.
 #' @param verbose logical, should progress be verbose?
+#' @param parallel Logical, defaults to FALSE. Set to TRUE if you want to
+#' parallellize the fitting.
 #' @param control Control object for GAM fitting, see \code{mgcv::gam.control()}.
+#' @param BPPARAM object of class \code{bpparamClass} that specifies the
+#'   back-end to be used for computations. See
+#'   \code{bpparam} in \code{BiocParallel} package for details.
 #' @param family The distribution assumed, currently only \code{"nb"}
 #' (negative binomial) is supported.
-#' @param sce Logical, should a \code{SingleCellExperiment} object be returned?
 #' @param gcv (In development). Logical, should a GCV score also be returned?
 #' @return A plot of average AIC value over the range of selected knots, and a
 #' matrix of AIC and GCV values for the selected genes (rows) and the
@@ -146,15 +152,16 @@ setMethod(f = "evaluateK",
                                 sds = NULL,
                                 pseudotime = NULL,
                                 cellWeights = NULL,
-                                plot = TRUE,
                                 U = NULL,
+                                conditions = NULL,
+                                plot = TRUE,
                                 weights = NULL,
                                 offset = NULL,
                                 aicDiff = 2,
                                 verbose = TRUE,
-                                conditions = NULL,
+                                parallel = FALSE,
+                                BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
-                                sce = FALSE,
                                 family = "nb",
                                 gcv = FALSE,
                                 ...){
@@ -190,8 +197,9 @@ setMethod(f = "evaluateK",
                                  offset = offset,
                                  verbose = verbose,
                                  conditions = conditions,
+                                 parallel = parallel,
+                                 BPPARAM = BPPARAM,
                                  control = control,
-                                 sce = sce,
                                  gcv = gcv,
                                  ...)
 
@@ -216,7 +224,8 @@ setMethod(f = "evaluateK",
                                 verbose = TRUE,
                                 conditions = NULL,
                                 control = mgcv::gam.control(),
-                                sce = FALSE,
+                                parallel = FALSE,
+                                BPPARAM = BiocParallel::bpparam(),
                                 family = "nb",
                                 gcv = FALSE,
                                 ...){
@@ -235,8 +244,9 @@ setMethod(f = "evaluateK",
                                 aicDiff = aicDiff,
                                 verbose = verbose,
                                 conditions = conditions,
+                                parallel = parallel,
+                                BPPARAM = BPPARAM,
                                 control = control,
-                                sce = sce,
                                 family = family,
                                 gcv = gcv)
 
@@ -265,8 +275,9 @@ setMethod(f = "evaluateK",
                                 aicDiff = 2,
                                 verbose = TRUE,
                                 conditions = NULL,
+                                parallel = FALSE,
+                                BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
-                                sce = FALSE,
                                 family = "nb",
                                 gcv = FALSE,
                                 ...){
@@ -294,8 +305,9 @@ setMethod(f = "evaluateK",
                                 aicDiff = aicDiff,
                                 verbose = verbose,
                                 conditions = conditions,
+                                parallel = parallel,
+                                BPPARAM = BPPARAM,
                                 control = control,
-                                sce = sce,
                                 family = family,
                                 gcv = gcv,
                                 ...)
@@ -321,8 +333,9 @@ setMethod(f = "evaluateK",
                                 aicDiff = 2,
                                 verbose = TRUE,
                                 conditions = NULL,
+                                parallel = FALSE,
+                                BPPARAM = BiocParallel::bpparam(),
                                 control = mgcv::gam.control(),
-                                sce = FALSE,
                                 family = "nb",
                                 gcv = FALSE,
                                 ...){
@@ -341,8 +354,9 @@ setMethod(f = "evaluateK",
                                 aicDiff = aicDiff,
                                 verbose = verbose,
                                 conditions = conditions,
+                                parallel = parallel,
+                                BPPARAM = BPPARAM,
                                 control = control,
-                                sce = sce,
                                 family = family,
                                 gcv = gcv,
                                 ...)
