@@ -99,7 +99,7 @@
 #' @param plot Whether to display diagnostic plots. Default to \code{TRUE}.
 #' @param nGenes The number of genes to use in the evaluation. Genes will be
 #' randomly selected. 500 by default.
-#' @param k The range of knots to evaluate. `3:10` by default.
+#' @param k The range of knots to evaluate. `3:10` by default. See details.
 #' @param weights Optional: a matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param offset Optional: the offset, on log-scale. If NULL, TMM is used to
@@ -126,6 +126,12 @@
 #' counts <- round(abs(t(slingshot::reducedDim(sds) %*% loadings))) + 100
 #' aicK <- evaluateK(counts = counts, sds = sds, nGenes = 100,
 #'                   k = 3:5, verbose = FALSE)
+#' @details 
+#' The number of parameter to evaluate (and therefore the runtime) scales in 
+#' \code{k} * the number of lineages. Morevoer, we have found that, in practice,
+#' values of k above 12-15 rarely lead to improved result, not matter the 
+#' complexity of the trajectory being considered. As such, we recommand that user
+#' proceed with care when setting k to value higher than 15. 
 #' @importFrom BiocParallel bplapply bpparam MulticoreParam
 #' @rdname evaluateK
 #' @export
