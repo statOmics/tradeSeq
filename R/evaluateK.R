@@ -84,22 +84,22 @@
 #' Evaluate an appropriate number of knots.
 #'
 #' @param counts The count matrix, genes in rows and cells in columns.
-#' @param sds Slingshot object containing the lineages.
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param conditions This argument is in beta phase and should be used carefully.
 #' If each lineage consists of multiple conditions, this argument can be used to
 #' specify the conditions. tradeSeq will then fit a condition-specific smoother for
 #' every lineage.
+#' @param sds Slingshot object containing the lineages.
 #' @param pseudotime a matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
 #' @param cellWeights a matrix of cell weights defining the probability that a
 #' cell belongs to a particular lineage. Each row represents a cell and each
 #' column represents a lineage.
+#' @param k The range of knots to evaluate. `3:10` by default. See details.
 #' @param plot Whether to display diagnostic plots. Default to \code{TRUE}.
 #' @param nGenes The number of genes to use in the evaluation. Genes will be
 #' randomly selected. 500 by default.
-#' @param k The range of knots to evaluate. `3:10` by default. See details.
 #' @param weights Optional: a matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param offset Optional: the offset, on log-scale. If NULL, TMM is used to
