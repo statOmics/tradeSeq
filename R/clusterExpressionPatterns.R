@@ -54,9 +54,9 @@
 
   yhatPatScaled <- t(scale(t(yhatPat)))
 
-  rsec <- clusterExperiment::RSEC(t(yhatPatScaled),
-                                  isCount = FALSE,
-                                  reduceMethod = reduceMethod, nReducedDims = nReducedDims,
+  rsec <- clusterExperiment::RSEC(t(yhatPatScaled), transFun = NULL, 
+                                  isCount = FALSE, reduceMethod = reduceMethod,
+                                  nReducedDims = nReducedDims, 
                                   minSizes = minSizes, ncores = ncores,
                                   random.seed = random.seed, verbose = verbose,
                                   ...
@@ -94,12 +94,14 @@
 #' @details This method adopts the \code{\link[clusterExperiment]{RSEC}}
 #' function from the clusterExperiment package to perform consensus clustering.
 #' @return A list containing the scaled fitted values \code{yhatScaled}(for
-#'  plotting) and a \code{\link{ClusterExperiment}} object, containing the
+#'  plotting) and a \code{clusterExperiment} object, containing the
 #'  clustering results.
 #' @examples
+#' \dontrun{
 #' data(gamList, package = "tradeSeq")
-#' clusterExpressionPatterns(gamList, 200, seq_len(11))
-#' @importFrom clusterExperiment RSEC
+#' clusterExpressionPatterns(models = gamList, nPoints = 200, genes = seq_len(11),
+#'                           verbose = FALSE)
+#' }
 #' @importFrom methods is
 #' @name clusterExpressionPatterns
 #' @aliases clusterExpressionPatterns,SingleCellExperiment-method

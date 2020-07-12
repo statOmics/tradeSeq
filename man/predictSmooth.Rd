@@ -8,7 +8,7 @@
 \usage{
 predictSmooth(models, ...)
 
-\S4method{predictSmooth}{SingleCellExperiment}(models, gene, nPoints = 100)
+\S4method{predictSmooth}{SingleCellExperiment}(models, gene, nPoints = 100, tidy = TRUE)
 
 \S4method{predictSmooth}{list}(models, gene, nPoints = 100)
 }
@@ -24,6 +24,14 @@ to the row(s) of the gene(s).}
 
 \item{nPoints}{The number of points used to create the grid along the
 smoother for each lineage. Defaults to 100.}
+
+\item{tidy}{Logical: return tidy output. If TRUE, returns a \code{data.frame}
+specifying lineage, gene, pseudotime and value of estimated smoother. If FALSE,
+returns matrix of predicted smoother values, where each row is a gene and
+each column is a point on the uniform grid along the lineage. For example,
+if the trajectory consists of 2 lineages and \code{nPoints=100}, then the
+returned matrix will have 2*100 columns, where the first 100 correspond to
+the first lineage and columns 101-200 to the second lineage.}
 }
 \value{
 A \code{matrix} with estimated averages.

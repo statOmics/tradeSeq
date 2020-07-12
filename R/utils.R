@@ -1,6 +1,6 @@
-
+# Manipulate the objects to extract meaningul values ----
 ### lpmatrix given X and design
-predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
+predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
   # this function is an alternative of predict.gam(model, newdata = df, type = "lpmatrix")
   # INPUT:
   # lpmatrix is the linear predictor matrix of the GAM model
@@ -26,11 +26,14 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
     }
   } else if(condPresent){
     lineages <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
+                                  start = 8, stop = 8))
+    nLineages <- length(unique(lineages))
+    curves <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
                                   start = 8, stop = 9))
-    nCurves <- length(unique(lineages))
-    for (ii in seq_len(nCurves)) {
+    nCurves <- length(unique(curves))
+    for (ii in seq_len(nLineages)) {
       for(kk in seq_len(nConditions))
-      assign(paste0("id",ii, kk), allBs[which(lineages == paste0(ii, kk))])
+      assign(paste0("id",ii, kk), allBs[which(curves == paste0(ii, kk))])
     }
   }
 
@@ -47,7 +50,7 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   } else if(condPresent){
     # first number is lineage, second number is condition.
     lineageID <- apply(lpmatrix, 1, function(x){
-      for (ii in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+      for (ii in seq_len(nLineages)) {
         # loop over lineages
         for(kk in seq_len(nConditions)){
           # loop over conditions
@@ -65,23 +68,24 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
     for (ii in seq_len(nCurves)) { # loop over curves
       for (jj in seq_len(length(allBs) / nCurves)) { #within curve, loop over basis functions
         assign(paste0("l",ii,".",jj),
-               splinefun(x = pseudotime[lineageID == ii, ii],
-                         y = lpmatrix[lineageID == ii, #only cells for lineage
-                                      get(paste0("id", ii))[jj]],
-                         ties = mean)) #basis function
+               stats::splinefun(x = pseudotime[lineageID == ii, ii],
+                                y = lpmatrix[lineageID == ii, #only cells for lineage
+                                             get(paste0("id", ii))[jj]],
+                                ties = mean)) #basis function
       }
     }
   } else if(condPresent) {
-    for (ii in  (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+    for (ii in  seq_len(nLineages)) {
       # loop over curves
       for(kk in seq_len(nConditions)){
-        for (jj in seq_len(length(allBs) / nCurves)) {
+        for (jj in seq_len(length(allBs) / (nLineages * nConditions))) {
           #within curve, loop over basis functions
           assign(paste0("l",ii,kk,".",jj),
-                 splinefun(x = pseudotime[lineageID == as.numeric(paste0(ii, kk)), ii],
-                           y = lpmatrix[lineageID == as.numeric(paste0(ii, kk)), #only cells for lineage
-                                        get(paste0("id", ii, kk))[jj]],
-                           ties = mean)) #basis function
+                 stats::splinefun(
+                   x = pseudotime[lineageID == as.numeric(paste0(ii, kk)), ii],
+                   y = lpmatrix[lineageID == as.numeric(paste0(ii, kk)), #only cells for lineage
+                                get(paste0("id", ii, kk))[jj]],
+                   ties = mean)) #basis function
         }
       }
     }
@@ -100,12 +104,14 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
       }
     }
   } else if(condPresent){
-    for (ii in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+    # for (ii in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2) {
+    for (ii in seq_len(nLineages)) {
       # loop over curves
       for(kk in seq_len(nConditions)){
         # loop over conditions
         if (all(df[, paste0("l", ii, kk)] != 0)) { # only predict if weight = 1
-          for (jj in seq_len(length(allBs) / nCurves)) { # within curve, loop over basis functions
+          for (jj in seq_len(length(allBs) / (nLineages * nConditions))) { 
+            # within curve, loop over basis functions
             f <- get(paste0("l", ii, kk, ".", jj))
             Xout[, get(paste0("id", ii, kk))[jj]] <- f(df[, paste0("t", ii)])
           }
@@ -140,17 +146,21 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set max pseudotime for lineage of interest
-  vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l",
-                                                           lineageId)] == 1,
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  if (length(lineageIds) == 1){
+    vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l", lineageId)] == 1,
                                              paste0("t", lineageId)])
+  } else {
+    vars[, paste0("t", lineageId)] <- max(dm[rowSums(dm[, lineageIds]) == 1,
+                                             paste0("t", lineageId)])
+  }
   # set lineage
-  vars[, paste0("l", lineageId)] <- 1
+  vars[, lineageIds] <- 1 / length(lineageIds)
   # set offset
   vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
   return(vars)
 }
-
 
 # get predictor matrix for the start point of a smoother.
 .getPredictStartPointDf <- function(dm, lineageId){
@@ -167,7 +177,8 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set lineage
-  vars[, paste0("l", lineageId)] <- 1
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  vars[, lineageIds] <- 1 / length(lineageIds)
   # set offset
   vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
@@ -189,7 +200,8 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set lineage
-  vars[, paste0("l", lineageId)] <- 1
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  vars[, lineageIds] <- 1 / length(lineageIds)
   # set custom pseudotime
   vars[, paste0("t", lineageId)] <- pseudotime
   # set offset
@@ -207,25 +219,6 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions=NULL){
   stop("All models errored")
 }
 
-
-# perform Wald test ----
-waldTest <- function(beta, Sigma, L){
-  ### build a contrast matrix for a multivariate Wald test
-  LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  sigmaInv <- try(solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
-  if (is(sigmaInv)[1] == "try-error") {
-    return(c(NA, NA, NA))
-  }
-  est <- t(LQR) %*% beta
-  wald <- t(est) %*%
-    sigmaInv %*%
-    est
-  if (wald < 0) wald <- 0
-  df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
-  return(c(wald, df, pval))
-}
-
 ## temporary version of Wald test that also outputs FC.
 ## Made this such that other tests don't break as we update relevant tests to
 ## also return fold changes. This should become the default one over time.
@@ -239,13 +232,13 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   }
   logFCCutoff <- log(2^l2fc) # log2 to log scale
   estFC <- (t(LQR) %*% beta) # estimated log fold change
-  est <- matrix(sign(estFC)*(pmax(0, abs(estFC) - logFCCutoff)), ncol=1) # zero or remainder
+  est <- matrix(sign(estFC) * (pmax(0, abs(estFC) - logFCCutoff)), ncol = 1) # zero or remainder
   wald <- t(est) %*%
     sigmaInv %*%
     est
   if (wald < 0) wald <- 0
   df <- ncol(LQR)
-  pval <- 1 - pchisq(wald, df = df)
+  pval <- 1 - stats::pchisq(wald, df = df)
 
   ## get ALL observed fold changes for output
   # obsFC <- t(L) %*% beta
@@ -254,9 +247,14 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
 }
 
 # get predictor matrix for a range of pseudotimes of a smoother.
-.getPredictRangeDf <- function(dm, lineageId, nPoints=100, condPresent=FALSE){
+.getPredictRangeDf <- function(dm, lineageId, conditionId = NULL, nPoints = 100){
   vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
+  if ("y" %in% colnames(vars)) {
+    vars <- vars[!colnames(vars) %in% "y"]
+    off <- 1
+  } else {
+    off <- 0
+  }
   offsetId <- grep(x = colnames(vars), pattern = "offset")
   offsetName <- colnames(vars)[offsetId]
   offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
@@ -268,45 +266,36 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   # duplicate to nPoints
   vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
   # set range of pseudotime for lineage of interest
-  if(!condPresent){
-    lineageData <- dm[dm[, paste0("l", lineageId)] == 1,
-                      paste0("t", lineageId)]
-    # make sure lineage starts at zero
-    if(min(lineageData)/max(lineageData) < .01){
-      lineageData[which.min(lineageData)] <- 0
-    }
-    vars[, paste0("t", lineageId)] <- seq(min(lineageData),
-                                          max(lineageData),
-                                          length = nPoints)
-  } else if(condPresent){
-    lineageData <- dm[dm[, paste0("l", lineageId)] == 1,
-                      paste0("t", substr(lineageId,1,1))]
-    # make sure lineage starts at zero
-    if(min(lineageData)/max(lineageData) < .01){
-      lineageData[which.min(lineageData)] <- 0
-    }
-    vars[, paste0("t", substr(lineageId,1,1))] <- seq(min(lineageData),
-                                                      max(lineageData),
-                                                      length = nPoints)
+  if (is.null(conditionId)) {
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))  
+  } else {
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, conditionId))
   }
+  if (length(lineageIds) == 1){
+    lineageData <- dm[dm[, lineageIds + off] == 1,
+                      paste0("t", lineageId)]
+  } else {
+    lineageData <- dm[rowSums(dm[, lineageIds + off]) == 1,
+                      paste0("t", lineageId)]
+  }
+  # make sure lineage starts at zero
+  if(min(lineageData) / max(lineageData) < .01) {
+    lineageData[which.min(lineageData)] <- 0
+  }
+  vars[, lineageIds] <- 1 / length(lineageIds)
   # set lineage
-  vars[, paste0("l", lineageId)] <- 1
+  vars[, paste0("t", lineageId)] <- seq(min(lineageData),
+                                        max(lineageData),
+                                        length = nPoints)
   # set offset
   vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
                                             pattern = "offset")])
   return(vars)
 }
 
-.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints = 100,
-                       conditions=NULL){
-
-  condPresent <- !is.null(conditions)
-  if(!condPresent){
-    nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-  } else if(condPresent){
-    nCurves <- length(grep(x = colnames(dm), pattern = "l[(1-9)+]"))
-  }
-
+.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints = 100){
+  nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  
   Knot <- !is.null(knots)
   if (Knot) {
     t1 <- knotPoints[knots[1]]
@@ -314,45 +303,21 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   }
 
   # get predictor matrix for every lineage.
-  if(!condPresent){
-    # no conditions
-    dfList <- list()
-    for (jj in seq_len(nCurves)) {
-      df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
-      if (Knot) {
-        df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-      }
-      dfList[[jj]] <- df
+  dfList <- list()
+  for (jj in seq_len(nLineages)) {
+    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
     }
-  } else if(condPresent){
-    # conditions
-    dfList <- list()
-    dfCondList <- list()
-    for (jj in (seq_len(nCurves)[seq(2, nCurves, by=2)])/2){
-      for(kk in seq_len(nlevels(conditions))){
-          # loop over condition levels
-          dfCond <- .getPredictRangeDf(dm, as.numeric(paste0(jj,kk)), nPoints = nPoints,
-                                       condPresent = condPresent)
-          dfCondList[[kk]] <- dfCond
-        }
-      # df <- do.call(cbind,dfCondList)
-      df <- dfCondList
-        if (Knot) {
-          lapply(df, function(x){
-            x[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-          })
-        }
-        dfList[[jj]] <- df
-    }
+    dfList[[jj]] <- df
   }
   return(dfList)
 }
 
 
 .patternDfPairwise <- function(dm, curves, knots = NULL, knotPoints = NULL,
-                               nPoints=100){
+                               nPoints = 100){
 
-  nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   Knot <- !is.null(knots)
   if (Knot) {
     t1 <- knotPoints[knots[1]]
@@ -403,85 +368,70 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
   return(c(stat, r))
 }
 
-.patternContrastPairwise <- function(model, nPoints=100, curves=seq_len(2),
-                                     knots = NULL){
-  Knot <- !is.null(knots)
-  if (Knot) {
-    t1 <- model$smooth[[2]]$xp[knots[1]]
-    t2 <- model$smooth[[2]]$xp[knots[2]]
-  }
-
-  # get predictor matrix for every lineage.
-  for (jj in curves) {
-    df <- .getPredictRangeDf(model, jj, nPoints = nPoints)
-    if (Knot) {
-      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-    }
-    assign(paste0("X", jj), predict(model, newdata = df, type = "lpmatrix"))
-  }
-
-  # construct pairwise contrast matrix
-  L <- get(paste0("X", curves[1])) - get(paste0("X", curves[2]))
-
-  # point x comparison y colnames
-  rownames(L) <- paste0("p", seq_len(nPoints), "_", "c",
-                        paste(curves, collapse = "_"))
-  #transpose => one column is one contrast.
-  L <- t(L)
-  return(L)
-}
-
-# for associationTest
-.getPredictKnots <- function(dm, lineageId, knotPoints){
-  # note that X or offset variables dont matter as long as they are the same,
-  # since they will get canceled.
-  vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
-  offsetId <- grep(x = colnames(vars), pattern = "offset")
-  offsetName <- colnames(vars)[offsetId]
-  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
-  names(vars)[offsetId] <- offsetName
-
-  # set all times on 0
-  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
-  # set all lineages on 0
-  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
-  # get max pseudotime for lineage of interest
-  tmax <- max(dm[dm[, paste0("l", lineageId)] == 1,
-                   paste0("t", lineageId)])
-  nknots <- sum(knotPoints <= tmax)
-  # Extend vars
-  vars <- vars[rep(1, nknots), ]
-  # Set time
-  vars[, paste0("t", lineageId)] <- knotPoints[seq_len(nknots)]
-  # set lineage
-  vars[, paste0("l", lineageId)] <- 1
-  # set offset
-  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
-                                            pattern = "offset")])
-  return(vars)
-}
-
-getRank <- function(m,L){
-  beta <- matrix(coef(m), ncol = 1)
-  est <- t(L) %*% beta
-  sigma <- t(L) %*% m$Vp %*% L
-  eSigma <- eigen(sigma, symmetric = TRUE)
-  r <- sum(eSigma$values / eSigma$values[1] > 1e-8)
-  return(r)
-}
-
 .getFoldChanges <- function(beta, L){
   apply(L,2,function(contrast) contrast %*% beta)
 }
 
+# Monocle stuff ----
+#' @title Extract info from Monocle models
+#'
+#' @description This function extracts info that will be used downstream to make
+#' \code{CellDataSet} objects compatible with a \code{tradeSeq}
+#' analysis
+#'
+#' @rdname extract_monocle_info
+#' @param cds A \code{CellDataSet} object.
+#' @details For now, this only works for the DDRTree dimentionality reduction.
+#' It is the one recommanded by the Monocle developers.
+#' @return
+#' A list with four objects. A \code{pseudotime} matrix and a \code{cellWeights}
+#' matrix that can be used as input to \code{\link{fitGAM}} or
+#' \code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a
+#' list of length the number of lineages, containing the reduced dimension of
+#' each lineage.
+#' @importFrom magrittr %>%
+#' @importFrom Biobase exprs
+#' @import monocle
+#' @importFrom igraph degree shortest_paths
+#' @export
+extract_monocle_info <- function(cds) {
+  if (cds@dim_reduce_type != "DDRTree") {
+    stop(paste0("For now tradeSeq only support Monocle with DDRTree",
+                "reduction. If you want to use another type",
+                "please use another format for tradeSeq inputs."))
+  }
+  # Get the reduced dimension of DDRT
+  rd <- t(monocle::reducedDimS(cds)) %>% as.data.frame()
 
-
-
-.onAttach <- function(libname, pkgname){
-  packageStartupMessage(paste0("tradeSeq has been updated to accommodate ",
-                               "singleCellExperiment objects as output, making ",
-                               "it much more memory efficient. Please ",
-                               "check the news file and the updated vignette ",
-                               "for details."))
+  # Get the various lineages info for weights and pseudotime
+  y_to_cells <- cds@auxOrderingData[["DDRTree"]]
+  y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%
+    as.data.frame()
+  y_to_cells$cells <- rownames(y_to_cells)
+  y_to_cells$Y <- y_to_cells$V1
+  root <- cds@auxOrderingData[[cds@dim_reduce_type]]$root_cell
+  root <- y_to_cells$Y[y_to_cells$cells == root]
+  mst <- monocle::minSpanningTree(cds)
+  endpoints <- names(which(igraph::degree(mst) == 1))
+  endpoints <- endpoints[endpoints != paste0("Y_", root)]
+  cellWeights <- lapply(endpoints, function(endpoint) {
+    path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
+    path <- as.character(path)
+    df <- y_to_cells[y_to_cells$Y %in% path, ]
+    df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
+    colnames(df) <- endpoint
+    return(df)
+  }) %>% do.call(what = 'cbind', args = .)
+  pseudotime <- sapply(cellWeights, function(w) cds$Pseudotime)
+  rownames(cellWeights) <- rownames(pseudotime) <- colnames(cds)
+  # Get the lineages representation
+  edges_rd <- t(monocle::reducedDimK(cds)) %>% as.data.frame()
+  rd_lineages <- lapply(endpoints, function(endpoint){
+    path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
+    path <- as.character(path)
+    path <- paste("Y", path, sep = "_")
+    return(edges_rd[path, ])
+  })
+  return(list("pseudotime" = pseudotime,
+              "cellWeights" = as.matrix(cellWeights)))
 }

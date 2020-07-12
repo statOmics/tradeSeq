@@ -3,11 +3,36 @@
 \name{evaluateK}
 \alias{evaluateK}
 \alias{evaluateK,matrix-method}
+\alias{evaluateK,dgCMatrix-method}
+\alias{evaluateK,SingleCellExperiment-method}
+\alias{evaluateK,CellDataSet-method}
 \title{Evaluate the optimal number of knots required for fitGAM.}
 \usage{
 evaluateK(counts, ...)
 
 \S4method{evaluateK}{matrix}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  U = NULL,
+  conditions = NULL,
+  plot = TRUE,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  control = mgcv::gam.control(),
+  family = "nb",
+  gcv = FALSE,
+  ...
+)
+
+\S4method{evaluateK}{dgCMatrix}(
   counts,
   k = 3:10,
   nGenes = 500,
@@ -20,9 +45,56 @@ evaluateK(counts, ...)
   offset = NULL,
   aicDiff = 2,
   verbose = TRUE,
+  conditions = NULL,
   control = mgcv::gam.control(),
-  sce = FALSE,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
   family = "nb",
+  gcv = FALSE,
+  ...
+)
+
+\S4method{evaluateK}{SingleCellExperiment}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  plot = TRUE,
+  U = NULL,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  conditions = NULL,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  control = mgcv::gam.control(),
+  family = "nb",
+  gcv = FALSE,
+  ...
+)
+
+\S4method{evaluateK}{CellDataSet}(
+  counts,
+  k = 3:10,
+  nGenes = 500,
+  sds = NULL,
+  pseudotime = NULL,
+  cellWeights = NULL,
+  plot = TRUE,
+  U = NULL,
+  weights = NULL,
+  offset = NULL,
+  aicDiff = 2,
+  verbose = TRUE,
+  conditions = NULL,
+  parallel = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  control = mgcv::gam.control(),
+  family = "nb",
+  gcv = FALSE,
   ...
 )
 }
@@ -31,7 +103,7 @@ evaluateK(counts, ...)
 
 \item{...}{parameters including:}
 
-\item{k}{The range of knots to evaluate. `3:10` by default.}
+\item{k}{The range of knots to evaluate. `3:10` by default. See details.}
 
 \item{nGenes}{The number of genes to use in the evaluation. Genes will be
 randomly selected. 500 by default.}
@@ -45,10 +117,15 @@ and each column represents a lineage.}
 cell belongs to a particular lineage. Each row represents a cell and each
 column represents a lineage.}
 
-\item{plot}{Whether to display diagnostic plots. Default to \code{TRUE}.}
-
 \item{U}{The design matrix of fixed effects. The design matrix should not
 contain an intercept to ensure identifiability.}
+
+\item{conditions}{This argument is in beta phase and should be used carefully.
+If each lineage consists of multiple conditions, this argument can be used to
+specify the conditions. tradeSeq will then fit a condition-specific smoother for
+every lineage.}
+
+\item{plot}{Whether to display diagnostic plots. Default to \code{TRUE}.}
 
 \item{weights}{Optional: a matrix of weights with identical dimensions
 as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
@@ -64,29 +141,43 @@ that is part of the output of this function.}
 
 \item{verbose}{logical, should progress be verbose?}
 
-\item{control}{Control object for GAM fitting, see \code{mgcv::gam.control()}.}
+\item{parallel}{Logical, defaults to FALSE. Set to TRUE if you want to
+parallellize the fitting.}
 
-\item{sce}{Logical, should a \code{SingleCellExperiment} object be returned?}
+\item{BPPARAM}{object of class \code{bpparamClass} that specifies the
+back-end to be used for computations. See
+\code{bpparam} in \code{BiocParallel} package for details.}
+
+\item{control}{Control object for GAM fitting, see \code{mgcv::gam.control()}.}
 
 \item{family}{The distribution assumed, currently only \code{"nb"}
 (negative binomial) is supported.}
+
+\item{gcv}{(In development). Logical, should a GCV score also be returned?}
 }
 \value{
 A plot of average AIC value over the range of selected knots, and a
-matrix of AIC values for the selected genes (rows) and the range of knots
-(columns).
+matrix of AIC and GCV values for the selected genes (rows) and the
+range of knots (columns).
 }
 \description{
 Evaluate the optimal number of knots required for fitGAM.
 
 Evaluate an appropriate number of knots.
 }
+\details{
+The number of parameter to evaluate (and therefore the runtime) scales in 
+\code{k} * the number of lineages. Morevoer, we have found that, in practice,
+values of k above 12-15 rarely lead to improved result, not matter the 
+complexity of the trajectory being considered. As such, we recommand that user
+proceed with care when setting k to value higher than 15.
+}
 \examples{
 ## This is an artifical example, please check the vignette for a realistic one.
 set.seed(8)
 data(sds, package="tradeSeq")
-loadings <- matrix(runif(2000*2,-2,2), nrow=2, ncol=2000)
-counts <- round(abs(t(slingshot::reducedDim(sds) \%*\% loadings)))+100
-aicK <- evaluateK(counts = counts, sds=sds,
-                  nGenes=100, k=3:5, verbose=FALSE)
+loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
+counts <- round(abs(t(slingshot::reducedDim(sds) \%*\% loadings))) + 100
+aicK <- evaluateK(counts = counts, sds = sds, nGenes = 100,
+                  k = 3:5, verbose = FALSE)
 }

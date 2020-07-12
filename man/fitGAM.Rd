@@ -26,7 +26,8 @@ fitGAM(counts, ...)
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
   sce = TRUE,
-  family = "nb"
+  family = "nb",
+  gcv = FALSE
 )
 
 \S4method{fitGAM}{dgCMatrix}(
@@ -44,7 +45,8 @@ fitGAM(counts, ...)
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
   sce = TRUE,
-  family = "nb"
+  family = "nb",
+  gcv = FALSE
 )
 
 \S4method{fitGAM}{SingleCellExperiment}(
@@ -60,7 +62,8 @@ fitGAM(counts, ...)
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
   sce = TRUE,
-  family = "nb"
+  family = "nb",
+  gcv = FALSE
 )
 
 \S4method{fitGAM}{CellDataSet}(
@@ -75,7 +78,8 @@ fitGAM(counts, ...)
   BPPARAM = BiocParallel::bpparam(),
   control = mgcv::gam.control(),
   sce = TRUE,
-  family = "nb"
+  family = "nb",
+  gcv = FALSE
 )
 }
 \arguments{
@@ -97,7 +101,7 @@ column represents a lineage. If only a single lineage, provide a matrix with
 one column containing all values of 1.}
 
 \item{conditions}{This argument is in beta phase and should be used carefully.
-If each lineage consists of mutliple conditions, this argument can be used to
+If each lineage consists of multiple conditions, this argument can be used to
 specify the conditions. tradeSeq will then fit a condition-specific smoother for
 every lineage.}
 
@@ -138,6 +142,8 @@ be set to TRUE}
 
 \item{family}{The assumed distribution for the response. Is set to \code{"nb"}
 by default.}
+
+\item{gcv}{(In development). Logical, should a GCV score also be returned?}
 }
 \value{
 If \code{sce=FALSE}, returns a list of length equal to the number of genes
