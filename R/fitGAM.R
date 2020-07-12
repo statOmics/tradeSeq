@@ -34,7 +34,7 @@
   if (any(counts) < 0) {
     stop("All values of the count matrix should be non-negative")
   }
-  
+
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
     if (!identical(dim(pseudotime), dim(cellWeights))) {
@@ -114,10 +114,6 @@
     }
     # if this doesn't fix it, get evenly spaced knots with warning
     if (any(duplicated(knotLocs))) {
-      warning(paste0("Too many cells seem to be squeezed at one pseudotime ",
-                     "value, the smoothers will work with evenly spaced knots ",
-                     "instead of quantile-based knots. Interpret results with ",
-                     "caution. Increase the number of knots to avoid this issue"))
       knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
   }
@@ -515,7 +511,7 @@ setMethod(f = "fitGAM",
           }
 )
 #' @rdname fitGAM
-#' @importClassesFrom Matrix dgCMatrix 
+#' @importClassesFrom Matrix dgCMatrix
 setMethod(f = "fitGAM",
           signature = c(counts = "dgCMatrix"),
           definition = function(counts,
