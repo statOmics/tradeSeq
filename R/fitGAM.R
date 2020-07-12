@@ -116,10 +116,6 @@
     }
     # if this doesn't fix it, get evenly spaced knots with warning
     if (any(duplicated(knotLocs))) {
-      warning(paste0("Too many cells seem to be squeezed at one pseudotime ",
-                     "value, the smoothers will work with evenly spaced knots ",
-                     "instead of quantile-based knots. Interpret results with ",
-                     "caution. Increase the number of knots to avoid this issue"))
       knotLocs <- seq(min(tAll), max(tAll), length = nknots)
     }
   }
