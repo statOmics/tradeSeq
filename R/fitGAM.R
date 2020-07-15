@@ -301,7 +301,7 @@
       return(beta)
     })
     betaAllDf <- data.frame(t(do.call(cbind,betaAll)))
-    rownames(betaAllDf) <- rownames(counts)[genes]
+    rownames(betaAllDf) <- rownames(counts)[id]
 
     # list of variance covariance matrices
     SigmaAll <- lapply(gamList, function(m) {
