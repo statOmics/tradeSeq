@@ -33,7 +33,8 @@ plotSmoothers(models, ...)
   border = TRUE,
   alpha = 1,
   sample = 1,
-  pointCol = NULL
+  pointCol = NULL,
+  plotLineages = TRUE
 )
 }
 \arguments{
@@ -69,6 +70,9 @@ are too many so that it can plot faster.}
 \item{pointCol}{Plotting colors for each cell. Can be either character vector of
 length 1, denoting a variable in the \code{colData(models)} to color cells by,
 or a vector of length equal to the number of cells.}
+
+\item{plotLineages}{Logical, should the mean smoothers for each lineage
+be plotted?}
 }
 \value{
 A \code{\link{ggplot}} object

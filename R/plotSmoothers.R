@@ -68,7 +68,8 @@
 .plotSmoothers_sce <- function(models, counts, gene, nPoints = 100, lwd = 2,
                                size = 2/3, xlab = "Pseudotime",
                                ylab = "Log(expression + 1)", border = FALSE,
-                               alpha = 2/3, sample = sample, pointCol = NULL)
+                               alpha = 2/3, sample = sample, pointCol = NULL,
+                               plotLineages=TRUE)
 {
 
   #input is singleCellExperiment object.
@@ -146,33 +147,35 @@
 
 
   # predict and plot smoothers across the range
-  for (jj in seq_len(nCurves)) {
-    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
-    Xdf <- predictGAM(lpmatrix = X,
-                      df = df,
-                      pseudotime = pseudotime)
-    yhat <-  c(exp(t(Xdf %*% t(beta)) + df$offset))
-    if (border) {
-      p <- p +
-        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
-                                    "gene_count" = yhat,
-                                    "lineage" = as.character(jj),
-                                    "pCol" = as.character(jj)),
-                  lwd = lwd + 1, colour = "white") +
-        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
-                                    "gene_count" = yhat,
-                                    "lineage" = as.character(jj),
-                                    "pCol" = as.character(jj)),
-                  lwd = lwd, col=viridis::viridis(nCurves)[jj])
-    } else {
-      p <- p +
-        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
-                                    "gene_count" = yhat,
-                                    "lineage" = as.character(jj),
-                                    "pCol" = as.character(jj)),
-                  lwd = lwd, col=viridis::viridis(nCurves)[jj])
-    }
+  if(plotLineages){
+    for (jj in seq_len(nCurves)) {
+      df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
+      Xdf <- predictGAM(lpmatrix = X,
+                        df = df,
+                        pseudotime = pseudotime)
+      yhat <-  c(exp(t(Xdf %*% t(beta)) + df$offset))
+      if (border) {
+        p <- p +
+          geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                      "gene_count" = yhat,
+                                      "lineage" = as.character(jj),
+                                      "pCol" = as.character(jj)),
+                    lwd = lwd + 1, colour = "white") +
+          geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                      "gene_count" = yhat,
+                                      "lineage" = as.character(jj),
+                                      "pCol" = as.character(jj)),
+                    lwd = lwd, col=viridis::viridis(nCurves)[jj])
+      } else {
+        p <- p +
+          geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                      "gene_count" = yhat,
+                                      "lineage" = as.character(jj),
+                                      "pCol" = as.character(jj)),
+                    lwd = lwd, col=viridis::viridis(nCurves)[jj])
+      }
 
+    }
   }
 
   ## TODO: add legend for different lineages
@@ -204,6 +207,8 @@ setOldClass("gam")
 #' @param pointCol Plotting colors for each cell. Can be either character vector of
 #' length 1, denoting a variable in the \code{colData(models)} to color cells by,
 #' or a vector of length equal to the number of cells.
+#' @param plotLineages Logical, should the mean smoothers for each lineage
+#' be plotted?
 #' @return A \code{\link{ggplot}} object
 #' @examples
 #' data(gamList, package = "tradeSeq")
@@ -253,7 +258,8 @@ setMethod(f = "plotSmoothers",
                                 border = TRUE,
                                 alpha = 1,
                                 sample = 1,
-                                pointCol = NULL){
+                                pointCol = NULL,
+                                plotLineages = TRUE){
 
             .plotSmoothers_sce(models = models,
                                counts = counts,
@@ -266,6 +272,7 @@ setMethod(f = "plotSmoothers",
                                border = border,
                                alpha = alpha,
                                sample = sample,
-                               pointCol = pointCol)
+                               pointCol = pointCol,
+                               plotLineages = plotLineages)
           }
 )
