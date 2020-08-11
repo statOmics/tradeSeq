@@ -329,7 +329,7 @@
       return(beta)
     })
     betaAllDf <- data.frame(t(do.call(cbind,betaAll)))
-    rownames(betaAllDf) <- rownames(counts)[genes]
+    rownames(betaAllDf) <- rownames(counts)[id]
 
     # list of variance covariance matrices
     SigmaAll <- lapply(gamList, function(m) {
@@ -507,6 +507,9 @@ setMethod(f = "fitGAM",
               if(nlevels(conditions) == 1) {
                 message("Only one condition was provided. Will run fitGAM without conditions")
                 conditions <- NULL
+              }
+              if(length(conditions) != ncol(counts)){
+                stop("conditions vector must have same length as number of cells.")
               }
               if (!sce) {
                 warning(paste0("If conditions, tradeSeq will return",
