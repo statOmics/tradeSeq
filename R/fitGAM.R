@@ -168,6 +168,9 @@
     if (!all(genes %in% rownames(counts))) {
       stop("The genes ID is not present in the models object.")
     }
+    if(any(duplicated(genes))){
+      stop("The genes vector contains duplicates.")
+    }
     id <- which(rownames(counts) %in% genes)
   } else {
     id <- genes
