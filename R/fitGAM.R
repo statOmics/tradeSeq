@@ -509,7 +509,7 @@ setMethod(f = "fitGAM",
                 conditions <- NULL
               }
               if (!sce) {
-                warning(paste0("If conditions, tradeSeq will return", 
+                warning(paste0("If conditions, tradeSeq will return",
                                " a SingleCellExperiment object"))
               }
             }
@@ -563,7 +563,7 @@ setMethod(f = "fitGAM",
           }
 )
 #' @rdname fitGAM
-#' @importClassesFrom Matrix dgCMatrix 
+#' @importClassesFrom Matrix dgCMatrix
 setMethod(f = "fitGAM",
           signature = c(counts = "dgCMatrix"),
           definition = function(counts,
@@ -656,7 +656,10 @@ setMethod(f = "fitGAM",
           geneInfo <- SummarizedExperiment::rowData(gamOutput)$tradeSeq
           if (is(genes, "character")) {
             if (!all(genes %in% rownames(counts))) {
-              stop("The genes ID is not present in the models object.")
+              stop("Not all gene IDs are present in the models object.")
+            }
+            if(any(duplicated(genes))){
+              stop("The genes vector contains duplicates.")
             }
             id <- which(rownames(counts) %in% genes)
           } else {
