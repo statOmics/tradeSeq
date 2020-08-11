@@ -169,7 +169,8 @@
   border = <span class='fl'>TRUE</span>,
   alpha = <span class='fl'>1</span>,
   sample = <span class='fl'>1</span>,
-  pointCol = <span class='kw'>NULL</span>
+  pointCol = <span class='kw'>NULL</span>,
+  plotLineages = <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -233,6 +234,11 @@ are too many so that it can plot faster.</p></td>
       <td><p>Plotting colors for each cell. Can be either character vector of
 length 1, denoting a variable in the <code>colData(models)</code> to color cells by,
 or a vector of length equal to the number of cells.</p></td>
+    </tr>
+    <tr>
+      <th>plotLineages</th>
+      <td><p>Logical, should the mean smoothers for each lineage
+be plotted?</p></td>
     </tr>
     </table>
 

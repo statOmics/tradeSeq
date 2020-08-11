@@ -173,7 +173,7 @@ plot. Either <code>clusters</code> or <code>gene</code> and <code>counts</code> 
     <tr>
       <th>models</th>
       <td><p>The fitted GAMs, typically the output from
-<code>fitGAM</code>. Used to display the knots.</p></td>
+<code><a href='fitGAM.html'>fitGAM</a></code>. Used to display the knots.</p></td>
     </tr>
     <tr>
       <th>title</th>
@@ -197,7 +197,7 @@ plot. Either <code>clusters</code> or <code>gene</code> and <code>counts</code> 
 <span class='kw'>cl</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/kmeans.html'>kmeans</a></span>(<span class='kw'>rd</span>, centers = <span class='fl'>7</span>)<span class='op'>$</span><span class='kw'>cluster</span>
 <span class='kw'>lin</span> <span class='op'>&lt;-</span> <span class='kw'>slingshot</span>::<span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/getLineages.html'>getLineages</a></span>(<span class='kw'>rd</span>, clusterLabels = <span class='kw'>cl</span>, start.clus = <span class='fl'>4</span>)</div><div class='output co'>#&gt; <span class='message'>Using full covariance matrix</span></div><div class='output co'>#&gt; <span class='warning'>Warning: the condition has length &gt; 1 and only the first element will be used</span></div><div class='input'><span class='kw'>crv</span> <span class='op'>&lt;-</span> <span class='kw'>slingshot</span>::<span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/getCurves.html'>getCurves</a></span>(<span class='kw'>lin</span>)
 <span class='kw'>counts</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw'>countMatrix</span>)
-<span class='kw'>gamList</span> <span class='op'>&lt;-</span> <span class='fu'>fitGAM</span>(counts = <span class='kw'>counts</span>,
+<span class='kw'>gamList</span> <span class='op'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span>(counts = <span class='kw'>counts</span>,
  pseudotime = <span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/slingPseudotime.html'>slingPseudotime</a></span>(<span class='kw'>crv</span>, na = <span class='fl'>FALSE</span>),
  cellWeights = <span class='fu'><a href='https://rdrr.io/pkg/slingshot/man/slingPseudotime.html'>slingCurveWeights</a></span>(<span class='kw'>crv</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: coercing argument of type 'double' to logical</span></div><div class='input'><span class='fu'>plotGeneCount</span>(<span class='kw'>crv</span>, <span class='kw'>counts</span>, gene = <span class='st'>"Mpo"</span>)</div><div class='img'><img src='plotGeneCount-1.png' alt='' width='700' height='433' /></div></pre>
   </div>

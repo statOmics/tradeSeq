@@ -157,7 +157,7 @@ is associated with pseudotime.</p>
     <tr>
       <th>models</th>
       <td><p>The fitted GAMs, typically the output from
-<code>fitGAM</code>.</p></td>
+<code><a href='fitGAM.html'>fitGAM</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -189,7 +189,7 @@ this will affect both the global test and the pairwise comparisons.</p></td>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>8</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>crv</span>, package=<span class='st'>"tradeSeq"</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>countMatrix</span>, package=<span class='st'>"tradeSeq"</span>)
-<span class='kw'>sce</span> <span class='op'>&lt;-</span> <span class='fu'>fitGAM</span>(counts = <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw'>countMatrix</span>),
+<span class='kw'>sce</span> <span class='op'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span>(counts = <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw'>countMatrix</span>),
                   sds = <span class='kw'>crv</span>,
                   nknots = <span class='fl'>5</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: coercing argument of type 'double' to logical</span></div><div class='input'><span class='kw'>assocRes</span> <span class='op'>&lt;-</span> <span class='fu'>associationTest</span>(<span class='kw'>sce</span>)</div></pre>
   </div>
