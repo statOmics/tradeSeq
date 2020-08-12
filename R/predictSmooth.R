@@ -26,7 +26,7 @@ setOldClass("gam")
     if (tidy) out[[jj]] <- data.frame(lineage = jj, time = df[, paste0("t",jj)])
   }
   if (tidy) outAll <- do.call(rbind,out)
-  
+
   # loop over all genes
   yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nPoints)
   rownames(yhatMat) <- gene
@@ -65,7 +65,7 @@ setOldClass("gam")
   for (jj in seq_len(nCurves)) {
     if (tidy) out_cond <- list()
     for(kk in seq_len(nConditions)){
-      df <- .getPredictRangeDf(dm, lineageId = jj, conditionId = kk, 
+      df <- .getPredictRangeDf(dm, lineageId = jj, conditionId = kk,
                                nPoints = nPoints)
       Xdf <- predictGAM(lpmatrix = X,
                         df = df,
@@ -90,7 +90,7 @@ setOldClass("gam")
   pointNames <- expand.grid(1:nCurves, 1:nConditions)
   baseNames <- paste0("lineage", pointNames[,1], "_condition",
                       levels(conditions)[pointNames[,2]])
-  colnames(yhatMat) <- paste0(baseNames, "_point",rep(1:nPoints, length(baseNames)))
+  colnames(yhatMat) <- c(sapply(baseNames, paste0, "_point",1:nPoints))
   for (jj in 1:length(gene)) {
     yhat <- c(exp(t(Xall %*% t(beta[as.character(gene[jj]), ,
                                     drop = FALSE])) +
