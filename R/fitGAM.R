@@ -504,12 +504,12 @@ setMethod(f = "fitGAM",
 
             if(!is.null(conditions)){
               if(class(conditions) != "factor") stop("conditions must be a factor vector.")
+              if(length(conditions) != ncol(counts)){
+                stop("conditions vector must have same length as number of cells.")
+              }
               if(nlevels(conditions) == 1) {
                 message("Only one condition was provided. Will run fitGAM without conditions")
                 conditions <- NULL
-              }
-              if(length(conditions) != ncol(counts)){
-                stop("conditions vector must have same length as number of cells.")
               }
               if (!sce) {
                 warning(paste0("If conditions, tradeSeq will return",
@@ -637,6 +637,15 @@ setMethod(f = "fitGAM",
               conditions <- colData(counts)[, conditions]
             } else {
               stop("If condition is a character, it must be a colname of the colData")
+            }
+          }
+          if(!is.null(conditions)){
+            if(length(conditions) != ncol(counts)){
+              stop("conditions vector must have same length as number of cells.")
+            }
+            if(nlevels(conditions) == 1) {
+              message("Only one condition was provided. Will run fitGAM without conditions")
+              conditions <- NULL
             }
           }
           gamOutput <- fitGAM(counts = SingleCellExperiment::counts(counts),
