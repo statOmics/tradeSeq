@@ -28,6 +28,7 @@ Collate:
     'earlyDETest.R'
     'evaluateK.R'
     'fitGAM.R'
+    'fittingBasis.R'
     'getSmootherPvalues.R'
     'getSmootherTestStats.R'
     'nknots.R'

@@ -15,7 +15,7 @@
   }
 }
 
-fittingBasis <- function(pseudotime, 
+.fittingBasis <- function(pseudotime, 
                          cellWeights,
                          conditions = NULL,
                          nknots = 6,
@@ -82,7 +82,10 @@ fittingBasis <- function(pseudotime,
   # set up smoother without fitting.
   s <- mgcv::s
   y <- rpois(n=nrow(pseudotime), lambda=10) # some random data (isn't used to construct smooth)
-  smoothObject <- mgcv::gam(smoothForm, family = family, knots = knotList, fit = FALSE)
+  smoothObject <- mgcv::gam(smoothForm, 
+                            family = family, 
+                            knots = knotList, 
+                            fit = FALSE)
   
   return(smoothObject)
 }
