@@ -6,15 +6,6 @@ setOldClass("gam")
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
 
   # get predictor matrix
-  for (jj in seq_len(nCurves)) {
-    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
-    Xdf <- predictGAM(lpmatrix = X,
-                      df = df,
-                      pseudotime = pseudotime)
-    if (jj == 1) Xall <- Xdf
-    if (jj > 1) Xall <- rbind(Xall, Xdf)
-  }
-  # get predictor matrix
   if(tidy) out <- list()
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)

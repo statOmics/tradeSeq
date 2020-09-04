@@ -19,7 +19,8 @@
                          cellWeights,
                          conditions = NULL,
                          nknots = 6,
-                         family = "nb"
+                         family = "nb",
+                         U = NULL
                          ){
   
   # Convert pseudotime and weights to matrices if need be
@@ -46,10 +47,15 @@
   ## Get the knots
   knotList <- .findKnots(nknots, pseudotime, wSamp)
   
+  ## fixed effect design matrix
+  if (is.null(U)) {
+    U <- matrix(rep(1, nrow(pseudotime)), ncol = 1)
+  }
+  
   ## get smooth formula: same as fitGAM but without U and offset.
   if(is.null(conditions)){
     smoothForm <- stats::as.formula(
-      paste0("y ~ -1 + ",
+      paste0("y ~ -1 + U + ",
              paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
              }, FUN.VALUE = "formula"),
@@ -67,7 +73,7 @@
       }
     }
     smoothForm <- stats::as.formula(
-      paste0("y ~ -1 + ",
+      paste0("y ~ -1 + U + ",
              paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                paste(vapply(seq_len(nlevels(conditions)), function(kk){
                  paste0("s(t", ii, ", by=l", ii, kk,
