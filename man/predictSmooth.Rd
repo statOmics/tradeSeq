@@ -8,7 +8,7 @@
 \usage{
 predictSmooth(models, ...)
 
-\S4method{predictSmooth}{SingleCellExperiment}(models, gene, nPoints = 100, tidy = TRUE)
+\S4method{predictSmooth}{SingleCellExperiment}(models, gene, nPoints = 100, tidy = TRUE, returnX = FALSE)
 
 \S4method{predictSmooth}{list}(models, gene, nPoints = 100)
 }
@@ -32,6 +32,9 @@ each column is a point on the uniform grid along the lineage. For example,
 if the trajectory consists of 2 lineages and \code{nPoints=100}, then the
 returned matrix will have 2*100 columns, where the first 100 correspond to
 the first lineage and columns 101-200 to the second lineage.}
+
+\item{returnX}{Logical: should the predictor matrix be returned?
+For now, only possible if `tidy=TRUE`.}
 }
 \value{
 A \code{matrix} with estimated averages.

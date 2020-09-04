@@ -2,7 +2,8 @@
 #' @import mgcv
 setOldClass("gam")
 
-.predictSmooth <- function(dm, X, beta, pseudotime, gene, nPoints, tidy){
+.predictSmooth <- function(dm, X, beta, pseudotime, 
+                           gene, nPoints, tidy, returnX){
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
 
   # get predictor matrix
@@ -41,13 +42,19 @@ setOldClass("gam")
       curOut$yhat <- yhatMat[gg,]
       outList[[gg]] <- curOut
     }
-    return(do.call(rbind, outList))
+    outMat <- do.call(rbind, outList)
+    if(returnX){
+      return(list(pred=outMat,
+                  X=Xall))
+    } else {
+      return(outMat)
+    }
   }
 }
 
 
 .predictSmooth_conditions <- function(dm, X, beta, pseudotime, gene, nPoints,
-                                      conditions, tidy){
+                                      conditions, tidy, returnX){
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   nConditions <- nlevels(conditions)
 
@@ -99,7 +106,13 @@ setOldClass("gam")
       curOut$yhat <- yhatMat[gg,]
       outList[[gg]] <- curOut
     }
-    return(do.call(rbind, outList))
+    outMat <- do.call(rbind, outList)
+    if(returnX){
+      return(list(pred=outMat,
+                  X=Xall))
+    } else {
+      return(outMat)
+    }
   }
 }
 
@@ -123,6 +136,8 @@ setOldClass("gam")
 #' if the trajectory consists of 2 lineages and \code{nPoints=100}, then the
 #' returned matrix will have 2*100 columns, where the first 100 correspond to
 #' the first lineage and columns 101-200 to the second lineage.
+#' @param returnX Logical: should the predictor matrix be returned?
+#' For now, only possible if `tidy=TRUE`.
 #' @return A \code{matrix} with estimated averages.
 #' @examples
 #' data(gamList, package = "tradeSeq")
@@ -137,7 +152,8 @@ setMethod(f = "predictSmooth",
           definition = function(models,
                                 gene,
                                 nPoints = 100,
-                                tidy = TRUE){
+                                tidy = TRUE,
+                                returnX = FALSE){
             # check if all gene IDs provided are present in the models object.
             if (is(gene, "character")) {
               if (!all(gene %in% rownames(models))) {
@@ -166,7 +182,8 @@ setMethod(f = "predictSmooth",
                                         pseudotime = pseudotime,
                                         gene = gene,
                                         nPoints = nPoints,
-                                        tidy = tidy)
+                                        tidy = tidy,
+                                        returnX = returnX)
             } else if(condPresent){
               conditions <- SummarizedExperiment::colData(models)$tradeSeq$conditions
               yhatMat <- .predictSmooth_conditions(dm = dm,
@@ -176,7 +193,8 @@ setMethod(f = "predictSmooth",
                                                    gene = gene,
                                                    nPoints = nPoints,
                                                    conditions = conditions,
-                                                   tidy = tidy)
+                                                   tidy = tidy,
+                                                   returnX = returnX)
             }
             return(yhatMat)
   }
