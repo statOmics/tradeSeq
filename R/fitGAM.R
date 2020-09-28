@@ -31,7 +31,7 @@
 
 .checks <- function(pseudotime, cellWeights, U, counts) {
   # counts must only have positive integer values
-  if (any(counts) < 0) {
+  if (any(counts < 0)) {
     stop("All values of the count matrix should be non-negative")
   }
 
