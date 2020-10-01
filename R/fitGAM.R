@@ -65,11 +65,15 @@
     nf <- try(edgeR::calcNormFactors(counts), silent = TRUE)
     if (is(nf, "try-error")) {
       message("TMM normalization failed. Will use unnormalized library sizes",
-              "as offset.")
+              "as offset.\n")
       nf <- rep(1,ncol(counts))
     }
     libSize <- colSums(as.matrix(counts)) * nf
     offset <- log(libSize)
+    if(any(libSize == 0)){
+      message("Some library sizes are zero. Offsetting these to 1.\n")
+      offset[libSize == 0] <- 0
+    }
   }
   return(offset)
 }
