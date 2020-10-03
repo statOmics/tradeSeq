@@ -127,9 +127,9 @@
       waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        t(vapply(seq_len(ncol(L)), function(ii){
+        t(vapply(seq_len(ncol(L)), function(ll){
           if (any(is.na(beta))) return(c(NA,NA, NA))
-          waldTestFC(beta, Sigma, L[, ii, drop = FALSE], l2fc)
+          waldTestFC(beta, Sigma, L[, ll, drop = FALSE], l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
       names(waldResultsLineages) <- rownames(models)
