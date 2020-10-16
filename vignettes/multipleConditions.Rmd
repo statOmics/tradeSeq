@@ -1,0 +1,15 @@
+---
+title: 'Working with multiple conditions'
+author: "Kelly Street, Koen Van den Berge and Hector Roux de Bézieux"
+date: "June 26, 2020"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Differential expression across conditions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+If your dataset contains multiple conditions, please see our [Bioconductor Workshop](https://kstreet13.github.io/bioc2020trajectories/articles/workshopTrajectories.html) on 'Trajectory inference across conditions: differential expression and differential progression'.

@@ -1,7 +1,7 @@
 # R package: tradeSeq
 
   <!-- badges: start -->
-  [![R-CMD-check](https://github.com/statOmics/tradeSeq/workflows/R-CMD-check/badge.svg)](https://github.com/statOmics/tradeSeq/actions)  
+  [![R-CMD-check](https://github.com/statOmics/tradeSeq/workflows/R-CMD-check/badge.svg?branch=master)](https://github.com/kstreet13/bioc2020trajectories/actions)
   [![Codecov test coverage](https://codecov.io/gh/statOmics/tradeSeq/branch/master/graph/badge.svg)](https://codecov.io/gh/statOmics/tradeSeq?branch=master)
   <!-- badges: end -->
 

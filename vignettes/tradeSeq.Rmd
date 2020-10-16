@@ -80,6 +80,15 @@ sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeight
                  nknots = 6, verbose = FALSE)
 ```
 
+The model may be hard to fit for some genes, and hence the fitting procedure may not converge for all of the genes in a dataset, especially in datasets with complex patterns and/or many lineages.
+You can check the convergence of each gene as shown below, where a `TRUE` value corresponds to a converged model fit, and a `FALSE` value corresponds to a model that hasn't been able to converge fully.
+
+```{r}
+table(rowData(sce)$tradeSeq$converged)
+```
+
+
+
 
 # Within-lineage comparisons
 
@@ -173,6 +182,11 @@ plotSmoothers(sce, counts, gene = rownames(patternRes)[oPat][4])
 ```{r, out.width="50%", fig.asp=.5}
 plotGeneCount(crv, counts, gene = rownames(patternRes)[oPat][4])
 ```
+
+The `patternTest` has an argument `eigenThresh` that corresponds to an eigenvalue threshold for deciding on the rank of the variance-covariance matrix of the contrasts defined by the `patternTest`. Lower values are more lenient to adding more information but also decrease computational stability. While the default used to correspond to `1e-8`, we have recently increased this to `1e-2` for increased computational stability.
+
+
+### Example on combining `patternTest` with `diffEndTest` results
 
 We find genes at the top that are also ranked as DE for the differentiated cell type. What is especially interesting are genes that have different expression patterns but no different expression at the differentiated cell type level. We therefore sort the genes according to the sum of square of their rank in increasing Wald statistics for the `patternTest` and their rank in decreasing Wald statistics for the `diffEndTest`.
 

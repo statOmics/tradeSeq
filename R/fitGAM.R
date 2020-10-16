@@ -31,6 +31,12 @@
 
 
 .checks <- function(pseudotime, cellWeights, U, counts, conditions) {
+
+  # counts must only have positive integer values
+  if (any(counts < 0)) {
+    stop("All values of the count matrix should be non-negative")
+  }
+
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
     if (!identical(dim(pseudotime), dim(cellWeights))) {
@@ -67,11 +73,15 @@
     nf <- try(edgeR::calcNormFactors(counts), silent = TRUE)
     if (is(nf, "try-error")) {
       message("TMM normalization failed. Will use unnormalized library sizes",
-              "as offset.")
+              "as offset.\n")
       nf <- rep(1,ncol(counts))
     }
     libSize <- colSums(as.matrix(counts)) * nf
     offset <- log(libSize)
+    if(any(libSize == 0)){
+      message("Some library sizes are zero. Offsetting these to 1.\n")
+      offset[libSize == 0] <- 0
+    }
   }
   return(offset)
 }
@@ -170,6 +180,9 @@
   if (is(genes, "character")) {
     if (!all(genes %in% rownames(counts))) {
       stop("The genes ID is not present in the models object.")
+    }
+    if(any(duplicated(genes))){
+      stop("The genes vector contains duplicates.")
     }
     id <- which(rownames(counts) %in% genes)
   } else {
