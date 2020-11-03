@@ -37,7 +37,7 @@ If \code{models} contains conditions (i.e. \code{fitGAM} was run with the
 conditions argument), then we compare the within-lineage average
 across conditions, between lineages.}
 
-\item{pairwise}{If TRUE, return output for all pairwise comparisons made.}
+\item{pairwise}{If TRUE, test for all pairwise comparisons, between lineages.}
 
 \item{nPoints}{The number of points to be compared between lineages.
 Defaults to twice the number of knots}

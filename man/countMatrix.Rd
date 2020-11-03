@@ -4,7 +4,9 @@
 \name{countMatrix}
 \alias{countMatrix}
 \title{A count matrix, used in the package vignette.}
-\format{An object of class \code{dgCMatrix} with 240 rows and 2660 columns.}
+\format{
+An object of class \code{dgCMatrix} with 240 rows and 2660 columns.
+}
 \usage{
 data(countMatrix)
 }
