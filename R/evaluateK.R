@@ -248,7 +248,8 @@ setMethod(f = "evaluateK",
                                 BPPARAM = BPPARAM,
                                 control = control,
                                 family = family,
-                                gcv = gcv)
+                                gcv = gcv,
+                                ...)
 
             return(aicOut)
 
