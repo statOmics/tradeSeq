@@ -35,7 +35,7 @@ fitGAM(counts, ...)
   sds = NULL,
   pseudotime = NULL,
   cellWeights = NULL,
-  conditions = conditions,
+  conditions = NULL,
   U = NULL,
   genes = seq_len(nrow(counts)),
   weights = NULL,
