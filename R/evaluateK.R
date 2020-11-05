@@ -31,7 +31,7 @@
                       nknots = currK, verbose = verbose, sce = FALSE, 
                       parallel = parallel, BPPARAM = BPPARAM,
                       weights = weightSub, offset = offset, aic = TRUE, 
-                      gcv = gcv)
+                      gcv = gcv, ...)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
