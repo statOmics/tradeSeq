@@ -2,7 +2,7 @@
 .evaluateK <- function(counts, U = NULL, pseudotime, cellWeights, plot = TRUE,
                        nGenes = 500, k = 3:10, weights = NULL, offset = NULL,
                        aicDiff = 2, verbose = TRUE, conditions, parallel,
-                       BPPARAM, gcv = FALSE, ...) {
+                       BPPARAM, family = "nb", gcv = FALSE, ...) {
 
   if (any(k < 3)) stop("Cannot fit with fewer than 3 knots, please increase k.")
   if (length(k) == 1) stop("There should be more than one k value")
@@ -31,7 +31,7 @@
                       nknots = currK, verbose = verbose, sce = FALSE, 
                       parallel = parallel, BPPARAM = BPPARAM,
                       weights = weightSub, offset = offset, aic = TRUE, 
-                      gcv = gcv, ...)
+                      family = family, gcv = gcv, ...)
   })
   #, BPPARAM = MulticoreParam(ncores))
 
@@ -200,6 +200,7 @@ setMethod(f = "evaluateK",
                                  parallel = parallel,
                                  BPPARAM = BPPARAM,
                                  control = control,
+                                 family = family,
                                  gcv = gcv,
                                  ...)
 
