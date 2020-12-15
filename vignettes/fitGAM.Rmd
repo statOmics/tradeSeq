@@ -105,7 +105,7 @@ The precise model definition of the statistical model is described in our prepri
 We use the effective library size, estimated with TMM [@Robinson2010], as offset in the model. We allow for alternatives by allowing a user-defined offset with the `offset` argument.
 
 
-Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as input (`sds` argument), or a matrix of pseudotimes and cell-level weights (`pseudotime` and `cellWeights` argument). By default, the returned object will be a `SingleCellExperiment` object that contains all essential output from the model fitting. Note, that also a more extensive output may be requested by setting `sce=FALSE`, but this is much less memory efficient, see below in Section `tradeSeq list output'.
+Similar to `evaluateK`, fitGAM can either take a `SlingshotDataSet` object as input (`sds` argument), or a matrix of pseudotimes and cell-level weights (`pseudotime` and `cellWeights` argument). By default, the returned object will be a `SingleCellExperiment` object that contains all essential output from the model fitting. Note, that also a more extensive output may be requested by setting `sce=FALSE`, but this is much less memory efficient, see below in Section 'tradeSeq list output'.
 
 Because cells are assigned to a lineage based on their weights, the result of `fitGAM` is stochastic. While this should have limited impact on the overall results in practice, users are therefore encouraged to use the `set.seed` function before running `fitGAM` to ensure reproducibility of their analyses.
 
@@ -125,6 +125,24 @@ cellWeights <- slingCurveWeights(crv)
 sce <- fitGAM(counts = counts, pseudotime = pseudotime, cellWeights = cellWeights,
                  nknots = 6, verbose = FALSE)
 ```
+
+## Adding covariates to the model
+
+For some datasets it can be useful to add covariates to the model, e.g. batch effects.
+This can be done by creating a design matrix using the `model.matrix` function, and providing it as input to `fitGAM` using the `U` argument.
+Below, we incorporate artificial batch effects from the model, as if the data were derived from two different batches.
+
+```{r}
+batch <- factor(rep(c("A", "B"), each=ncol(counts)/2))
+U <- model.matrix(~batch)
+sceBatch <- fitGAM(counts = counts,
+                   U = U,
+                   sds = crv, 
+                   nknots = 6, 
+                   verbose = FALSE)
+
+```
+
 
 ## Parallel computing
 
