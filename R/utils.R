@@ -1,5 +1,174 @@
-# Manipulate the objects to extract meaningul values ----
-### lpmatrix given X and design
+# Obtain design matrices ----
+## get predictor matrix for the end point of a smoother.
+.getPredictEndPointDf <- function(dm, lineageId){
+  # note that X or offset variables dont matter as long as they are the same,
+  # since they will get canceled.
+  vars <- dm[1, ]
+  vars <- vars[!colnames(vars) %in% "y"]
+  offsetId <- grep(x = colnames(vars), pattern = "offset")
+  offsetName <- colnames(vars)[offsetId]
+  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
+  names(vars)[offsetId] <- offsetName
+  # set all times on 0
+  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
+  # set all lineages on 0
+  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # set max pseudotime for lineage of interest
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  if (length(lineageIds) == 1){
+    vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l", lineageId)] == 1,
+                                             paste0("t", lineageId)])
+  } else {
+    vars[, paste0("t", lineageId)] <- max(dm[rowSums(dm[, lineageIds]) == 1,
+                                             paste0("t", lineageId)])
+  }
+  # set lineage
+  vars[, lineageIds] <- 1 / length(lineageIds)
+  # set offset
+  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
+                                       pattern = "offset")])
+  return(vars)
+}
+
+## get predictor matrix for the start point of a smoother.
+.getPredictStartPointDf <- function(dm, lineageId){
+  # note that X or offset variables dont matter as long as they are the same,
+  # since they will get canceled.
+  vars <- dm[1, ]
+  vars <- vars[!colnames(vars) %in% "y"]
+  offsetId <- grep(x = colnames(vars), pattern = "offset")
+  offsetName <- colnames(vars)[offsetId]
+  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
+  names(vars)[offsetId] <- offsetName
+  # set all times on 0
+  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
+  # set all lineages on 0
+  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # set lineage
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  vars[, lineageIds] <- 1 / length(lineageIds)
+  # set offset
+  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
+                                       pattern = "offset")])
+  return(vars)
+}
+
+## get predictor matrix for a custom pseudotime point.
+.getPredictCustomPointDf <- function(dm, lineageId, pseudotime){
+  # note that X or offset variables dont matter as long as they are the same,
+  # since they will get canceled.
+  vars <- dm[1, ]
+  vars <- vars[!colnames(vars) %in% "y"]
+  offsetId <- grep(x = colnames(vars), pattern = "offset")
+  offsetName <- colnames(vars)[offsetId]
+  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
+  names(vars)[offsetId] <- offsetName
+  # set all times on 0
+  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
+  # set all lineages on 0
+  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # set lineage
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  vars[, lineageIds] <- 1 / length(lineageIds)
+  # set custom pseudotime
+  vars[, paste0("t", lineageId)] <- pseudotime
+  # set offset
+  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
+                                       pattern = "offset")])
+  return(vars)
+}
+
+## get predictor matrix for a range of pseudotimes of a smoother.
+.getPredictRangeDf <- function(dm, lineageId, conditionId = NULL, nPoints = 100){
+  vars <- dm[1, ]
+  if ("y" %in% colnames(vars)) {
+    vars <- vars[!colnames(vars) %in% "y"]
+    off <- 1
+  } else {
+    off <- 0
+  }
+  offsetId <- grep(x = colnames(vars), pattern = "offset")
+  offsetName <- colnames(vars)[offsetId]
+  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
+  names(vars)[offsetId] <- offsetName
+  # set all times on 0
+  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
+  # set all lineages on 0
+  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # duplicate to nPoints
+  vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
+  # set range of pseudotime for lineage of interest
+  if (is.null(conditionId)) {
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))  
+  } else {
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, conditionId))
+  }
+  if (length(lineageIds) == 1){
+    lineageData <- dm[dm[, lineageIds + off] == 1,
+                      paste0("t", lineageId)]
+  } else {
+    lineageData <- dm[rowSums(dm[, lineageIds + off]) == 1,
+                      paste0("t", lineageId)]
+  }
+  # make sure lineage starts at zero
+  if(min(lineageData) / max(lineageData) < .01) {
+    lineageData[which.min(lineageData)] <- 0
+  }
+  vars[, lineageIds] <- 1 / length(lineageIds)
+  # set lineage
+  vars[, paste0("t", lineageId)] <- seq(min(lineageData),
+                                        max(lineageData),
+                                        length = nPoints)
+  # set offset
+  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
+                                       pattern = "offset")])
+  return(vars)
+}
+
+.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints = 100){
+  nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- knotPoints[knots[1]]
+    t2 <- knotPoints[knots[2]]
+  }
+  
+  # get predictor matrix for every lineage.
+  dfList <- list()
+  for (jj in seq_len(nLineages)) {
+    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
+    }
+    dfList[[jj]] <- df
+  }
+  return(dfList)
+}
+
+.patternDfPairwise <- function(dm, curves, knots = NULL, knotPoints = NULL,
+                               nPoints = 100){
+  
+  Knot <- !is.null(knots)
+  if (Knot) {
+    t1 <- knotPoints[knots[1]]
+    t2 <- knotPoints[knots[2]]
+  }
+  
+  # get predictor matrix for every lineage.
+  dfList <- list()
+  for (jj in seq_len(2)) {
+    df <- .getPredictRangeDf(dm, curves[jj], nPoints = nPoints)
+    if (Knot) {
+      df[, paste0("t", curves[jj])] <- seq(t1, t2, length.out = nPoints)
+    }
+    dfList[[jj]] <- df
+  }
+  return(dfList)
+}
+
+# Predicting fits ----
+# lpmatrix given X and design
 predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
   # this function is an alternative of predict.gam(model, newdata = df, type = "lpmatrix")
   # INPUT:
@@ -131,85 +300,6 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
   return(Xout)
 }
 
-# get predictor matrix for the end point of a smoother.
-.getPredictEndPointDf <- function(dm, lineageId){
-  # note that X or offset variables dont matter as long as they are the same,
-  # since they will get canceled.
-  vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
-  offsetId <- grep(x = colnames(vars), pattern = "offset")
-  offsetName <- colnames(vars)[offsetId]
-  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
-  names(vars)[offsetId] <- offsetName
-  # set all times on 0
-  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
-  # set all lineages on 0
-  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
-  # set max pseudotime for lineage of interest
-  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
-  if (length(lineageIds) == 1){
-    vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l", lineageId)] == 1,
-                                             paste0("t", lineageId)])
-  } else {
-    vars[, paste0("t", lineageId)] <- max(dm[rowSums(dm[, lineageIds]) == 1,
-                                             paste0("t", lineageId)])
-  }
-  # set lineage
-  vars[, lineageIds] <- 1 / length(lineageIds)
-  # set offset
-  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
-                                            pattern = "offset")])
-  return(vars)
-}
-
-# get predictor matrix for the start point of a smoother.
-.getPredictStartPointDf <- function(dm, lineageId){
-  # note that X or offset variables dont matter as long as they are the same,
-  # since they will get canceled.
-  vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
-  offsetId <- grep(x = colnames(vars), pattern = "offset")
-  offsetName <- colnames(vars)[offsetId]
-  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
-  names(vars)[offsetId] <- offsetName
-  # set all times on 0
-  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
-  # set all lineages on 0
-  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
-  # set lineage
-  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
-  vars[, lineageIds] <- 1 / length(lineageIds)
-  # set offset
-  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
-                                            pattern = "offset")])
-  return(vars)
-}
-
-# get predictor matrix for a custom pseudotime point.
-.getPredictCustomPointDf <- function(dm, lineageId, pseudotime){
-  # note that X or offset variables dont matter as long as they are the same,
-  # since they will get canceled.
-  vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
-  offsetId <- grep(x = colnames(vars), pattern = "offset")
-  offsetName <- colnames(vars)[offsetId]
-  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
-  names(vars)[offsetId] <- offsetName
-  # set all times on 0
-  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
-  # set all lineages on 0
-  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
-  # set lineage
-  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
-  vars[, lineageIds] <- 1 / length(lineageIds)
-  # set custom pseudotime
-  vars[, paste0("t", lineageId)] <- pseudotime
-  # set offset
-  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
-                                            pattern = "offset")])
-  return(vars)
-}
-
 # get the first non-errored fit in models
 .getModelReference <- function(models){
   for (i in seq_len(length(models))) {
@@ -219,6 +309,7 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
   stop("All models errored")
 }
 
+# Statistics ----
 ## temporary version of Wald test that also outputs FC.
 ## Made this such that other tests don't break as we update relevant tests to
 ## also return fold changes. This should become the default one over time.
@@ -247,96 +338,6 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0){
   # obsFC <- t(L) %*% beta
   # return(c(wald, df, pval, obsFC))
   return(c(wald, df, pval))
-}
-
-# get predictor matrix for a range of pseudotimes of a smoother.
-.getPredictRangeDf <- function(dm, lineageId, conditionId = NULL, nPoints = 100){
-  vars <- dm[1, ]
-  if ("y" %in% colnames(vars)) {
-    vars <- vars[!colnames(vars) %in% "y"]
-    off <- 1
-  } else {
-    off <- 0
-  }
-  offsetId <- grep(x = colnames(vars), pattern = "offset")
-  offsetName <- colnames(vars)[offsetId]
-  offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
-  names(vars)[offsetId] <- offsetName
-  # set all times on 0
-  vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
-  # set all lineages on 0
-  vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
-  # duplicate to nPoints
-  vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
-  # set range of pseudotime for lineage of interest
-  if (is.null(conditionId)) {
-    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))  
-  } else {
-    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, conditionId))
-  }
-  if (length(lineageIds) == 1){
-    lineageData <- dm[dm[, lineageIds + off] == 1,
-                      paste0("t", lineageId)]
-  } else {
-    lineageData <- dm[rowSums(dm[, lineageIds + off]) == 1,
-                      paste0("t", lineageId)]
-  }
-  # make sure lineage starts at zero
-  if(min(lineageData) / max(lineageData) < .01) {
-    lineageData[which.min(lineageData)] <- 0
-  }
-  vars[, lineageIds] <- 1 / length(lineageIds)
-  # set lineage
-  vars[, paste0("t", lineageId)] <- seq(min(lineageData),
-                                        max(lineageData),
-                                        length = nPoints)
-  # set offset
-  vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
-                                            pattern = "offset")])
-  return(vars)
-}
-
-.patternDf <- function(dm, knots = NULL, knotPoints = NULL, nPoints = 100){
-  nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-  
-  Knot <- !is.null(knots)
-  if (Knot) {
-    t1 <- knotPoints[knots[1]]
-    t2 <- knotPoints[knots[2]]
-  }
-
-  # get predictor matrix for every lineage.
-  dfList <- list()
-  for (jj in seq_len(nLineages)) {
-    df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
-    if (Knot) {
-      df[, paste0("t", jj)] <- seq(t1, t2, length.out = nPoints)
-    }
-    dfList[[jj]] <- df
-  }
-  return(dfList)
-}
-
-
-.patternDfPairwise <- function(dm, curves, knots = NULL, knotPoints = NULL,
-                               nPoints = 100){
-
-  Knot <- !is.null(knots)
-  if (Knot) {
-    t1 <- knotPoints[knots[1]]
-    t2 <- knotPoints[knots[2]]
-  }
-
-  # get predictor matrix for every lineage.
-  dfList <- list()
-  for (jj in seq_len(2)) {
-    df <- .getPredictRangeDf(dm, curves[jj], nPoints = nPoints)
-    if (Knot) {
-      df[, paste0("t", curves[jj])] <- seq(t1, t2, length.out = nPoints)
-    }
-    dfList[[jj]] <- df
-  }
-  return(dfList)
 }
 
 getEigenStatGAM <- function(beta, Sigma, L){
@@ -373,68 +374,4 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
 
 .getFoldChanges <- function(beta, L){
   apply(L,2,function(contrast) contrast %*% beta)
-}
-
-# Monocle stuff ----
-#' @title Extract info from Monocle models
-#'
-#' @description This function extracts info that will be used downstream to make
-#' \code{CellDataSet} objects compatible with a \code{tradeSeq}
-#' analysis
-#'
-#' @rdname extract_monocle_info
-#' @param cds A \code{CellDataSet} object.
-#' @details For now, this only works for the DDRTree dimentionality reduction.
-#' It is the one recommanded by the Monocle developers.
-#' @return
-#' A list with four objects. A \code{pseudotime} matrix and a \code{cellWeights}
-#' matrix that can be used as input to \code{\link{fitGAM}} or
-#' \code{\link{evaluateK}}, the reduced dimension matrix for the cells, and a
-#' list of length the number of lineages, containing the reduced dimension of
-#' each lineage.
-#' @importFrom magrittr %>%
-#' @importFrom Biobase exprs
-#' @import monocle
-#' @importFrom igraph degree shortest_paths
-#' @export
-extract_monocle_info <- function(cds) {
-  if (cds@dim_reduce_type != "DDRTree") {
-    stop(paste0("For now tradeSeq only support Monocle with DDRTree",
-                "reduction. If you want to use another type",
-                "please use another format for tradeSeq inputs."))
-  }
-  # Get the reduced dimension of DDRT
-  rd <- t(monocle::reducedDimS(cds)) %>% as.data.frame()
-
-  # Get the various lineages info for weights and pseudotime
-  y_to_cells <- cds@auxOrderingData[["DDRTree"]]
-  y_to_cells <- y_to_cells$pr_graph_cell_proj_closest_vertex %>%
-    as.data.frame()
-  y_to_cells$cells <- rownames(y_to_cells)
-  y_to_cells$Y <- y_to_cells$V1
-  root <- cds@auxOrderingData[[cds@dim_reduce_type]]$root_cell
-  root <- y_to_cells$Y[y_to_cells$cells == root]
-  mst <- monocle::minSpanningTree(cds)
-  endpoints <- names(which(igraph::degree(mst) == 1))
-  endpoints <- endpoints[endpoints != paste0("Y_", root)]
-  cellWeights <- lapply(endpoints, function(endpoint) {
-    path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
-    path <- as.character(path)
-    df <- y_to_cells[y_to_cells$Y %in% path, ]
-    df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
-    colnames(df) <- endpoint
-    return(df)
-  }) %>% do.call(what = 'cbind', args = .)
-  pseudotime <- sapply(cellWeights, function(w) cds$Pseudotime)
-  rownames(cellWeights) <- rownames(pseudotime) <- colnames(cds)
-  # Get the lineages representation
-  edges_rd <- t(monocle::reducedDimK(cds)) %>% as.data.frame()
-  rd_lineages <- lapply(endpoints, function(endpoint){
-    path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
-    path <- as.character(path)
-    path <- paste("Y", path, sep = "_")
-    return(edges_rd[path, ])
-  })
-  return(list("pseudotime" = pseudotime,
-              "cellWeights" = as.matrix(cellWeights)))
 }
