@@ -249,10 +249,10 @@ setMethod(f = "startVsEndTest",
                                 l2fc = 0){
 
             res <- .startVsEndTest(models = models,
-                                global = global,
-                                lineages = lineages,
-                                pseudotimeValues = pseudotimeValues,
-                                l2fc = l2fc)
+                                   global = global,
+                                   lineages = lineages,
+                                   pseudotimeValues = pseudotimeValues,
+                                   l2fc = l2fc)
             return(res)
 
           }

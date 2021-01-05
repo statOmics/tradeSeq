@@ -1,4 +1,3 @@
-
 .evaluateK <- function(counts, U = NULL, pseudotime, cellWeights, plot = TRUE,
                        nGenes = 500, k = 3:10, weights = NULL, offset = NULL,
                        aicDiff = 2, verbose = TRUE, conditions, parallel,

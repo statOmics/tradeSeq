@@ -26,9 +26,9 @@ set.seed(3)
 sdsFit <- tradeSeq::fitGAM(counts, sds, nknots = 3, verbose = FALSE)
 
 # diffEndTest
-diff1 <- diffEndTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1))
-diff11 <- diffEndTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1.1))
-diff15 <- diffEndTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1.5))
+diff1 <- diffEndTest(sdsFit, global = TRUE, l2fc = log2(1))
+diff11 <- diffEndTest(sdsFit, global = TRUE, l2fc = log2(1.1))
+diff15 <- diffEndTest(sdsFit, global = TRUE, l2fc = log2(1.5))
 
 # p-values should not be smaller if setting a threshold
 test_that("diffEndTest p-values are higher when setting a FC threshold.", {
@@ -63,9 +63,9 @@ test_that("startVsEndTest p-values are 1 if FC below threshold.", {
 })
 
 # patternTest
-pat1 <- patternTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1), nPoints=20)
-pat11 <- patternTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1.1), nPoints=20)
-pat15 <- patternTest(sdsFit, global=TRUE, pairwise=TRUE, l2fc=log2(1.5), nPoints=20)
+pat1 <- patternTest(sdsFit, global=TRUE, l2fc=log2(1), nPoints=20)
+pat11 <- patternTest(sdsFit, global=TRUE, l2fc=log2(1.1), nPoints=20)
+pat15 <- patternTest(sdsFit, global=TRUE, l2fc=log2(1.5), nPoints=20)
 
 
 # p-values should not be smaller if setting a threshold

@@ -1,10 +1,15 @@
 # Obtain design matrices ----
 ## get predictor matrix for the end point of a smoother.
 .getPredictEndPointDf <- function(dm, lineageId){
-  # note that X or offset variables dont matter as long as they are the same,
+  # note that X or offset variables don't matter as long as they are the same,
   # since they will get canceled.
   vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
+  if ("y" %in% colnames(vars)) {
+    vars <- vars[!colnames(vars) %in% "y"]
+    off <- 1
+  } else {
+    off <- 0
+  }
   offsetId <- grep(x = colnames(vars), pattern = "offset")
   offsetName <- colnames(vars)[offsetId]
   offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
@@ -14,13 +19,13 @@
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set max pseudotime for lineage of interest
-  # lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
-  lineageIds <- paste0("l", lineageId)
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "($|_)"))
+  
   if (length(lineageIds) == 1){
-    vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l", lineageId)] == 1,
+    vars[, paste0("t", lineageId)] <- max(dm[dm[, lineageIds + off] == 1,
                                              paste0("t", lineageId)])
   } else {
-    vars[, paste0("t", lineageId)] <- max(dm[rowSums(dm[, lineageIds]) == 1,
+    vars[, paste0("t", lineageId)] <- max(dm[rowSums(dm[, lineageIds + off]) == 1,
                                              paste0("t", lineageId)])
   }
   # set lineage
@@ -36,7 +41,12 @@
   # note that X or offset variables dont matter as long as they are the same,
   # since they will get canceled.
   vars <- dm[1, ]
-  vars <- vars[!colnames(vars) %in% "y"]
+  if ("y" %in% colnames(vars)) {
+    vars <- vars[!colnames(vars) %in% "y"]
+    off <- 1
+  } else {
+    off <- 0
+  }
   offsetId <- grep(x = colnames(vars), pattern = "offset")
   offsetName <- colnames(vars)[offsetId]
   offsetName <- substr(offsetName, start = 8, stop = nchar(offsetName) - 1)
@@ -46,7 +56,7 @@
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set lineage
-  lineageIds <- paste0("l", lineageId)
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "($|_)"))
   vars[, lineageIds] <- 1 / length(lineageIds)
   # set offset
   vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
@@ -59,6 +69,12 @@
   # note that X or offset variables dont matter as long as they are the same,
   # since they will get canceled.
   vars <- dm[1, ]
+  if ("y" %in% colnames(vars)) {
+    vars <- vars[!colnames(vars) %in% "y"]
+    off <- 1
+  } else {
+    off <- 0
+  }
   vars <- vars[!colnames(vars) %in% "y"]
   offsetId <- grep(x = colnames(vars), pattern = "offset")
   offsetName <- colnames(vars)[offsetId]
@@ -69,7 +85,7 @@
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set lineage
-  lineageIds <- paste0("l", lineageId)
+  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "($|_)"))
   vars[, lineageIds] <- 1 / length(lineageIds)
   # set custom pseudotime
   vars[, paste0("t", lineageId)] <- pseudotime
@@ -100,9 +116,10 @@
   vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
   # set range of pseudotime for lineage of interest
   if (is.null(conditionId)) {
-    lineageIds <- paste0("l", lineageId)
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "[$|_]"))
   } else {
-    lineageIds <- paste0("l", lineageId, conditionId)
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId,
+                                                        "_", conditionId, "$"))
   }
   if (length(lineageIds) == 1){
     lineageData <- dm[dm[, lineageIds + off] == 1,
@@ -197,15 +214,19 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
       assign(paste0("id",ii), allBs[which(lineages == paste0("t", ii))])
     }
   } else if(condPresent){
-    lineages <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
-                                  start = 8, stop = 8))
+    lineages <- sub(pattern = "s\\(t", replacement = "",
+                    x = colnames(lpmatrix[,allBs]))
+    lineages <- sub(pattern = "\\):.*", replacement = "",
+                    x = lineages)
     nLineages <- length(unique(lineages))
-    curves <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
-                                  start = 8, stop = 9))
+    curves <- sub(pattern = ".*:l", replacement = "",
+                  x = colnames(lpmatrix[,allBs]))
+    curves <- sub(pattern = "\\..*", replacement = "",
+                  x = curves)
     nCurves <- length(unique(curves))
     for (ii in seq_len(nLineages)) {
       for(kk in seq_len(nConditions))
-      assign(paste0("id",ii, kk), allBs[which(curves == paste0(ii, kk))])
+      assign(paste0("id", ii, "_", kk), allBs[which(curves == paste0(ii, "_", kk))])
     }
   }
 
@@ -226,7 +247,7 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
         # loop over lineages
         for(kk in seq_len(nConditions)){
           # loop over conditions
-          if (!all(x[get(paste0("id", ii, kk))] == 0)) {
+          if (!all(x[get(paste0("id", ii, "_", kk))] == 0)) {
             return(as.numeric(paste0(ii, kk)))
           }
         }
@@ -252,11 +273,11 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
       for(kk in seq_len(nConditions)){
         for (jj in seq_len(length(allBs) / (nLineages * nConditions))) {
           #within curve, loop over basis functions
-          assign(paste0("l",ii,kk,".",jj),
+          assign(paste0("l",ii, "_", kk,".",jj),
                  stats::splinefun(
                    x = pseudotime[lineageID == as.numeric(paste0(ii, kk)), ii],
                    y = lpmatrix[lineageID == as.numeric(paste0(ii, kk)), #only cells for lineage
-                                get(paste0("id", ii, kk))[jj]],
+                                get(paste0("id", ii, "_", kk))[jj]],
                    ties = mean)) #basis function
         }
       }
@@ -281,11 +302,11 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
       # loop over curves
       for(kk in seq_len(nConditions)){
         # loop over conditions
-        if (all(df[, paste0("l", ii, kk)] != 0)) { # only predict if weight = 1
+        if (all(df[, paste0("l", ii, "_", kk)] != 0)) { # only predict if weight = 1
           for (jj in seq_len(length(allBs) / (nLineages * nConditions))) { 
             # within curve, loop over basis functions
-            f <- get(paste0("l", ii, kk, ".", jj))
-            Xout[, get(paste0("id", ii, kk))[jj]] <- f(df[, paste0("t", ii)])
+            f <- get(paste0("l", ii, "_", kk, ".", jj))
+            Xout[, get(paste0("id", ii, "_", kk))[jj]] <- f(df[, paste0("t", ii)])
           }
         }
       }

@@ -222,7 +222,7 @@
   for (jj in seq_len(nCurves)) {
     for(kk in seq_len(nConditions)){
       for (ii in seq_len(nrow(dm))) {
-        if (dm[ii, paste0("l", jj, kk)] == 1) {
+        if (dm[ii, paste0("l", jj, "_", kk)] == 1) {
           timeAll[ii] <- dm[ii, paste0("t", jj)]
           lcol[ii] <- paste0("Lineage ", jj, "_", levels(conditions)[kk])
         } else {

@@ -105,7 +105,6 @@ test_that("All tests work", {
   expect_is(conditionTest(Fit), "data.frame")
   expect_is(patternTest(Fit), "data.frame")
   expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")
-  
 })
 
 test_that("Condition works with one lineage", {

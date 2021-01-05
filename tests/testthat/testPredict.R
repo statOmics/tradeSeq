@@ -95,6 +95,6 @@ test_that("predictSmooth works the same on all inputs", {
 test_that("predictSmooth tidy output works", {
   nPoints <- 50
   yhatSds <- predictSmooth(sdsFit, gene = seq_len(nrow(sdsFit)),
-                           nPoints = nPoints, tidy=TRUE)
+                           nPoints = nPoints, tidy = TRUE)
   expect_true(is(yhatSds, "data.frame"))
 })
