@@ -14,7 +14,8 @@
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set max pseudotime for lineage of interest
-  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  # lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  lineageIds <- paste0("l", lineageId)
   if (length(lineageIds) == 1){
     vars[, paste0("t", lineageId)] <- max(dm[dm[, paste0("l", lineageId)] == 1,
                                              paste0("t", lineageId)])
@@ -45,7 +46,7 @@
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set lineage
-  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  lineageIds <- paste0("l", lineageId)
   vars[, lineageIds] <- 1 / length(lineageIds)
   # set offset
   vars[, offsetName] <- mean(dm[, grep(x = colnames(dm),
@@ -68,7 +69,7 @@
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
   # set lineage
-  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))
+  lineageIds <- paste0("l", lineageId)
   vars[, lineageIds] <- 1 / length(lineageIds)
   # set custom pseudotime
   vars[, paste0("t", lineageId)] <- pseudotime
@@ -99,9 +100,9 @@
   vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
   # set range of pseudotime for lineage of interest
   if (is.null(conditionId)) {
-    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId))  
+    lineageIds <- paste0("l", lineageId)
   } else {
-    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, conditionId))
+    lineageIds <- paste0("l", lineageId, conditionId)
   }
   if (length(lineageIds) == 1){
     lineageData <- dm[dm[, lineageIds + off] == 1,
@@ -184,14 +185,16 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
   if(condPresent) nConditions <- nlevels(conditions)
 
   # for each curve, specify basis function IDs for lpmatrix
-  allBs <- grep(x = colnames(lpmatrix), pattern = "t[1-9]):l[1-9]")
+  allBs <- grep(x = colnames(lpmatrix), pattern = "[0-9]):l[1-9]")
 
   if(!condPresent){
-    lineages <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
-                                  start = 4, stop = 4))
+    lineages <- sub(pattern = "s\\(", replacement = "",
+                    x = colnames(lpmatrix[,allBs]))
+    lineages <- sub(pattern = "\\):.*", replacement = "",
+                    x = lineages)
     nCurves <- length(unique(lineages))
     for (ii in seq_len(nCurves)) {
-      assign(paste0("id",ii), allBs[which(lineages == ii)])
+      assign(paste0("id",ii), allBs[which(lineages == paste0("t", ii))])
     }
   } else if(condPresent){
     lineages <- as.numeric(substr(x = colnames(lpmatrix[,allBs]),
