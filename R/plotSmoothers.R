@@ -170,7 +170,7 @@
                                       "gene_count" = yhat,
                                       "lineage" = as.character(jj),
                                       "pCol" = as.character(jj)),
-                    lwd = lwd, col=viridis::viridis(nCurves)[jj])
+                    lwd = lwd, col = viridis::viridis(nCurves)[jj])
       }
 
     }
