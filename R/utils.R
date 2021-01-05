@@ -116,7 +116,7 @@
   vars <- rbind(vars, vars[rep(1, nPoints - 1), ])
   # set range of pseudotime for lineage of interest
   if (is.null(conditionId)) {
-    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "[$|_]"))
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "($|_)"))
   } else {
     lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId,
                                                         "_", conditionId, "$"))

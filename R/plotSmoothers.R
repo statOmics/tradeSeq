@@ -67,7 +67,7 @@
                                size = 2/3, xlab = "Pseudotime",
                                ylab = "Log(expression + 1)", border = FALSE,
                                alpha = 2/3, sample = 1, pointCol = NULL,
-                               plotLineages=TRUE)
+                               plotLineages = TRUE)
 {
 
   #input is singleCellExperiment object.
