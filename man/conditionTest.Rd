@@ -13,6 +13,7 @@ conditionTest(models, ...)
   global = TRUE,
   pairwise = FALSE,
   lineages = FALSE,
+  knots = NULL,
   l2fc = 0,
   eigenThresh = 0.01
 )
@@ -34,6 +35,9 @@ Both \code{global} and \code{pairwise} can be TRUE.}
 Both \code{global} and \code{lineages} can be TRUE. If both \code{lineages} and
 \code{pairwise} are TRUE, the function returns output for all pairs of conditions
 within each lineage.}
+
+\item{knots}{Default to NULL. Otherwise, a vector of length 2 specifying the 
+smallest and largest knots that are contrasted between conditions.}
 
 \item{l2fc}{The log2 fold change threshold to test against. Note, that
 this will affect both the global test and the pairwise comparisons.}

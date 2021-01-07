@@ -16,7 +16,8 @@
 }
 
 .construct_contrast_matrix_conditions <- function(models, X, conditions, 
-                                                  nConditions, nLineages, nKnots) {
+                                                  nConditions, nLineages, 
+                                                  nKnots, knots) {
   # do statistical test for every model through eigenvalue decomposition
   # construct pairwise contrast matrix
   # within-lineage between-condition DE
@@ -24,12 +25,14 @@
   combsPerCurve <- utils::combn(nConditions, 2)
   nComparisonsPerCurve <- ncol(combsPerCurve)
   ## construct generic contrast matrix to be filled in for all lineages
-  Lsub <- matrix(0, nrow = nKnots * nConditions, 
+  Lsub <- matrix(0, nrow = nknots(models) * nConditions, 
                  ncol = nKnots * nComparisonsPerCurve)
   for (jj in seq_len(nComparisonsPerCurve)) {
     comp <- combsPerCurve[, jj]
-    comp1ID <- ((comp[1] - 1) * nKnots + 1):(comp[1] * nKnots)
-    comp2ID <- ((comp[2] - 1) * nKnots + 1):(comp[2] * nKnots)
+    comp1ID <- ((comp[1] - 1) * nknots(models) + knots[1]):(
+      (comp[1] - 1) * nknots(models) + knots[2])
+    comp2ID <- ((comp[2] - 1) * nknots(models) + knots[1]):(
+      (comp[2] - 1) * nknots(models) + knots[2])
     for (kk in seq_len(length(comp1ID))) {
       Lsub[c(comp1ID[kk], comp2ID[kk]), (jj - 1) * nKnots + kk] <- c(1, -1)
     }
@@ -56,7 +59,8 @@
 }
 
 .conditionTest <- function(models, global = TRUE, pairwise = FALSE, 
-                           lineages = FALSE, l2fc = 0, eigenThresh = 1e-2){
+                           lineages = FALSE, knots = NULL, l2fc = 0, 
+                           eigenThresh = 1e-2){
   # Ensure the models are ok for the conditionTest
   if (!(global | pairwise | lineages)) stop("One of global, pairwise or lineages must be true")
   checks <- .find_conditions(models)
@@ -64,7 +68,15 @@
   
   dm <- colData(models)$tradeSeq$dm # design matrix
   X <- colData(models)$tradeSeq$X # linear predictor
-  nKnots <- nknots(models)
+  if (is.null(knots)) {
+    nKnots <- nknots(models)
+    knots <- c(1, nKnots)
+  } else {
+    if (length(knots) != 2 | !(is.numeric(knots)) | any(knots > nknots(models))) {
+      stop("knots must consists of 2 integers below the number of knots")
+    }
+    nKnots <- knots[2] - knots[1] + 1
+  }
   slingshotColData <- colData(models)$slingshot
   pseudotime <- slingshotColData[, grep(x = colnames(slingshotColData),
                                         pattern = "pseudotime")]
@@ -81,7 +93,7 @@
   }
   # get predictor matrix for every lineage.
   L <- .construct_contrast_matrix_conditions(models, X, conditions, nConditions,
-                                             nLineages, nKnots)
+                                             nLineages, nKnots, knots)
   # perform Wald test and calculate p-value
   waldResultsOmnibus <- .allWaldStatGAMFC(models, L, l2fc, eigenThresh)
 
@@ -189,6 +201,8 @@
 #' Both \code{global} and \code{lineages} can be TRUE. If both \code{lineages} and
 #' \code{pairwise} are TRUE, the function returns output for all pairs of conditions
 #' within each lineage.
+#' @param knots Default to NULL. Otherwise, a vector of length 2 specifying the 
+#' smallest and largest knots that are contrasted between conditions.
 #' @param l2fc The log2 fold change threshold to test against. Note, that
 #' this will affect both the global test and the pairwise comparisons.
 #' @param eigenThresh Eigenvalue threshold for inverting the variance-covariance matrix
@@ -217,6 +231,7 @@ setMethod(f = "conditionTest",
                                 global = TRUE,
                                 pairwise = FALSE,
                                 lineages = FALSE,
+                                knots = NULL,
                                 l2fc = 0,
                                 eigenThresh = 1e-2){
 
@@ -224,6 +239,7 @@ setMethod(f = "conditionTest",
                                 global = global,
                                 pairwise = pairwise,
                                 lineages = lineages,
+                                knots = knots,
                                 l2fc = l2fc,
                                 eigenThresh = eigenThresh)
             return(res)

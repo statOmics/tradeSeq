@@ -143,13 +143,14 @@ test_that("Condition work correctly with predictSmooth", {
   expect_equal(dim(predictCells(Fit, gene = seq_len(nrow(Fit)))), dim(counts))
 })
 
-test_that("conditionTest work with options") {
+test_that("conditionTest work with options", {
   cellWeights <- slingCurveWeights(sce)
   counts <- SingleCellExperiment::counts(sce)
   pseudotime <- slingPseudotime(sds, na = FALSE)
   Fit <- tradeSeq::fitGAM(counts = counts,
                           pseudotime = pseudotime, cellWeights = cellWeights,
                           nknots = 3, verbose = FALSE, conditions = conditions)
+  # With pairwise and lineages
   expect_is(df <- tradeSeq::conditionTest(Fit), "data.frame")
   expect_equal(dim(df), c(nrow(Fit), 3))
   expect_is(df <- tradeSeq::conditionTest(Fit, pairwise = TRUE), "data.frame")
@@ -167,4 +168,13 @@ test_that("conditionTest work with options") {
   expect_is(df <- tradeSeq::conditionTest(Fit, global = FALSE, pairwise = TRUE, lineages = TRUE),
             "data.frame")
   expect_equal(dim(df), c(nrow(Fit), 3 * 2 * ncol(combn(5, 2))))
-}
+  # With knots
+  expect_is(df <- tradeSeq::conditionTest(Fit, knots = c(1:2)), "data.frame")
+  expect_is(df <- tradeSeq::conditionTest(Fit, knots = c(2:3)), "data.frame")
+  df1 <- tradeSeq::conditionTest(Fit, knots = c(1,3))
+  df2 <- tradeSeq::conditionTest(Fit)
+  expect_equal(df1, df2)
+  expect_equal(dim(df), c(nrow(Fit), 3))
+  expect_error(tradeSeq::conditionTest(Fit, knots = c(1:4)))
+  expect_error(tradeSeq::conditionTest(Fit, knots = 1))
+})

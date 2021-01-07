@@ -38,8 +38,8 @@ earlyDETest(models, ...)
 
 \item{pairwise}{If TRUE, test for all pairwise comparisons independently.}
 
-\item{knots}{A vector of length 2 specifying the knots before and after the
-region of interest.}
+\item{knots}{A vector of length 2 specifying the knots at the start and end 
+of the region of interest.}
 
 \item{nPoints}{The number of points to be compared between lineages.
 Defaults to twice the number of knots}
