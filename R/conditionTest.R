@@ -58,6 +58,7 @@
 .conditionTest <- function(models, global = TRUE, pairwise = FALSE, 
                            lineages = FALSE, l2fc = 0, eigenThresh = 1e-2){
   # Ensure the models are ok for the conditionTest
+  if (!(global | pairwise | lineages)) stop("One of global, pairwise or lineages must be true")
   checks <- .find_conditions(models)
   conditions <- checks$conditions; nConditions <- checks$nConditions
   
@@ -85,30 +86,91 @@
   waldResultsOmnibus <- .allWaldStatGAMFC(models, L, l2fc, eigenThresh)
 
   # perform pairwise comparisons
-  if (pairwise) {
+  if (lineages & (!pairwise)) {
     # within-lineage DE between conditions
     # loop over list of within-lineage DE contrasts
     for (jj in seq_len(nLineages)) {
       LLin <- L[, colnames(L) == paste0("lineage", jj), drop = FALSE]
       waldResults <- .allWaldStatGAMFC(models, LLin, l2fc, eigenThresh)
       colnames(waldResults) <- c(
-        paste0("waldStat_", paste0("lineage", jj)),
-        paste0("df_", paste0("lineage", jj)),
-        paste0("pvalue_", paste0("lineage", jj))
+        paste0("waldStat_lineage", jj),
+        paste0("df_lineage", jj),
+        paste0("pvalue_lineage", jj)
       )
       waldResults <- as.data.frame(waldResults)
-      if (jj == 1) waldWithin <- waldResults
-      if (jj > 1) waldWithin <- cbind(waldWithin, waldResults)
+      if (jj == 1) waldResAllLineages <- waldResults
+      if (jj > 1) waldResAllLineages <- cbind(waldResAllLineages, waldResults)
+    } 
+  }
+  
+  if ((!lineages) & pairwise) {
+    # all-lineage DE between pairs conditions
+    # loop over list of pairs of conditions DE contrasts
+    combs <- utils::combn(nConditions, 2)
+    for (jj in seq_len(ncol(combs))) {
+      conds <- combs[,jj]
+      conds_L <- c(
+        grep(x = rownames(L), pattern = paste0("_", conds[1], "\\.")),
+        grep(x = rownames(L), pattern = paste0("_", conds[2], "\\."))
+      )
+      Lpair <- L
+      Lpair[-conds_L, ] <- 0
+      Lpair <- Lpair[, (colSums(Lpair) == 0) & (colSums(abs(Lpair)) != 0)]
+      waldResults <- .allWaldStatGAMFC(models, Lpair, l2fc, eigenThresh)
+      colnames(waldResults) <- c(
+        paste0("waldStat_conds", paste0(conds, collapse = "vs")),
+        paste0("df_conds", paste0(conds, collapse = "vs")),
+        paste0("pvalue_conds", paste0(conds, collapse = "vs"))
+      )
+      waldResults <- as.data.frame(waldResults)
+      if (jj == 1) waldResAllPairs <- waldResults
+      if (jj > 1) waldResAllPairs <- cbind(waldResAllPairs, waldResults)
+    } 
+  }
+  
+  if (lineages & pairwise) {
+    for (ll in seq_len(nLineages)) {
+      LLin <- L[, colnames(L) == paste0("lineage", ll), drop = FALSE]
+      combs <- utils::combn(nConditions, 2)
+      for (jj in seq_len(ncol(combs))) {
+        conds <- combs[, jj]
+        conds_L <- c(
+          grep(x = rownames(LLin), pattern = paste0("_", conds[1], "\\.")),
+          grep(x = rownames(LLin), pattern = paste0("_", conds[2], "\\."))
+        )
+        Lpair <- LLin; Lpair[-conds_L, ] <- 0
+        Lpair <- Lpair[, (colSums(Lpair) == 0) & (colSums(abs(Lpair)) != 0)]
+        waldResults <- .allWaldStatGAMFC(models, Lpair, l2fc, eigenThresh)
+        colnames(waldResults) <- c(
+          paste0("waldStat_lineage", ll, "_conds", paste0(conds, collapse = "vs")),
+          paste0("df_lineage", ll, "_conds", paste0(conds, collapse = "vs")),
+          paste0("pvalue_lineage", ll, "_conds", paste0(conds, collapse = "vs"))
+        )
+        waldResults <- as.data.frame(waldResults)
+        if (jj == 1 & ll == 1) {
+          waldResAll <- waldResults
+        } else {
+          waldResAll <- cbind(waldResAll, waldResults)
+        }
+      }
     }
-    waldResAllPair <- waldWithin 
   }
 
-  #return output
-  if (global == TRUE & pairwise == FALSE) return(waldResultsOmnibus)
-  if (global == FALSE & pairwise == TRUE) return(waldResAllPair)
-  if (global == TRUE & pairwise == TRUE) {
-    waldAll <- cbind(waldResultsOmnibus, waldResAllPair)
-    return(waldAll)
+  # return output
+  if ((global) & (!lineages) & (!pairwise)) return(waldResultsOmnibus)
+  if ((!global) & (lineages) & (!pairwise)) return(waldResAllLineages)
+  if ((!global) & (!lineages) & (pairwise)) return(waldResAllPairs)
+  if ((global) & (lineages) & (!pairwise)) {
+    return(cbind(waldResultsOmnibus, waldResAllLineages))
+  }
+  if ((global) & (!lineages) & (pairwise)) {
+    return(cbind(waldResultsOmnibus, waldResAllPairs))
+  }
+  if ((!global) & (lineages) & (pairwise)) {
+    return(cbind(waldResAll))
+  }
+  if ((global) & (lineages) & (pairwise)) {
+    return(cbind(waldResultsOmnibus, waldResAll))
   }
 }
 
@@ -123,6 +185,10 @@
 #' i.e. test for DE between all conditions in all lineages.
 #' @param pairwise If TRUE, return output for all comparisons between pairs of conditions.
 #' Both \code{global} and \code{pairwise} can be TRUE.
+#' @param lineages If TRUE, return output for all comparisons within each lineage.
+#' Both \code{global} and \code{lineages} can be TRUE. If both \code{lineages} and
+#' \code{pairwise} are TRUE, the function returns output for all pairs of conditions
+#' within each lineage.
 #' @param l2fc The log2 fold change threshold to test against. Note, that
 #' this will affect both the global test and the pairwise comparisons.
 #' @param eigenThresh Eigenvalue threshold for inverting the variance-covariance matrix
@@ -150,12 +216,14 @@ setMethod(f = "conditionTest",
           definition = function(models,
                                 global = TRUE,
                                 pairwise = FALSE,
+                                lineages = FALSE,
                                 l2fc = 0,
                                 eigenThresh = 1e-2){
 
             res <- .conditionTest(models = models,
                                 global = global,
                                 pairwise = pairwise,
+                                lineages = lineages,
                                 l2fc = l2fc,
                                 eigenThresh = eigenThresh)
             return(res)

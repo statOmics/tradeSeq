@@ -89,6 +89,8 @@ test_that("One condition give the same result as no conditions", {
   Sigma2Input <- rowData(cond2Input)$tradeSeq$Sigma
   names(SigmaInput) <- names(Sigma2Input)
   expect_equal(SigmaInput, Sigma2Input)
+  expect_error(conditionTest(condInput))
+  expect_error(conditionTest(cond2Input))
 })
 
 test_that("All tests work", {
@@ -140,3 +142,29 @@ test_that("Condition work correctly with predictSmooth", {
   expect_is(plotSmoothers(Fit, counts = counts, gene = 1, border = FALSE), "gg")
   expect_equal(dim(predictCells(Fit, gene = seq_len(nrow(Fit)))), dim(counts))
 })
+
+test_that("conditionTest work with options") {
+  cellWeights <- slingCurveWeights(sce)
+  counts <- SingleCellExperiment::counts(sce)
+  pseudotime <- slingPseudotime(sds, na = FALSE)
+  Fit <- tradeSeq::fitGAM(counts = counts,
+                          pseudotime = pseudotime, cellWeights = cellWeights,
+                          nknots = 3, verbose = FALSE, conditions = conditions)
+  expect_is(df <- tradeSeq::conditionTest(Fit), "data.frame")
+  expect_equal(dim(df), c(nrow(Fit), 3))
+  expect_is(df <- tradeSeq::conditionTest(Fit, pairwise = TRUE), "data.frame")
+  expect_equal(dim(df), c(nrow(Fit), 3 + 3 * ncol(combn(5, 2))))
+  expect_is(df <- tradeSeq::conditionTest(Fit, lineages = TRUE), "data.frame")
+  expect_equal(dim(df), c(nrow(Fit), 3 + 3 * 2))
+  expect_is(df <- tradeSeq::conditionTest(Fit, pairwise = TRUE, lineages = TRUE),
+            "data.frame")
+  expect_equal(dim(df), c(nrow(Fit), 3 + 3 * 2 * ncol(combn(5, 2))))
+  expect_error(df <- tradeSeq::conditionTest(Fit, global = FALSE))
+  expect_is(df <- tradeSeq::conditionTest(Fit, global = FALSE, pairwise = TRUE), "data.frame")
+  expect_equal(dim(df), c(nrow(Fit), 3 * ncol(combn(5, 2))))
+  expect_is(df <- tradeSeq::conditionTest(Fit, global = FALSE, lineages = TRUE), "data.frame")
+  expect_equal(dim(df), c(nrow(Fit), 3 * 2))
+  expect_is(df <- tradeSeq::conditionTest(Fit, global = FALSE, pairwise = TRUE, lineages = TRUE),
+            "data.frame")
+  expect_equal(dim(df), c(nrow(Fit), 3 * 2 * ncol(combn(5, 2))))
+}

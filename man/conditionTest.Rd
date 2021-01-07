@@ -12,6 +12,7 @@ conditionTest(models, ...)
   models,
   global = TRUE,
   pairwise = FALSE,
+  lineages = FALSE,
   l2fc = 0,
   eigenThresh = 0.01
 )
@@ -28,6 +29,11 @@ i.e. test for DE between all conditions in all lineages.}
 
 \item{pairwise}{If TRUE, return output for all comparisons between pairs of conditions.
 Both \code{global} and \code{pairwise} can be TRUE.}
+
+\item{lineages}{If TRUE, return output for all comparisons within each lineage.
+Both \code{global} and \code{lineages} can be TRUE. If both \code{lineages} and
+\code{pairwise} are TRUE, the function returns output for all pairs of conditions
+within each lineage.}
 
 \item{l2fc}{The log2 fold change threshold to test against. Note, that
 this will affect both the global test and the pairwise comparisons.}
