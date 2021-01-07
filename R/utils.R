@@ -379,7 +379,7 @@ getEigenStatGAM <- function(beta, Sigma, L){
   return(c(stat, r))
 }
 
-getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
+getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh = 1e-2){
   estFC <- t(L) %*% beta
   logFCCutoff <- log(2^l2fc) # log2 to log scale
   est <- sign(estFC)*pmax(0, abs(estFC) - logFCCutoff) # zero or remainder
@@ -398,4 +398,24 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh=1e-2){
 
 .getFoldChanges <- function(beta, L){
   apply(L,2,function(contrast) contrast %*% beta)
+}
+
+.allWaldStatGAMFC <- function(models, L, l2fc, eigenThresh = 1e-2) {
+  waldRes <- lapply(seq_len(nrow(models)), function(ii){
+    beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+    Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+    if(any(is.na(beta)) | any(is.na(Sigma))) {
+      return(c(NA, NA))
+    } else {
+      return(getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh))  
+    }
+  })
+  names(waldRes) <- rownames(models)
+  #tidy output
+  waldResults <- do.call(rbind, waldRes)
+  pval <- 1 - stats::pchisq(waldResults[, 1], df = waldResults[, 2])
+  waldResults <- cbind(waldResults, pval)
+  colnames(waldResults) <- c("waldStat", "df", "pvalue")
+  waldRes <- as.data.frame(waldResults)
+  return(waldRes)
 }

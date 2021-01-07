@@ -140,4 +140,3 @@ test_that("Condition work correctly with predictSmooth", {
   expect_is(plotSmoothers(Fit, counts = counts, gene = 1, border = FALSE), "gg")
   expect_equal(dim(predictCells(Fit, gene = seq_len(nrow(Fit)))), dim(counts))
 })
-

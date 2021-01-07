@@ -26,7 +26,7 @@ a \code{singleCellExperiment} object.}
 \item{global}{If TRUE, test for all pairwise comparisons simultaneously,
 i.e. test for DE between all conditions in all lineages.}
 
-\item{pairwise}{If TRUE, return output for all pairwise comparisons.
+\item{pairwise}{If TRUE, return output for all comparisons between pairs of conditions.
 Both \code{global} and \code{pairwise} can be TRUE.}
 
 \item{l2fc}{The log2 fold change threshold to test against. Note, that
