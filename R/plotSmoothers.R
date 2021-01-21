@@ -288,20 +288,20 @@
                           pseudotime = pseudotime,
                           conditions = conditions)
         yhat <-  c(exp(t(Xdf %*% t(beta)) + df$offset))
-        p <- p +
-          geom_line(data = data.frame("time" = df[, paste0("t", jj)],
-                                      "gene_count" = yhat,
-                                      "lineage" = as.character(paste0(jj, kk))),
-                    lwd = lwd,
-                    col = curvesCols[jj * nConditions - (nConditions - kk)])
-        if(border){
+        if (border) {
           p <- p +
             geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                         "gene_count" = yhat,
                                         "lineage" = as.character(paste0(jj, "_", kk))),
                       lwd = lwd + 1, colour = "white")
-            
+          
         }
+        p <- p +
+          geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                      "gene_count" = yhat,
+                                      "lineage" = as.character(paste0(jj, "_", kk))),
+                    lwd = lwd,
+                    col = curvesCols[jj * nConditions - (nConditions - kk)])
       }
     }
   }
