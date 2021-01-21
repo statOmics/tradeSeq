@@ -138,10 +138,30 @@ test_that("Condition work correctly with predictSmooth", {
     df <- tradeSeq::predictSmooth(Fit, gene = seq_len(nrow(Fit)), nPoints = 40),
     "data.frame")
   expect_equal(dim(df), c(40 * nrow(Fit) * 5 * 2, 5))
-  expect_is(plotSmoothers(Fit, counts = counts, gene = 1), "gg")
-  expect_is(plotSmoothers(Fit, counts = counts, gene = 1, border = FALSE), "gg")
   expect_equal(dim(predictCells(Fit, gene = seq_len(nrow(Fit)))), dim(counts))
 })
+
+test_that("Condition work correctly with plotSmoothers", {
+  cellWeights <- slingCurveWeights(sce)
+  counts <- SingleCellExperiment::counts(sce)
+  pseudotime <- slingPseudotime(sds, na = FALSE)
+  Fit <- tradeSeq::fitGAM(counts = counts,
+                          pseudotime = pseudotime, cellWeights = cellWeights,
+                          nknots = 3, verbose = FALSE, conditions = conditions)
+  expect_is(plotSmoothers(Fit, counts = counts, gene = 1), "gg")
+  expect_is(plotSmoothers(Fit, counts = counts, gene = 1, border = FALSE), "gg")
+  expect_is(plotSmoothers(Fit, gene = 1, counts = counts, 
+                          pointCol = rep("black", ncol(Fit))), "gg")
+  Fit$color <- rep("black", ncol(Fit))
+  expect_is(plotSmoothers(Fit, gene = 1, counts = counts, pointCol = "color"), "gg")
+  expect_message(plotSmoothers(Fit, gene = 1, counts = counts, 
+                               pointCol = rep("black", 3)))
+  expect_is(plotSmoothers(Fit, gene = 1, counts = counts, 
+                          curvesCol = rep("black", 10)), "gg")
+  expect_message(plotSmoothers(Fit, gene = 1, counts = counts, 
+                               curvesCol = rep("black", 2)))
+})
+
 
 test_that("conditionTest work with options", {
   cellWeights <- slingCurveWeights(sce)

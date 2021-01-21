@@ -34,6 +34,7 @@ plotSmoothers(models, ...)
   alpha = 1,
   sample = 1,
   pointCol = NULL,
+  curvesCols = NULL,
   plotLineages = TRUE
 )
 }
@@ -70,6 +71,12 @@ are too many so that it can plot faster.}
 \item{pointCol}{Plotting colors for each cell. Can be either character vector of
 length 1, denoting a variable in the \code{colData(models)} to color cells by,
 or a vector of length equal to the number of cells.}
+
+\item{curvesCols}{Plotting colors for each curve Should be a list of colors
+of the exact same length as the number of curves, i.e. the number of lineages
+(if there is no conditions) or the number of lineages by the number of conditions.
+In the second case, the colors are grouped by condition (lineage 1 - condition 1, 
+lineage 1 - condition 2,...).}
 
 \item{plotLineages}{Logical, should the mean smoothers for each lineage
 be plotted?}
