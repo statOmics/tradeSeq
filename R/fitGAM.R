@@ -170,12 +170,18 @@
 }
 
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights,
-                    conditions = conditions,
+                    conditions,
                     genes = seq_len(nrow(counts)),
                     weights = NULL, offset = NULL, nknots = 6, verbose = TRUE,
                     parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
                     aic = FALSE, control = mgcv::gam.control(), sce = TRUE,
                     family = "nb", gcv = FALSE){
+  
+  if(!is.null(conditions)){
+    message("Fitting lineages with multiple conditions. This method has ",
+            "been tested on a couple of datasets, but is still in an ",
+            "experimental phase.")
+  }
 
   if (is(genes, "character")) {
     if (!all(genes %in% rownames(counts))) {
