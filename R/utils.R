@@ -337,14 +337,18 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
 ## temporary version of Wald test that also outputs FC.
 ## Made this such that other tests don't break as we update relevant tests to
 ## also return fold changes. This should become the default one over time.
-waldTestFC <- function(beta, Sigma, L, l2fc=0){
+waldTestFC <- function(beta, Sigma, L, l2fc=0, inverse="QR"){
   # lfc is the log2 fold change threhshold to test against.
   ### build a contrast matrix for a multivariate Wald test
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
-  # solve through cholesky decomposition: faster
-  # sigmaInv <- try(chol2inv(chol(t(LQR) %*% Sigma %*% LQR)), silent = TRUE)
-  # solve through QR decomposition: more stable
-  sigmaInv <- try(qr.solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
+  if(inverse == "Chol"){
+    # solve through cholesky decomposition: faster
+    sigmaInv <- try(chol2inv(chol(t(LQR) %*% Sigma %*% LQR)), silent = TRUE)
+  } else if(inverse == "QR"){
+    # solve through QR decomposition: more stable
+    sigmaInv <- try(qr.solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
+  }
+  
   if (is(sigmaInv, "try-error")) {
     return(c(NA, NA, NA))
   }

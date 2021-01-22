@@ -7,7 +7,8 @@
                              lineages = FALSE,
                              l2fc = 0, 
                              l2fcContrast = "start",
-                             nPoints = 2 * tradeSeq::nknots(models)){
+                             nPoints = 2 * tradeSeq::nknots(models),
+                             inverse = "QR"){
   ## new associationTest function where contrasts for l2fc threshold can be 
   ## decided upon, as well as nPoints can be used to compare.
   ## only works for SCE fitGAM output.
@@ -23,6 +24,7 @@
   if(l2fc != 0){
     # make sure provided option is valid
     l2fcContrast <- match.arg(l2fcContrast, c("start", "end", "consecutive"))
+    inverse <- "Chol"
   }
   
  
@@ -118,7 +120,7 @@
       beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
       Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
       if (any(is.na(beta))) return(c(NA,NA, NA))
-      waldTestFC(beta, Sigma, L, l2fc)
+      waldTestFC(beta, Sigma, L, l2fc, inverse)
     })
     names(waldResultsOmnibus) <- names(models)
     # tidy output
@@ -134,7 +136,7 @@
       Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
       t(vapply(seq_len(nCurves), function(ll){
         if(any(is.na(beta))) return(c(NA,NA, NA))
-        waldTestFC(beta, Sigma, get(paste0("L", ll)), l2fc)
+        waldTestFC(beta, Sigma, get(paste0("L", ll)), l2fc, inverse)
       }, FUN.VALUE = c(.1, 1, .1)))
     })
     names(waldResultsLineages) <- names(models)
@@ -531,6 +533,8 @@
 #'  - If \code{"consecutive"}, then consecutive points along each lineage will 
 #'  be used as contrasts. This is the original way the \code{associationTest}
 #'  was implemented and is kept for backwards compatibility.
+#'  If a fold change threshold has been set, we recommend users to use either
+#'  the \code{"start"} or \code{"end"} options.
 #' @importFrom magrittr %>%
 #' @examples
 #' set.seed(8)
@@ -545,6 +549,11 @@
 #'  associated with each gene for all the tests performed. If the testing
 #'  procedure was unsuccessful for a particular gene, \code{NA} values will be
 #'  returned for that gene.
+#' @details 
+#'  If a log2 fold-change threshold has not been set, we use the QR decompositon
+#'  through \code{qr.solve} to invert the variance-covariance matrix of the 
+#'  contrasts. If instead a log2 fold chalnge-threshold has been set, we invert 
+#'  that matrix using the Choleski decomposition through \code{chol2inv}.
 #' @rdname associationTest
 #' @importFrom methods is
 #' @import SummarizedExperiment
@@ -556,7 +565,8 @@ setMethod(f = "associationTest",
                                 global = TRUE,
                                 lineages = FALSE,
                                 l2fc = 0,
-                                l2fcContrast = "start"){
+                                l2fcContrast = "start",
+                                inverse = "QR"){
 
             conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
             if(conditions){
@@ -569,7 +579,7 @@ setMethod(f = "associationTest",
                                       global = global,
                                       lineages = lineages,
                                       l2fc = l2fc)
-                                      #l2fcContrast = l2fcContrast)
+                                      #l2fcContrast = l2fcContrast,
             }
             return(res)
 
