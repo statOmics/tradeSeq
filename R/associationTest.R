@@ -579,8 +579,8 @@ setMethod(f = "associationTest",
                                 global = TRUE,
                                 lineages = FALSE,
                                 l2fc = 0,
-                                contrastType = "start",
-                                inverse = "QR"){
+                                nPoints = 2 * tradeSeq::nknots(models),
+                                contrastType = "start"){
 
             conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
             if(conditions){
@@ -593,6 +593,7 @@ setMethod(f = "associationTest",
                                       global = global,
                                       lineages = lineages,
                                       l2fc = l2fc,
+                                      nPoints = nPoints,
                                       contrastType = contrastType)
             }
             return(res)

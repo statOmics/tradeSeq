@@ -66,11 +66,13 @@ test_that("NB-GAM estimates are equal all input.",{
 # DE tests
 ## associationTest
 test_that("assocationTest results are equal for sds and sce input.",{
+  # KVDB: I commented out these tests since associationTest now has a different
+  # implementation for sce vs list input.
   assocSds <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE)
   assocSce <- tradeSeq::associationTest(oneDimFit, global = TRUE, lineages = TRUE)
-  assocList <- tradeSeq::associationTest(oneDimList, global = TRUE, lineages = TRUE)
-  expect_equal(assocSds, assocList)
-  expect_equal(assocSce, assocList)
+  #assocList <- tradeSeq::associationTest(oneDimList, global = TRUE, lineages = TRUE)
+  #expect_equal(assocSds, assocList)
+  #expect_equal(assocSce, assocList)
   expect_equal(mean(assocSds == assocSce), 1)
 })
 
