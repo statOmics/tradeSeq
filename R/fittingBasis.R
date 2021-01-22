@@ -51,7 +51,7 @@
   if (is.null(U)) {
     U <- matrix(rep(1, nrow(pseudotime)), ncol = 1)
   }
-  
+
   ## get smooth formula: same as fitGAM but without U and offset.
   if(is.null(conditions)){
     smoothForm <- stats::as.formula(
