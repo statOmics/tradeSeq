@@ -29,6 +29,10 @@ devtools::install_github("statOmics/tradeSeq")
 The installation should only take a few seconds.
 The dependencies of the package are listed in the DESCRIPTION file of the package.
 
+## Changes
+
+Major changes are reported in the `NEWS` file, make sure to check it out if you want to follow the latest developments.
+
 ## Issues and bug reports
 
 Please use https://github.com/statOmics/tradeSeq/issues to submit issues, bug reports, and comments.

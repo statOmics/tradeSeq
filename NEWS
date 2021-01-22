@@ -1,6 +1,9 @@
 Changes in version 1.3.19 (2020-10-16):
 + Merged `conditions` branch into `master`. Now the `master` branch can therefore handle multiple conditions. There is a new `conditions` argument in `fitGAM` to handle that, and a condition-specific smoother will be fitted for each lineage. There is also a new test, `conditionTest`, which tests for DE between conditions within a lineage. The way this is done under the hood is exactly like the `patternTest`.
 
+Changes in version 1.5.01 (2021-01-21):
++ Major update on associationTest, where the contrasts no longer rely on the knots but rather rely on a new nPoints argument, that specifies the number of points to use per lineage in the contrast. The associationTest also has a new argument contrastType that allows to use three different contrast types to do the test. See the docs on associationTest for more details.
+
 Changes in version 1.1.07 (2020-02-27):
 + added testing against fold change cut-off for all DE tests
 + default cut-off for deciding the rank of the variance-covariance matrix changed in patternTest and earlyDETest. This can impact the results of these tests. To return to original behaviour, set `eigenThresh=1e-8` argument.
