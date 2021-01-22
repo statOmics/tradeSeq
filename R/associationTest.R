@@ -568,8 +568,8 @@ setMethod(f = "associationTest",
               res <- .associationTest_original(models = models,
                                       global = global,
                                       lineages = lineages,
-                                      l2fc = l2fc,
-                                      l2fcContrast = l2fcContrast)
+                                      l2fc = l2fc)
+                                      #l2fcContrast = l2fcContrast)
             }
             return(res)
 
