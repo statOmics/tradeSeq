@@ -14,7 +14,7 @@ associationTest(models, ...)
   global = TRUE,
   lineages = FALSE,
   l2fc = 0,
-  l2fcContrast = "start",
+  contrastType = "start",
   inverse = "QR"
 )
 
@@ -33,7 +33,7 @@ associationTest(models, ...)
 \item{l2fc}{The log2 fold change threshold to test against. Note, that
 this will affect both the global test and the pairwise comparisons.}
 
-\item{l2fcContrast}{The contrast used to impose the log2 fold-change 
+\item{contrastType}{The contrast used to impose the log2 fold-change 
 threshold. Defaults to \code{"start"}. Three options are possible:
  - If \code{"start"}, the starting point of each lineage is used to compare
 against all other points, and the fold-change threshold is applied on these
@@ -47,10 +47,10 @@ contrasts.
  If a fold change threshold has been set, we recommend users to use either
  the \code{"start"} or \code{"end"} options.}
 
-\item{nPoints}{The number of points used to set up the contrast. Defaults to
-2 times the number of knots. Note that not all points may end up being 
-actually used in the inference; only linearly independent contrasts will
-be used.}
+\item{nPoints}{The number of points used per lineage to set up the contrast. 
+Defaults to 2 times the number of knots. Note that not all points may end up 
+being actually used in the inference; only linearly independent contrasts 
+will be used.}
 }
 \value{
 A matrix with the wald statistic, the

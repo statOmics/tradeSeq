@@ -6,7 +6,7 @@
                              global = TRUE, 
                              lineages = FALSE,
                              l2fc = 0, 
-                             l2fcContrast = "start",
+                             contrastType = "start",
                              nPoints = 2 * tradeSeq::nknots(models),
                              inverse = "QR"){
   ## new associationTest function where contrasts for l2fc threshold can be 
@@ -23,7 +23,7 @@
   
   if(l2fc != 0){
     # make sure provided option is valid
-    l2fcContrast <- match.arg(l2fcContrast, c("start", "end", "consecutive"))
+    contrastType <- match.arg(contrastType, c("start", "end", "consecutive"))
     inverse <- "Chol"
   }
   
@@ -61,17 +61,17 @@
                           conditions = conditions)
     
     # fill in contrast matrix
-    if(l2fcContrast == "start"){
+    if(contrastType == "start"){
       for(pp in seq_len(nPoints)[-1]){
         # point - start
         L1[,pp-1] <- XPoints[pp,] - XPoints[1,]
       }
-    } else if(l2fcContrast == "end"){
+    } else if(contrastType == "end"){
       for(pp in seq_len(nPoints)[-nPoints]){
         # point - end
         L1[,pp] <- XPoints[pp,] - XPoints[nPoints,]
       }
-    } else if(l2fcContrast == "consecutive"){
+    } else if(contrastType == "consecutive"){
       for(pp in seq_len(nPoints)[-nPoints]){
         # point2 - point1
         L1[,pp] <- XPoints[pp+1,] - XPoints[pp,]
@@ -100,17 +100,17 @@
                             conditions = conditions)
       
       # fill in contrast matrix
-      if(l2fcContrast == "start"){
+      if(contrastType == "start"){
         for(pp in seq_len(nPoints)[-1]){
           # point - start
           C[,pp-1] <- XPoints[pp,] - XPoints[1,]
         }
-      } else if(l2fcContrast == "end"){
+      } else if(contrastType == "end"){
         for(pp in seq_len(nPoints)[-nPoints]){
           # point - end
           C[,pp] <- XPoints[pp,] - XPoints[nPoints,]
         }
-      } else if(l2fcContrast == "consecutive"){
+      } else if(contrastType == "consecutive"){
         for(pp in seq_len(nPoints)[-nPoints]){
           # point2 - point1
           C[,pp] <- XPoints[pp+1,] - XPoints[pp,]
@@ -532,11 +532,11 @@
 #' @param lineages If TRUE, test for all lineages independently.
 #' @param l2fc The log2 fold change threshold to test against. Note, that
 #' this will affect both the global test and the pairwise comparisons.
-#' @param nPoints The number of points used to set up the contrast. Defaults to
-#' 2 times the number of knots. Note that not all points may end up being 
-#' actually used in the inference; only linearly independent contrasts will
-#' be used.
-#' @param l2fcContrast The contrast used to impose the log2 fold-change 
+#' @param nPoints The number of points used per lineage to set up the contrast. 
+#' Defaults to 2 times the number of knots. Note that not all points may end up 
+#' being actually used in the inference; only linearly independent contrasts 
+#' will be used.
+#' @param contrastType The contrast used to impose the log2 fold-change 
 #' threshold. Defaults to \code{"start"}. Three options are possible:
 #'  - If \code{"start"}, the starting point of each lineage is used to compare
 #' against all other points, and the fold-change threshold is applied on these
@@ -579,7 +579,7 @@ setMethod(f = "associationTest",
                                 global = TRUE,
                                 lineages = FALSE,
                                 l2fc = 0,
-                                l2fcContrast = "start",
+                                contrastType = "start",
                                 inverse = "QR"){
 
             conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
@@ -593,7 +593,7 @@ setMethod(f = "associationTest",
                                       global = global,
                                       lineages = lineages,
                                       l2fc = l2fc,
-                                      l2fcContrast = l2fcContrast)
+                                      contrastType = contrastType)
             }
             return(res)
 
