@@ -567,7 +567,7 @@
 #'  If a log2 fold-change threshold has not been set, we use the QR decompositon
 #'  through \code{qr.solve} to invert the variance-covariance matrix of the 
 #'  contrasts. If instead a log2 fold chalnge-threshold has been set, we invert 
-#'  that matrix using the Choleski decomposition through \code{chol2inv}.
+#'  that matrix using the Cholesky decomposition through \code{chol2inv}.
 #' @rdname associationTest
 #' @importFrom methods is
 #' @import SummarizedExperiment
