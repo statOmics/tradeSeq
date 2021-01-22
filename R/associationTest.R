@@ -71,6 +71,11 @@
         # point - end
         L1[,pp] <- XPoints[pp,] - XPoints[nPoints,]
       }
+    } else if(l2fcContrast == "consecutive"){
+      for(pp in seq_len(nPoints)[-nPoints]){
+        # point2 - point1
+        L1[,pp] <- XPoints[pp+1,] - XPoints[pp,]
+      }
     }
 
   } else if (nCurves > 1) {
@@ -104,6 +109,11 @@
         for(pp in seq_len(nPoints)[-nPoints]){
           # point - end
           C[,pp] <- XPoints[pp,] - XPoints[nPoints,]
+        }
+      } else if(l2fcContrast == "consecutive"){
+        for(pp in seq_len(nPoints)[-nPoints]){
+          # point2 - point1
+          C[,pp] <- XPoints[pp+1,] - XPoints[pp,]
         }
       }
       
@@ -522,6 +532,10 @@
 #' @param lineages If TRUE, test for all lineages independently.
 #' @param l2fc The log2 fold change threshold to test against. Note, that
 #' this will affect both the global test and the pairwise comparisons.
+#' @param nPoints The number of points used to set up the contrast. Defaults to
+#' 2 times the number of knots. Note that not all points may end up being 
+#' actually used in the inference; only linearly independent contrasts will
+#' be used.
 #' @param l2fcContrast The contrast used to impose the log2 fold-change 
 #' threshold. Defaults to \code{"start"}. Three options are possible:
 #'  - If \code{"start"}, the starting point of each lineage is used to compare
@@ -575,11 +589,11 @@ setMethod(f = "associationTest",
                                                  lineages = lineages,
                                                  l2fc = l2fc)
             } else {
-              res <- .associationTest_original(models = models,
+              res <- .associationTest(models = models,
                                       global = global,
                                       lineages = lineages,
-                                      l2fc = l2fc)
-                                      #l2fcContrast = l2fcContrast,
+                                      l2fc = l2fc,
+                                      l2fcContrast = l2fcContrast)
             }
             return(res)
 

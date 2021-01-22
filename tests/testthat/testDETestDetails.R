@@ -38,3 +38,14 @@ test_that("patternTest and earlyDETest are equal if knots=NULL.", {
                                   knots = NULL)
   expect_equal(patSds, edtSds)
 })
+
+# check if all associationTest options work
+test_that("associationTest different l2fc contrasts types run.", {
+  startRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
+                                        l2fc = 1, l2fcContrast = "start")
+  endRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
+                                        l2fc = 1, l2fcContrast = "end")
+  consecRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
+                                      l2fc = 1, l2fcContrast = "consecutive")
+})
+

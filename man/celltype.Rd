@@ -4,9 +4,7 @@
 \name{celltype}
 \alias{celltype}
 \title{A vector defining cell types, used in the package vignette.}
-\format{
-An object of class \code{character} of length 2660.
-}
+\format{An object of class \code{character} of length 2660.}
 \usage{
 data(celltype)
 }

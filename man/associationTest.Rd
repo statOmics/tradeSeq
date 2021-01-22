@@ -9,7 +9,14 @@
 \usage{
 associationTest(models, ...)
 
-\S4method{associationTest}{SingleCellExperiment}(models, global = TRUE, lineages = FALSE, l2fc = 0)
+\S4method{associationTest}{SingleCellExperiment}(
+  models,
+  global = TRUE,
+  lineages = FALSE,
+  l2fc = 0,
+  l2fcContrast = "start",
+  inverse = "QR"
+)
 
 \S4method{associationTest}{list}(models, global = TRUE, lineages = FALSE, l2fc = 0)
 }
@@ -25,16 +32,42 @@ associationTest(models, ...)
 
 \item{l2fc}{The log2 fold change threshold to test against. Note, that
 this will affect both the global test and the pairwise comparisons.}
+
+\item{l2fcContrast}{The contrast used to impose the log2 fold-change 
+threshold. Defaults to \code{"start"}. Three options are possible:
+ - If \code{"start"}, the starting point of each lineage is used to compare
+against all other points, and the fold-change threshold is applied on these
+contrasts.
+ - If \code{"end"}, the procedure is similar to \code{"start"}, except that
+ the reference point will now be the endpoint of each lineage rather than
+ the starting point.
+ - If \code{"consecutive"}, then consecutive points along each lineage will 
+ be used as contrasts. This is the original way the \code{associationTest}
+ was implemented and is kept for backwards compatibility.
+ If a fold change threshold has been set, we recommend users to use either
+ the \code{"start"} or \code{"end"} options.}
+
+\item{nPoints}{The number of points used to set up the contrast. Defaults to
+2 times the number of knots. Note that not all points may end up being 
+actually used in the inference; only linearly independent contrasts will
+be used.}
 }
 \value{
-A matrix with the wald statistic, the number of
- degrees of freedom and the p-value
+A matrix with the wald statistic, the
+ degrees of freedom and the (unadjusted) p-value
  associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA.
+ procedure was unsuccessful for a particular gene, \code{NA} values will be
+ returned for that gene.
 }
 \description{
 This test assesses whether average gene expression
 is associated with pseudotime.
+}
+\details{
+If a log2 fold-change threshold has not been set, we use the QR decompositon
+ through \code{qr.solve} to invert the variance-covariance matrix of the 
+ contrasts. If instead a log2 fold chalnge-threshold has been set, we invert 
+ that matrix using the Choleski decomposition through \code{chol2inv}.
 }
 \examples{
 set.seed(8)
