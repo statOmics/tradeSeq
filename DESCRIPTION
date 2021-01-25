@@ -9,7 +9,7 @@ Authors@R: c(person("Koen", "Van den Berge", role = c("aut"),
                      email = "hector.rouxdebezieux@berkeley.edu",
 		     comment = c(ORCID = "0000-0002-1489-8339")),
 		person("Kelly","Street", role = "ctb"),
-		person("Lieven","Clement", role="ctb"),
+		person("Lieven","Clement", role=c("aut","ctb")),
 		person("Sandrine","Dudoit", role="ctb"))
 Description: tradeSeq provides a flexible method for fitting regression models that can be used to find genes that are differentially expressed along one or multiple lineages in a trajectory. Based on the fitted models, it uses a variety of tests suited to answer different questions of interest, e.g. the discovery of genes for which expression is associated with pseudotime, or which are differentially expressed (in a specific region) along the trajectory. It fits a negative binomial generalized additive model (GAM) for each gene, and performs inference on the parameters of the GAM.
 License: MIT + file LICENSE
