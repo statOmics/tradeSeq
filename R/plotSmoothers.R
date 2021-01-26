@@ -160,12 +160,6 @@
                         df = df,
                         pseudotime = pseudotime)
       yhat <-  c(exp(t(Xdf %*% t(beta)) + df$offset))
-      p <- p +
-        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
-                                    "gene_count" = yhat,
-                                    "lineage" = as.character(jj),
-                                    "pCol" = as.character(jj)),
-                  lwd = lwd, col = curvesCols[jj])
       if (border) {
         p <- p +
           geom_line(data = data.frame("time" = df[, paste0("t", jj)],
@@ -174,6 +168,14 @@
                                       "pCol" = as.character(jj)),
                     lwd = lwd + 1, colour = "white")
       }
+      
+      p <- p +
+        geom_line(data = data.frame("time" = df[, paste0("t", jj)],
+                                    "gene_count" = yhat,
+                                    "lineage" = as.character(jj),
+                                    "pCol" = as.character(jj)),
+                  lwd = lwd, col = curvesCols[jj])
+
     }
   }
 
@@ -341,8 +343,14 @@ setOldClass("gam")
 #' be plotted?
 #' @return A \code{\link{ggplot}} object
 #' @examples
-#' data(gamList, package = "tradeSeq")
-#' plotSmoothers(gamList[[4]])
+#' set.seed(8)
+#' data(crv, package="tradeSeq")
+#' data(countMatrix, package="tradeSeq")
+#' counts <- as.matrix(countMatrix)
+#' sce <- fitGAM(counts = counts,
+#'                   sds = crv,
+#'                   nknots = 5)
+#' plotSmoothers(sce, counts, rownames(counts)[1])
 #' @import ggplot2
 #' @import mgcv
 #' @import viridis
