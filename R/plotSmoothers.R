@@ -137,7 +137,7 @@
       scale_color_viridis_d(alpha = alpha)
   } else {
     p <- p +
-      geom_point(size = size, alpha = alpha) +
+      geom_point(size = size, alpha = alpha, col = df$pCol) +
       scale_color_discrete() +
       labs(col = "Cell labels")
   }
