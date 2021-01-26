@@ -137,7 +137,7 @@
       scale_color_viridis_d(alpha = alpha)
   } else {
     p <- p +
-      geom_point(size = size, alpha = alpha, col = df$pCol) +
+      geom_point(size = size, alpha = alpha, aes(col = pCol)) +
       scale_color_discrete() +
       labs(col = "Cell labels")
   }
@@ -168,14 +168,12 @@
                                       "pCol" = as.character(jj)),
                     lwd = lwd + 1, colour = "white")
       }
-      
       p <- p +
         geom_line(data = data.frame("time" = df[, paste0("t", jj)],
                                     "gene_count" = yhat,
                                     "lineage" = as.character(jj),
                                     "pCol" = as.character(jj)),
                   lwd = lwd, col = curvesCols[jj])
-
     }
   }
 
@@ -265,7 +263,7 @@
       scale_color_viridis_d(alpha = alpha)
   } else {
     p <- p +
-      geom_point(size = size, alpha = alpha) +
+      geom_point(size = size, alpha = alpha, aes(col = pCol)) +
       scale_color_discrete() +
       labs(col = "Cell labels")
   }
