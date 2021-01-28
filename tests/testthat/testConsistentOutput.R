@@ -51,7 +51,7 @@ test_that("EvaluateK return all same answers", {
   # With AIC
   set.seed(3)
   sdsFit <- tradeSeq::evaluateK(counts, sds = sds, k = 3:5, verbose = FALSE,
-                                plot = FALSE, nGenes = 20)
+                                plot = TRUE, nGenes = 20)
   set.seed(3)
   sceFit <- tradeSeq::evaluateK(counts, pseudotime = pseudotime,
                                 cellWeights = cellWeights, k = 3:5, 

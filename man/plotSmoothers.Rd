@@ -88,6 +88,12 @@ A \code{\link{ggplot}} object
 Plot the smoothers estimated by \code{tradeSeq}.
 }
 \examples{
-data(gamList, package = "tradeSeq")
-plotSmoothers(gamList[[4]])
+set.seed(8)
+data(crv, package="tradeSeq")
+data(countMatrix, package="tradeSeq")
+counts <- as.matrix(countMatrix)
+sce <- fitGAM(counts = counts,
+                  sds = crv,
+                  nknots = 5)
+plotSmoothers(sce, counts, rownames(counts)[1])
 }

@@ -46,32 +46,7 @@
 
 
   if (plot) {
-    init_shape <- graphics::par()$mfrow
-    graphics::par(mfrow = c(1, 4))
-    # boxplots of AIC
-    devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
-    for (ii in seq_len(nrow(aicMat))) {
-      devs[ii, ] <- aicMat[ii, ] - mean(aicMat[ii, ])
-    }
-    graphics::boxplot(devs, ylab = "Deviation from genewise average AIC",
-                      xlab = "Number of knots", xaxt = "n")
-    graphics::axis(1, at = seq_len(length(k)), labels = k)
-    # scatterplot of average AIC
-    plot(x = k, y = colMeans(aicMat, na.rm = TRUE), type = "b",
-         ylab = "Average AIC", xlab = "Number of knots")
-    # scatterplot of relative AIC
-    plot(x = k, y = colMeans(aicMat / aicMat[, 1], na.rm = TRUE), type = "b",
-         ylab = "Relative AIC", xlab = "Number of knots")
-    # barplot of optimal AIC for genes with at least a difference of 2.
-    aicRange <- apply(apply(aicMat, 1, range), 2, diff)
-    varID <- which(aicRange > aicDiff)
-    if (length(varID) > 0) {
-      aicMatSub <- aicMat[varID, ]
-      tab <- table(k[apply(aicMatSub, 1, which.min)])
-      graphics::barplot(tab, xlab = "Number of knots",
-                        ylab = "# Genes with optimal k")
-    }
-    graphics::par(mfrow = init_shape)
+    plot_evalutateK_results(aicMat = aicMat, k = k, aicDiff = aicDiff) 
   }
 
   if(gcv){
@@ -124,7 +99,7 @@
 #' matrix of AIC and GCV values for the selected genes (rows) and the
 #' range of knots (columns).
 #' @examples
-#' ## This is an artifical example, please check the vignette for a realistic one.
+#' ## This is an artificial example, please check the vignette for a realistic one.
 #' set.seed(8)
 #' data(sds, package="tradeSeq")
 #' loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
@@ -366,3 +341,57 @@ setMethod(f = "evaluateK",
 
           }
 )
+
+#' Evaluate an appropriate number of knots.
+#'
+#' @param aicMat The output from \code{\link[tradeSeq]{evaluateK}}
+#' @param k The range of knots to evaluate. `3:10` by default. Extracted from 
+#' the column names by default
+#' @param aicDiff Used for selecting genes with significantly varying AIC values
+#' over the range of evaluated knots to make the barplot output. Default is set
+#' to 2, meaning that only genes whose AIC range is larger than 2 will be used
+#' to check for the optimal number of knots through the barplot visualization
+#' that is part of the output of this function.
+#' @examples
+#' ## This is an artificial example, please check the vignette for a realistic one.
+#' set.seed(8)
+#' data(sds, package="tradeSeq")
+#' loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
+#' counts <- round(abs(t(slingshot::reducedDim(sds) %*% loadings))) + 100
+#' aicK <- evaluateK(counts = counts, sds = sds, nGenes = 100,
+#'                   k = 3:5, verbose = FALSE, plot = FALSE)
+#' plot_evalutateK_results(aicK, k = 3:5)
+#' @export
+plot_evalutateK_results <- function(aicMat, k = NULL, aicDiff = 2) {
+  if (is.null(k)) {
+    k <- as.numeric(sub("k: ", "", colnames(aicMat)))
+    }
+  
+  init_shape <- graphics::par()$mfrow
+  graphics::par(mfrow = c(1, 4))
+  # boxplots of AIC
+  devs <- matrix(NA, nrow = nrow(aicMat), ncol = length(k))
+  for (ii in seq_len(nrow(aicMat))) {
+    devs[ii, ] <- aicMat[ii, ] - mean(aicMat[ii, ])
+  }
+  graphics::boxplot(devs, ylab = "Deviation from genewise average AIC",
+                    xlab = "Number of knots", xaxt = "n")
+  graphics::axis(1, at = seq_len(length(k)), labels = k)
+  # scatterplot of average AIC
+  plot(x = k, y = colMeans(aicMat, na.rm = TRUE), type = "b",
+       ylab = "Average AIC", xlab = "Number of knots")
+  # scatterplot of relative AIC
+  plot(x = k, y = colMeans(aicMat / aicMat[, 1], na.rm = TRUE), type = "b",
+       ylab = "Relative AIC", xlab = "Number of knots")
+  # barplot of optimal AIC for genes with at least a difference of 2.
+  aicRange <- apply(apply(aicMat, 1, range), 2, diff)
+  varID <- which(aicRange > aicDiff)
+  if (length(varID) > 0) {
+    aicMatSub <- aicMat[varID, ]
+    tab <- table(k[apply(aicMatSub, 1, which.min)])
+    graphics::barplot(tab, xlab = "Number of knots",
+                      ylab = "# Genes with optimal k")
+  }
+  graphics::par(mfrow = init_shape)
+  return()
+}
