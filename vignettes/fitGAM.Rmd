@@ -133,7 +133,7 @@ This can be done by creating a design matrix using the `model.matrix` function, 
 Below, we incorporate artificial batch effects from the model, as if the data were derived from two different batches.
 
 ```{r}
-batch <- factor(rep(c("A", "B"), each=ncol(counts)/2))
+batch <- factor(rep(c("A", "B"), each = ncol(counts)/2))
 U <- model.matrix(~batch)
 sceBatch <- fitGAM(counts = counts,
                    U = U,
