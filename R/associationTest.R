@@ -8,7 +8,7 @@
                              l2fc = 0, 
                              contrastType = "start",
                              nPoints = 2 * tradeSeq::nknots(models),
-                             inverse = "QR"){
+                             inverse = "Chol"){
   ## new associationTest function where contrasts for l2fc threshold can be 
   ## decided upon, as well as nPoints can be used to compare.
   ## only works for SCE fitGAM output.
@@ -24,7 +24,6 @@
   if(l2fc != 0){
     # make sure provided option is valid
     contrastType <- match.arg(contrastType, c("start", "end", "consecutive"))
-    inverse <- "Chol"
   }
   
  
