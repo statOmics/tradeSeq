@@ -252,6 +252,11 @@
                    "gene_count" = y,
                    "pCol" = as.character(col),
                    "lineage" = as.character(lcol))
+  # Reorder curves according to the levels of conditions
+  combs <- paste0("Lineage ", seq_len(nLineages), "_")
+  combs <- lapply(combs, function(lin) paste0(lin, levels(conditions)))
+  combs <- do.call('c', combs)
+  df$lineage <- factor(df$lineage, levels = combs)
   rows <- sample(seq_len(nrow(df)), nrow(df) * sample, replace = FALSE)
   df <- df[rows, ]
   p <- ggplot(df, aes(x = time, y = log1p(gene_count))) +
