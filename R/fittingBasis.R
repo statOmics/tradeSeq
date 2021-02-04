@@ -20,7 +20,8 @@
                          conditions = NULL,
                          nknots = 6,
                          family = "nb",
-                         U = NULL
+                         U = NULL,
+                         bs = 'cr'
                          ){
   
   # Convert pseudotime and weights to matrices if need be
@@ -57,7 +58,7 @@
     smoothForm <- stats::as.formula(
       paste0("y ~ -1 + U + ",
              paste(vapply(seq_len(ncol(pseudotime)), function(ii){
-               paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
+               paste0("s(t", ii, ", by=l", ii, ", bs=", bs, ", id=1, k=nknots)")
              }, FUN.VALUE = "formula"),
              collapse = "+"))
     )
@@ -77,7 +78,7 @@
              paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                paste(vapply(seq_len(nlevels(conditions)), function(kk){
                  paste0("s(t", ii, ", by=l", ii, kk,
-                        ", bs='cr', id=1, k=nknots)")
+                        ", bs=", bs, ", id=1, k=nknots)")
                }, FUN.VALUE = "formula"),
                collapse = "+")
              }, FUN.VALUE = "formula"),
