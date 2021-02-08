@@ -369,6 +369,16 @@
       }
       return(lambda)
     }))
+    
+    # overdispersion
+    overdispersionAll <- unlist(lapply(gamList, function(m) {
+      if (is(m, "try-error")) {
+        overdispersion <- NA
+      } else {
+        overdispersion <- 1 / exp(m$family$getTheta())
+      }
+      return(overdispersion)
+    }))
 
     # Get X, dm and knotPoints
     element <- min(which(!is.na(SigmaAll)))
@@ -384,6 +394,7 @@
                 dm = dm,
                 knotPoints = knotPoints,
                 lambda = lambdaAll,
+                overdispersion = overdispersionAll,
                 converged = converged)
            )
   } else {
@@ -580,6 +591,7 @@ setMethod(f = "fitGAM",
             df$beta <- tibble::tibble(beta = gamOutput$beta)
             df$converged <- gamOutput$converged
             df$lambda <- gamOutput$lambda
+            df$overdispersion <- gamOutput$overdispersion
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
             if(is.null(conditions)){
