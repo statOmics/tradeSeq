@@ -359,6 +359,16 @@
       }
       return(Sigma)
     })
+    
+    # smoothing parameter
+    lambdaAll <- unlist(lapply(gamList, function(m) {
+      if (is(m, "try-error")) {
+        lambda <- NA
+      } else {
+        lambda <- m$sp
+      }
+      return(lambda)
+    }))
 
     # Get X, dm and knotPoints
     element <- min(which(!is.na(SigmaAll)))
@@ -373,6 +383,7 @@
                 X = X,
                 dm = dm,
                 knotPoints = knotPoints,
+                lambda = lambdaAll,
                 converged = converged)
            )
   } else {
@@ -456,7 +467,7 @@
 #' set.seed(8)
 #' data(crv, package="tradeSeq")
 #' data(countMatrix, package="tradeSeq")
-#' gamList <- fitGAM(counts = as.matrix(countMatrix),
+#' sce <- fitGAM(counts = as.matrix(countMatrix),
 #'                   sds = crv,
 #'                   nknots = 5)
 #' @importFrom magrittr %>%
@@ -568,6 +579,7 @@ setMethod(f = "fitGAM",
             df <- tibble::enframe(gamOutput$Sigma, value = "Sigma")
             df$beta <- tibble::tibble(beta = gamOutput$beta)
             df$converged <- gamOutput$converged
+            df$lambda <- gamOutput$lambda
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
             if(is.null(conditions)){
