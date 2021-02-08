@@ -1,7 +1,7 @@
 # R package: tradeSeq
 
   <!-- badges: start -->
-  [![R-CMD-check](https://github.com/statOmics/tradeSeq/workflows/R-CMD-check/badge.svg)](https://github.com/statOmics/tradeSeq/actions)  
+  [![R-CMD-check](https://github.com/statOmics/tradeSeq/workflows/R-CMD-check/badge.svg?branch=master)](https://github.com/statOmics/tradeSeq/actions)
   [![Codecov test coverage](https://codecov.io/gh/statOmics/tradeSeq/branch/master/graph/badge.svg)](https://codecov.io/gh/statOmics/tradeSeq?branch=master)
   <!-- badges: end -->
 
@@ -28,6 +28,10 @@ devtools::install_github("statOmics/tradeSeq")
 
 The installation should only take a few seconds.
 The dependencies of the package are listed in the DESCRIPTION file of the package.
+
+## Changes
+
+Major changes are reported in the `NEWS` file, make sure to check it out if you want to follow the latest developments.
 
 ## Issues and bug reports
 

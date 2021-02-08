@@ -31,6 +31,12 @@
 
 
 .checks <- function(pseudotime, cellWeights, U, counts, conditions) {
+
+  # counts must only have positive integer values
+  if (any(counts < 0)) {
+    stop("All values of the count matrix should be non-negative")
+  }
+
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
     if (!identical(dim(pseudotime), dim(cellWeights))) {
@@ -67,11 +73,15 @@
     nf <- try(edgeR::calcNormFactors(counts), silent = TRUE)
     if (is(nf, "try-error")) {
       message("TMM normalization failed. Will use unnormalized library sizes",
-              "as offset.")
+              "as offset.\n")
       nf <- rep(1,ncol(counts))
     }
     libSize <- colSums(as.matrix(counts)) * nf
     offset <- log(libSize)
+    if(any(libSize == 0)){
+      message("Some library sizes are zero. Offsetting these to 1.\n")
+      offset[libSize == 0] <- 0
+    }
   }
   return(offset)
 }
@@ -160,16 +170,25 @@
 }
 
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights,
-                    conditions = conditions,
+                    conditions,
                     genes = seq_len(nrow(counts)),
                     weights = NULL, offset = NULL, nknots = 6, verbose = TRUE,
                     parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
                     aic = FALSE, control = mgcv::gam.control(), sce = TRUE,
                     family = "nb", gcv = FALSE){
+  
+  if(!is.null(conditions)){
+    message("Fitting lineages with multiple conditions. This method has ",
+            "been tested on a couple of datasets, but is still in an ",
+            "experimental phase.")
+  }
 
   if (is(genes, "character")) {
     if (!all(genes %in% rownames(counts))) {
       stop("The genes ID is not present in the models object.")
+    }
+    if(any(duplicated(genes))){
+      stop("The genes vector contains duplicates.")
     }
     id <- which(rownames(counts) %in% genes)
   } else {
@@ -240,20 +259,20 @@
       )
     } else {
       for(jj in seq_len(ncol(pseudotime))){
-        for(kk in 1:nlevels(conditions)){
-          # three levels doesnt work. split it up and loop over both conditions and pseudotime
+        for(kk in seq_len(nlevels(conditions))){
+          # three levels doesn't work. split it up and loop over both conditions and pseudotime
           # to get a condition-and-lineage-specific smoother. Also in formula.
-          lCurrent <- get(paste0("l",jj))
+          lCurrent <- get(paste0("l", jj))
           id1 <- which(lCurrent == 1)
           lCurrent[id1] <- ifelse(conditions[id1] == levels(conditions)[kk], 1, 0)
-          assign(paste0("l",jj,kk), lCurrent)
+          assign(paste0("l", jj, "_", kk), lCurrent)
         }
       }
       smoothForm <- stats::as.formula(
         paste0("y ~ -1 + U + ",
                paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                  paste(vapply(seq_len(nlevels(conditions)), function(kk){
-                   paste0("s(t", ii, ", by=l", ii, kk,
+                   paste0("s(t", ii, ", by=l", ii, "_", kk,
                           ", bs='cr', id=1, k=nknots)")
                  }, FUN.VALUE = "formula"),
                  collapse = "+")
@@ -573,6 +592,7 @@ setMethod(f = "fitGAM",
                                 sds = NULL,
                                 pseudotime = NULL,
                                 cellWeights = NULL,
+                                conditions = NULL,
                                 U = NULL,
                                 genes = seq_len(nrow(counts)),
                                 weights = NULL,
@@ -585,7 +605,9 @@ setMethod(f = "fitGAM",
                                 sce = TRUE,
                                 family = "nb",
                                 gcv = FALSE){
+            
             gamOutput <- fitGAM(counts = as.matrix(counts),
+                                conditions = conditions,
                                 U = U,
                                 sds = sds,
                                 pseudotime = pseudotime,

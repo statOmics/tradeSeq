@@ -212,8 +212,8 @@
 #'
 #' @param models The fitted GAMs, typically the output from
 #' \code{\link{fitGAM}}.
-#' @param knots A vector of length 2 specifying the knots before and after the
-#'  region of interest.
+#' @param knots A vector of length 2 specifying the knots at the start and end 
+#' of the region of interest.
 #' @param nPoints The number of points to be compared between lineages.
 #' Defaults to twice the number of knots
 #' @param global If TRUE, test for all pairwise comparisons simultaneously.

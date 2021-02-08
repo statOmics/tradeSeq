@@ -33,11 +33,27 @@ listFit <- tradeSeq::fitGAM(counts, pseudotime = pseudotime,
                             verbose = FALSE, sce = FALSE)
 rm(cellWeights, counts, dispersions, means, pseudotime, G, id)
 # Do the tests ----
-test_that("Plots function do produce plots", {
+test_that("plotSmoother function do produce plots", {
   expect_is(plotSmoothers(listFit[[1]]), "gg")
   expect_is(plotSmoothers(listFit[[1]], border = FALSE), "gg")
   expect_is(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit)), "gg")
+  # With all edge case options
   expect_is(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit), border = FALSE), "gg")
+  expect_is(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit),
+                          pointCol = rep("black", ncol(sdsFit))), "gg")
+  sdsFit$color <- rep("black", ncol(sdsFit))
+  expect_is(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit),
+                          pointCol = "color"), "gg")
+  expect_message(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit),
+                               pointCol = rep("black", 3)))
+  expect_is(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit),
+                          curvesCol = rep("black", 2)), "gg")
+  expect_message(plotSmoothers(sdsFit, gene = 1, counts = counts(sdsFit),
+                               curvesCol = rep("black", 4)))
+  
+})
+
+test_that("plotGeneCount function do produce plots", {
   expect_is(plotGeneCount(sds, counts = counts(sce), gene = 1), "gg")
   expect_is(plotGeneCount(sce, gene = 1), "gg")
   expect_message(plotGeneCount(sce, counts = counts(sce), gene = 1))
@@ -46,4 +62,3 @@ test_that("Plots function do produce plots", {
   expect_is(plotGeneCount(sds, counts = counts(sce), gene = 1, models = listFit), "gg")
   expect_is(plotGeneCount(sds, counts = counts(sce), clusters = sample(1:10, n, T)), "gg")
 })
-

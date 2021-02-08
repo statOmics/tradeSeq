@@ -38,3 +38,6 @@ test_that("patternTest and earlyDETest are equal if knots=NULL.", {
                                   knots = NULL)
   expect_equal(patSds, edtSds)
 })
+
+
+

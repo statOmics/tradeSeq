@@ -12,6 +12,8 @@ conditionTest(models, ...)
   models,
   global = TRUE,
   pairwise = FALSE,
+  lineages = FALSE,
+  knots = NULL,
   l2fc = 0,
   eigenThresh = 0.01
 )
@@ -26,8 +28,16 @@ a \code{singleCellExperiment} object.}
 \item{global}{If TRUE, test for all pairwise comparisons simultaneously,
 i.e. test for DE between all conditions in all lineages.}
 
-\item{pairwise}{If TRUE, return output for all pairwise comparisons.
+\item{pairwise}{If TRUE, return output for all comparisons between pairs of conditions.
 Both \code{global} and \code{pairwise} can be TRUE.}
+
+\item{lineages}{If TRUE, return output for all comparisons within each lineage.
+Both \code{global} and \code{lineages} can be TRUE. If both \code{lineages} and
+\code{pairwise} are TRUE, the function returns output for all pairs of conditions
+within each lineage.}
+
+\item{knots}{Default to NULL. Otherwise, a vector of length 2 specifying the 
+smallest and largest knots that are contrasted between conditions.}
 
 \item{l2fc}{The log2 fold change threshold to test against. Note, that
 this will affect both the global test and the pairwise comparisons.}
