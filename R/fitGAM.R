@@ -650,7 +650,7 @@ setMethod(f = "fitGAM",
                                 family = "nb",
                                 gcv = FALSE){
           if (is.null(counts@int_metadata$slingshot)) {
-            stop(paste0("For now tradeSeq only works downstream of slingshot",
+            stop(paste0("For now tradeSeq only works downstream of slingshot ",
                         "in this format.\n Consider using the method with a ",
                         "matrix as input instead."))
           }
