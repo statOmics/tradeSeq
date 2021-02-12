@@ -264,3 +264,14 @@ test_that("clusterExpressionpattern returns the right objects.", {
   expect_equal(PatSds$yhatScaled, PatSce$yhatScaled, tolerance = 1e-5)
   expect_equal(PatSds$yhatScaled, PatInput$yhatScaled, tolerance = 1e-5)
 })
+
+## With row data
+
+test_that("fitGAM works with initial row data", {
+  rowData(sce)$more_info <- sample(1:10, size = nrow(sce), replace = TRUE)
+  set.seed(3)
+  sceInput <- tradeSeq::fitGAM(sce, nknots = 3, verbose = FALSE)  
+  expect_is(sce, "SingleCellExperiment")
+  sceInput <- tradeSeq::fitGAM(sce, nknots = 3, genes = 1:20, verbose = FALSE)  
+  expect_is(sce, "SingleCellExperiment")
+})
