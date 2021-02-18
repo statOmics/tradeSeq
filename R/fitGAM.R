@@ -379,6 +379,7 @@
       }
       return(overdispersion)
     }))
+    
 
     # Get X, dm and knotPoints
     element <- min(which(!is.na(SigmaAll)))
@@ -386,6 +387,7 @@
     X <- stats::predict(m, type = "lpmatrix")
     dm <- m$model[, -1]
     knotPoints <- m$smooth[[1]]$xp
+    smooth <- m$smooth
 
     # return output
     return(list(beta = betaAllDf,
@@ -395,6 +397,7 @@
                 knotPoints = knotPoints,
                 lambda = lambdaAll,
                 overdispersion = overdispersionAll,
+                smooth = smooth,
                 converged = converged)
            )
   } else {
@@ -604,7 +607,8 @@ setMethod(f = "fitGAM",
             }
             # metadata: tradeSeq knots
             S4Vectors::metadata(sc)$tradeSeq <-
-              list(knots = gamOutput$knotPoints)
+              list(knots = gamOutput$knotPoints,
+                   smooth = gamOutput$smooth)
             return(sc)
           }
 )
