@@ -170,7 +170,7 @@
 }
 
 .fitGAM <- function(counts, U = NULL, pseudotime, cellWeights,
-                    conditions,
+                    conditions, intercept = TRUE,
                     genes = seq_len(nrow(counts)),
                     weights = NULL, offset = NULL, nknots = 6, verbose = TRUE,
                     parallel = FALSE, BPPARAM = BiocParallel::bpparam(),
@@ -233,7 +233,11 @@
   # fit model
   ## fixed effect design matrix
   if (is.null(U)) {
-    U <- matrix(rep(1, nrow(pseudotime)), ncol = 1)
+    if(intercept){
+      U <- matrix(rep(1, nrow(pseudotime)), ncol = 1)
+    } else {
+      U <- NULL
+    }
   }
 
   ## Get the knots
@@ -249,9 +253,14 @@
     nknots <- nknots
     if (!is.null(weights)) weights <- weights[teller,]
     if (!is.null(dim(offset))) offset <- offset[teller,]
+    if(!is.null(U)){
+      fixEf <- "-1 + U +"
+    } else {
+      fixEf <- "-1 +"
+    }
     if(is.null(conditions)){
       smoothForm <- stats::as.formula(
-        paste0("y ~ -1 + U + ",
+        paste0("y ~ ", fixEf,
                paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                  paste0("s(t", ii, ", by=l", ii, ", bs='cr', id=1, k=nknots)")
                }, FUN.VALUE = "formula"),
@@ -269,7 +278,7 @@
         }
       }
       smoothForm <- stats::as.formula(
-        paste0("y ~ -1 + U + ",
+        paste0("y ~ ", fixEf,
                paste(vapply(seq_len(ncol(pseudotime)), function(ii){
                  paste(vapply(seq_len(nlevels(conditions)), function(kk){
                    paste0("s(t", ii, ", by=l", ii, "_", kk,
@@ -417,6 +426,7 @@
 #' in rows and cells in columns. Can be a matrix or a sparse matrix.
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
+#' @param intercept If \code{U} is not provided, should an intercept be fitted?
 #' @param conditions This argument is in beta phase and should be used carefully.
 #' If each lineage consists of multiple conditions, this argument can be used to
 #' specify the conditions. tradeSeq will then fit a condition-specific smoother for
@@ -501,6 +511,7 @@ setMethod(f = "fitGAM",
                                 cellWeights = NULL,
                                 conditions = NULL,
                                 U = NULL,
+                                intercept = TRUE,
                                 genes = seq_len(nrow(counts)),
                                 weights = NULL,
                                 offset = NULL,
@@ -566,6 +577,7 @@ setMethod(f = "fitGAM",
                                  pseudotime = pseudotime,
                                  cellWeights = cellWeights,
                                  conditions = conditions,
+                                 intercept = intercept,
                                  genes = genes,
                                  weights = weights,
                                  offset = offset,
@@ -605,7 +617,7 @@ setMethod(f = "fitGAM",
                 tibble::tibble(X = gamOutput$X, dm = gamOutput$dm,
                                conditions = conditions)
             }
-            # metadata: tradeSeq knots
+            # metadata: tradeSeq knots and smooth
             S4Vectors::metadata(sc)$tradeSeq <-
               list(knots = gamOutput$knotPoints,
                    smooth = gamOutput$smooth)
@@ -622,6 +634,7 @@ setMethod(f = "fitGAM",
                                 cellWeights = NULL,
                                 conditions = NULL,
                                 U = NULL,
+                                intercept = TRUE,
                                 genes = seq_len(nrow(counts)),
                                 weights = NULL,
                                 offset = NULL,
@@ -640,6 +653,7 @@ setMethod(f = "fitGAM",
                                 sds = sds,
                                 pseudotime = pseudotime,
                                 cellWeights = cellWeights,
+                                interecept = intercept,
                                 genes = genes,
                                 weights = weights,
                                 offset = offset,
@@ -665,6 +679,7 @@ setMethod(f = "fitGAM",
           signature = c(counts = "SingleCellExperiment"),
           definition = function(counts,
                                 U = NULL,
+                                intercept = TRUE,
                                 genes = seq_len(nrow(counts)),
                                 conditions = NULL,
                                 weights = NULL,
@@ -701,6 +716,7 @@ setMethod(f = "fitGAM",
           gamOutput <- fitGAM(counts = SingleCellExperiment::counts(counts),
                               U = U,
                               sds = slingshot::SlingshotDataSet(counts),
+                              intercept = intercept,
                               genes = genes,
                               conditions = conditions,
                               weights = weights,
@@ -760,6 +776,7 @@ setMethod(f = "fitGAM",
           signature = c(counts = "CellDataSet"),
           definition = function(counts,
                                 U = NULL,
+                                intercept = TRUE,
                                 genes = seq_len(nrow(counts)),
                                 weights = NULL,
                                 offset = NULL,
@@ -778,6 +795,7 @@ setMethod(f = "fitGAM",
                                 U = U,
                                 cellWeights = monocle_extraction$cellWeights,
                                 pseudotime = monocle_extraction$pseudotime,
+                                intercept = intercept,
                                 genes = genes,
                                 weights = weights,
                                 offset = offset,
