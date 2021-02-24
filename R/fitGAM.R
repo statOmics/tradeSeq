@@ -705,8 +705,7 @@ setMethod(f = "fitGAM",
           } else {
             newGeneInfo <- tibble::tibble(name = rownames(counts))
           }
-          newGeneInfo <- base::merge(geneInfo, newGeneInfo, by = "name",
-                                     all = TRUE)
+          newGeneInfo <- base::merge(geneInfo, newGeneInfo, by = "name")
           rownames(newGeneInfo) <- newGeneInfo$name
           if (is.null(rownames(counts))) {
             newGeneInfo <- newGeneInfo[paste0("V", seq_len(nrow(counts))), ]
