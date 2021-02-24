@@ -693,7 +693,7 @@ setMethod(f = "fitGAM",
                                 family = "nb",
                                 gcv = FALSE){
           if (is.null(counts@int_metadata$slingshot)) {
-            stop(paste0("For now tradeSeq only works downstream of slingshot",
+            stop(paste0("For now tradeSeq only works downstream of slingshot ",
                         "in this format.\n Consider using the method with a ",
                         "matrix as input instead."))
           }
@@ -749,7 +749,8 @@ setMethod(f = "fitGAM",
           } else {
             newGeneInfo <- tibble::tibble(name = rownames(counts))
           }
-          newGeneInfo <- merge(newGeneInfo, geneInfo, by = "name", all = TRUE)
+          newGeneInfo <- base::merge(geneInfo, newGeneInfo, by = "name",
+                                     all = TRUE)
           rownames(newGeneInfo) <- newGeneInfo$name
           if (is.null(rownames(counts))) {
             newGeneInfo <- newGeneInfo[paste0("V", seq_len(nrow(counts))), ]
