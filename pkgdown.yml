@@ -1,6 +1,10 @@
 pandoc: 2.7.3
-pkgdown: 1.5.1.9000
-pkgdown_sha: eae56f08694abebf93cdfc0dd8e9ede06d8c815f
-articles: []
-last_built: 2020-08-11T01:55Z
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  Monocle: Monocle.html
+  fitGAM: fitGAM.html
+  multipleConditions: multipleConditions.html
+  tradeSeq: tradeSeq.html
+last_built: 2021-03-02T20:09Z
 

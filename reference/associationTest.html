@@ -75,7 +75,7 @@ is associated with pseudotime." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.5.07</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ is associated with pseudotime." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -115,7 +115,7 @@ is associated with pseudotime." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/statOmics/tradeSeq/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -143,13 +143,20 @@ is associated with pseudotime." />
 is associated with pseudotime.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>associationTest</span>(<span class='kw'>models</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>associationTest</span><span class='op'>(</span><span class='va'>models</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>associationTest</span>(<span class='kw'>models</span>, global = <span class='fl'>TRUE</span>, lineages = <span class='fl'>FALSE</span>, l2fc = <span class='fl'>0</span>)
+<span class='fu'>associationTest</span><span class='op'>(</span>
+  <span class='va'>models</span>,
+  global <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  lineages <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  l2fc <span class='op'>=</span> <span class='fl'>0</span>,
+  nPoints <span class='op'>=</span> <span class='fl'>2</span> <span class='op'>*</span> <span class='fu'>tradeSeq</span><span class='fu'>::</span><span class='fu'><a href='nknots.html'>nknots</a></span><span class='op'>(</span><span class='va'>models</span><span class='op'>)</span>,
+  contrastType <span class='op'>=</span> <span class='st'>"start"</span>
+<span class='op'>)</span>
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>associationTest</span>(<span class='kw'>models</span>, global = <span class='fl'>TRUE</span>, lineages = <span class='fl'>FALSE</span>, l2fc = <span class='fl'>0</span>)</pre>
+<span class='fu'>associationTest</span><span class='op'>(</span><span class='va'>models</span>, global <span class='op'>=</span> <span class='cn'>TRUE</span>, lineages <span class='op'>=</span> <span class='cn'>FALSE</span>, l2fc <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,22 +183,54 @@ is associated with pseudotime.</p>
       <td><p>The log2 fold change threshold to test against. Note, that
 this will affect both the global test and the pairwise comparisons.</p></td>
     </tr>
+    <tr>
+      <th>nPoints</th>
+      <td><p>The number of points used per lineage to set up the contrast. 
+Defaults to 2 times the number of knots. Note that not all points may end up 
+being actually used in the inference; only linearly independent contrasts 
+will be used.</p></td>
+    </tr>
+    <tr>
+      <th>contrastType</th>
+      <td><p>The contrast used to impose the log2 fold-change 
+threshold. Defaults to <code>"start"</code>. Three options are possible:
+ - If <code>"start"</code>, the starting point of each lineage is used to compare
+against all other points, and the fold-change threshold is applied on these
+contrasts.
+ - If <code>"end"</code>, the procedure is similar to <code>"start"</code>, except that
+ the reference point will now be the endpoint of each lineage rather than
+ the starting point.
+ - If <code>"consecutive"</code>, then consecutive points along each lineage will 
+ be used as contrasts. This is the original way the <code>associationTest</code>
+ was implemented and is kept for backwards compatibility.
+ If a fold change threshold has been set, we recommend users to use either
+ the <code>"start"</code> or <code>"end"</code> options.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A matrix with the wald statistic, the number of
- degrees of freedom and the p-value
+    <p>A matrix with the wald statistic, the
+ degrees of freedom and the (unadjusted) p-value
  associated with each gene for all the tests performed. If the testing
- procedure was unsuccessful, the procedure will return NA.</p>
+ procedure was unsuccessful for a particular gene, <code>NA</code> values will be
+ returned for that gene.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>If a log2 fold-change threshold has not been set, we use the QR decompositon
+ through <code>qr.solve</code> to invert the variance-covariance matrix of the 
+ contrasts. If instead a log2 fold chalnge-threshold has been set, we invert 
+ that matrix using the Cholesky decomposition through <code>chol2inv</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>8</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>crv</span>, package=<span class='st'>"tradeSeq"</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>countMatrix</span>, package=<span class='st'>"tradeSeq"</span>)
-<span class='kw'>sce</span> <span class='op'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span>(counts = <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw'>countMatrix</span>),
-                  sds = <span class='kw'>crv</span>,
-                  nknots = <span class='fl'>5</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: coercing argument of type 'double' to logical</span></div><div class='input'><span class='kw'>assocRes</span> <span class='op'>&lt;-</span> <span class='fu'>associationTest</span>(<span class='kw'>sce</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>8</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>crv</span>, package<span class='op'>=</span><span class='st'>"tradeSeq"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>countMatrix</span>, package<span class='op'>=</span><span class='st'>"tradeSeq"</span><span class='op'>)</span>
+<span class='va'>sce</span> <span class='op'>&lt;-</span> <span class='fu'><a href='fitGAM.html'>fitGAM</a></span><span class='op'>(</span>counts <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>countMatrix</span><span class='op'>)</span>,
+                  sds <span class='op'>=</span> <span class='va'>crv</span>,
+                  nknots <span class='op'>=</span> <span class='fl'>5</span><span class='op'>)</span>
+<span class='va'>assocRes</span> <span class='op'>&lt;-</span> <span class='fu'>associationTest</span><span class='op'>(</span><span class='va'>sce</span><span class='op'>)</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -203,11 +242,11 @@ this will affect both the global test and the pairwise comparisons.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux, Lieven Clement.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

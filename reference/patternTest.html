@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.5.07</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -112,7 +112,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/statOmics/tradeSeq/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -138,27 +138,27 @@
     <p>Assess differences in expression patterns between lineages.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>patternTest</span>(<span class='kw'>models</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>patternTest</span><span class='op'>(</span><span class='va'>models</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>patternTest</span>(
-  <span class='kw'>models</span>,
-  global = <span class='fl'>TRUE</span>,
-  pairwise = <span class='fl'>FALSE</span>,
-  nPoints = <span class='fl'>2</span> <span class='op'>*</span> <span class='fu'><a href='nknots.html'>nknots</a></span>(<span class='kw'>models</span>),
-  l2fc = <span class='fl'>0</span>,
-  eigenThresh = <span class='fl'>0.01</span>
-)
+<span class='fu'>patternTest</span><span class='op'>(</span>
+  <span class='va'>models</span>,
+  global <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  pairwise <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  nPoints <span class='op'>=</span> <span class='fl'>2</span> <span class='op'>*</span> <span class='fu'><a href='nknots.html'>nknots</a></span><span class='op'>(</span><span class='va'>models</span><span class='op'>)</span>,
+  l2fc <span class='op'>=</span> <span class='fl'>0</span>,
+  eigenThresh <span class='op'>=</span> <span class='fl'>0.01</span>
+<span class='op'>)</span>
 
 <span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>patternTest</span>(
-  <span class='kw'>models</span>,
-  global = <span class='fl'>TRUE</span>,
-  pairwise = <span class='fl'>FALSE</span>,
-  nPoints = <span class='fl'>2</span> <span class='op'>*</span> <span class='fu'><a href='nknots.html'>nknots</a></span>(<span class='kw'>models</span>),
-  l2fc = <span class='fl'>0</span>,
-  eigenThresh = <span class='fl'>0.01</span>
-)</pre>
+<span class='fu'>patternTest</span><span class='op'>(</span>
+  <span class='va'>models</span>,
+  global <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  pairwise <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  nPoints <span class='op'>=</span> <span class='fl'>2</span> <span class='op'>*</span> <span class='fu'><a href='nknots.html'>nknots</a></span><span class='op'>(</span><span class='va'>models</span><span class='op'>)</span>,
+  l2fc <span class='op'>=</span> <span class='fl'>0</span>,
+  eigenThresh <span class='op'>=</span> <span class='fl'>0.01</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -174,11 +174,14 @@
     </tr>
     <tr>
       <th>global</th>
-      <td><p>If TRUE, test for all pairwise comparisons simultaneously.</p></td>
+      <td><p>If TRUE, test for all pairwise comparisons simultaneously.
+If <code>models</code> contains conditions (i.e. <code>fitGAM</code> was run with the
+conditions argument), then we compare the within-lineage average
+across conditions, between lineages.</p></td>
     </tr>
     <tr>
       <th>pairwise</th>
-      <td><p>If TRUE, test for all pairwise comparisons independently.</p></td>
+      <td><p>If TRUE, test for all pairwise comparisons, between lineages.</p></td>
     </tr>
     <tr>
       <th>nPoints</th>
@@ -211,19 +214,20 @@ version of `tradeSeq`.</p></td>
  fold changes and p-values.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>gamList</span>, package = <span class='st'>"tradeSeq"</span>)
-<span class='fu'>patternTest</span>(<span class='kw'>gamList</span>, global = <span class='fl'>TRUE</span>, pairwise = <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Only two lineages; skipping pairwise comparison.</span></div><div class='output co'>#&gt;                   waldStat df    pvalue   fcMedian
-#&gt; 1700012B09Rik 9.664503e-17  2 1.0000000  0.2870153
-#&gt; 1700017B05Rik 5.710004e+00  5 0.3354670  1.9155402
-#&gt; 1700020L24Rik 9.664503e-17  2 1.0000000  0.2870153
-#&gt; 1810009A15Rik 1.651819e+00  3 0.6476981  0.7879955
-#&gt; 1810011H11Rik 9.664503e-17  2 1.0000000  0.2870153
-#&gt; 1810027O10Rik 1.048553e+00  5 0.9585554  0.4153384
-#&gt; 1810031K17Rik 2.666215e+00  5 0.7512807  0.8384966
-#&gt; 1810033B17Rik 9.664503e-17  2 1.0000000  0.2870153
-#&gt; 1810037I17Rik 1.486451e+00  2 0.4755775  1.2158030
-#&gt; 2010002N04Rik 9.664503e-17  2 1.0000000  0.2870153
-#&gt; 2010011I20Rik 1.712198e-01  3 0.9820960 19.5491950</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>gamList</span>, package <span class='op'>=</span> <span class='st'>"tradeSeq"</span><span class='op'>)</span>
+<span class='fu'>patternTest</span><span class='op'>(</span><span class='va'>gamList</span>, global <span class='op'>=</span> <span class='cn'>TRUE</span>, pairwise <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Only two lineages; skipping pairwise comparison.</span></div><div class='output co'>#&gt;                   waldStat df    pvalue   fcMedian
+#&gt; 1700012B09Rik 9.653884e-17  2 1.0000000  0.2870678
+#&gt; 1700017B05Rik 5.709874e+00  5 0.3354806  1.9125323
+#&gt; 1700020L24Rik 9.653884e-17  2 1.0000000  0.2870678
+#&gt; 1810009A15Rik 1.651983e+00  3 0.6476613  0.7895784
+#&gt; 1810011H11Rik 9.653884e-17  2 1.0000000  0.2870678
+#&gt; 1810027O10Rik 1.050938e+00  5 0.9583535  0.4161918
+#&gt; 1810031K17Rik 2.674113e+00  5 0.7500748  0.8405849
+#&gt; 1810033B17Rik 9.653884e-17  2 1.0000000  0.2870678
+#&gt; 1810037I17Rik 1.486265e+00  2 0.4756216  1.2153200
+#&gt; 2010002N04Rik 9.653884e-17  2 1.0000000  0.2870678
+#&gt; 2010011I20Rik 1.709778e-01  3 0.9821326 19.6281799</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -235,11 +239,11 @@ version of `tradeSeq`.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux, Lieven Clement.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

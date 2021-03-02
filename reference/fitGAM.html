@@ -75,7 +75,7 @@ See Details and the vignette." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.5.07</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ See Details and the vignette." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -115,7 +115,7 @@ See Details and the vignette." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/statOmics/tradeSeq/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -144,81 +144,84 @@ There are two ways to provide the required input in <code>fitGAM</code>.
 See Details and the vignette.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fitGAM</span>(<span class='kw'>counts</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>fitGAM</span><span class='op'>(</span><span class='va'>counts</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S4 method for matrix</span>
-<span class='fu'>fitGAM</span>(
-  <span class='kw'>counts</span>,
-  sds = <span class='kw'>NULL</span>,
-  pseudotime = <span class='kw'>NULL</span>,
-  cellWeights = <span class='kw'>NULL</span>,
-  U = <span class='kw'>NULL</span>,
-  genes = <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='kw'>counts</span>)),
-  weights = <span class='kw'>NULL</span>,
-  offset = <span class='kw'>NULL</span>,
-  nknots = <span class='fl'>6</span>,
-  verbose = <span class='fl'>TRUE</span>,
-  parallel = <span class='fl'>FALSE</span>,
-  BPPARAM = <span class='kw'>BiocParallel</span>::<span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
-  control = <span class='kw'>mgcv</span>::<span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
-  sce = <span class='fl'>TRUE</span>,
-  family = <span class='st'>"nb"</span>,
-  gcv = <span class='fl'>FALSE</span>
-)
+<span class='fu'>fitGAM</span><span class='op'>(</span>
+  <span class='va'>counts</span>,
+  sds <span class='op'>=</span> <span class='cn'>NULL</span>,
+  pseudotime <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cellWeights <span class='op'>=</span> <span class='cn'>NULL</span>,
+  conditions <span class='op'>=</span> <span class='cn'>NULL</span>,
+  U <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>counts</span><span class='op'>)</span><span class='op'>)</span>,
+  weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+  offset <span class='op'>=</span> <span class='cn'>NULL</span>,
+  nknots <span class='op'>=</span> <span class='fl'>6</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  parallel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>BiocParallel</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span><span class='op'>(</span><span class='op'>)</span>,
+  control <span class='op'>=</span> <span class='fu'>mgcv</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span><span class='op'>(</span><span class='op'>)</span>,
+  sce <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  family <span class='op'>=</span> <span class='st'>"nb"</span>,
+  gcv <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
 
 <span class='co'># S4 method for dgCMatrix</span>
-<span class='fu'>fitGAM</span>(
-  <span class='kw'>counts</span>,
-  sds = <span class='kw'>NULL</span>,
-  pseudotime = <span class='kw'>NULL</span>,
-  cellWeights = <span class='kw'>NULL</span>,
-  U = <span class='kw'>NULL</span>,
-  genes = <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='kw'>counts</span>)),
-  weights = <span class='kw'>NULL</span>,
-  offset = <span class='kw'>NULL</span>,
-  nknots = <span class='fl'>6</span>,
-  verbose = <span class='fl'>TRUE</span>,
-  parallel = <span class='fl'>FALSE</span>,
-  BPPARAM = <span class='kw'>BiocParallel</span>::<span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
-  control = <span class='kw'>mgcv</span>::<span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
-  sce = <span class='fl'>TRUE</span>,
-  family = <span class='st'>"nb"</span>,
-  gcv = <span class='fl'>FALSE</span>
-)
+<span class='fu'>fitGAM</span><span class='op'>(</span>
+  <span class='va'>counts</span>,
+  sds <span class='op'>=</span> <span class='cn'>NULL</span>,
+  pseudotime <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cellWeights <span class='op'>=</span> <span class='cn'>NULL</span>,
+  conditions <span class='op'>=</span> <span class='cn'>NULL</span>,
+  U <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>counts</span><span class='op'>)</span><span class='op'>)</span>,
+  weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+  offset <span class='op'>=</span> <span class='cn'>NULL</span>,
+  nknots <span class='op'>=</span> <span class='fl'>6</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  parallel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>BiocParallel</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span><span class='op'>(</span><span class='op'>)</span>,
+  control <span class='op'>=</span> <span class='fu'>mgcv</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span><span class='op'>(</span><span class='op'>)</span>,
+  sce <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  family <span class='op'>=</span> <span class='st'>"nb"</span>,
+  gcv <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
 
 <span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>fitGAM</span>(
-  <span class='kw'>counts</span>,
-  U = <span class='kw'>NULL</span>,
-  genes = <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='kw'>counts</span>)),
-  weights = <span class='kw'>NULL</span>,
-  offset = <span class='kw'>NULL</span>,
-  nknots = <span class='fl'>6</span>,
-  verbose = <span class='fl'>TRUE</span>,
-  parallel = <span class='fl'>FALSE</span>,
-  BPPARAM = <span class='kw'>BiocParallel</span>::<span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
-  control = <span class='kw'>mgcv</span>::<span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
-  sce = <span class='fl'>TRUE</span>,
-  family = <span class='st'>"nb"</span>,
-  gcv = <span class='fl'>FALSE</span>
-)
+<span class='fu'>fitGAM</span><span class='op'>(</span>
+  <span class='va'>counts</span>,
+  U <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>counts</span><span class='op'>)</span><span class='op'>)</span>,
+  conditions <span class='op'>=</span> <span class='cn'>NULL</span>,
+  weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+  offset <span class='op'>=</span> <span class='cn'>NULL</span>,
+  nknots <span class='op'>=</span> <span class='fl'>6</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  parallel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>BiocParallel</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span><span class='op'>(</span><span class='op'>)</span>,
+  control <span class='op'>=</span> <span class='fu'>mgcv</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span><span class='op'>(</span><span class='op'>)</span>,
+  sce <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  family <span class='op'>=</span> <span class='st'>"nb"</span>,
+  gcv <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
 
 <span class='co'># S4 method for CellDataSet</span>
-<span class='fu'>fitGAM</span>(
-  <span class='kw'>counts</span>,
-  U = <span class='kw'>NULL</span>,
-  genes = <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='kw'>counts</span>)),
-  weights = <span class='kw'>NULL</span>,
-  offset = <span class='kw'>NULL</span>,
-  nknots = <span class='fl'>6</span>,
-  verbose = <span class='fl'>TRUE</span>,
-  parallel = <span class='fl'>FALSE</span>,
-  BPPARAM = <span class='kw'>BiocParallel</span>::<span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>(),
-  control = <span class='kw'>mgcv</span>::<span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span>(),
-  sce = <span class='fl'>TRUE</span>,
-  family = <span class='st'>"nb"</span>,
-  gcv = <span class='fl'>FALSE</span>
-)</pre>
+<span class='fu'>fitGAM</span><span class='op'>(</span>
+  <span class='va'>counts</span>,
+  U <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>counts</span><span class='op'>)</span><span class='op'>)</span>,
+  weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+  offset <span class='op'>=</span> <span class='cn'>NULL</span>,
+  nknots <span class='op'>=</span> <span class='fl'>6</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  parallel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>BiocParallel</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span><span class='op'>(</span><span class='op'>)</span>,
+  control <span class='op'>=</span> <span class='fu'>mgcv</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/mgcv/man/gam.control.html'>gam.control</a></span><span class='op'>(</span><span class='op'>)</span>,
+  sce <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  family <span class='op'>=</span> <span class='st'>"nb"</span>,
+  gcv <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -249,6 +252,13 @@ and each column represents a lineage.</p></td>
 cell belongs to a particular lineage. Each row represents a cell and each
 column represents a lineage. If only a single lineage, provide a matrix with
 one column containing all values of 1.</p></td>
+    </tr>
+    <tr>
+      <th>conditions</th>
+      <td><p>This argument is in beta phase and should be used carefully.
+If each lineage consists of multiple conditions, this argument can be used to
+specify the conditions. tradeSeq will then fit a condition-specific smoother for
+every lineage.</p></td>
     </tr>
     <tr>
       <th>U</th>
@@ -342,12 +352,13 @@ Input CellDataSet Object using <code>counts</code> argument.</p></li>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>8</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>crv</span>, package=<span class='st'>"tradeSeq"</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>countMatrix</span>, package=<span class='st'>"tradeSeq"</span>)
-<span class='kw'>gamList</span> <span class='op'>&lt;-</span> <span class='fu'>fitGAM</span>(counts = <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw'>countMatrix</span>),
-                  sds = <span class='kw'>crv</span>,
-                  nknots = <span class='fl'>5</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: coercing argument of type 'double' to logical</span></div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>8</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>crv</span>, package<span class='op'>=</span><span class='st'>"tradeSeq"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>countMatrix</span>, package<span class='op'>=</span><span class='st'>"tradeSeq"</span><span class='op'>)</span>
+<span class='va'>gamList</span> <span class='op'>&lt;-</span> <span class='fu'>fitGAM</span><span class='op'>(</span>counts <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>countMatrix</span><span class='op'>)</span>,
+                  sds <span class='op'>=</span> <span class='va'>crv</span>,
+                  nknots <span class='op'>=</span> <span class='fl'>5</span><span class='op'>)</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -359,11 +370,11 @@ Input CellDataSet Object using <code>counts</code> argument.</p></li>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux, Lieven Clement.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

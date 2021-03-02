@@ -74,7 +74,7 @@ mean smoother, for a user-defined grid of points." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tradeSeq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.5.07</span>
       </span>
     </div>
 
@@ -82,7 +82,7 @@ mean smoother, for a user-defined grid of points." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -114,7 +114,7 @@ mean smoother, for a user-defined grid of points." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/statOmics/tradeSeq/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -142,13 +142,13 @@ grid. This function does not return fitted values but rather the predicted
 mean smoother, for a user-defined grid of points.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>predictSmooth</span>(<span class='kw'>models</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>predictSmooth</span><span class='op'>(</span><span class='va'>models</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S4 method for SingleCellExperiment</span>
-<span class='fu'>predictSmooth</span>(<span class='kw'>models</span>, <span class='kw'>gene</span>, nPoints = <span class='fl'>100</span>, tidy = <span class='fl'>TRUE</span>)
+<span class='fu'>predictSmooth</span><span class='op'>(</span><span class='va'>models</span>, <span class='va'>gene</span>, nPoints <span class='op'>=</span> <span class='fl'>100</span>, tidy <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'># S4 method for list</span>
-<span class='fu'>predictSmooth</span>(<span class='kw'>models</span>, <span class='kw'>gene</span>, nPoints = <span class='fl'>100</span>)</pre>
+<span class='fu'>predictSmooth</span><span class='op'>(</span><span class='va'>models</span>, <span class='va'>gene</span>, nPoints <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -188,10 +188,19 @@ the first lineage and columns 101-200 to the second lineage.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A <code>matrix</code> with estimated averages.</p>
+<p>A vector of fitted values.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Using the gene expression model of <code>tradeSeq</code> available at
+<a href='https://www.nature.com/articles/s41467-020-14766-3#Sec2'>https://www.nature.com/articles/s41467-020-14766-3#Sec2</a>.
+the output of <code>predictSmooth</code> returns the \(\eta_{gi}\) value for 
+equally space values of pseudotimes, and a constant value for \(U_{i}\) and
+\(N_i\) (arbitraly, we select the values of \(i=1\)).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>gamList</span>, package = <span class='st'>"tradeSeq"</span>)
-<span class='fu'>predictSmooth</span>(models = <span class='kw'>gamList</span>, gene = <span class='fl'>1</span>)</div><div class='output co'>#&gt;     lineage1_1   lineage1_2   lineage1_3  lineage1_4  lineage1_5   lineage1_6
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>gamList</span>, package <span class='op'>=</span> <span class='st'>"tradeSeq"</span><span class='op'>)</span>
+<span class='fu'>predictSmooth</span><span class='op'>(</span>models <span class='op'>=</span> <span class='va'>gamList</span>, gene <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;     lineage1_1   lineage1_2   lineage1_3  lineage1_4  lineage1_5   lineage1_6
 #&gt; 1 6.787343e-18 6.848751e-18 6.910715e-18 6.97324e-18 7.03633e-18 7.099992e-18
 #&gt;     lineage1_7   lineage1_8   lineage1_9  lineage1_10  lineage1_11  lineage1_12
 #&gt; 1 7.164229e-18 7.229047e-18 7.294452e-18 7.360448e-18 7.427042e-18 7.494238e-18
@@ -223,42 +232,42 @@ the first lineage and columns 101-200 to the second lineage.</p></td>
 #&gt; 1 1.446354e-17 1.45944e-17 1.472645e-17 1.485968e-17 1.499413e-17 1.512979e-17
 #&gt;    lineage1_91 lineage1_92  lineage1_93  lineage1_94  lineage1_95  lineage1_96
 #&gt; 1 1.526667e-17 1.54048e-17 1.554417e-17 1.568481e-17 1.582672e-17 1.596991e-17
-#&gt;   lineage1_97  lineage1_98 lineage1_99 lineage1_100   lineage2_1   lineage2_2
-#&gt; 1 1.61144e-17 1.626019e-17 1.64073e-17 1.655575e-17 1.196904e-17 1.195194e-17
-#&gt;     lineage2_3  lineage2_4   lineage2_5   lineage2_6   lineage2_7   lineage2_8
-#&gt; 1 1.193485e-17 1.19178e-17 1.190077e-17 1.188376e-17 1.186678e-17 1.184982e-17
-#&gt;     lineage2_9  lineage2_10  lineage2_11  lineage2_12  lineage2_13  lineage2_14
-#&gt; 1 1.183288e-17 1.181597e-17 1.179909e-17 1.178223e-17 1.176539e-17 1.174857e-17
+#&gt;   lineage1_97  lineage1_98 lineage1_99 lineage1_100  lineage2_1   lineage2_2
+#&gt; 1 1.61144e-17 1.626019e-17 1.64073e-17 1.655575e-17 1.19713e-17 1.195417e-17
+#&gt;     lineage2_3   lineage2_4   lineage2_5   lineage2_6   lineage2_7  lineage2_8
+#&gt; 1 1.193706e-17 1.191998e-17 1.190292e-17 1.188589e-17 1.186888e-17 1.18519e-17
+#&gt;     lineage2_9 lineage2_10  lineage2_11 lineage2_12  lineage2_13 lineage2_14
+#&gt; 1 1.183494e-17  1.1818e-17 1.180109e-17 1.17842e-17 1.176734e-17 1.17505e-17
 #&gt;    lineage2_15  lineage2_16  lineage2_17  lineage2_18  lineage2_19  lineage2_20
-#&gt; 1 1.173178e-17 1.171502e-17 1.169828e-17 1.168156e-17 1.166486e-17 1.164819e-17
-#&gt;    lineage2_21  lineage2_22  lineage2_23  lineage2_24 lineage2_25  lineage2_26
-#&gt; 1 1.163155e-17 1.161493e-17 1.159833e-17 1.158175e-17 1.15652e-17 1.154867e-17
-#&gt;    lineage2_27  lineage2_28  lineage2_29 lineage2_30  lineage2_31 lineage2_32
-#&gt; 1 1.153217e-17 1.151569e-17 1.149923e-17 1.14828e-17 1.146639e-17   1.145e-17
-#&gt;    lineage2_33 lineage2_34  lineage2_35  lineage2_36  lineage2_37  lineage2_38
-#&gt; 1 1.143364e-17 1.14173e-17 1.140098e-17 1.138469e-17 1.136842e-17 1.135217e-17
+#&gt; 1 1.173369e-17 1.171689e-17 1.170013e-17 1.168339e-17 1.166667e-17 1.164997e-17
+#&gt;   lineage2_21  lineage2_22  lineage2_23  lineage2_24  lineage2_25 lineage2_26
+#&gt; 1 1.16333e-17 1.161665e-17 1.160003e-17 1.158343e-17 1.156685e-17 1.15503e-17
+#&gt;    lineage2_27  lineage2_28  lineage2_29  lineage2_30 lineage2_31  lineage2_32
+#&gt; 1 1.153377e-17 1.151727e-17 1.150079e-17 1.148433e-17 1.14679e-17 1.145149e-17
+#&gt;   lineage2_33  lineage2_34  lineage2_35  lineage2_36  lineage2_37  lineage2_38
+#&gt; 1 1.14351e-17 1.141873e-17 1.140239e-17 1.138608e-17 1.136978e-17 1.135351e-17
 #&gt;    lineage2_39  lineage2_40  lineage2_41  lineage2_42  lineage2_43  lineage2_44
-#&gt; 1 1.133595e-17 1.131975e-17 1.130357e-17 1.128742e-17 1.127129e-17 1.125518e-17
+#&gt; 1 1.133727e-17 1.132104e-17 1.130484e-17 1.128867e-17 1.127251e-17 1.125638e-17
 #&gt;    lineage2_45  lineage2_46  lineage2_47  lineage2_48  lineage2_49  lineage2_50
-#&gt; 1 1.123909e-17 1.122303e-17 1.120699e-17 1.119098e-17 1.117499e-17 1.115902e-17
-#&gt;    lineage2_51  lineage2_52  lineage2_53  lineage2_54  lineage2_55  lineage2_56
-#&gt; 1 1.114307e-17 1.112714e-17 1.111124e-17 1.109536e-17 1.107951e-17 1.106367e-17
-#&gt;    lineage2_57  lineage2_58  lineage2_59  lineage2_60  lineage2_61  lineage2_62
-#&gt; 1 1.104786e-17 1.103207e-17 1.101631e-17 1.100056e-17 1.098484e-17 1.096914e-17
+#&gt; 1 1.124027e-17 1.122419e-17 1.120813e-17 1.119209e-17 1.117607e-17 1.116008e-17
+#&gt;    lineage2_51  lineage2_52  lineage2_53  lineage2_54  lineage2_55 lineage2_56
+#&gt; 1 1.114411e-17 1.112816e-17 1.111224e-17 1.109634e-17 1.108046e-17 1.10646e-17
+#&gt;    lineage2_57  lineage2_58  lineage2_59 lineage2_60  lineage2_61  lineage2_62
+#&gt; 1 1.104877e-17 1.103296e-17 1.101717e-17 1.10014e-17 1.098566e-17 1.096994e-17
 #&gt;    lineage2_63  lineage2_64  lineage2_65  lineage2_66  lineage2_67  lineage2_68
-#&gt; 1 1.095347e-17 1.093782e-17 1.092218e-17 1.090658e-17 1.089099e-17 1.087542e-17
+#&gt; 1 1.095424e-17 1.093857e-17 1.092291e-17 1.090728e-17 1.089167e-17 1.087609e-17
 #&gt;    lineage2_69  lineage2_70  lineage2_71  lineage2_72  lineage2_73  lineage2_74
-#&gt; 1 1.085988e-17 1.084436e-17 1.082887e-17 1.081339e-17 1.079794e-17 1.078251e-17
-#&gt;   lineage2_75  lineage2_76  lineage2_77 lineage2_78  lineage2_79  lineage2_80
-#&gt; 1 1.07671e-17 1.075171e-17 1.073634e-17  1.0721e-17 1.070568e-17 1.069038e-17
-#&gt;   lineage2_81  lineage2_82  lineage2_83 lineage2_84  lineage2_85  lineage2_86
-#&gt; 1 1.06751e-17 1.065985e-17 1.064461e-17 1.06294e-17 1.061421e-17 1.059904e-17
-#&gt;    lineage2_87  lineage2_88  lineage2_89  lineage2_90  lineage2_91  lineage2_92
-#&gt; 1 1.058389e-17 1.056877e-17 1.055367e-17 1.053858e-17 1.052352e-17 1.050848e-17
-#&gt;    lineage2_93  lineage2_94 lineage2_95  lineage2_96  lineage2_97 lineage2_98
-#&gt; 1 1.049347e-17 1.047847e-17 1.04635e-17 1.044854e-17 1.043361e-17 1.04187e-17
+#&gt; 1 1.086052e-17 1.084498e-17 1.082946e-17 1.081397e-17 1.079849e-17 1.078304e-17
+#&gt;    lineage2_75 lineage2_76  lineage2_77  lineage2_78  lineage2_79  lineage2_80
+#&gt; 1 1.076761e-17 1.07522e-17 1.073681e-17 1.072145e-17 1.070611e-17 1.069079e-17
+#&gt;    lineage2_81  lineage2_82  lineage2_83  lineage2_84  lineage2_85  lineage2_86
+#&gt; 1 1.067549e-17 1.066021e-17 1.064496e-17 1.062972e-17 1.061451e-17 1.059932e-17
+#&gt;    lineage2_87  lineage2_88  lineage2_89  lineage2_90 lineage2_91  lineage2_92
+#&gt; 1 1.058416e-17 1.056901e-17 1.055389e-17 1.053878e-17 1.05237e-17 1.050864e-17
+#&gt;    lineage2_93  lineage2_94  lineage2_95  lineage2_96  lineage2_97  lineage2_98
+#&gt; 1 1.049361e-17 1.047859e-17 1.046359e-17 1.044862e-17 1.043367e-17 1.041874e-17
 #&gt;    lineage2_99 lineage2_100
-#&gt; 1 1.040381e-17 1.038894e-17</div></pre>
+#&gt; 1 1.040383e-17 1.038894e-17</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -270,11 +279,11 @@ the first lineage and columns 101-200 to the second lineage.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux.</p>
+  <p>Developed by Koen Van den Berge, Hector Roux de Bezieux, Lieven Clement.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
