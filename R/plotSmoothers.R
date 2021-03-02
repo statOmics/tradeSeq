@@ -361,7 +361,7 @@ setOldClass("gam")
 #' # Show only first curve and cells assigned to first lineage
 #' plotSmoothers(sce, counts, rownames(counts)[1], curvesCols = curvesCols,
 #'   border = FALSE) +
-#'   scale_color_manual(values = curvesCols)
+#'   ggplot2::scale_color_manual(values = curvesCols)
 #' @import ggplot2
 #' @import mgcv
 #' @import viridis
