@@ -22,7 +22,7 @@ that is part of the output of this function.}
 Evaluate an appropriate number of knots.
 }
 \examples{
-## This is an artifical example, please check the vignette for a realistic one.
+## This is an artificial example, please check the vignette for a realistic one.
 set.seed(8)
 data(sds, package="tradeSeq")
 loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)

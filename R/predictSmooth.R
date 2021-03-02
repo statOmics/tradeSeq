@@ -133,6 +133,12 @@ setOldClass("gam")
 #' returned matrix will have 2*100 columns, where the first 100 correspond to
 #' the first lineage and columns 101-200 to the second lineage.
 #' @return A \code{matrix} with estimated averages.
+#' @details Using the gene expression model of \code{tradeSeq} available at
+#' \url{https://www.nature.com/articles/s41467-020-14766-3#Sec2}.
+#' the output of \code{predictSmooth} returns the \eqn{\eta_{gi}} value for 
+#' equally space values of pseudotimes, and a constant value for \eqn{U_i} and
+#' \eqn{N_i} (arbitraly, we select the values of \eqn{i=1}).
+#' @return A vector of fitted values.
 #' @examples
 #' data(gamList, package = "tradeSeq")
 #' predictSmooth(models = gamList, gene = 1)

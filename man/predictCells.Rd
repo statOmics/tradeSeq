@@ -27,6 +27,11 @@ A vector of fitted values.
 \description{
 Get fitted values for each cell.
 }
+\details{
+Using the gene expression model of \code{tradeSeq} available at
+\url{https://www.nature.com/articles/s41467-020-14766-3#Sec2}.
+the output of \code{predictCells} returns the \eqn{\eta_{gi}} value for each cell.
+}
 \examples{
 data(gamList, package = "tradeSeq")
 predictCells(models = gamList, gene = 1)

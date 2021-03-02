@@ -1,0 +1,17 @@
+citHeader("To cite tradeSeq in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "Trajectory-based differential expression analysis for single-cell sequencing data",
+  author   = "Koen {Van den Berge} and Hector {Roux de Bézieux} Hector, and Kelly Street and
+              and Wouter Saelens and Robrecht Cannoodt and Yvan Saeys and Sandrine Dudoit and Lieven Clement",
+  journal  = "Nature Communications",
+  year     = "2020",
+  volume   = "11",
+  number   = "1",
+  pages    = "1201",
+  url      = "http://www.nature.com/articles/s41467-020-14766-3",
+  textVersion = paste(
+
+  )
+)

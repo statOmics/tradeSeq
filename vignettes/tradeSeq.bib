@@ -1,24 +1,25 @@
 @article{VandenBerge2019a,
-abstract = {Trajectory inference has radically enhanced single-cell RNA-seq research by enabling the study of dynamic changes in gene expression levels during biological processes such as the cell cycle, cell type differentiation, and cellular activation. Downstream of trajectory inference, it is vital to discover genes that are associated with the lineages in the trajectory to illuminate the underlying biological processes. Furthermore, genes that are differentially expressed between developmental/activational lineages might be highly relevant to further unravel the system under study. Current data analysis procedures, however, typically cluster cells and assess differential expression between the clusters, which fails to exploit the continuous resolution provided by trajectory inference to its full potential. The few available non-cluster-based methods only assess broad differences in gene expression between lineages, hence failing to pinpoint the exact types of divergence. We introduce a powerful generalized additive model framework based on the negative binomial distribution that allows flexible inference of (i) within-lineage differential expression by detecting associations between gene expression and pseudotime over an entire lineage or by comparing gene expression between points/regions within the lineage and (ii) between-lineage differential expression by comparing gene expression between lineages over the entire lineages or at specific points/regions. By incorporating observation-level weights, the model additionally allows to account for zero inflation, commonly observed in single-cell RNA-seq data from full-length protocols. We evaluate the method on simulated and real datasets from droplet-based and full-length protocols, and show that the flexible inference framework is capable of yielding biological insights through a clear interpretation of the data.},
 author = {{Van den Berge}, Koen and {Roux de B{\'{e}}zieux}, Hector and Street, Kelly and Saelens, Wouter and Cannoodt, Robrecht and Saeys, Yvan and Dudoit, Sandrine and Clement, Lieven},
-doi = {10.1101/623397},
-journal = {bioRxiv},
-month = {may},
-pages = {623397},
-publisher = {Cold Spring Harbor Laboratory},
+doi = {10.1038/s41467-020-14766-3},
+issn = {2041-1723},
+journal = {Nature Communications},
+month = {dec},
+number = {1},
+pages = {1201},
+publisher = {Nature Publishing Group},
 title = {{Trajectory-based differential expression analysis for single-cell sequencing data}},
-url = {https://www.biorxiv.org/content/10.1101/623397v1},
-year = {2019}
+url = {http://www.nature.com/articles/s41467-020-14766-3},
+volume = {11},
+year = {2020}
 }
+
 
 @article{VandenBerge2018,
 abstract = {Dropout events in single-cell RNA sequencing (scRNA-seq) cause many transcripts to go undetected and induce an excess of zero read counts, leading to power issues in differential expression (DE) analysis. This has triggered the development of bespoke scRNA-seq DE methods to cope with zero inflation. Recent evaluations, however, have shown that dedicated scRNA-seq tools provide no advantage compared to traditional bulk RNA-seq tools. We introduce a weighting strategy, based on a zero-inflated negative binomial model, that identifies excess zero counts and generates gene- and cell-specific weights to unlock bulk RNA-seq DE pipelines for zero-inflated data, boosting performance for scRNA-seq.},
 author = {{Van den Berge}, Koen and Perraudeau, Fanny and Soneson, Charlotte and Love, Michael I. and Risso, Davide and Vert, Jean-Philippe and Robinson, Mark D. and Dudoit, Sandrine and Clement, Lieven},
 doi = {10.1186/s13059-018-1406-4},
-file = {:Users/koenvandenberge/Library/Application Support/Mendeley Desktop/Downloaded/Van den Berge et al. - 2018 - Observation weights unlock bulk RNA-seq tools for zero inflation and single-cell applications.pdf:pdf},
 issn = {1474-760X},
 journal = {Genome Biology},
-keywords = {Animal Genetics and Genomics,Bioinformatics,Evolutionary Biology,Human Genetics,Microbial Genetics and Genomics,Plant Genetics and Genomics},
 month = {dec},
 number = {1},
 pages = {24},
@@ -30,7 +31,6 @@ year = {2018}
 }
 
 @article{Paul2015,
-abstract = {Within the bone marrow, stem cells differentiate and give rise to diverse blood cell types and functions. Currently, hematopoietic progenitors are defined using surface markers combined with functional assays that are not directly linked with inÂ vivo differentiation potential or gene regulatory mechanisms. Here, weÂ comprehensively map myeloid progenitor subpopulations by transcriptional sorting of single cells from the bone marrow. We describe multiple progenitor subgroups, showing unexpected transcriptional priming toward seven differentiation fates but no progenitors with a mixed state. Transcriptional differentiation is correlated with combinations of known and previously undefined transcription factors, suggesting that the process is tightly regulated. Histone maps and knockout assays are consistent with early transcriptional priming, while traditional transplantation experiments suggest that inÂ vivo priming may still allow for plasticity given strong perturbations. These data establish a reference model and general framework for studying hematopoiesis at single-cell resolution.},
 author = {Paul, Franziska and Arkin, Ya'ara and Giladi, Amir and Jaitin, DiegoÂ Adhemar and Kenigsberg, Ephraim and Keren-Shaul, Hadas and Winter, Deborah and Lara-Astiaso, David and Gury, Meital and Weiner, Assaf and David, Eyal and Cohen, Nadav and Lauridsen, FeliciaÂ KathrineÂ Bratt and Haas, Simon and Schlitzer, Andreas and Mildner, Alexander and Ginhoux, Florent and Jung, Steffen and Trumpp, Andreas and Porse, BoÂ Torben and Tanay, Amos and Amit, Ido},
 doi = {10.1016/J.CELL.2015.11.013},
 issn = {0092-8674},
@@ -46,13 +46,11 @@ year = {2015}
 }
 
 @article{Street2018a,
-abstract = {Single-cell transcriptomics allows researchers to investigate complex communities of heterogeneous cells. It can be applied to stem cells and their descendants in order to chart the progression from multipotent progenitors to fully differentiated cells. While a variety of statistical and computational methods have been proposed for inferring cell lineages, the problem of accurately characterizing multiple branching lineages remains difficult to solve. We introduce Slingshot, a novel method for inferring cell lineages and pseudotimes from single-cell gene expression data. In previously published datasets, Slingshot correctly identifies the biological signal for one to three branching trajectories. Additionally, our simulation study shows that Slingshot infers more accurate pseudotimes than other leading methods. Slingshot is a uniquely robust and flexible tool which combines the highly stable techniques necessary for noisy single-cell data with the ability to identify multiple trajectories. Accurate lineage inference is a critical step in the identification of dynamic temporal gene expression.},
 author = {Street, Kelly and Risso, Davide and Fletcher, Russell B. and Das, Diya and Ngai, John and Yosef, Nir and Purdom, Elizabeth and Dudoit, Sandrine},
 doi = {10.1186/s12864-018-4772-0},
 file = {:Users/koenvandenberge/Library/Application Support/Mendeley Desktop/Downloaded/Street et al. - 2018 - Slingshot cell lineage and pseudotime inference for single-cell transcriptomics(2).pdf:pdf},
 issn = {1471-2164},
 journal = {BMC Genomics},
-keywords = {Animal Genetics and Genomics,Life Sciences,Microarrays,Microbial Genetics and Genomics,Plant Genetics and Genomics,Proteomics,general},
 month = {dec},
 number = {1},
 pages = {477},
@@ -63,7 +61,6 @@ volume = {19},
 year = {2018}
 }
 @article{Robinson2010,
-abstract = {The fine detail provided by sequencing-based transcriptome surveys suggests that RNA-seq is likely to become the platform of choice for interrogating steady state RNA. In order to discover biologically important changes in expression, we show that normalization continues to be an essential step in the analysis. We outline a simple and effective method for performing normalization and show dramatically improved results for inferring differential expression in simulated and publicly available data sets.},
 author = {Robinson, Mark D and Oshlack, Alicia},
 doi = {10.1186/gb-2010-11-3-r25},
 journal = {Genome Biology},
@@ -76,11 +73,9 @@ volume = {11},
 year = {2010}
 }
 @article{Risso2018,
-abstract = {Clustering of genes and/or samples is a common task in gene expression analysis. The goals in clustering can vary, but an important scenario is that of finding biologically meaningful subtypes within the samples. This is an application that is particularly appropriate when there are large numbers of samples, as in many human disease studies. With the increasing popularity of single-cell transcriptome sequencing (RNA-Seq), many more controlled experiments on model organisms are similarly creating large gene expression datasets with the goal of detecting previously unknown heterogeneity within cells. It is common in the detection of novel subtypes to run many clustering algorithms, as well as rely on subsampling and ensemble methods to improve robustness. We introduce a Bioconductor R package, clusterExperiment, that implements a general and flexible strategy we entitle Resampling-based Sequential Ensemble Clustering (RSEC). RSEC enables the user to easily create multiple, competing clusterings of the data based on different techniques and associated tuning parameters, including easy integration of resampling and sequential clustering, and then provides methods for consolidating the multiple clusterings into a final consensus clustering. The package is modular and allows the user to separately apply the individual components of the RSEC procedure, i.e., apply multiple clustering algorithms, create a consensus clustering or choose tuning parameters, and merge clusters. Additionally, clusterExperiment provides a variety of visualization tools for the clustering process, as well as methods for the identification of possible cluster signatures or biomarkers. The R package clusterExperiment is publicly available through the Bioconductor Project, with a detailed manual (vignette) as well as well documented help pages for each function.},
 author = {Risso, Davide and Purvis, Liam and Fletcher, Russell B. and Das, Diya and Ngai, John and Dudoit, Sandrine and Purdom, Elizabeth},
 doi = {10.1371/journal.pcbi.1006378},
 editor = {Darling, Aaron E.},
-file = {:Users/koenvandenberge/Library/Application Support/Mendeley Desktop/Downloaded/Risso et al. - 2018 - clusterExperiment and RSEC A Bioconductor package and framework for clustering of single-cell and other large g(2).pdf:pdf},
 issn = {1553-7358},
 journal = {PLOS Computational Biology},
 month = {sep},
@@ -93,7 +88,6 @@ volume = {14},
 year = {2018}
 }
 @article{Qiu2017,
-abstract = {Monocle 2 uses reversed graph embedding to automatically learn complex, branched pseudotime trajectories of differentiation or cellular state changes from single-cell expression data.},
 author = {Qiu, Xiaojie and Mao, Qi and Tang, Ying and Wang, Li and Chawla, Raghav and Pliner, Hannah A and Trapnell, Cole},
 doi = {10.1038/nmeth.4402},
 issn = {1548-7105},
