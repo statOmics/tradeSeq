@@ -3,7 +3,7 @@
   <!-- badges: start -->
   [![R-CMD-check](https://github.com/statOmics/tradeSeq/workflows/R-CMD-check/badge.svg?branch=master)](https://github.com/statOmics/tradeSeq/actions)
   [![Codecov test coverage](https://codecov.io/gh/statOmics/tradeSeq/branch/master/graph/badge.svg)](https://codecov.io/gh/statOmics/tradeSeq?branch=master)
-  [![Generic badge](https://img.shields.io/badge/<DOI>-<10.1038/s41467-020-14766-3>-<COLOR>.svg)](https://shields.io/)
+  [![Generic badge](https://img.shields.io/endpoint?color=brighgreen&label=DOI&logo=link](https://www.nature.com/articles/s41467-020-14766-3)
   <!-- badges: end -->
 
 ## TRAjectory Differential Expression analysis for SEQuencing data
