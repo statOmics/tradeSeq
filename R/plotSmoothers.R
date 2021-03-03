@@ -83,7 +83,7 @@
   } else id <- gene
 
   dm <- colData(models)$tradeSeq$dm # design matrix
-  y <- unname(counts[id,])
+  y <- unname(counts[names(models),][id,])
   X <- colData(models)$tradeSeq$X # linear predictor
   slingshotColData <- colData(models)$slingshot
   pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
@@ -182,7 +182,11 @@
   return(p)
 }
 
-.plotSmoothers_conditions <- function(models, counts, gene, nPoints = 100, lwd = 2,
+.plotSmoothers_conditions <- function(models, 
+                                      counts, 
+                                      gene, 
+                                      nPoints = 100, 
+                                      lwd = 2,
                                       size = 2/3,
                                       xlab = "Pseudotime",
                                       ylab = "Log(expression + 1)",
@@ -206,7 +210,7 @@
   } else id <- gene
 
   dm <- colData(models)$tradeSeq$dm # design matrix
-  y <- unname(counts[id,])
+  y <- unname(counts[names(models),][id,])
   X <- colData(models)$tradeSeq$X # linear predictor
   slingshotColData <- colData(models)$slingshot
   pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
@@ -214,6 +218,9 @@
   nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   betaMat <- rowData(models)$tradeSeq$beta[[1]]
   beta <- betaMat[id,]
+  if(any(is.na(beta))){
+    stop("Some coefficients for this gene are NA. Cannot plot this gene.")
+  }
   conditions <- colData(models)$tradeSeq$conditions
   nConditions <- nlevels(conditions)
 
