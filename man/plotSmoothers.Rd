@@ -96,4 +96,12 @@ sce <- fitGAM(counts = counts,
                   sds = crv,
                   nknots = 5)
 plotSmoothers(sce, counts, rownames(counts)[1])
+# Show only first lineage curve
+curvesCols <- c("#440154FF", "transparent")
+plotSmoothers(sce, counts, rownames(counts)[1], curvesCols = curvesCols,
+  border = FALSE)
+# Show only first curve and cells assigned to first lineage
+plotSmoothers(sce, counts, rownames(counts)[1], curvesCols = curvesCols,
+  border = FALSE) +
+  ggplot2::scale_color_manual(values = curvesCols)
 }

@@ -7,6 +7,9 @@ setOldClass("gam")
 #' running \code{fitGAM}, or the specific GAM model for the corresponding gene,
 #' if working with the list output of \code{tradeSeq}.
 #' @param gene Gene name of gene for which to extract fitted values.
+#' @details Using the gene expression model of \code{tradeSeq} available at
+#' \url{https://www.nature.com/articles/s41467-020-14766-3#Sec2}.
+#' the output of \code{predictCells} returns the \eqn{\eta_{gi}} value for each cell.
 #' @return A vector of fitted values.
 #' @examples
 #' data(gamList, package = "tradeSeq")
