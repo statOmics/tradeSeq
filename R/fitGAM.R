@@ -568,6 +568,7 @@ setMethod(f = "fitGAM",
             df <- tibble::enframe(gamOutput$Sigma, value = "Sigma")
             df$beta <- tibble::tibble(beta = gamOutput$beta)
             df$converged <- gamOutput$converged
+            suppressWarnings(rownames(df) <- rownames(counts[genes,]))
             SummarizedExperiment::rowData(sc)$tradeSeq <- df
             # tradeSeq cell-level info
             if(is.null(conditions)){
@@ -670,6 +671,7 @@ setMethod(f = "fitGAM",
               conditions <- NULL
             }
           }
+            
           gamOutput <- fitGAM(counts = SingleCellExperiment::counts(counts),
                               U = U,
                               sds = slingshot::SlingshotDataSet(counts),
@@ -702,16 +704,13 @@ setMethod(f = "fitGAM",
           if (is.null(rownames(counts))) {
             newGeneInfo <- tibble::tibble(
               name = paste0("V", seq_len(nrow(counts))))
+            rownames(counts) <- newGeneInfo$name
           } else {
             newGeneInfo <- tibble::tibble(name = rownames(counts))
           }
-          newGeneInfo <- base::merge(geneInfo, newGeneInfo, by = "name")
-          rownames(newGeneInfo) <- newGeneInfo$name
-          if (is.null(rownames(counts))) {
-            newGeneInfo <- newGeneInfo[paste0("V", seq_len(nrow(counts))), ]
-          } else {
-            newGeneInfo <- newGeneInfo[rownames(counts), ]
-          }
+          newGeneInfo <- dplyr::full_join(geneInfo, newGeneInfo, by="name")
+          newGeneInfo <- newGeneInfo[match(rownames(counts), newGeneInfo$name),]
+          suppressWarnings(rownames(newGeneInfo) <- newGeneInfo$name)
           SummarizedExperiment::rowData(counts)$tradeSeq <- newGeneInfo
           # tradeSeq cell-level info
           SummarizedExperiment::colData(counts)$tradeSeq <-
