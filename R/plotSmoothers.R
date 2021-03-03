@@ -216,8 +216,7 @@
   pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                        pattern = "pseudotime")]
   nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-  betaMat <- rowData(models)$tradeSeq$beta[[1]]
-  beta <- betaMat[id,]
+  beta <- rowData(models)$tradeSeq[gene,]$beta[[1]]
   if(any(is.na(beta))){
     stop("Some coefficients for this gene are NA. Cannot plot this gene.")
   }

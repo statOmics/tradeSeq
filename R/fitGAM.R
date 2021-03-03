@@ -190,7 +190,7 @@
     if(any(duplicated(genes))){
       stop("The genes vector contains duplicates.")
     }
-    id <- which(rownames(counts) %in% genes)
+    id <- match(genes, rownames(counts))
   } else {
     id <- genes
   }
