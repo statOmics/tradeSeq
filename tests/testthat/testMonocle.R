@@ -56,11 +56,11 @@ test_that("EvaluateK give the same results.",{
   info <- tradeSeq::extract_monocle_info(cds)
   # fitGAM tests
   set.seed(22)
-  expect_warning(cdsFit <- tradeSeq::evaluateK(counts = cds, k = 8:12,
+  suppressWarnings(cdsFit <- tradeSeq::evaluateK(counts = cds, k = 8:12,
                                                verbose = FALSE,
                                                nGenes = 10, plot = FALSE))
   set.seed(22)
-  expect_warning(
+  suppressWarnings(
     normalFit <- tradeSeq::evaluateK(counts = counts, pseudotime = info$pseudotime,
                                      cellWeights = info$cellWeights, k = 8:12,
                                      verbose = FALSE, nGenes = 10, plot = FALSE)
