@@ -143,10 +143,13 @@ test_that("assocationTest results are equal for sds and manual input.",{
 test_that("associationTest different l2fc contrasts types run.", {
   startRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
                                         l2fc = 1, contrastType = "start")
+  expect_is(startRes, "data.frame")
   endRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
                                       l2fc = 1, contrastType = "end")
+  expect_is(endRes, "data.frame")
   consecRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
                                          l2fc = 1, contrastType = "consecutive")
+  expect_is(consecRes, "data.frame")
 })
 
 ## startVsEndTest
