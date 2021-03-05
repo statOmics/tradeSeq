@@ -109,6 +109,20 @@ test_that("All tests work", {
   expect_is(earlyDETest(Fit, knots = 1:3), "data.frame")
 })
 
+test_that("Clustering work", {
+  cellWeights <- slingCurveWeights(sce)
+  counts <- SingleCellExperiment::counts(sce)
+  pseudotime <- slingPseudotime(sds, na = FALSE)
+  conditions <- as.factor(sample(1:2, ncol(sce), replace = TRUE))
+  Fit <- tradeSeq::fitGAM(counts = counts, pseudotime = pseudotime,
+                          cellWeights = cellWeights,  nknots = 3,
+                          verbose = FALSE, conditions = conditions)
+  # 
+  PatSce <- tradeSeq::clusterExpressionPatterns(Fit, nPoints = 50, genes = 1:50,
+                                                k0s = 4:5, alphas = 0.1)
+  expect_is(PatSce, "list")
+})
+
 test_that("Condition works with one lineage", {
   cellWeights <- slingCurveWeights(sce)
   keep <- cellWeights[, 1] > 0
