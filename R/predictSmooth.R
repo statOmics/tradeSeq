@@ -15,7 +15,7 @@ setOldClass("gam")
     if (jj > 1) Xall <- rbind(Xall, Xdf)
   }
   # get predictor matrix
-  if(tidy) out <- list()
+  if (tidy) out <- list()
   for (jj in seq_len(nCurves)) {
     df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
     Xdf <- predictGAM(lpmatrix = X,
@@ -30,9 +30,9 @@ setOldClass("gam")
   # loop over all genes
   yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nPoints)
   rownames(yhatMat) <- gene
-  pointNames <- expand.grid(1:nCurves, 1:nPoints)
-  colnames(yhatMat) <- paste0("lineage", apply(pointNames, 1, paste,
-                                               collapse = "_"))
+  pointNames <- paste(rep(seq_len(nCurves), each = nPoints), seq_len(nPoints), 
+                      sep = "_")
+  colnames(yhatMat) <- paste0("lineage", pointNames)
   for (jj in 1:length(gene)) {
     yhat <- c(exp(t(Xall %*% t(beta[as.character(gene[jj]), ,
                                     drop = FALSE])) +
