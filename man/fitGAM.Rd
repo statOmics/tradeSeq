@@ -89,9 +89,10 @@ in rows and cells in columns. Can be a matrix or a sparse matrix.}
 
 \item{...}{parameters including:}
 
-\item{sds}{an object of class \code{SlingshotDataSet}, typically obtained
-after running Slingshot. If this is provided, \code{pseudotime} and
-\code{cellWeights} arguments are derived from this object.}
+\item{sds}{an object of class \code{SlingshotDataSet} or
+\code{PseudotimeOrdering}, typically obtained after running Slingshot. If
+this is provided, \code{pseudotime} and \code{cellWeights} arguments are
+derived from this object.}
 
 \item{pseudotime}{A matrix of pseudotime values, each row represents a cell
 and each column represents a lineage.}

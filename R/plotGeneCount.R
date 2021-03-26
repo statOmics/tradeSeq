@@ -1,6 +1,6 @@
 .plotGeneCount <- function(curve, counts = NULL, gene = NULL, clusters = NULL,
                            models = NULL, title = NULL){
-  rd <- reducedDim(curve)
+  rd <- slingReducedDim(curve)
   if (!is.null(gene)) {
     logcounts <- log1p(counts[gene, ])
     cols <- logcounts
@@ -63,17 +63,18 @@
 }
 
 
-#' @param curve One of three
+#' @param curve One of the following:
 #' \itemize{
-#'   \item A \code{\link{SlingshotDataSet}} object. The output from trajectory inference
-#' using Slingshot. 
+#' \item A \code{PseudotimeOrdering} or \code{\link{SlingshotDataSet}} object.
+#' The output from trajectory inference using Slingshot.
 #'  \item A \code{\link{SingleCellExperiment}} object. The output from trajectory inference
 #' using Slingshot. 
 #' \item A \code{CellDataset} object.
 #' }
-#' @param counts The count matrix, genes in rows and cells in columns. Only needed
-#' if the input is of the type \code{\link{SlingshotDataSet}} and the \code{gene} 
-#' argument is not \code{NULL}.
+#' @param counts The count matrix, genes in rows and cells in columns. Only
+#'   needed if the input is of the type \code{PseudotimeOrdering} or
+#'   \code{\link{SlingshotDataSet}} and the \code{gene} argument is not
+#'   \code{NULL}.
 #' @param gene The name of gene for which you want to plot the count or the row
 #'  number of that gene in the count matrix. Alternatively, one can specify
 #'  the \code{clusters} argument.
@@ -93,7 +94,7 @@
 #' library(slingshot)
 #' data(crv, package="tradeSeq")
 #' data(countMatrix, package="tradeSeq")
-#' rd <- slingshot::reducedDim(crv)
+#' rd <- slingshot::slingReducedDim(crv)
 #' cl <- kmeans(rd, centers = 7)$cluster
 #' lin <- slingshot::getLineages(rd, clusterLabels = cl, start.clus = 4)
 #' crv <- slingshot::getCurves(lin)
@@ -132,6 +133,32 @@ setMethod(f = "plotGeneCount", signature = c(curve = "SlingshotDataSet"),
                         title = title)
     return(p)
   }
+)
+
+#' @rdname plotGeneCount
+#' @export
+setMethod(f = "plotGeneCount", signature = c(curve = "PseudotimeOrdering"),
+          definition = function(curve, 
+                                counts = NULL, 
+                                gene = NULL, 
+                                clusters = NULL,
+                                models = NULL, 
+                                title = NULL){
+              if (is.null(gene) & is.null(clusters)) {
+                  stop("Either gene and counts, or clusters argument must be supplied")
+              }
+              if (is.null(counts) & is.null(clusters)) {
+                  stop("Either gene and counts, or clusters argument must be supplied")
+              }
+              
+              p <- .plotGeneCount(curve = curve,
+                                  counts = counts,
+                                  gene = gene,
+                                  clusters = clusters,
+                                  models = models,
+                                  title = title)
+              return(p)
+          }
 )
 
 #' @rdname plotGeneCount
