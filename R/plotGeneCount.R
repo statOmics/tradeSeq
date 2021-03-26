@@ -1,6 +1,6 @@
 .plotGeneCount <- function(curve, counts = NULL, gene = NULL, clusters = NULL,
                            models = NULL, title = NULL){
-  rd <- slingReducedDim(curve)
+  rd <- slingshot::slingReducedDim(curve)
   if (!is.null(gene)) {
     logcounts <- log1p(counts[gene, ])
     cols <- logcounts
