@@ -79,8 +79,8 @@ test_that("assocationTest results are equal for sds and sce input.",{
 test_that("assocationTest results are not all NA.",{
   assocSds <- tradeSeq::associationTest(sdsFit, global = TRUE)
   assocSce <- tradeSeq::associationTest(oneDimFit, global = TRUE)
-  mean(is.na(assocSds$waldStat)) < 1
-  mean(is.na(assocSce$waldStat)) < 1
+  expect_true(mean(is.na(assocSds$waldStat)) < 1)
+  expect_true(mean(is.na(assocSce$waldStat)) < 1)
 })
 
 ## startVsEndTest

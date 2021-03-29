@@ -208,13 +208,13 @@
     knotPoints <- modelTemp$smooth[[1]]$xp
     X <- predict(modelTemp, type = "lpmatrix")
 
-  } else if (sce) {
-    dm <- colData(models)$tradeSeq$dm # design matrix
-    X <- colData(models)$tradeSeq$X # linear predictor
-    knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
-    conditions <- suppressWarnings(models$tradeSeq$conditions)
-    nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-  }
+  } #else if (sce) {
+  #   dm <- colData(models)$tradeSeq$dm # design matrix
+  #   X <- colData(models)$tradeSeq$X # linear predictor
+  #   knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
+  #   conditions <- suppressWarnings(models$tradeSeq$conditions)
+  #   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
+  # }
 
   # construct individual contrast matrix
   if (!sce) {
@@ -251,43 +251,43 @@
         assign(paste0("L", jj), C)
       }
     }
-  } else if (sce) {
-    if (nCurves == 1) {
-
-        smoothCoefs <-  grep(x = colnames(X), pattern = "s\\(t[1-9]")
-        pSmooth <- length(smoothCoefs)
-        pFixed <- min(smoothCoefs) - 1
-        L1 <- matrix(0, nrow = ncol(X), ncol = pSmooth - 1,
-                     dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
-                                     NULL))
-        for (ii in seq_len(pSmooth) - 1) {
-          L1[pFixed + ii, ii] <- 1
-          L1[pFixed + ii + 1, ii] <- -1
-        }
-
-    } else if (nCurves > 1) {
-      p <- length(rowData(models)$tradeSeq$beta[[1]][1,])
-      npar <- p - nCurves*length(knotPoints)
-      nknots_max <- length(knotPoints)
-
-      for (jj in seq_len(nCurves)) { #curves
-
-          # get max pseudotime for lineage of interest
-          lID <- rowSums(dm[,grep(x=colnames(dm), pattern=paste0("l",jj)), drop=FALSE])
-          tmax <- max(dm[lID == 1, paste0("t", jj)])
-          # number of knots for that lineage
-          nknots <- sum(knotPoints <= tmax)
-          C <- matrix(0, nrow = p, ncol = nknots - 1,
-                      dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
-                                      NULL))
-          for (i in seq_len(nknots - 1)) {
-            C[npar + nknots_max * (jj - 1) + i, i] <- 1
-            C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
-          }
-          assign(paste0("L", jj), C)
-      } # end curves loop
-    }
-  }
+  } #else if (sce) {
+  #   if (nCurves == 1) {
+  # 
+  #       smoothCoefs <-  grep(x = colnames(X), pattern = "s\\(t[1-9]")
+  #       pSmooth <- length(smoothCoefs)
+  #       pFixed <- min(smoothCoefs) - 1
+  #       L1 <- matrix(0, nrow = ncol(X), ncol = pSmooth - 1,
+  #                    dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
+  #                                    NULL))
+  #       for (ii in seq_len(pSmooth) - 1) {
+  #         L1[pFixed + ii, ii] <- 1
+  #         L1[pFixed + ii + 1, ii] <- -1
+  #       }
+  # 
+  #   } else if (nCurves > 1) {
+  #     p <- length(rowData(models)$tradeSeq$beta[[1]][1,])
+  #     npar <- p - nCurves*length(knotPoints)
+  #     nknots_max <- length(knotPoints)
+  # 
+  #     for (jj in seq_len(nCurves)) { #curves
+  # 
+  #         # get max pseudotime for lineage of interest
+  #         lID <- rowSums(dm[,grep(x=colnames(dm), pattern=paste0("l",jj)), drop=FALSE])
+  #         tmax <- max(dm[lID == 1, paste0("t", jj)])
+  #         # number of knots for that lineage
+  #         nknots <- sum(knotPoints <= tmax)
+  #         C <- matrix(0, nrow = p, ncol = nknots - 1,
+  #                     dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
+  #                                     NULL))
+  #         for (i in seq_len(nknots - 1)) {
+  #           C[npar + nknots_max * (jj - 1) + i, i] <- 1
+  #           C[npar + nknots_max * (jj - 1) + i + 1, i] <- -1
+  #         }
+  #         assign(paste0("L", jj), C)
+  #     } # end curves loop
+  #   }
+  # }
   L <- do.call(cbind, list(mget(paste0("L", seq_len(nCurves))))[[1]])
 
 
@@ -331,18 +331,18 @@
           waldTestFC(beta, Sigma, get(paste0("L", ii)), l2fc)
         }, FUN.VALUE = c(.1, 1, .1)))
       })
-    } else if (sce) {
-
-      waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
-        beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-        Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
-        t(vapply(seq_len(nCurves), function(ll){
-          if(any(is.na(beta))) return(c(NA,NA, NA))
-          waldTestFC(beta, Sigma, get(paste0("L", ll)), l2fc)
-        }, FUN.VALUE = c(.1, 1, .1)))
-      })
-      names(waldResultsLineages) <- names(models)
-    }
+    } # else if (sce) {
+# 
+#       waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
+#         beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
+#         Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+#         t(vapply(seq_len(nCurves), function(ll){
+#           if(any(is.na(beta))) return(c(NA,NA, NA))
+#           waldTestFC(beta, Sigma, get(paste0("L", ll)), l2fc)
+#         }, FUN.VALUE = c(.1, 1, .1)))
+#       })
+#       names(waldResultsLineages) <- names(models)
+#     }
 
       # clean lineages results
       colNames <- c(paste0("waldStat_", seq_len(nCurves)),
@@ -369,23 +369,23 @@
     })
     fcMean <- rowMeans(abs(do.call(rbind, fcAll)))
 
-  } else if (sce) {
-    betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
-    fcAll <- apply(betaAll,1,function(betam){
-      if (any(is.na(betam))) return(NA)
-      .getFoldChanges(betam, L)
-    })
-    if (is(fcAll, "list")) fcAll <- do.call(rbind, fcAll)
-    if (is.null(dim(fcAll))) {
-      fcMean <- abs(unlist(fcAll))
-    } else {
-      if(nrow(fcAll) == nrow(models)){
-        fcMean <- matrix(rowMeans(abs(fcAll)), ncol = 1)
-      } else {
-        fcMean <- matrix(rowMeans(abs(t(fcAll))), ncol = 1)
-      }
-    }
-  }
+  } # else if (sce) {
+  #   betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
+  #   fcAll <- apply(betaAll,1,function(betam){
+  #     if (any(is.na(betam))) return(NA)
+  #     .getFoldChanges(betam, L)
+  #   })
+  #   if (is(fcAll, "list")) fcAll <- do.call(rbind, fcAll)
+  #   if (is.null(dim(fcAll))) {
+  #     fcMean <- abs(unlist(fcAll))
+  #   } else {
+  #     if(nrow(fcAll) == nrow(models)){
+  #       fcMean <- matrix(rowMeans(abs(fcAll)), ncol = 1)
+  #     } else {
+  #       fcMean <- matrix(rowMeans(abs(t(fcAll))), ncol = 1)
+  #     }
+  #   }
+  # }
   # return output
   if (global == TRUE & lineages == FALSE) return(cbind(waldResults, meanLogFC = fcMean))
   if (global == FALSE & lineages == TRUE) return(cbind(waldResAllLineages, meanLogFC = fcMean))

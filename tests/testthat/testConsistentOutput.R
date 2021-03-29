@@ -143,10 +143,13 @@ test_that("assocationTest results are equal for sds and manual input.",{
 test_that("associationTest different l2fc contrasts types run.", {
   startRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
                                         l2fc = 1, contrastType = "start")
+  expect_is(startRes, "data.frame")
   endRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
                                       l2fc = 1, contrastType = "end")
+  expect_is(endRes, "data.frame")
   consecRes <- tradeSeq::associationTest(sdsFit, global = TRUE, lineages = TRUE,
                                          l2fc = 1, contrastType = "consecutive")
+  expect_is(consecRes, "data.frame")
 })
 
 ## startVsEndTest
@@ -240,19 +243,24 @@ test_that("clusterExpressionpattern returns the right objects.", {
     suppressMessages({
       set.seed(179)
       PatSce <- tradeSeq::clusterExpressionPatterns(sceFit, nPoints = 20,
-                                                    genes = 1:50)
+                                                    genes = 1:50, 
+                                                    k0s = 4:5, alphas = 0.1)
       set.seed(179)
       PatInput <- tradeSeq::clusterExpressionPatterns(sceInput, nPoints = 20,
-                                                      genes = 1:50)
+                                                      genes = 1:50,
+                                                      k0s = 4:5, alphas = 0.1)
       set.seed(179)
       PatSds <- tradeSeq::clusterExpressionPatterns(sdsFit, nPoints = 20,
-                                                    genes = 1:50)
+                                                    genes = 1:50,
+                                                    k0s = 4:5, alphas = 0.1)
       set.seed(179)
       PatList <- tradeSeq::clusterExpressionPatterns(listFit, nPoints = 20,
-                                                     genes = 1:50)
+                                                     genes = 1:50,
+                                                     k0s = 4:5, alphas = 0.1)
       set.seed(179)
       PatSparse <- tradeSeq::clusterExpressionPatterns(sparseFit, nPoints = 20,
-                                                       genes = 1:50)
+                                                       genes = 1:50,
+                                                       k0s = 4:5, alphas = 0.1)
     })
   })
   # Same initial values
