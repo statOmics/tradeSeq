@@ -94,10 +94,10 @@
 #' library(slingshot)
 #' data(crv, package="tradeSeq")
 #' data(countMatrix, package="tradeSeq")
-#' rd <- slingshot::slingReducedDim(crv)
+#' rd <- slingReducedDim(crv)
 #' cl <- kmeans(rd, centers = 7)$cluster
-#' lin <- slingshot::getLineages(rd, clusterLabels = cl, start.clus = 4)
-#' crv <- slingshot::getCurves(lin)
+#' lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
+#' crv <- getCurves(lin)
 #' counts <- as.matrix(countMatrix)
 #' gamList <- fitGAM(counts = counts,
 #'  pseudotime = slingPseudotime(crv, na = FALSE),
