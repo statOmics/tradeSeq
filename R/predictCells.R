@@ -24,12 +24,10 @@ setMethod(f = "predictCells",
             # check if all gene IDs provided are present in the models object.
             if (is(gene, "character")) {
               if (!all(gene %in% rownames(models))) {
-                stop("The gene ID is not present in the models object.")
+                stop("Not all gene IDs are present in the models object.")
               }
-              id <- which(rownames(models) %in% gene)
-            } else {
-              id <- gene
-            }
+              id <- match(gene, rownames(models))
+            } else id <- gene
             
             dm <- colData(models)$tradeSeq$dm # design matrix
             X <- colData(models)$tradeSeq$X # linear predictor
