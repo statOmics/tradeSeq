@@ -106,7 +106,7 @@
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <p><code>tradeSeq</code> is an <code>R</code> package that allows analysis of gene expression along trajectories. While it has been developed and applied to single-cell RNA-sequencing (scRNA-seq) data, its applicability extends beyond that, and also allows the analysis of, e.g., single-cell ATAC-seq data along trajectories or bulk RNA-seq time series datasets. For every gene in the dataset, <code>tradeSeq</code> fits a generalized additive model (GAM) by building on the <code>mgcv</code> R package. It then allows statistical inference on the GAM by assessing contrasts of the parameters of the fitted GAM model, aiding in interpreting complex datasets. All details about the <code>tradeSeq</code> model and statistical tests are described in our preprint <span class="citation">(Van den Berge et al. 2020)</span>.</p>
 <p>In this vignette, we analyze a subset of the data from <span class="citation">(Paul et al. 2015)</span>. A <code>SingleCellExperiment</code> object of the data has been provided with the <a href="https://github.com/statOmics/tradeSeqpaper"><code>tradeSeq</code></a> package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the <a href="http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3">Monocle 3 vignette</a>.</p>
-<p>The <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a> focuses on using <code>tradeSeq</code> downsteam of <code>slingshot</code>. Here, we present how to use <code>tradeSeq</code> downstream of <code>monocle</code><span class="citation">(Qiu et al. 2017)</span>.</p>
+<p>The <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a> focuses on using <code>tradeSeq</code> downstream of <code>slingshot</code>. Here, we present how to use <code>tradeSeq</code> downstream of <code>monocle</code><span class="citation">(Qiu et al. 2017)</span>.</p>
 </div>
 <div id="load-data" class="section level1">
 <h1 class="hasAnchor">
@@ -155,7 +155,7 @@
 <p>or use the specific <code>CellDataSet</code> method.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitGAM.html">fitGAM</a></span><span class="op">(</span><span class="va">cds</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<p>You can then analyse the <code>sce</code> object following the <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a>.</p>
+<p>You can then analyze the <code>sce</code> object following the <a href="https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html">main vignette</a>.</p>
 </div>
 <div id="monocle3" class="section level1">
 <h1 class="hasAnchor">
