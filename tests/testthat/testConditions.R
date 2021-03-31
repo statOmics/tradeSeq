@@ -20,7 +20,7 @@ means[id, ] <- sweep(means[id, ], 2, FUN = "*", STATS = (pseudotime[, 1] / 50))
 counts <- matrix(rnbinom(n = G * n, mu = means, size = 1 / dispersions),
                  nrow = G, ncol = n)
 sce <- SingleCellExperiment(assays = list(counts = counts))
-sce@int_metadata$slingshot <- sds
+colData(sce)$slingshot <- slingshot::as.PseudotimeOrdering(sds)
 sce$conditions <- conditions <- as.factor(sample(1:5, ncol(sce), replace = TRUE))
 rm(id, counts, G, n, pseudotime, dispersions, means, cellWeights)
 

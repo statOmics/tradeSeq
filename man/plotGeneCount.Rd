@@ -3,6 +3,7 @@
 \name{plotGeneCount}
 \alias{plotGeneCount}
 \alias{plotGeneCount,SlingshotDataSet-method}
+\alias{plotGeneCount,PseudotimeOrdering-method}
 \alias{plotGeneCount,SingleCellExperiment-method}
 \alias{plotGeneCount,CellDataSet-method}
 \title{Plot gene expression in reduced dimension.}
@@ -10,6 +11,15 @@
 plotGeneCount(curve, ...)
 
 \S4method{plotGeneCount}{SlingshotDataSet}(
+  curve,
+  counts = NULL,
+  gene = NULL,
+  clusters = NULL,
+  models = NULL,
+  title = NULL
+)
+
+\S4method{plotGeneCount}{PseudotimeOrdering}(
   curve,
   counts = NULL,
   gene = NULL,
@@ -37,10 +47,10 @@ plotGeneCount(curve, ...)
 )
 }
 \arguments{
-\item{curve}{One of three
+\item{curve}{One of the following:
 \itemize{
-  \item A \code{\link{SlingshotDataSet}} object. The output from trajectory inference
-using Slingshot. 
+\item A \code{PseudotimeOrdering} or \code{\link{SlingshotDataSet}} object.
+The output from trajectory inference using Slingshot.
  \item A \code{\link{SingleCellExperiment}} object. The output from trajectory inference
 using Slingshot. 
 \item A \code{CellDataset} object.
@@ -48,9 +58,10 @@ using Slingshot.
 
 \item{...}{parameters including:}
 
-\item{counts}{The count matrix, genes in rows and cells in columns. Only needed
-if the input is of the type \code{\link{SlingshotDataSet}} and the \code{gene} 
-argument is not \code{NULL}.}
+\item{counts}{The count matrix, genes in rows and cells in columns. Only
+needed if the input is of the type \code{PseudotimeOrdering} or
+\code{\link{SlingshotDataSet}} and the \code{gene} argument is not
+\code{NULL}.}
 
 \item{gene}{The name of gene for which you want to plot the count or the row
 number of that gene in the count matrix. Alternatively, one can specify
@@ -82,10 +93,10 @@ set.seed(97)
 library(slingshot)
 data(crv, package="tradeSeq")
 data(countMatrix, package="tradeSeq")
-rd <- slingshot::reducedDim(crv)
+rd <- slingReducedDim(crv)
 cl <- kmeans(rd, centers = 7)$cluster
-lin <- slingshot::getLineages(rd, clusterLabels = cl, start.clus = 4)
-crv <- slingshot::getCurves(lin)
+lin <- getLineages(rd, clusterLabels = cl, start.clus = 4)
+crv <- getCurves(lin)
 counts <- as.matrix(countMatrix)
 gamList <- fitGAM(counts = counts,
  pseudotime = slingPseudotime(crv, na = FALSE),

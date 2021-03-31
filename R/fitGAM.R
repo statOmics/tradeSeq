@@ -396,9 +396,10 @@
 #' If each lineage consists of multiple conditions, this argument can be used to
 #' specify the conditions. tradeSeq will then fit a condition-specific smoother for
 #' every lineage.
-#' @param sds an object of class \code{SlingshotDataSet}, typically obtained
-#' after running Slingshot. If this is provided, \code{pseudotime} and
-#' \code{cellWeights} arguments are derived from this object.
+#' @param sds an object of class \code{SlingshotDataSet} or
+#'   \code{PseudotimeOrdering}, typically obtained after running Slingshot. If
+#'   this is provided, \code{pseudotime} and \code{cellWeights} arguments are
+#'   derived from this object.
 #' @param pseudotime A matrix of pseudotime values, each row represents a cell
 #' and each column represents a lineage.
 #' @param cellWeights A matrix of cell weights defining the probability that a
@@ -498,15 +499,16 @@ setMethod(f = "fitGAM",
                    "manually using pseudotime and cellWeights arguments.")
             }
             if (!is.null(sds)) {
-              # check if input is slingshotdataset
-              if (is(sds, "SlingshotDataSet")) {
+              # check if input is slingshotdataset or pseudotimeordering
+              if (is(sds, "SlingshotDataSet") | is(sds, "PseudotimeOrdering")) {
                 if (!sce) {
                   warning(paste0(
                     "If an sds argument is provided, the sce argument is ",
                     "forced to TRUE "))
                   sce <- TRUE
                 }
-              } else stop("sds argument must be a SlingshotDataSet object.")
+              } else stop("sds argument must be a SlingshotDataSet or ",
+                          "PseudotimeOrdering object.")
               # extract variables from slingshotdataset
               pseudotime <- slingPseudotime(sds, na = FALSE)
               cellWeights <- slingCurveWeights(sds)
@@ -650,7 +652,8 @@ setMethod(f = "fitGAM",
                                 sce = TRUE,
                                 family = "nb",
                                 gcv = FALSE){
-          if (is.null(counts@int_metadata$slingshot)) {
+          if (is.null(counts@int_metadata$slingshot) & 
+              is.null(colData(counts)$slingshot)) {
             stop(paste0("For now tradeSeq only works downstream of slingshot ",
                         "in this format.\n Consider using the method with a ",
                         "matrix as input instead."))

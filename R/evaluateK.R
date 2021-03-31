@@ -103,7 +103,7 @@
 #' set.seed(8)
 #' data(sds, package="tradeSeq")
 #' loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
-#' counts <- round(abs(t(slingshot::reducedDim(sds) %*% loadings))) + 100
+#' counts <- round(abs(t(slingReducedDim(sds) %*% loadings))) + 100
 #' aicK <- evaluateK(counts = counts, sds = sds, nGenes = 100,
 #'                   k = 3:5, verbose = FALSE)
 #' @details 
@@ -148,13 +148,14 @@ setMethod(f = "evaluateK",
             }
 
             if (!is.null(sds)) {
-              # check if input is slingshotdataset
-              if (is(sds, "SlingshotDataSet")) {
+              # check if input is slingshotdataset or pseudotimeordering
+              if (is(sds, "SlingshotDataSet") | is(sds, "PseudotimeOrdering")) {
                 # extract variables from slingshotdataset
                 pseudotime <- slingPseudotime(sds, na = FALSE)
                 cellWeights <- slingCurveWeights(sds)
               }
-              else stop("sds argument must be a SlingshotDataSet object.")
+              else stop("sds argument must be a SlingshotDataSet or ",
+                        "PseudotimeOrdering object.")
             }
 
             if (is.null(counts)) stop("Provide expression counts using counts",
@@ -257,7 +258,8 @@ setMethod(f = "evaluateK",
                                 family = "nb",
                                 gcv = FALSE,
                                 ...){
-            if (is.null(counts@int_metadata$slingshot)) {
+            if (is.null(counts@int_metadata$slingshot) & 
+                is.null(colData(counts)$slingshot)) {
               stop(paste0("For now tradeSeq only works downstream of slingshot",
                           "in this format.\n Consider using the method with a ",
                           "matrix as input instead."))
@@ -357,7 +359,7 @@ setMethod(f = "evaluateK",
 #' set.seed(8)
 #' data(sds, package="tradeSeq")
 #' loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
-#' counts <- round(abs(t(slingshot::reducedDim(sds) %*% loadings))) + 100
+#' counts <- round(abs(t(slingReducedDim(sds) %*% loadings))) + 100
 #' aicK <- evaluateK(counts = counts, sds = sds, nGenes = 100,
 #'                   k = 3:5, verbose = FALSE, plot = FALSE)
 #' plot_evalutateK_results(aicK, k = 3:5)
