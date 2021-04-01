@@ -26,7 +26,7 @@ Evaluate an appropriate number of knots.
 set.seed(8)
 data(sds, package="tradeSeq")
 loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
-counts <- round(abs(t(slingReducedDim(sds) \%*\% loadings))) + 100
+counts <- round(abs(t(slingshot:::slingReducedDim(sds) \%*\% loadings))) + 100
 aicK <- evaluateK(counts = counts, sds = sds, nGenes = 100,
                   k = 3:5, verbose = FALSE, plot = FALSE)
 plot_evalutateK_results(aicK, k = 3:5)
