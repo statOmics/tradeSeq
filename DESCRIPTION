@@ -44,7 +44,7 @@ Imports:
     edgeR,
     SingleCellExperiment,
     SummarizedExperiment,
-    slingshot (>= 1.99),
+    slingshot,
     magrittr,
     RColorBrewer,
     BiocParallel,
