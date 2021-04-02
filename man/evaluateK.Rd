@@ -175,6 +175,7 @@ proceed with care when setting k to value higher than 15.
 \examples{
 ## This is an artificial example, please check the vignette for a realistic one.
 set.seed(8)
+library(slingshot)
 data(sds, package="tradeSeq")
 loadings <- matrix(runif(2000*2, -2, 2), nrow = 2, ncol = 2000)
 counts <- round(abs(t(slingReducedDim(sds) \%*\% loadings))) + 100
