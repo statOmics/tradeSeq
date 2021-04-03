@@ -212,3 +212,41 @@ test_that("conditionTest work with options", {
   expect_error(tradeSeq::conditionTest(Fit, knots = c(1:4)))
   expect_error(tradeSeq::conditionTest(Fit, knots = 1))
 })
+
+
+test_that("associationTest works with conditions", {
+  cellWeights <- slingCurveWeights(sce)
+  counts <- SingleCellExperiment::counts(sce)
+  pseudotime <- slingPseudotime(sds, na = FALSE)
+  Fit <- tradeSeq::fitGAM(counts = counts,
+                          pseudotime = pseudotime, cellWeights = cellWeights,
+                          nknots = 3, verbose = FALSE, conditions = conditions)
+  # With global and lineages for default contrastType start
+  expect_is(df <- tradeSeq::associationTest(Fit), "data.frame")
+  expect_is(df <- tradeSeq::associationTest(Fit, lineages = TRUE), "data.frame")
+  expect_is(df <- tradeSeq::associationTest(Fit, global = FALSE, lineages = TRUE), "data.frame")
+  # With global and lineages for contrastType end
+  expect_is(df <- tradeSeq::associationTest(Fit, contrastType = "end"), "data.frame")
+  expect_is(df <- tradeSeq::associationTest(Fit, contrastType = "end", lineages = TRUE), "data.frame")
+  expect_is(df <- tradeSeq::associationTest(Fit, contrastType = "end", global = FALSE, lineages = TRUE), "data.frame")
+  # With global and lineages for contrastType consecutive
+  expect_is(df <- tradeSeq::associationTest(Fit, contrastType = "consecutive"), "data.frame")
+  expect_is(df <- tradeSeq::associationTest(Fit, contrastType = "consecutive", lineages = TRUE), "data.frame")
+  expect_is(df <- tradeSeq::associationTest(Fit, contrastType = "consecutive", global = FALSE, lineages = TRUE), "data.frame")
+  # different contrastTypes give similar results if no l2fc cut-off for global test
+  dfStart <- tradeSeq::associationTest(Fit, contrastType = "start")
+  dfEnd <- tradeSeq::associationTest(Fit, contrastType = "end")
+  dfConsecutive <- tradeSeq::associationTest(Fit, contrastType = "consecutive")
+  expect_true(max(abs(dfStart$waldStat - dfEnd$waldStat)) < 1e-3)
+  expect_true(max(abs(dfStart$waldStat - dfConsecutive$waldStat)) < 1e-3)
+  expect_true(max(abs(dfConsecutive$waldStat - dfEnd$waldStat)) < 1e-3)
+  # different contrastTypes give different results with l2fc cut-off
+  dfStartFC <- tradeSeq::associationTest(Fit, contrastType = "start", l2fc = 1)
+  dfEndFC <- tradeSeq::associationTest(Fit, contrastType = "end", l2fc = 1)
+  dfConsecutiveFC <- tradeSeq::associationTest(Fit, contrastType = "consecutive", l2fc = 1)
+  expect_true(max(abs(dfStartFC$waldStat - dfEndFC$waldStat)) > 1e-3)
+  expect_true(max(abs(dfStartFC$waldStat - dfConsecutiveFC$waldStat)) > 1e-3)
+  expect_true(max(abs(dfConsecutiveFC$waldStat - dfEndFC$waldStat)) > 1e-3)
+  # Wrong contrastType
+  expect_error(tradeSeq::associationTest(Fit, l2fc = 1, contrastType = "wrong"))
+})

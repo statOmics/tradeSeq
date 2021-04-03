@@ -210,7 +210,10 @@
   
   if(l2fc != 0){
     # make sure provided contrast option is valid
-    contrastType <- match.arg(contrastType, c("start", "end", "consecutive"))
+    choices <- c("start", "end", "consecutive")
+    if(!contrastType %in% choices){
+      stop("contrastType must be either one of 'start', 'end', or 'consecutive'.")
+    }
   }
   
   dm <- colData(models)$tradeSeq$dm # design matrix
@@ -252,7 +255,6 @@
                             pseudotime = pseudotime,
                             conditions = conditions)
       
-      # TODO: fill in contrast matrix
       if(contrastType == "start"){
         for(pp in seq_len(nPoints)[-1]){
           # point - start
@@ -272,27 +274,54 @@
       assign(paste0("L", jj, kk), C)
       
     }
-    # TODO: finished code for 1 curve. Need to work on multiple.
-    
+
   } else if (nCurves > 1) {
+    
     p <- length(rowData(models)$tradeSeq$beta[[1]][1,])
     npar <- p - nCurves*nlevels(conditions)*length(knotPoints)
     nknots_max <- length(knotPoints)
+    
     for (jj in seq_len(nCurves)) { #curves
+      # get max pseudotime for lineage of interest
+      lID <- rowSums(dm[,grep(x=colnames(dm), pattern=paste0("l",jj))])
+      maxT <- max(dm[lID == 1, paste0("t", jj)])
+      
       for(kk in seq_len(nlevels(conditions))){
-        # get max pseudotime for lineage of interest
-        lID <- rowSums(dm[,grep(x=colnames(dm), pattern=paste0("l",jj))])
-        tmax <- max(dm[lID == 1, paste0("t", jj)])
-        # number of knots for that lineage
-        nknots <- sum(knotPoints <= tmax)
-        C <- matrix(0, nrow = p, ncol = nknots - 1,
-                    dimnames = list(colnames(rowData(models)$tradeSeq$beta[[1]]),
-                                    NULL))
-        for (i in seq_len(nknots - 1)) {
-          C[npar + nknots_max * nlevels(conditions) * (jj - 1) + nknots_max * (kk - 1) + i, i] <- 1
-          C[npar + nknots_max * nlevels(conditions)  * (jj - 1) + nknots_max * (kk - 1) + i + 1, i] <- -1
+        
+        # contrast matrix setup
+        C <- matrix(0, nrow = ncol(X), ncol = nPoints - 1)
+        colnames(C) <- paste0("point", seq_len(nPoints)[-1])
+        
+        # get predictor matrix for each condition
+        contrastPoints <- seq(0, maxT, length.out = nPoints)
+        dfPoints <- do.call(rbind, sapply(contrastPoints, 
+                                          .getPredictCustomPointDf, 
+                                          dm=dm, lineageId=jj,
+                                          condition=kk,
+                                          simplify = FALSE))
+        XPoints <- predictGAM(lpmatrix = X,
+                              df = dfPoints,
+                              pseudotime = pseudotime,
+                              conditions = conditions)
+        
+        if(contrastType == "start"){
+          for(pp in seq_len(nPoints)[-1]){
+            # point - start
+            C[,pp-1] <- XPoints[pp,] - XPoints[1,]
+          }
+        } else if(contrastType == "end"){
+          for(pp in seq_len(nPoints)[-nPoints]){
+            # point - end
+            C[,pp] <- XPoints[pp,] - XPoints[nPoints,]
+          }
+        } else if(contrastType == "consecutive"){
+          for(pp in seq_len(nPoints)[-nPoints]){
+            # point2 - point1
+            C[,pp] <- XPoints[pp+1,] - XPoints[pp,]
+          }
         }
         assign(paste0("L", jj, kk), C)
+        
       }
     } # end curves loop
   }
@@ -344,6 +373,9 @@
   }
   
   ## get fold changes for output
+  combs <- apply(expand.grid(seq_len(nCurves), seq_len(nlevels(conditions))),
+                 1 , paste0, collapse="")
+  L <- do.call(cbind, list(mget(paste0("L", combs)))[[1]])
   betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
   fcAll <- apply(betaAll,1,function(betam){
     if (any(is.na(betam))) return(NA)
@@ -361,7 +393,11 @@
   }
   # return output
   if (global == TRUE & lineages == FALSE) return(cbind(waldResults, meanLogFC = fcMean))
-  if (global == FALSE & lineages == TRUE) return(cbind(waldResAllLineages, meanLogFC = fcMean))
+  if (global == FALSE & lineages == TRUE){
+    df <- data.frame(cbind(waldResAllLineages, meanLogFC = fcMean))
+    colnames(df)[ncol(df)] <- "meanLogFC"
+    return(df)
+  }
   if (global == TRUE & lineages == TRUE) {
     waldAll <- cbind(waldResults, waldResAllLineages, meanLogFC = fcMean)
     return(waldAll)
@@ -432,10 +468,12 @@ setMethod(f = "associationTest",
 
             conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
             if(conditions){
-              res <- .associationTest_conditions_original(models = models,
+              res <- .associationTest_conditions(models = models,
                                                  global = global,
                                                  lineages = lineages,
-                                                 l2fc = l2fc)
+                                                 l2fc = l2fc,
+                                                 nPoints = nPoints,
+                                                 contrastType = contrastType)
             } else {
               res <- .associationTest(models = models,
                                       global = global,
