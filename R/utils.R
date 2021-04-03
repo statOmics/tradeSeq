@@ -65,7 +65,10 @@
 }
 
 ## get predictor matrix for a custom pseudotime point.
-.getPredictCustomPointDf <- function(dm, lineageId, pseudotime){
+.getPredictCustomPointDf <- function(dm, 
+                                     lineageId, 
+                                     pseudotime,
+                                     condition=NULL){
   # note that X or offset variables dont matter as long as they are the same,
   # since they will get canceled.
   vars <- dm[1, ]
@@ -84,9 +87,16 @@
   vars[, grep(colnames(vars), pattern = "t[1-9]")] <- 0
   # set all lineages on 0
   vars[, grep(colnames(vars), pattern = "l[1-9]")] <- 0
+  # are there conditions? If yes, l1_1 must be present. Otherwise it's l1.
+  conditionsPresent <- !is.null(condition)
   # set lineage
-  lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "($|_)"))
-  vars[, lineageIds] <- 1 / length(lineageIds)
+  if(conditionsPresent){
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "_", condition))
+    vars[, lineageIds] <- 1 / length(lineageIds)
+  } else {
+    lineageIds <- grep(colnames(vars), pattern = paste0("l", lineageId, "($|_)"))
+    vars[, lineageIds] <- 1 / length(lineageIds)
+  }
   # set custom pseudotime
   vars[, paste0("t", lineageId)] <- pseudotime
   # set offset
