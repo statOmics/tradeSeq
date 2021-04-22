@@ -222,9 +222,15 @@
   conditions <- suppressWarnings(models$tradeSeq$conditions)
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   slingshotColData <- colData(models)$slingshot
-  pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
-                                       pattern = "pseudotime"),
-                                 drop = FALSE]
+  if(is(slingshotColData, "PseudotimeOrdering")){
+    pseudotime <- slingshot::slingPseudotime(
+      slingshot::as.SlingshotDataSet(slingshotColData), 
+      na=FALSE)
+  } else {
+    pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
+                                         pattern = "pseudotime"),
+                                   drop = FALSE]
+  }
   
   # construct individual contrast matrix
   if (nCurves == 1) {
@@ -247,7 +253,8 @@
       contrastPoints <- seq(0, maxT, length.out = nPoints)
       dfPoints <- do.call(rbind, sapply(contrastPoints, 
                                         .getPredictCustomPointDf, 
-                                        dm=dm, lineageId=1,
+                                        dm=dm, 
+                                        lineageId=1,
                                         condition=kk,
                                         simplify = FALSE))
       XPoints <- predictGAM(lpmatrix = X,
@@ -336,7 +343,7 @@
       beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
       Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
       if(any(is.na(beta))) return(c(NA,NA, NA))
-      waldTestFC(beta, Sigma, L, l2fc)
+      waldTestFC(beta, Sigma, L, l2fc, inverse=inverse)
     })
     names(waldResultsOmnibus) <- names(models)
     # tidy output
@@ -352,7 +359,8 @@
       Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
       t(vapply(seq_len(nCurves), function(ll){
         vapply(seq_len(nlevels(conditions)), function(kk){
-          waldTestFC(beta, Sigma, get(paste0("L", ll, kk)), l2fc)
+          waldTestFC(beta, Sigma, get(paste0("L", ll, kk)), l2fc, 
+                     inverse=inverse)
         }, FUN.VALUE = c(.1, 1, .1))
       }, FUN.VALUE = rep(.1, 3 * nlevels(conditions))))
     })
@@ -433,6 +441,10 @@
 #'  was implemented and is kept for backwards compatibility.
 #'  If a fold change threshold has been set, we recommend users to use either
 #'  the \code{"start"} or \code{"end"} options.
+#' @param inverse The procedure to use for inverting the variance-covariance
+#'  matrix of the contrasts. Options are \code{"Chol"} for Cholesky decomposition,
+#'  \code{"QR"} for QR decomposition, or \code{"generalized"} for the
+#'  Moore-Pennrose generalized inverse.
 #' @importFrom magrittr %>%
 #' @examples
 #' set.seed(8)
@@ -464,7 +476,8 @@ setMethod(f = "associationTest",
                                 lineages = FALSE,
                                 l2fc = 0,
                                 nPoints = 2 * tradeSeq::nknots(models),
-                                contrastType = "start"){
+                                contrastType = "start",
+                                inverse = "Chol"){
 
             conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
             if(conditions){
@@ -473,14 +486,16 @@ setMethod(f = "associationTest",
                                                  lineages = lineages,
                                                  l2fc = l2fc,
                                                  nPoints = nPoints,
-                                                 contrastType = contrastType)
+                                                 contrastType = contrastType,
+                                                 inverse = inverse)
             } else {
               res <- .associationTest(models = models,
                                       global = global,
                                       lineages = lineages,
                                       l2fc = l2fc,
                                       nPoints = nPoints,
-                                      contrastType = contrastType)
+                                      contrastType = contrastType,
+                                      inverse = inverse)
             }
             return(res)
 
