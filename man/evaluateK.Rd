@@ -167,7 +167,7 @@ Evaluate an appropriate number of knots.
 }
 \details{
 The number of parameter to evaluate (and therefore the runtime) scales in 
-\code{k} * the number of lineages. Morevoer, we have found that, in practice,
+\code{k} * the number of lineages. Moreover, we have found that, in practice,
 values of k above 12-15 rarely lead to improved result, not matter the 
 complexity of the trajectory being considered. As such, we recommand that user
 proceed with care when setting k to value higher than 15.

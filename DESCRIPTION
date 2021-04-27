@@ -59,7 +59,8 @@ Imports:
     tibble,
     Matrix,
     viridis,
-    matrixStats
+    matrixStats,
+    MASS
 Suggests:
     knitr,
     rmarkdown,

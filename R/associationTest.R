@@ -188,14 +188,6 @@
   }
 }
 
-# models = vecInput
-# global = TRUE
-# lineages = FALSE
-# l2fc = 0
-# contrastType = "start"
-# nPoints = 2 * tradeSeq::nknots(models)
-# inverse = "Chol"
-
 
 .associationTest_conditions <- function(models, 
                                         global = TRUE, 
@@ -203,7 +195,7 @@
                                         l2fc = 0, 
                                         contrastType = "start",
                                         nPoints = 2 * tradeSeq::nknots(models),
-                                        inverse = "Chol"){
+                                        inverse = "eigen"){
   ## new associationTest function where contrasts for l2fc threshold can be 
   ## decided upon, as well as nPoints can be used to compare.
   ## only works for SCE fitGAM output.
@@ -441,10 +433,6 @@
 #'  was implemented and is kept for backwards compatibility.
 #'  If a fold change threshold has been set, we recommend users to use either
 #'  the \code{"start"} or \code{"end"} options.
-#' @param inverse The procedure to use for inverting the variance-covariance
-#'  matrix of the contrasts. Options are \code{"Chol"} for Cholesky decomposition,
-#'  \code{"QR"} for QR decomposition, or \code{"generalized"} for the
-#'  Moore-Pennrose generalized inverse.
 #' @importFrom magrittr %>%
 #' @examples
 #' set.seed(8)
@@ -476,8 +464,7 @@ setMethod(f = "associationTest",
                                 lineages = FALSE,
                                 l2fc = 0,
                                 nPoints = 2 * tradeSeq::nknots(models),
-                                contrastType = "start",
-                                inverse = "Chol"){
+                                contrastType = "start"){
 
             conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
             if(conditions){
@@ -486,16 +473,14 @@ setMethod(f = "associationTest",
                                                  lineages = lineages,
                                                  l2fc = l2fc,
                                                  nPoints = nPoints,
-                                                 contrastType = contrastType,
-                                                 inverse = inverse)
+                                                 contrastType = contrastType)
             } else {
               res <- .associationTest(models = models,
                                       global = global,
                                       lineages = lineages,
                                       l2fc = l2fc,
                                       nPoints = nPoints,
-                                      contrastType = contrastType,
-                                      inverse = inverse)
+                                      contrastType = contrastType)
             }
             return(res)
 

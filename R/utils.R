@@ -347,8 +347,18 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
 ## temporary version of Wald test that also outputs FC.
 ## Made this such that other tests don't break as we update relevant tests to
 ## also return fold changes. This should become the default one over time.
-waldTestFC <- function(beta, Sigma, L, l2fc=0, inverse="QR"){
+waldTestFC <- function(beta, Sigma, L, l2fc=0, inverse="QR", ...){
   # lfc is the log2 fold change threhshold to test against.
+  if(inverse == "eigen"){
+    res1 <- try(getEigenStatGAMFC(beta, Sigma, L, l2fc, ...), silent = TRUE)
+    if(is(res1, "try-error")){
+      return(c(NA, NA, NA))
+    }
+    ## calculate p-value
+    pval <- 1 - stats::pchisq(res1[1], df = res1[2])
+    res1 <- c(res1, pval)
+    return(res1)
+  }
   ### build a contrast matrix for a multivariate Wald test
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   if(inverse == "Chol"){
@@ -403,7 +413,7 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh = 1e-2){
   sigma <- t(L) %*% Sigma %*% L
   eSigma <- eigen(sigma, symmetric = TRUE)
   r <- try(sum(eSigma$values / eSigma$values[1] > eigenThresh), silent = TRUE)
-  if (is(r)[1] == "try-error") {
+  if (is(r,"try-error")) {
     return(c(NA, NA))
   }
   if (r == 1) return(c(NA, NA)) # CHECK
