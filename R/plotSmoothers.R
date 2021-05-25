@@ -90,7 +90,7 @@
   dm <- colData(models)$tradeSeq$dm # design matrix
   y <- unname(counts[names(models),][id,])
   X <- colData(models)$tradeSeq$X # linear predictor
-  slingshotColData <- colData(models)$slingshot
+  slingshotColData <- colData(models)$crv
   pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                        pattern = "pseudotime")]
   if (is.null(dim(pseudotime))) pseudotime <- matrix(pseudotime, ncol = 1)
@@ -222,7 +222,7 @@
   dm <- colData(models)$tradeSeq$dm # design matrix
   y <- unname(counts[names(models),][id,])
   X <- colData(models)$tradeSeq$X # linear predictor
-  slingshotColData <- colData(models)$slingshot
+  slingshotColData <- colData(models)$crv
   pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                        pattern = "pseudotime")]
   nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))

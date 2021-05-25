@@ -164,7 +164,7 @@ setMethod(f = "predictSmooth",
             # get tradeSeq info
             dm <- colData(models)$tradeSeq$dm # design matrix
             X <- colData(models)$tradeSeq$X # linear predictor
-            slingshotColData <- colData(models)$slingshot
+            slingshotColData <- colData(models)$crv
             pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                                  pattern = "pseudotime")]
             if (is.null(dim(pseudotime))) pseudotime <- matrix(pseudotime, ncol = 1)

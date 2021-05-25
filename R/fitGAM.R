@@ -563,7 +563,7 @@ setMethod(f = "fitGAM",
             # return SingleCellExperiment object
             sc <- SingleCellExperiment(assays = list(counts = counts[genes,]))
             # slingshot info
-            SummarizedExperiment::colData(sc)$slingshot <- S4Vectors::DataFrame(
+            SummarizedExperiment::colData(sc)$crv <- S4Vectors::DataFrame(
               pseudotime = pseudotime,
               cellWeights = cellWeights)
             # tradeSeq gene-level info
@@ -718,8 +718,8 @@ setMethod(f = "fitGAM",
           # tradeSeq cell-level info
           SummarizedExperiment::colData(counts)$tradeSeq <-
             SummarizedExperiment::colData(gamOutput)$tradeSeq
-          SummarizedExperiment::colData(counts)$slingshot <-
-            SummarizedExperiment::colData(gamOutput)$slingshot
+          SummarizedExperiment::colData(counts)$crv <-
+            SummarizedExperiment::colData(gamOutput)$crv
           # metadata: tradeSeq knots
           S4Vectors::metadata(counts)$tradeSeq <-
             S4Vectors::metadata(gamOutput)$tradeSeq

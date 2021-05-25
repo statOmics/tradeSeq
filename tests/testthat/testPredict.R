@@ -60,15 +60,14 @@ test_that("predictSmooth returns the right kind of outputs", {
   nPoints <- 50
   yhat <- predictSmooth(sdsFit, gene = 1, nPoints = nPoints, tidy = FALSE)
   expect_equal(ncol(yhat),
-               nPoints * ncol(colData(sdsFit)$slingshot) / 2)
+               nPoints * ncol(colData(sdsFit)$crv) / 2)
   expect_equal(nrow(yhat), 1)
   yhat <- predictSmooth(sdsFit, nPoints = nPoints,
                         gene = sample(seq_len(nrow(sdsFit)), 10),
                         tidy = FALSE)
   expect_equal(ncol(yhat),
-               nPoints * ncol(colData(sdsFit)$slingshot) / 2)
+               nPoints * ncol(colData(sdsFit)$crv) / 2)
   expect_equal(nrow(yhat), 10)
-
 })
 
 

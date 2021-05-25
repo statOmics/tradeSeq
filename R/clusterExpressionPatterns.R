@@ -33,7 +33,7 @@
   } else if (sce) {
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
-    slingshotColData <- colData(models)$slingshot
+    slingshotColData <- colData(models)$crv
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime")]
     if (is.null(dim(pseudotime))) pseudotime <- matrix(pseudotime, ncol = 1)
@@ -99,7 +99,7 @@
     X <- colData(models)$tradeSeq$X # linear predictor
     conditions <- models$tradeSeq$conditions
     nConditions <- nlevels(conditions)
-    slingshotColData <- colData(models)$slingshot
+    slingshotColData <- colData(models)$crv
     pseudotime <- slingshotColData[, grep(x = colnames(slingshotColData),
                                           pattern = "pseudotime")]
     if (is.null(dim(pseudotime))) pseudotime <- matrix(pseudotime, ncol = 1)

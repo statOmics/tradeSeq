@@ -34,7 +34,7 @@
     # get max pseudotime for each lineage.
     max(dm[,paste0("t",cc)][dm[,paste0("l",cc)] == 1])
   })
-  slingshotColData <- colData(models)$slingshot
+  slingshotColData <- colData(models)$crv
   pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                        pattern = "pseudotime"),
                                  drop = FALSE]
@@ -213,7 +213,7 @@
   knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots #knot points
   conditions <- suppressWarnings(models$tradeSeq$conditions)
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
-  slingshotColData <- colData(models)$slingshot
+  slingshotColData <- colData(models)$crv
   if(is(slingshotColData, "PseudotimeOrdering")){
     pseudotime <- slingshot::slingPseudotime(
       slingshot::as.SlingshotDataSet(slingshotColData), 

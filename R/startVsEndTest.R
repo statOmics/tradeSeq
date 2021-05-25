@@ -56,7 +56,7 @@
     nCurves <- length(grep(x = colnames(dm), pattern = "l[1-9]"))
     nLineages <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
 
-    slingshotColData <- colData(models)$slingshot
+    slingshotColData <- colData(models)$crv
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime"),
                                    drop = FALSE]

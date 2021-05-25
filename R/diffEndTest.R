@@ -42,7 +42,7 @@
     }
   } else if (sce) {
     # get lp matrix
-    slingshotColData <- colData(models)$slingshot
+    slingshotColData <- colData(models)$crv
     for (jj in seq_len(nLineages)) {
       df <- .getPredictEndPointDf(dm, jj)
       assign(paste0("X", jj),

@@ -33,7 +33,7 @@
     dm <- colData(models)$tradeSeq$dm # design matrix
     X <- colData(models)$tradeSeq$X # linear predictor
     knotPoints <- S4Vectors::metadata(models)$tradeSeq$knots # knot points
-    slingshotColData <- colData(models)$slingshot
+    slingshotColData <- colData(models)$crv
     pseudotime <- slingshotColData[,grep(x = colnames(slingshotColData),
                                          pattern = "pseudotime")]
     nCurves <- length(grep(x = colnames(dm), pattern = "l[1-9]"))
