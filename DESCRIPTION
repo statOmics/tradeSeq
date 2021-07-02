@@ -49,6 +49,7 @@ Imports:
     BiocParallel,
     Biobase,
     pbapply,
+    igraph,
     ggplot2,
     princurve,
     methods,
