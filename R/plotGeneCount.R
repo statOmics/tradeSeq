@@ -86,8 +86,7 @@
 #' @param title Title for the plot.
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the
 #'  plot will be colored according to gene count level. If none are provided, the 
-#'  function will fail. When a \code{CellDataset} object is provided as input,
-#'  the function relies on the \code{\link{plot_cell_trajectory}} function
+#'  function will fail.
 #' @return A \code{\link{ggplot}} object
 #' @examples
 #' set.seed(97)
@@ -136,7 +135,7 @@ setMethod(f = "plotGeneCount", signature = c(curve = "SlingshotDataSet"),
 )
 
 #' @rdname plotGeneCount
-#' @importFrom slingshot PseudotimeOrdering
+#' @importFrom TrajectoryUtils PseudotimeOrdering
 #' @export
 setMethod(f = "plotGeneCount", signature = c(curve = "PseudotimeOrdering"),
           definition = function(curve, 
@@ -182,40 +181,6 @@ setMethod(f = "plotGeneCount", signature = c(curve = "SingleCellExperiment"),
                        clusters = clusters,
                        models = models,
                        title = title)
-    return(p)
-  }
-)
-
-#' @rdname plotGeneCount
-#' @import monocle Biobase
-#' @importFrom ggplot2 ggtitle
-setMethod(f = "plotGeneCount", signature = c(curve = "CellDataSet"),
-          definition = function(curve, 
-                                counts = NULL, 
-                                gene = NULL, 
-                                clusters = NULL,
-                                models = NULL, 
-                                title = NULL){
-    if (!is.null(counts)) {
-      message(paste0("The count argument will be ignored if the curve argument",
-                     "is a CellDataSet object"))
-    }
-    if (!is.null(models)) {
-      message(paste0("The count argument will be ignored if the curve argument",
-                     "is a CellDataSet object. Please use another format"))
-    }
-    if (is.null(gene) & is.null(clusters)) {
-      stop("Either gene or clusters argument must be supplied")
-    }
-            
-    if (is.null(gene)) {
-      Biobase::pData(curve)$clusters <- clusters
-      p <- monocle::plot_cell_trajectory(curve, color_by = clusters)  
-    } else {
-      p <- monocle::plot_cell_trajectory(curve, use_color_gradient = TRUE,
-                                         markers_linear = TRUE, markers = gene)  
-    }
-    p <- p + ggplot2::ggtitle(label = title)
     return(p)
   }
 )

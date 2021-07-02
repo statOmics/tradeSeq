@@ -27,7 +27,6 @@ Collate:
     'diffEndTest.R'
     'earlyDETest.R'
     'evaluateK.R'
-    'extract_monocle_info.R'
     'fitGAM.R'
     'getSmootherPvalues.R'
     'getSmootherTestStats.R'
@@ -50,14 +49,14 @@ Imports:
     BiocParallel,
     Biobase,
     pbapply,
+    igraph,
     ggplot2,
     princurve,
     methods,
-    monocle,
-    igraph,
     S4Vectors,
     tibble,
     Matrix,
+    TrajectoryUtils,
     viridis,
     matrixStats,
     MASS

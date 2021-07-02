@@ -31,7 +31,6 @@ The [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/trade
 library(tradeSeq)
 library(RColorBrewer)
 library(SingleCellExperiment)
-library(monocle)
 
 # For reproducibility
 palette(brewer.pal(8, "Dark2"))
@@ -40,45 +39,6 @@ counts <- as.matrix(countMatrix)
 rm(countMatrix)
 data(celltype, package = "tradeSeq")
 ```
-
-# Fit trajectories using Monocle
-
-We will fit developmental trajectories using the `monocle` package.
-
-```{r, warning=FALSE, out.width="50%", fig.asp=.6}
-set.seed(200)
-pd <- data.frame(cells = colnames(counts), cellType = celltype)
-rownames(pd) <- pd$cells
-fd <- data.frame(gene_short_name = rownames(counts))
-rownames(fd) <- fd$gene_short_name
-cds <- newCellDataSet(counts, phenoData = new("AnnotatedDataFrame", data = pd),
-                      featureData = new("AnnotatedDataFrame", data = fd))
-cds <- estimateSizeFactors(cds)
-cds <- reduceDimension(cds, max_components = 2)
-cds <- orderCells(cds)
-cds <- orderCells(cds, root_state = 5)
-plot_cell_trajectory(cds)
-```
-
-# Fit Smoothers
-
-Only possible for DDRTree. There are two options to do this.
-Either use the `extract_monocle_info` function and fit using the default `fitGAM` mode.
-
-```{r, eval = FALSE}
-info <- extract_monocle_info(cds)
-sce <- fitGAM(counts = Biobase::exprs(cds),
-              cellWeights = info$cellWeights,
-              pseudotime = info$pseudotime)
-```
-
-or use the specific `CellDataSet` method.
-
-```{r}
-sce <- fitGAM(cds, verbose = TRUE)
-```
-
-You can then analyze the `sce` object following the [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/tradeSeq/inst/doc/tradeSeq.html).
 
 # Monocle3
 

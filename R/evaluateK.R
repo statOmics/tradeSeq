@@ -295,55 +295,6 @@ setMethod(f = "evaluateK",
 
           }
 )
-#' @rdname evaluateK
-#' @importClassesFrom monocle CellDataSet
-setMethod(f = "evaluateK",
-          signature = c(counts = "CellDataSet"),
-          definition = function(counts,
-                                k = 3:10,
-                                nGenes = 500,
-                                sds = NULL,
-                                pseudotime = NULL,
-                                cellWeights = NULL,
-                                plot = TRUE,
-                                U = NULL,
-                                weights = NULL,
-                                offset = NULL,
-                                aicDiff = 2,
-                                verbose = TRUE,
-                                conditions = NULL,
-                                parallel = FALSE,
-                                BPPARAM = BiocParallel::bpparam(),
-                                control = mgcv::gam.control(),
-                                family = "nb",
-                                gcv = FALSE,
-                                ...){
-            # Convert to appropriate format
-            monocle_extraction <- extract_monocle_info(counts)
-
-            aicOut <- evaluateK(counts = Biobase::exprs(counts),
-                                k = k,
-                                nGenes = nGenes,
-                                cellWeights = monocle_extraction$cellWeights,
-                                pseudotime = monocle_extraction$pseudotime,
-                                plot = plot,
-                                U = U,
-                                weights = weights,
-                                offset = offset,
-                                aicDiff = aicDiff,
-                                verbose = verbose,
-                                conditions = conditions,
-                                parallel = parallel,
-                                BPPARAM = BPPARAM,
-                                control = control,
-                                family = family,
-                                gcv = gcv,
-                                ...)
-
-            return(aicOut)
-
-          }
-)
 
 #' Evaluate an appropriate number of knots.
 #'

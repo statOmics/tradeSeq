@@ -5,7 +5,6 @@
 \alias{plotGeneCount,SlingshotDataSet-method}
 \alias{plotGeneCount,PseudotimeOrdering-method}
 \alias{plotGeneCount,SingleCellExperiment-method}
-\alias{plotGeneCount,CellDataSet-method}
 \title{Plot gene expression in reduced dimension.}
 \usage{
 plotGeneCount(curve, ...)
@@ -29,15 +28,6 @@ plotGeneCount(curve, ...)
 )
 
 \S4method{plotGeneCount}{SingleCellExperiment}(
-  curve,
-  counts = NULL,
-  gene = NULL,
-  clusters = NULL,
-  models = NULL,
-  title = NULL
-)
-
-\S4method{plotGeneCount}{CellDataSet}(
   curve,
   counts = NULL,
   gene = NULL,
@@ -85,8 +75,7 @@ Plot the gene in reduced dimensional space.
 \details{
 If both \code{gene} and \code{clusters} arguments are supplied, the
  plot will be colored according to gene count level. If none are provided, the 
- function will fail. When a \code{CellDataset} object is provided as input,
- the function relies on the \code{\link{plot_cell_trajectory}} function
+ function will fail.
 }
 \examples{
 set.seed(97)

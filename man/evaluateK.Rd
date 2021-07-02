@@ -5,7 +5,6 @@
 \alias{evaluateK,matrix-method}
 \alias{evaluateK,dgCMatrix-method}
 \alias{evaluateK,SingleCellExperiment-method}
-\alias{evaluateK,CellDataSet-method}
 \title{Evaluate the optimal number of knots required for fitGAM.}
 \usage{
 evaluateK(counts, ...)
@@ -55,28 +54,6 @@ evaluateK(counts, ...)
 )
 
 \S4method{evaluateK}{SingleCellExperiment}(
-  counts,
-  k = 3:10,
-  nGenes = 500,
-  sds = NULL,
-  pseudotime = NULL,
-  cellWeights = NULL,
-  plot = TRUE,
-  U = NULL,
-  weights = NULL,
-  offset = NULL,
-  aicDiff = 2,
-  verbose = TRUE,
-  conditions = NULL,
-  parallel = FALSE,
-  BPPARAM = BiocParallel::bpparam(),
-  control = mgcv::gam.control(),
-  family = "nb",
-  gcv = FALSE,
-  ...
-)
-
-\S4method{evaluateK}{CellDataSet}(
   counts,
   k = 3:10,
   nGenes = 500,
