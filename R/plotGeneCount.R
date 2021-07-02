@@ -86,8 +86,7 @@
 #' @param title Title for the plot.
 #' @details If both \code{gene} and \code{clusters} arguments are supplied, the
 #'  plot will be colored according to gene count level. If none are provided, the 
-#'  function will fail. When a \code{CellDataset} object is provided as input,
-#'  the function relies on the \code{\link{plot_cell_trajectory}} function
+#'  function will fail.
 #' @return A \code{\link{ggplot}} object
 #' @examples
 #' set.seed(97)

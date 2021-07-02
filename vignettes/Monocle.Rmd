@@ -31,7 +31,6 @@ The [main vignette](https://bioconductor.org/packages/devel/bioc/vignettes/trade
 library(tradeSeq)
 library(RColorBrewer)
 library(SingleCellExperiment)
-library(monocle)
 
 # For reproducibility
 palette(brewer.pal(8, "Dark2"))
