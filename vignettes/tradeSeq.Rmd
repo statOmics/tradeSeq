@@ -21,7 +21,7 @@ library(knitr)
 In this vignette, we analyze a subset of the data from [@Paul2015]. 
 A `SingleCellExperiment` object of the data has been provided with the [`tradeSeq`](https://github.com/statOmics/tradeSeqpaper) package and can be retrieved as shown below. The data and UMAP reduced dimensions were derived from following the [Monocle 3 vignette](http://cole-trapnell-lab.github.io/monocle-release/monocle3/#tutorial-1-learning-trajectories-with-monocle-3). 
 
-In this vignette, we use `tradeSeq` downstream of `slinghsot`[@Street2018a] but it can be used downstream of any trajectory. In particular, if you want to use `tradeSeq` downstream of `monocle`[@Qiu2017] and `monocle3`[@Cao2019], please refer to our [Monocle vignette](https://statomics.github.io/tradeSeq/articles/Monocle.html).
+In this vignette, we use `tradeSeq` downstream of `slinghsot`[@Street2018a] but it can be used downstream of any trajectory. In particular, if you want to use `tradeSeq` downstream of `monocle3`[@Cao2019], please refer to our [Monocle vignette](https://statomics.github.io/tradeSeq/articles/Monocle.html).
 
 # Installation
 
