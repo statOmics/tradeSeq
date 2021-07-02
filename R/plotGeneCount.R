@@ -136,7 +136,7 @@ setMethod(f = "plotGeneCount", signature = c(curve = "SlingshotDataSet"),
 )
 
 #' @rdname plotGeneCount
-#' @importFrom slingshot PseudotimeOrdering
+#' @importFrom TrajectoryUtils PseudotimeOrdering
 #' @export
 setMethod(f = "plotGeneCount", signature = c(curve = "PseudotimeOrdering"),
           definition = function(curve, 
