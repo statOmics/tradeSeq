@@ -75,8 +75,7 @@ Plot the gene in reduced dimensional space.
 \details{
 If both \code{gene} and \code{clusters} arguments are supplied, the
  plot will be colored according to gene count level. If none are provided, the 
- function will fail. When a \code{CellDataset} object is provided as input,
- the function relies on the \code{\link{plot_cell_trajectory}} function
+ function will fail.
 }
 \examples{
 set.seed(97)
