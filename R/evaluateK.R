@@ -184,6 +184,8 @@ setMethod(f = "evaluateK",
 
           }
 )
+
+
 #' @rdname evaluateK
 setMethod(f = "evaluateK",
           signature = c(counts = "dgCMatrix"),
@@ -207,31 +209,51 @@ setMethod(f = "evaluateK",
                                 gcv = FALSE,
                                 ...){
 
+            
 
-            aicOut <- evaluateK(counts = as.matrix(counts),
-                                k = k,
-                                nGenes = nGenes,
-                                sds = sds,
-                                pseudotime = pseudotime,
-                                cellWeights = cellWeights,
-                                plot = plot,
-                                U = U,
-                                weights = weights,
-                                offset = offset,
-                                aicDiff = aicDiff,
-                                verbose = verbose,
-                                conditions = conditions,
-                                parallel = parallel,
-                                BPPARAM = BPPARAM,
-                                control = control,
-                                family = family,
-                                gcv = gcv,
-                                ...)
-
-            return(aicOut)
-
+            ## either pseudotime or slingshot object should be provided
+            if (is.null(sds) & (is.null(pseudotime) | is.null(cellWeights))) {
+              stop("Either provide the slingshot object using the sds ",
+                   "argument, or provide pseudotime and cell-level weights ",
+                   "manually using pseudotime and cellWeights arguments.")
+            }
+            
+            if (!is.null(sds)) {
+              # check if input is slingshotdataset or pseudotimeordering
+              if (is(sds, "SlingshotDataSet") | is(sds, "PseudotimeOrdering")) {
+                # extract variables from slingshotdataset
+                pseudotime <- slingPseudotime(sds, na = FALSE)
+                cellWeights <- slingCurveWeights(sds)
+              }
+              else stop("sds argument must be a SlingshotDataSet or ",
+                        "PseudotimeOrdering object.")
+            }
+            
+            if (is.null(counts)) stop("Provide expression counts using counts",
+                                      " argument.")
+            
+            aicOut <- .evaluateK(counts = counts,
+                                 k = k,
+                                 U = U,
+                                 pseudotime = pseudotime,
+                                 cellWeights = cellWeights,
+                                 plot = plot,
+                                 nGenes = nGenes,
+                                 weights = weights,
+                                 offset = offset,
+                                 verbose = verbose,
+                                 conditions = conditions,
+                                 parallel = parallel,
+                                 BPPARAM = BPPARAM,
+                                 control = control,
+                                 family = family,
+                                 gcv = gcv,
+                                 ...)
           }
 )
+
+
+
 #' @rdname evaluateK
 #' @importFrom SummarizedExperiment assays colData
 #' @importFrom S4Vectors DataFrame metadata
