@@ -170,7 +170,7 @@ plotGeneCount(crv, counts, gene = sigGene)
 ## Discovering genes with different expression patterns
 
 Asides from testing at the level of the differentiated cell type, researchers may be interested in assessing the expression pattern of a gene over pseudotime.
-The function `patternTest` implements a statistical method that checks whether the smoothed gene expression is equal along pseudotime between two or multiple lineages. In practice, we use $100$ points, equally distributed along pseudotime, that are compared between two (or multiple) lineages, and this number can be changed using the `nPoints` argument.
+The function `patternTest` implements a statistical method that checks whether the smoothed gene expression is equal along pseudotime between two or multiple lineages. In practice, we use $2*k$ points with $k$ being the number of knots as defined in `fitGAM`, equally distributed along pseudotime, that are compared between two (or multiple) lineages, and this number can be changed using the `nPoints` argument.
 
 ```{r, out.width="40%", fig.asp=1}
 patternRes <- patternTest(sce)
