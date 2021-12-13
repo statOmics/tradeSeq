@@ -144,6 +144,7 @@
           if (is(m)[1] == "try-error") return(c(NA))
           beta <- matrix(stats::coef(m), ncol = 1)
           Sigma <- m$Vp
+          if (any(is.na(beta))) return(c(NA, NA))
           getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
         })
       } else if(sce){
@@ -164,6 +165,7 @@
         waldResPair <- lapply(seq_len(nrow(models)), function(ii){
           beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
           Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+          if (any(is.na(beta))) return(c(NA, NA))
           getEigenStatGAM(beta, Sigma, L)
         })
       }
