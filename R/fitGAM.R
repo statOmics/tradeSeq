@@ -66,6 +66,14 @@
       stop("conditions must be a vector of class factor.")
     }
   }
+  
+  if(any(is.na(pseudotime)[cellWeights > 0])){
+    stop("Pseudotime contains NA values for non-zero weights.")
+  }
+  
+  if(any(is.na(pseudotime))){
+    warning("Pseudotime contains NA values.")
+  }
 }
 
 .get_offset <- function(offset, counts) {
@@ -457,7 +465,7 @@
 #' set.seed(8)
 #' data(crv, package="tradeSeq")
 #' data(countMatrix, package="tradeSeq")
-#' gamList <- fitGAM(counts = as.matrix(countMatrix),
+#' sceGAM <- fitGAM(counts = as.matrix(countMatrix),
 #'                   sds = crv,
 #'                   nknots = 5)
 #' @importFrom magrittr %>%
