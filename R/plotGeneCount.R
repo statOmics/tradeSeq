@@ -120,9 +120,6 @@ setMethod(f = "plotGeneCount", signature = c(curve = "SlingshotDataSet"),
     if (is.null(gene) & is.null(clusters)) {
       stop("Either gene and counts, or clusters argument must be supplied")
     }
-    if (is.null(counts) & is.null(clusters)) {
-      stop("Either gene and counts, or clusters argument must be supplied")
-    }
     
     p <- .plotGeneCount(curve = curve,
                         counts = counts,
@@ -145,9 +142,6 @@ setMethod(f = "plotGeneCount", signature = c(curve = "PseudotimeOrdering"),
                                 models = NULL, 
                                 title = NULL){
               if (is.null(gene) & is.null(clusters)) {
-                  stop("Either gene and counts, or clusters argument must be supplied")
-              }
-              if (is.null(counts) & is.null(clusters)) {
                   stop("Either gene and counts, or clusters argument must be supplied")
               }
               
