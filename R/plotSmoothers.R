@@ -62,14 +62,13 @@
 }
 
 
-
 .plotSmoothers_sce <- function(models, counts, gene, nPoints = 100, lwd = 2,
                                size = 2/3, xlab = "Pseudotime",
                                ylab = "Log(expression + 1)", border = FALSE,
                                alpha = 2/3, sample = 1, pointCol = NULL,
-                               curvesCols = NULL, plotLineages = TRUE)
+                               curvesCols = NULL, plotLineages = TRUE, desired= desired)
 {
-
+  
   #input is singleCellExperiment object.
   if (is.null(names(models))) {
     rownames(models) <- rownames(counts) <- seq_len(nrow(models))
@@ -78,7 +77,7 @@
       "objects are ordered in the same way"))
   }
   if (length(gene) > 1) stop("Only provide a single gene's ID with the ",
-                            "gene argument.")
+                             "gene argument.")
   # check if all gene IDs provided are present in the models object.
   if (is(gene, "character")) {
     if (!all(gene %in% names(models))) {
@@ -86,7 +85,7 @@
     }
     id <- which(names(models) %in% gene)
   } else id <- gene
-
+  
   dm <- colData(models)$tradeSeq$dm # design matrix
   y <- unname(counts[names(models),][id,])
   X <- colData(models)$tradeSeq$X # linear predictor
@@ -97,8 +96,8 @@
   nCurves <- length(grep(x = colnames(dm), pattern = "t[1-9]"))
   betaMat <- rowData(models)$tradeSeq$beta[[1]]
   beta <- betaMat[id,]
-
-
+  
+  
   #construct time variable based on cell assignments.
   lcol <- timeAll <- rep(0, nrow(dm))
   for (jj in seq_len(nCurves)) {
@@ -111,7 +110,7 @@
       }
     }
   }
-
+  
   if (!is.null(pointCol)) {
     if (length(pointCol) == 1) {
       col <- colData(models)[,pointCol]
@@ -120,19 +119,19 @@
     } else {
       col <- lcol
       message(paste("pointCol should have length of either 1 or the number of cells,",
-              "reverting to default color scheme."))
+                    "reverting to default color scheme."))
     }
   } else {
     col <- lcol
   }
-
+  
   # plot raw data
   df <- data.frame("time" = timeAll,
                    "gene_count" = y,
                    "pCol" = as.character(col),
                    "lineage" = as.character(lcol))
   rows <- sample(seq_len(nrow(df)), nrow(df) * sample, replace = FALSE)
-  df <- df[rows, ]
+  df <- df[df$lineage %in% desired, ]
   p <- ggplot(df, aes(x = time, y = log1p(gene_count))) +
     labs(x = xlab, y = ylab) +
     theme_classic()
@@ -146,9 +145,9 @@
       scale_color_discrete() +
       labs(col = "Cell labels")
   }
-
-
-
+  
+  
+  
   # predict and plot smoothers across the range
   if (plotLineages) {
     if (!is.null(curvesCols)) {
@@ -159,7 +158,7 @@
     } else {
       curvesCols <- viridis::viridis(nCurves)
     }
-    for (jj in seq_len(nCurves)) {
+    for (jj in desired) {
       df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
       Xdf <- predictGAM(lpmatrix = X,
                         df = df,
@@ -181,9 +180,9 @@
                   lwd = lwd, col = curvesCols[jj])
     }
   }
-
+  
   ## TODO: add legend for different lineages
-
+  
   return(p)
 }
 
