@@ -66,7 +66,8 @@
                                size = 2/3, xlab = "Pseudotime",
                                ylab = "Log(expression + 1)", border = FALSE,
                                alpha = 2/3, sample = 1, pointCol = NULL,
-                               curvesCols = NULL, plotLineages = TRUE, desired= desired)
+                               curvesCols = NULL, plotLineages = TRUE, 
+                               lineagesToPlot = NULL)
 {
   
   #input is singleCellExperiment object.
@@ -131,7 +132,10 @@
                    "pCol" = as.character(col),
                    "lineage" = as.character(lcol))
   rows <- sample(seq_len(nrow(df)), nrow(df) * sample, replace = FALSE)
-  df <- df[df$lineage %in% desired, ]
+  df <- df[rows, ]
+  if(!is.null(lineagesToPlot)){
+    df <- df[df$lineage %in% lineagesToPlot,]
+  }
   p <- ggplot(df, aes(x = time, y = log1p(gene_count))) +
     labs(x = xlab, y = ylab) +
     theme_classic()
@@ -158,7 +162,10 @@
     } else {
       curvesCols <- viridis::viridis(nCurves)
     }
-    for (jj in desired) {
+    if(is.null(lineagesToPlot)){
+      lineagesToPlot <- seq_len(nCurves)
+    }
+    for (jj in lineagesToPlot) {
       df <- .getPredictRangeDf(dm, jj, nPoints = nPoints)
       Xdf <- predictGAM(lpmatrix = X,
                         df = df,
@@ -359,6 +366,7 @@ setOldClass("gam")
 #' lineage 1 - condition 2,...).
 #' @param plotLineages Logical, should the mean smoothers for each lineage
 #' be plotted?
+#' @param lineagesToPlot A vector of integers referring to the lineages to be plotted.
 #' @return A \code{\link{ggplot}} object
 #' @examples
 #' set.seed(8)
@@ -425,7 +433,8 @@ setMethod(f = "plotSmoothers",
                                 sample = 1,
                                 pointCol = NULL,
                                 curvesCols = NULL,
-                                plotLineages = TRUE){
+                                plotLineages = TRUE,
+                                lineagesToPlot = NULL){
     conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
     if(conditions){
     .plotSmoothers_conditions(models = models,
@@ -456,7 +465,8 @@ setMethod(f = "plotSmoothers",
                            sample = sample,
                            pointCol = pointCol,
                            curvesCols = curvesCols,
-                           plotLineages = plotLineages)
+                           plotLineages = plotLineages,
+                           lineagesToPlot = lineagesToPlot)
       }
     }
 )
