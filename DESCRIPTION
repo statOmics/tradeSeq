@@ -37,7 +37,7 @@ Collate:
     'predictCells.R'
     'predictSmooth.R'
     'startVsEndTest.R'
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Imports: 
     mgcv,
     edgeR,

@@ -35,7 +35,8 @@ plotSmoothers(models, ...)
   sample = 1,
   pointCol = NULL,
   curvesCols = NULL,
-  plotLineages = TRUE
+  plotLineages = TRUE,
+  lineagesToPlot = NULL
 )
 }
 \arguments{
@@ -80,6 +81,8 @@ lineage 1 - condition 2,...).}
 
 \item{plotLineages}{Logical, should the mean smoothers for each lineage
 be plotted?}
+
+\item{lineagesToPlot}{A vector of integers referring to the lineages to be plotted.}
 }
 \value{
 A \code{\link{ggplot}} object
