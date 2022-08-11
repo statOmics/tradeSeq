@@ -163,7 +163,7 @@ Input CellDataSet Object using \code{counts} argument.}}
 set.seed(8)
 data(crv, package="tradeSeq")
 data(countMatrix, package="tradeSeq")
-gamList <- fitGAM(counts = as.matrix(countMatrix),
+sceGAM <- fitGAM(counts = as.matrix(countMatrix),
                   sds = crv,
                   nknots = 5)
 }
