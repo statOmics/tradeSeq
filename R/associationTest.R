@@ -123,9 +123,11 @@
   
   # perform global statistical test for every model
   if (global) {
+    betaAll <- rowData(models)$tradeSeq$beta[[1]]
+    SigmaAll <- rowData(models)$tradeSeq$Sigma
     waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
-      beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-      Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+      beta <- t(betaAll[ii,])
+      Sigma <- SigmaAll[[ii]]
       if (any(is.na(beta))) return(c(NA,NA, NA))
       waldTestFC(beta, Sigma, L, l2fc, inverse)
     })
@@ -138,9 +140,11 @@
   
   # perform lineages comparisons
   if (lineages) {
+    betaAll <- rowData(models)$tradeSeq$beta[[1]]
+    SigmaAll <- rowData(models)$tradeSeq$Sigma
     waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
-      beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-      Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+      beta <- t(betaAll[ii,])
+      Sigma <- SigmaAll[[ii]]
       t(vapply(seq_len(nCurves), function(ll){
         if(any(is.na(beta))) return(c(NA,NA, NA))
         waldTestFC(beta, Sigma, get(paste0("L", ll)), l2fc, inverse)
@@ -331,9 +335,11 @@
     combs <- apply(expand.grid(seq_len(nCurves), seq_len(nlevels(conditions))),
                    1 , paste0, collapse="")
     L <- do.call(cbind, list(mget(paste0("L", combs)))[[1]])
+    betaAll <- rowData(models)$tradeSeq$beta[[1]]
+    SigmaAll <- rowData(models)$tradeSeq$Sigma
     waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
-      beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-      Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+      beta <- t(betaAll[ii,])
+      Sigma <- SigmaAll[[ii]]
       if(any(is.na(beta))) return(c(NA,NA, NA))
       waldTestFC(beta, Sigma, L, l2fc, inverse=inverse)
     })
@@ -346,9 +352,11 @@
   
   # perform lineages comparisons
   if (lineages) {
+    betaAll <- rowData(models)$tradeSeq$beta[[1]]
+    SigmaAll <- rowData(models)$tradeSeq$Sigma
     waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
-      beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-      Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+      beta <- t(betaAll[ii,])
+      Sigma <- SigmaAll[[ii]]
       t(vapply(seq_len(nCurves), function(ll){
         vapply(seq_len(nlevels(conditions)), function(kk){
           waldTestFC(beta, Sigma, get(paste0("L", ll, kk)), l2fc, 
@@ -376,7 +384,7 @@
   combs <- apply(expand.grid(seq_len(nCurves), seq_len(nlevels(conditions))),
                  1 , paste0, collapse="")
   L <- do.call(cbind, list(mget(paste0("L", combs)))[[1]])
-  betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
+  # betaAll <- as.matrix(rowData(models)$tradeSeq$beta[[1]])
   fcAll <- apply(betaAll,1,function(betam){
     if (any(is.na(betam))) return(NA)
     .getFoldChanges(betam, L)
@@ -433,6 +441,8 @@
 #'  was implemented and is kept for backwards compatibility.
 #'  If a fold change threshold has been set, we recommend users to use either
 #'  the \code{"start"} or \code{"end"} options.
+#' @param inverse Method to use to invert variance-covariance matrix of contrasts.
+#' Usually you do not want to change this.
 #' @importFrom magrittr %>%
 #' @examples
 #' set.seed(8)
@@ -464,23 +474,28 @@ setMethod(f = "associationTest",
                                 lineages = FALSE,
                                 l2fc = 0,
                                 nPoints = 2 * tradeSeq::nknots(models),
-                                contrastType = "start"){
+                                contrastType = "start",
+                                inverse = ifelse(l2fc==0, "Chol","eigen")){
 
             conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
             if(conditions){
+              # used to use inverse="eigen"
               res <- .associationTest_conditions(models = models,
                                                  global = global,
                                                  lineages = lineages,
                                                  l2fc = l2fc,
                                                  nPoints = nPoints,
-                                                 contrastType = contrastType)
+                                                 contrastType = contrastType,
+                                                 inverse = inverse)
             } else {
+              # used to use inverse="Chol"
               res <- .associationTest(models = models,
                                       global = global,
                                       lineages = lineages,
                                       l2fc = l2fc,
                                       nPoints = nPoints,
-                                      contrastType = contrastType)
+                                      contrastType = contrastType,
+                                      inverse = inverse)
             }
             return(res)
 

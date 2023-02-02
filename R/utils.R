@@ -349,7 +349,7 @@ predictGAM <- function(lpmatrix, df, pseudotime, conditions = NULL){
 ## also return fold changes. This should become the default one over time.
 waldTestFC <- function(beta, Sigma, L, l2fc=0, inverse="QR", ...){
   # lfc is the log2 fold change threhshold to test against.
-  if(inverse == "eigen" & l2fc != 0){
+  if(inverse == "eigen"){
     res1 <- try(getEigenStatGAMFC(beta, Sigma, L, l2fc, ...), silent = TRUE)
     if(is(res1, "try-error")){
       return(c(NA, NA, NA))
@@ -358,10 +358,7 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0, inverse="QR", ...){
     pval <- 1 - stats::pchisq(res1[1], df = res1[2])
     res1 <- c(res1, pval)
     return(res1)
-  } else {
-    # if no l2fc is used, use Cholesky
-    inverse = "Chol"
-  }
+  } 
   ### build a contrast matrix for a multivariate Wald test
   LQR <- L[, qr(L)$pivot[seq_len(qr(L)$rank)], drop = FALSE]
   if(inverse == "Chol"){
@@ -431,9 +428,11 @@ getEigenStatGAMFC <- function(beta, Sigma, L, l2fc, eigenThresh = 1e-2){
 }
 
 .allWaldStatGAMFC <- function(models, L, l2fc, eigenThresh = 1e-2) {
+  betaAll <- rowData(models)$tradeSeq$beta[[1]]
+  sigmaAll <- rowData(models)$tradeSeq$Sigma
   waldRes <- lapply(seq_len(nrow(models)), function(ii){
-    beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-    Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+    beta <- t(betaAll[ii,])
+    Sigma <- sigmaAll[[ii]]
     if(any(is.na(beta)) | any(is.na(Sigma))) {
       return(c(NA, NA))
     } else {

@@ -109,9 +109,11 @@
       })
 
     } else if (sce) { #singleCellExperiment output
+      betaAll <- rowData(models)$tradeSeq$beta[[1]]
+      sigmaAll <- rowData(models)$tradeSeq$Sigma
       waldResultsOmnibus <- lapply(seq_len(nrow(models)), function(ii){
-        beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-        Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        beta <- t(betaAll[ii,])
+        Sigma <- sigmaAll[[ii]]
         if (any(is.na(beta))) return(c(NA,NA, NA))
         waldTestFC(beta, Sigma, L, l2fc)
       })
@@ -137,9 +139,11 @@
         }, FUN.VALUE = c(.1, 1, .1)))
       })
     } else if (sce) { # sce output
+      betaAll <- rowData(models)$tradeSeq$beta[[1]]
+      sigmaAll <- rowData(models)$tradeSeq$Sigma
       waldResultsLineages <- lapply(seq_len(nrow(models)), function(ii){
-        beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-        Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        beta <- t(betaAll[ii,])
+        Sigma <- sigmaAll[[ii]]
         t(vapply(seq_len(ncol(L)), function(ll){
           if (any(is.na(beta))) return(c(NA,NA, NA))
           waldTestFC(beta, Sigma, L[, ll, drop = FALSE], l2fc)

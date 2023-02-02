@@ -104,9 +104,11 @@
         getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
       })
     } else if (sce) {
+      betaAll <- rowData(models)$tradeSeq$beta[[1]]
+      sigmaAll <- rowData(models)$tradeSeq$Sigma
       waldResOmnibus <- lapply(seq_len(nrow(models)), function(ii){
-        beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-        Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+        beta <- t(betaAll[ii,])
+        Sigma <- sigmaAll[[ii]]
         if (any(is.na(beta))) return(c(NA, NA))
         getEigenStatGAMFC(beta, Sigma, L, l2fc, eigenThresh)
       })
@@ -162,9 +164,11 @@
                                              conditions = conditions))
         }
         L <- t(X1 - X2)
+        betaAll <- rowData(models)$tradeSeq$beta[[1]]
+        sigmaAll <- rowData(models)$tradeSeq$Sigma
         waldResPair <- lapply(seq_len(nrow(models)), function(ii){
-          beta <- t(rowData(models)$tradeSeq$beta[[1]][ii,])
-          Sigma <- rowData(models)$tradeSeq$Sigma[[ii]]
+          beta <- t(betaAll[ii,])
+          Sigma <- sigmaAll[[ii]]
           if (any(is.na(beta))) return(c(NA, NA))
           getEigenStatGAM(beta, Sigma, L)
         })
