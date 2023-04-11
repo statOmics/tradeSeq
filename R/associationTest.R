@@ -442,7 +442,12 @@
 #'  If a fold change threshold has been set, we recommend users to use either
 #'  the \code{"start"} or \code{"end"} options.
 #' @param inverse Method to use to invert variance-covariance matrix of contrasts.
-#' Usually you do not want to change this.
+#' Usually you do not want to change this. Options are
+#'  - \code{"Chol"} for Cholesky decomposition using \code{chol2inv}. This is the default
+#'  when \code{l2fc=0}.
+#'  - \code{"eigen"} for eigendecomposition using \code{eigen}.
+#'  - \code{"QR"} for QR decomposition using \code{qr.solve}.
+#'  - \code{"generalized"} for Moore-Pennrose generalized inverse using \code{MASS::ginv}.
 #' @importFrom magrittr %>%
 #' @examples
 #' set.seed(8)
@@ -476,6 +481,14 @@ setMethod(f = "associationTest",
                                 nPoints = 2 * tradeSeq::nknots(models),
                                 contrastType = "start",
                                 inverse = ifelse(l2fc==0, "Chol","eigen")){
+## for dev:
+# global = TRUE
+# lineages = FALSE
+# l2fc = 0
+# nPoints = 2 * tradeSeq::nknots(models)
+# contrastType = "start"
+# inverse = "QR"
+            
 
             conditions <- suppressWarnings(!is.null(models$tradeSeq$conditions))
             if(conditions){

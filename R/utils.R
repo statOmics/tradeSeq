@@ -365,7 +365,7 @@ waldTestFC <- function(beta, Sigma, L, l2fc=0, inverse="QR", ...){
     # solve through cholesky decomposition: faster
     sigmaInv <- try(chol2inv(chol(t(LQR) %*% Sigma %*% LQR)), silent = TRUE)
   } else if(inverse == "QR"){
-    # solve through QR decomposition: more stable
+    # solve through QR decomposition: sometimes stable
     sigmaInv <- try(qr.solve(t(LQR) %*% Sigma %*% LQR), silent = TRUE)
   } else if(inverse == "generalized"){
     # solve through Moore-Penrose generalized inverse
