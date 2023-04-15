@@ -65,7 +65,8 @@ Suggests:
     rmarkdown,
     testthat,
     covr,
-    clusterExperiment
+    clusterExperiment,
+    DelayedMatrixStats
 VignetteBuilder: knitr
 biocViews:
     Clustering,
