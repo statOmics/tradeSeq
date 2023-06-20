@@ -48,6 +48,7 @@
   
   derAllGenes <- pbapply::pblapply(1:length(genes), function(geneId){
     .calculateDerivativeOneGene(sce=sce,
+                                lineage=lineage,
                                 gene=genes[geneId],
                                 grid=grid)
   })
