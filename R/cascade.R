@@ -1,7 +1,7 @@
 #' @include utils.R
 
 
-.calculateDerivativeOneGene <- function(sce, gene, grid, epsilon=1e-6){
+.calculateDerivativeOneGene <- function(sce, gene, grid, lineage, epsilon=1e-6){
   
   ## gather all required objects
   id <- which(rownames(sce) == gene)
@@ -38,6 +38,7 @@
 
 .calculateDerivativesAllGenes <- function(sce,
                                           grid,
+                                          lineage,
                                           epsilon=1e-6,
                                           genes=NULL){
   
@@ -123,7 +124,8 @@ setMethod(f = "cascade",
             derAllGenes <- .calculateDerivativesAllGenes(sce=sce, 
                                                          genes=genes, 
                                                          grid=grid,
-                                                         epsilon=epsilon)
+                                                         epsilon=epsilon,
+                                                         lineage=lineage)
             
             ## calculate p-values using testing against a threshold and select relevant genes.
             # We do not consider negative first derivatives here since we're focused on peaks.
