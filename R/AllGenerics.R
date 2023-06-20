@@ -176,3 +176,16 @@ setGeneric(
     standardGeneric("nknots")
   }
 )
+
+#' @export
+#' @title Get expression peak cascade of genes along a lineage.
+#' @name cascade
+#' @param ... parameters including:
+setGeneric(
+  name = "cascade",
+  signature = 'models',
+  def = function(models, ...) {
+    standardGeneric("cascade")
+  }
+)
+
