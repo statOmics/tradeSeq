@@ -598,7 +598,7 @@ setMethod(f = "fitGAM",
 #' @rdname fitGAM
 #' @importClassesFrom Matrix dgCMatrix
 setMethod(f = "fitGAM",
-          signature = c(counts = "dgCMatrix"),
+          signature = c(counts = "generalMatrix"),
           definition = function(counts,
                                 sds = NULL,
                                 pseudotime = NULL,

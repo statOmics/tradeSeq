@@ -88,8 +88,8 @@ setOldClass("gam")
   yhatMat <- matrix(NA, nrow = length(gene), ncol = nCurves * nConditions * nPoints)
   rownames(yhatMat) <- gene
   pointNames <- expand.grid(1:nCurves, 1:nConditions)
-  baseNames <- paste0("lineage", pointNames[,1], "_condition",
-                      levels(conditions)[pointNames[,2]])
+  baseNames <- paste0("lineage", rep(1:nCurves, each=nConditions), "_condition",
+                      levels(conditions)[rep(1:nConditions, nCurves)])
   colnames(yhatMat) <- c(sapply(baseNames, paste0, "_point",1:nPoints))
   for (jj in 1:length(gene)) {
     yhat <- c(exp(t(Xall %*% t(beta[as.character(gene[jj]), ,
