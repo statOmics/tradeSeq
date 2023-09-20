@@ -595,6 +595,7 @@ setMethod(f = "fitGAM",
             return(sc)
           }
 )
+
 #' @rdname fitGAM
 #' @importClassesFrom Matrix dgCMatrix
 setMethod(f = "fitGAM",

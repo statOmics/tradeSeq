@@ -3,7 +3,7 @@
 \name{fitGAM}
 \alias{fitGAM}
 \alias{fitGAM,matrix-method}
-\alias{fitGAM,dgCMatrix-method}
+\alias{fitGAM,generalMatrix-method}
 \alias{fitGAM,SingleCellExperiment-method}
 \title{fitGAM}
 \usage{
@@ -29,7 +29,7 @@ fitGAM(counts, ...)
   gcv = FALSE
 )
 
-\S4method{fitGAM}{dgCMatrix}(
+\S4method{fitGAM}{generalMatrix}(
   counts,
   sds = NULL,
   pseudotime = NULL,
