@@ -39,6 +39,9 @@
         L[, jj] <- XEnd - XStart
       }
     } else { # compare specific pseudotime values
+      if(any(pseudotimeValues > max(apply(modelTemp$model[,grep(x=colnames(modelTemp$model), pattern="^t")],2,max)))){
+        stop("Pseudotime values provided are larger than the maximum pseudotime in the trajectory.")
+      }
       for (jj in seq_len(nCurves)) {
         dfEnd <- .getPredictCustomPointDf(modelTemp$model, jj,
                                           pseudotime = pseudotimeValues[2])
@@ -79,6 +82,9 @@
         L[, jj] <- XEnd - XStart
       }
     } else { # compare specific pseudotime values
+      if(any(pseudotimeValues > max(apply(pseudotime,2,max)))){
+        stop("Pseudotime values provided are larger than the maximum pseudotime in the trajectory.")
+      }
       for (jj in seq_len(nLineages)) {
         dfEnd <- .getPredictCustomPointDf(dm, jj,
                                           pseudotime = pseudotimeValues[2])
