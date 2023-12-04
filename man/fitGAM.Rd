@@ -68,7 +68,9 @@ fitGAM(counts, ...)
 }
 \arguments{
 \item{counts}{The count matrix of expression values, with genes
-in rows and cells in columns. Can be a matrix or a sparse matrix.}
+in rows and cells in columns. Can be a matrix or a sparse matrix.
+`fitGAM` typically expects a raw count matrix, since it performs normalization
+within the function.}
 
 \item{...}{parameters including:}
 

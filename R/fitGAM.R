@@ -398,6 +398,8 @@
 #' @rdname fitGAM
 #' @param counts The count matrix of expression values, with genes
 #' in rows and cells in columns. Can be a matrix or a sparse matrix.
+#' `fitGAM` typically expects a raw count matrix, since it performs normalization
+#' within the function.
 #' @param U The design matrix of fixed effects. The design matrix should not
 #' contain an intercept to ensure identifiability.
 #' @param conditions This argument is in beta phase and should be used carefully.
