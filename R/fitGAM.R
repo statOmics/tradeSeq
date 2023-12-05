@@ -30,12 +30,15 @@
 }
 
 
-.checks <- function(pseudotime, cellWeights, U, counts, conditions) {
+.checks <- function(pseudotime, cellWeights, U, counts, conditions, family) {
 
   # counts must only have positive integer values
-  if (any(counts < 0)) {
-    stop("All values of the count matrix should be non-negative")
+  if(family == "nb"){
+    if (any(counts < 0)) {
+      stop("All values of the count matrix should be non-negative")
+    }
   }
+  
 
   # check if pseudotime and weights have same dimensions.
   if (!is.null(dim(pseudotime)) & !is.null(dim(cellWeights))) {
@@ -222,7 +225,7 @@
     cellWeights <- matrix(cellWeights, nrow = length(cellWeights))
   }
 
-  .checks(pseudotime, cellWeights, U, counts, conditions)
+  .checks(pseudotime, cellWeights, U, counts, conditions, family)
 
   wSamp <- .assignCells(cellWeights)
 
