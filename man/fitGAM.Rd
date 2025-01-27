@@ -103,7 +103,7 @@ all the genes but the smoothers will be computed only for the subset.}
 as the \code{counts} matrix. Usually a matrix of zero-inflation weights.}
 
 \item{offset}{The offset, on log-scale. If NULL, TMM is used to account for
-differences in sequencing depth., see \code{edgeR::calcNormFactors}.
+differences in sequencing depth, see \code{edgeR::calcNormFactors}.
 Alternatively, this may also be a vector with length equal to the number of
 cells.}
 
@@ -128,7 +128,10 @@ recommended to be TRUE. If \code{sds} argument is specified, it will always
 be set to TRUE}
 
 \item{family}{The assumed distribution for the response. Is set to \code{"nb"}
-by default.}
+(negative binomial) by default. See \code{mgcv::family.mgcv} for other options.
+Note, that if modeling non-count data (e.g. setting \code{family = "gaussian"}),
+you may want to avoid the default TMM normalization by overriding it using
+the \code{offset} argument.}
 
 \item{gcv}{(In development). Logical, should a GCV score also be returned?}
 }

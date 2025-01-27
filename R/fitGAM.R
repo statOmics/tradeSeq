@@ -425,7 +425,7 @@
 #' @param weights A matrix of weights with identical dimensions
 #' as the \code{counts} matrix. Usually a matrix of zero-inflation weights.
 #' @param offset The offset, on log-scale. If NULL, TMM is used to account for
-#' differences in sequencing depth., see \code{edgeR::calcNormFactors}.
+#' differences in sequencing depth, see \code{edgeR::calcNormFactors}.
 #' Alternatively, this may also be a vector with length equal to the number of
 #' cells.
 #' @param nknots Number of knots used to fit the GAM. Defaults to 6. It is
@@ -443,7 +443,10 @@
 #' recommended to be TRUE. If \code{sds} argument is specified, it will always
 #' be set to TRUE
 #' @param family The assumed distribution for the response. Is set to \code{"nb"}
-#' by default.
+#' (negative binomial) by default. See \code{mgcv::family.mgcv} for other options.
+#' Note, that if modeling non-count data (e.g. setting \code{family = "gaussian"}),
+#' you may want to avoid the default TMM normalization by overriding it using
+#' the \code{offset} argument.
 #' @param gcv (In development). Logical, should a GCV score also be returned?
 #' @details
 #' \code{fitGAM} supports four different ways to input the required objects:
