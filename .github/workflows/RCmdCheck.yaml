@@ -19,10 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - { os: windows-latest, r: 'release', bioc: '3.17'}
-        - { os: macOS-latest, r: 'release', bioc: '3.17'}
+        - { os: windows-latest, r: 'release', bioc: '3.20'}
+        - { os: macOS-latest, r: 'release', bioc: '3.20'}
         - { os: ubuntu-latest, r: 'release', image: 'bioconductor/bioconductor_docker:devel'}
-        - { os: ubuntu-latest, r: 'release', image: 'bioconductor/bioconductor_docker:RELEASE_3_15'}
+        - { os: ubuntu-latest, r: 'release', image: 'bioconductor/bioconductor_docker:RELEASE_3_20'}
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
