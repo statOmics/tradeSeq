@@ -311,7 +311,7 @@
   #### fit models
   if (parallel) {
     gamList <- BiocParallel::bplapply(
-      as.data.frame(t(as.matrix(counts)[id, ])),
+      as.list(as.data.frame(t(as.matrix(counts)[id, ]))),
       counts_to_Gam, BPPARAM = BPPARAM
     )
   } else {
