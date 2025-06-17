@@ -19,8 +19,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - { os: windows-latest, r: 'release', bioc: '3.20'}
-        - { os: macOS-latest, r: 'release', bioc: '3.20'}
+        - { os: windows-latest, r: 'release', bioc: '3.21'}
+        - { os: macOS-latest, r: 'release', bioc: '3.21'}
         #- { os: ubuntu-latest, r: 'release', image: 'bioconductor/bioconductor_docker:devel'}
         #- { os: ubuntu-latest, r: 'release', image: 'bioconductor/bioconductor_docker:RELEASE_3_20'}
 
